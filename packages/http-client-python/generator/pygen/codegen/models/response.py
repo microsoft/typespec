@@ -388,9 +388,19 @@ class PagingResponse(Response):
 
 
 class LROResponse(Response):
+    has_lro_metadata: bool = False
+
     def get_poller_path(self, async_mode: bool) -> str:
-        if self.yaml_data.get("hasLroMetadata"):
-            return f"{self.code_model.namespace}.polling.{'Async' if async_mode else ''}MetadataLROPoller"
+        if self.has_lro_metadata:
+            subdir = (
+                f".{self.code_model.options['generation-subdir']}"
+                if self.code_model.options.get("generation-subdir")
+                else ""
+            )
+            return (
+                f"{self.code_model.namespace}{subdir}"
+                f"{'.aio' if async_mode else ''}.{'Async' if async_mode else ''}MetadataLROPoller"
+            )
         return self.yaml_data["pollerAsync"] if async_mode else self.yaml_data["pollerSync"]
 
     def get_poller(self, async_mode: bool) -> str:
@@ -399,8 +409,13 @@ class LROResponse(Response):
 
     def get_polling_method_path(self, async_mode: bool) -> str:
         """Get the full name of the poller path. Default are the azure core pollers"""
-        if self.yaml_data.get("hasLroMetadata"):
-            return f"{self.code_model.namespace}.polling._{'Async' if async_mode else ''}MetadataPolling"
+        if self.has_lro_metadata:
+            subdir = (
+                f".{self.code_model.options['generation-subdir']}"
+                if self.code_model.options.get("generation-subdir")
+                else ""
+            )
+            return f"{self.code_model.namespace}{subdir}._polling._{'Async' if async_mode else ''}MetadataPolling"
         return self.yaml_data["pollingMethodAsync"] if async_mode else self.yaml_data["pollingMethodSync"]
 
     def get_polling_method(self, async_mode: bool) -> str:
@@ -443,29 +458,25 @@ class LROResponse(Response):
         async_mode = kwargs["async_mode"]
         poller_import_path = ".".join(self.get_poller_path(async_mode).split(".")[:-1])
         poller = self.get_poller(async_mode)
-        if self.yaml_data.get("hasLroMetadata"):
+        if self.has_lro_metadata:
             poller_import_path = self.code_model.get_relative_import_path(
-                kwargs.get("serialize_namespace", self.code_model.namespace), module_name="polling"
+                kwargs.get("serialize_namespace", self.code_model.namespace), module_name="_polling"
             )
         file_import.add_submodule_import(
             poller_import_path,
             poller,
-            ImportType.LOCAL if self.yaml_data.get("hasLroMetadata") else self._get_import_type(poller_import_path),
+            ImportType.LOCAL if self.has_lro_metadata else self._get_import_type(poller_import_path),
         )
         async_mode = kwargs["async_mode"]
 
         default_polling_method_import_path = ".".join(self.get_polling_method_path(async_mode).split(".")[:-1])
         default_polling_method = self.get_polling_method(async_mode)
-        if self.yaml_data.get("hasLroMetadata"):
+        if self.has_lro_metadata:
             default_polling_method_import_path = poller_import_path
         file_import.add_submodule_import(
             default_polling_method_import_path,
             default_polling_method,
-            (
-                ImportType.LOCAL
-                if self.yaml_data.get("hasLroMetadata")
-                else self._get_import_type(default_polling_method_import_path)
-            ),
+            (ImportType.LOCAL if self.has_lro_metadata else self._get_import_type(default_polling_method_import_path)),
         )
         default_no_polling_method_import_path = ".".join(self.get_no_polling_method_path(async_mode).split(".")[:-1])
         default_no_polling_method = self.get_no_polling_method(async_mode)

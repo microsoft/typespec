@@ -1,1 +1,7 @@
 __path__ = __import__('pkgutil').extend_path(__path__, __name__)  # type: ignore
+{% if export_lro_metadata %}
+
+from {{ '..' if async_mode else '.' }}_polling import {{ 'Async' if async_mode else '' }}MetadataLROPoller
+
+__all__ = ["{{ 'Async' if async_mode else '' }}MetadataLROPoller"]
+{% endif %}

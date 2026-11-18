@@ -10,6 +10,8 @@ from .response import LROPagingResponse, LROResponse, Response
 from .imports import ImportType, TypingSection
 from .request_builder import RequestBuilder
 from .parameter_list import ParameterList
+from .model_type import ModelType
+from .property import Property
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -48,14 +50,41 @@ class LROOperationBase(OperationBase[LROResponseType]):
             self.name = ("_begin" if self.internal else "begin_") + self.name
         self.lro_options: dict[str, Any] = self.yaml_data.get("lroOptions", {})
         self.lro_metadata: dict[str, Any] = self.yaml_data.get("lroMetadata") or {}
-        self.status_metadata = [
-            (selection, code_model.lookup_type(id(selection["type"])))
-            for selection in self.lro_metadata.get("statusMetadata") or []
-        ]
+        self.status_monitor_type = (
+            code_model.lookup_type(id(self.lro_metadata["responseModel"])) if self.lro_metadata else None
+        )
+        self.status_metadata: list[tuple[str, list[str]]] = []
+        self.operation_id_path: Optional[list[str]] = None
         if self.lro_metadata:
+            for selection in self.lro_metadata.get("statusMetadata") or []:
+                properties = self._metadata_properties(selection["propertySegments"])
+                self.status_metadata.append((properties[-1].client_name, self._metadata_path(properties)))
+            if self.lro_metadata.get("operationIdPath"):
+                self.operation_id_path = self._metadata_path(
+                    self._metadata_properties(self.lro_metadata["operationIdPath"])
+                )
             for response in self.responses:
-                response.yaml_data["hasLroMetadata"] = True
+                response.has_lro_metadata = True
         self._initial_operation: Optional["OperationType"] = None
+
+    def _metadata_properties(self, wire_path: list[str]) -> list[Property]:
+        model = self.status_monitor_type
+        properties = []
+        for wire_name in wire_path:
+            if not isinstance(model, ModelType):
+                raise ValueError(f"Status-monitor metadata path {wire_path!r} does not refer to a model property")
+            prop = next((p for p in model.properties if p.wire_name == wire_name), None)
+            if prop is None:
+                raise ValueError(f"Status-monitor metadata property {wire_name!r} was not found on {model.name}")
+            properties.append(prop)
+            model = prop.type
+        return properties
+
+    def _metadata_path(self, properties: list[Property]) -> list[str]:
+        use_models = self.code_model.options["models-mode"] in ("dpg", "msrest") and not (
+            self.code_model.generate_typeddict_only
+        )
+        return [prop.client_name if use_models else prop.wire_name for prop in properties]
 
     @property
     def initial_operation(self) -> "OperationType":
@@ -151,17 +180,17 @@ class LROOperationBase(OperationBase[LROResponseType]):
         if self.lro_metadata:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="polling"),
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_polling"),
                 "_LroMetadata",
                 ImportType.LOCAL,
             )
-            for _, metadata_type in self.status_metadata:
-                file_import.merge(metadata_type.imports(**kwargs))
             if (
-                self.status_metadata
+                (self.status_metadata or self.operation_id_path)
                 and self.code_model.options["models-mode"] == "dpg"
                 and not self.code_model.generate_typeddict_only
             ):
+                if self.status_monitor_type:
+                    file_import.merge(self.status_monitor_type.imports(**kwargs))
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
                     "_deserialize",

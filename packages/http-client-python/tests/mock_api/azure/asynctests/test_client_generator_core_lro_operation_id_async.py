@@ -8,6 +8,8 @@ import pytest_asyncio
 from specs.azure.clientgenerator.core.lro.operationid import models
 from specs.azure.clientgenerator.core.lro.operationid.aio import OperationIdClient
 
+pytestmark = pytest.mark.xdist_group(name="lro_metadata")
+
 
 @pytest_asyncio.fixture
 async def client():

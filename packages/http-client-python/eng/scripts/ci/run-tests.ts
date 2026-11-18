@@ -36,7 +36,7 @@ Options:
   -f, --flavor <azure|unbranded>  SDK flavor to test (only applies to --generator)
                                   If not specified, tests both flavors
   --env <env1,env2,...>           Specific tox environments to run
-                                  Available: test, lint, mypy, pyright, apiview, sphinx, docs, ci, unittest
+                                  Available: test, lint, mypy, pyright, apiview, sphinx, docs, ci, unittest, unittest-lro
   -j, --jobs <n>                  Number of parallel jobs (default: CPU cores - 2)
   -n, --name <pattern>            Filter tests by name pattern
   -q, --quiet                     Suppress test output (only show pass/fail summary)
@@ -50,8 +50,9 @@ Environments (for --generator):
   apiview    Run apiview validation on generated packages
   sphinx     Run sphinx docstring validation on generated packages
   docs       Run apiview + sphinx (split into parallel envs)
-  ci         Run all checks (test + lint + mypy + pyright + apiview + sphinx)
+  ci         Run all checks (test + lint + mypy + pyright + apiview + sphinx + unittest-lro)
   unittest   Run unit tests for pygen internals
+  unittest-lro Run LRO metadata unit tests
 
 Examples:
   run-tests.ts                                 # Run all tests (emitter + generator)
@@ -413,7 +414,7 @@ async function main(): Promise<void> {
     for (const env of baseEnvs) {
       if (env === "ci") {
         // All envs run in parallel — pre-built wheels make installs cheap
-        expandedEnvs.push("test", "lint", "mypy", "pyright", "apiview", "sphinx");
+        expandedEnvs.push("test", "lint", "mypy", "pyright", "apiview", "sphinx", "unittest-lro");
       } else if (env === "docs") {
         // Split docs into apiview + sphinx for parallelism
         expandedEnvs.push("apiview", "sphinx");
@@ -425,8 +426,8 @@ async function main(): Promise<void> {
     // Build full environment list
     const envs: string[] = [];
     for (const env of expandedEnvs) {
-      if (env === "unittest") {
-        envs.push("unittest");
+      if (env === "unittest" || env === "unittest-lro") {
+        envs.push(env);
       } else {
         for (const flavor of flavors) {
           envs.push(`${env}-${flavor}`);

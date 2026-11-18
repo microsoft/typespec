@@ -91,7 +91,7 @@ jobs:
         working-directory: packages/http-client-python
 
       - name: Test
-        run: npm run test:generator -- --env=test
+        run: npm run test:generator -- --env=test,unittest-lro
         working-directory: packages/http-client-python
 
   typecheck:

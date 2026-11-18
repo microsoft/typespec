@@ -5,12 +5,14 @@
 # --------------------------------------------------------------------------
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import AsyncMock, Mock
 import json
 
 import pytest
 from azure.core.exceptions import HttpResponseError
 from azure.core.pipeline import PipelineContext, PipelineResponse
 from azure.core.pipeline.transport import HttpRequest
+from azure.core.polling.base_polling import BadStatus
 from azure.core.utils import case_insensitive_dict
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -38,31 +40,133 @@ def polling(request):
     return SimpleNamespace(**namespace)
 
 
-def response(body, headers=None):
-    return SimpleNamespace(json=lambda: body, content=b"json" if body is not None else b"", headers=headers or {})
+def response(body, headers=None, status_code=200):
+    return SimpleNamespace(
+        json=lambda: body,
+        content=b"json" if body is not None else b"",
+        headers=headers or {},
+        status_code=status_code,
+    )
 
 
 def test_latest_metadata_replaces_missing_and_changed_values(polling):
-    state = polling._LroMetadata({k: ([k], lambda value: value) for k in ("progress", "errors")})
+    state = polling._LroMetadata({k: [k] for k in ("progress", "errors")}, deserialize_monitor=lambda body: body)
+    assert state.details == {"progress": None, "errors": None}
     state.update(response({"progress": 10}))
-    assert state.details == {"progress": 10}
+    assert state.details == {"progress": 10, "errors": None}
     for terminal_state in ("Failed", "Canceled"):
         state.update(response({"status": terminal_state, "errors": ["item error"]}))
-        assert state.details == {"errors": ["item error"]}
+        assert state.details == {"progress": None, "errors": ["item error"]}
     state.update(response(None))
-    assert state.details == {}
+    assert state.details == {"progress": None, "errors": None}
+
+
+def test_monitor_is_deserialized_once_and_selected_client_properties_are_preserved(polling):
+    calls = []
+
+    def deserialize(body):
+        calls.append(body)
+        return SimpleNamespace(
+            operation_id=body["metadataId"],
+            progress=SimpleNamespace(completed=body["progress"]["done"]),
+            server_id=body["serverId"],
+        )
+
+    state = polling._LroMetadata(
+        {"operation_id": ["operation_id"], "completed": ["progress", "completed"]},
+        deserialize_monitor=deserialize,
+        operation_id_path=["server_id"],
+    )
+    state.update(response({"metadataId": "metadata", "progress": {"done": 2}, "serverId": "server"}))
+    assert len(calls) == 1
+    assert state.details == {"operation_id": "metadata", "completed": 2}
+    assert state.operation_id == "server"
+
+
+def test_metadata_decode_errors_preserve_last_snapshot(polling, caplog):
+    def deserialize(body):
+        if body.get("bad"):
+            raise ValueError("invalid monitor value")
+        return body
+
+    state = polling._LroMetadata({"progress": ["progress"]}, deserialize_monitor=deserialize)
+    state.update(response({"progress": 1}))
+    invalid_json = response({})
+    invalid_json.json = lambda: json.loads("not json")
+    state.update(invalid_json)
+    state.update(response({"bad": True}))
+    assert state.details == {"progress": 1}
+    assert "metadata" in caplog.text.lower()
+    state.update(response({"progress": 2}))
+    assert state.details == {"progress": 2}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_mode", [False, True], ids=["sync", "async"])
+async def test_non_success_poll_preserves_last_metadata(polling, monkeypatch, async_mode):
+    state = polling._LroMetadata({"progress": ["progress"]}, deserialize_monitor=lambda body: body)
+    state.update(response({"progress": 1}))
+    cls = polling._AsyncMetadataPolling if async_mode else polling._MetadataPolling
+    method = cls(0, lro_metadata=state)
+    method._operation = SimpleNamespace(get_polling_url=lambda: POLL_URL)
+    failed_response = pipeline_response({"error": "failed"})
+    failed_response.http_response.status_code = 400
+    if async_mode:
+
+        async def request_status(*args, **kwargs):
+            return failed_response
+
+    else:
+
+        def request_status(*args, **kwargs):
+            return failed_response
+
+    monkeypatch.setattr(cls.__mro__[1], "request_status", request_status)
+    with pytest.raises(BadStatus):
+        result = method.update_status()
+        if async_mode:
+            await result
+    assert state.details == {"progress": 1}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_mode", [False, True], ids=["sync", "async"])
+async def test_metadata_decode_error_does_not_fail_polling(polling, monkeypatch, caplog, async_mode):
+    def deserialize(body):
+        if body.get("bad"):
+            raise ValueError("invalid monitor metadata")
+        return body
+
+    state = polling._LroMetadata({"progress": ["progress"]}, deserialize_monitor=deserialize)
+    state.update(response({"progress": 1}))
+    cls = polling._AsyncMetadataPolling if async_mode else polling._MetadataPolling
+    method = cls(0, lro_metadata=state)
+    method._operation = SimpleNamespace(get_polling_url=lambda: POLL_URL, get_status=lambda _: "Succeeded")
+    response_mock = AsyncMock if async_mode else Mock
+    monkeypatch.setattr(
+        cls.__mro__[1],
+        "request_status",
+        response_mock(return_value=pipeline_response({"status": "Succeeded", "bad": True})),
+    )
+
+    result = method.update_status()
+    if async_mode:
+        await result
+    assert method.status() == "Succeeded"
+    assert state.details == {"progress": 1}
+    assert "metadata" in caplog.text.lower()
 
 
 @pytest.mark.parametrize("location", ["ResponseHeader", "ResponseBody", "Self"])
 def test_selected_uri_segment_and_body_precedence(polling, location):
     state = polling._LroMetadata(
         {},
+        deserialize_monitor=lambda body: body,
         operation_id_path=["wire-id"],
         operation_id_uri={
             "location": location,
             "property": "monitor",
-            "path": "/operations/{operationId}/status",
-            "parameter": "operationId",
+            "pattern": r"/operations/(?P<operation_id>[^/]+)/status/?$",
         },
     )
     url = "https://example.test/prefix/operations/uri%20id/status?api-version=1#fragment"
@@ -77,7 +181,7 @@ def test_selected_uri_segment_and_body_precedence(polling, location):
 
 
 def test_body_only_id_is_unavailable_until_monitor_response(polling):
-    state = polling._LroMetadata({}, operation_id_path=["id"])
+    state = polling._LroMetadata({}, deserialize_monitor=lambda body: body, operation_id_path=["id"])
     state.initialize(response({"id": "unrelated-initial-resource"}))
     assert state.operation_id is None
     state.update(response({"id": "server-id"}))
@@ -87,11 +191,11 @@ def test_body_only_id_is_unavailable_until_monitor_response(polling):
 def test_unmatched_uri_does_not_invent_an_operation_id(polling):
     state = polling._LroMetadata(
         {},
+        deserialize_monitor=lambda body: body,
         operation_id_uri={
             "location": "ResponseHeader",
             "property": "Operation-Location",
-            "path": "/operations/{operationId}/status",
-            "parameter": "operationId",
+            "pattern": r"/operations/(?P<operation_id>[^/]+)/status/?$",
         },
     )
     state.initialize(response(None, {"Operation-Location": "https://example.test/unrelated"}))
@@ -99,13 +203,17 @@ def test_unmatched_uri_does_not_invent_an_operation_id(polling):
 
 
 def test_initial_monitor_and_rehydration(polling):
-    state = polling._LroMetadata({"progress": (["progress"], int)}, initial_response_is_monitor=True)
+    state = polling._LroMetadata(
+        {"progress": ["progress"]}, deserialize_monitor=lambda body: body, initial_response_is_monitor=True
+    )
     state.initialize(response({"progress": 1}))
     assert state.details == {"progress": 1}
-    resumed = polling._LroMetadata({"progress": (["progress"], int)}, initial_response_is_monitor=True)
+    resumed = polling._LroMetadata(
+        {"progress": ["progress"]}, deserialize_monitor=lambda body: body, initial_response_is_monitor=True
+    )
     resumed.rehydrated = True
     resumed.initialize(response({"progress": 1}))
-    assert resumed.details == {}
+    assert resumed.details == {"progress": None}
     resumed.update(response({"progress": 2}))
     assert resumed.details == {"progress": 2}
 
@@ -146,13 +254,13 @@ def pipeline_response(body, *, initial=False):
 
 def metadata_state(polling):
     return polling._LroMetadata(
-        {"progress": (["progress"], int)},
+        {"progress": ["progress"]},
+        deserialize_monitor=lambda body: body,
         operation_id_path=["id"],
         operation_id_uri={
             "location": "ResponseHeader",
             "property": "Operation-Location",
-            "path": "/operations/{operationId}/status",
-            "parameter": "operationId",
+            "pattern": r"/operations/(?P<operation_id>[^/]+)/status/?$",
         },
         initial_response_is_monitor=True,
     )
@@ -188,6 +296,44 @@ def test_sync_poller_retains_monitor_metadata_after_terminal_response(polling, t
         with pytest.raises(HttpResponseError):
             poller.result()
         assert urls == [POLL_URL, POLL_URL]
+    assert poller.details == {"progress": 2, "operation_id": "body-id"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("async_mode", [False, True], ids=["sync", "async"])
+async def test_final_get_at_polling_url_preserves_monitor_metadata(polling, async_mode):
+    urls = []
+    bodies = iter([{"status": "Succeeded", "progress": 2, "id": "body-id"}, {"final": True}])
+
+    def run_sync(request, **kwargs):
+        urls.append(request.url)
+        return pipeline_response(next(bodies))
+
+    async def run_async(request, **kwargs):
+        return run_sync(request, **kwargs)
+
+    run = run_async if async_mode else run_sync
+    client = SimpleNamespace(
+        send_request=run,
+        get=lambda url: HttpRequest("GET", url),
+        _pipeline=SimpleNamespace(run=run, _transport=SimpleNamespace(sleep=lambda _: None)),
+    )
+    initial = pipeline_response({"status": "Running", "progress": 0}, initial=True)
+    initial.http_response.headers["Location"] = POLL_URL
+    state = metadata_state(polling)
+    method_class = polling._AsyncMetadataPolling if async_mode else polling._MetadataPolling
+    poller_class = polling.AsyncMetadataLROPoller if async_mode else polling.MetadataLROPoller
+    poller = poller_class(
+        client,
+        initial,
+        lambda value: value.http_response.json(),
+        method_class(0, lro_metadata=state),
+        lro_metadata=state,
+    )
+
+    result = await poller.result() if async_mode else poller.result()
+    assert result == {"final": True}
+    assert urls == [POLL_URL, POLL_URL]
     assert poller.details == {"progress": 2, "operation_id": "body-id"}
 
 
@@ -258,7 +404,7 @@ async def test_async_poller_resumes_without_persisted_metadata(polling, terminal
         deserialization_callback=lambda value: value.http_response.json(),
         lro_metadata=resumed_state,
     )
-    assert resumed.details == {"operation_id": "uri id"}
+    assert resumed.details == {"progress": None, "operation_id": "uri id"}
     if terminal == "Succeeded":
         assert await resumed.result() == {"final": True}
         assert urls == [POLL_URL, POLL_URL, FINAL_URL]

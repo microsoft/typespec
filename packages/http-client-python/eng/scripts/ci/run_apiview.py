@@ -21,6 +21,9 @@ APIVIEW_TIMEOUT = 30
 
 
 def _single_dir_apiview(mod):
+    if mod.name == "azure-client-generator-core-lro-metadata-msrest":
+        logging.info("Skipping non-installable msrest fixture %s", mod.stem)
+        return True
     for attempt in range(2):
         try:
             result = run(

@@ -6,6 +6,8 @@
 import pytest
 from specs.azure.clientgenerator.core.lro.operationid import OperationIdClient, models
 
+pytestmark = pytest.mark.xdist_group(name="lro_metadata")
+
 
 @pytest.fixture
 def client():

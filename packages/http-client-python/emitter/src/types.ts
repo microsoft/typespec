@@ -223,7 +223,7 @@ function addDisableGenerationMap(context: PythonSdkContext, type: SdkType): void
   }
 }
 
-export function emitProperty(
+function emitProperty(
   context: PythonSdkContext,
   property: SdkModelPropertyType,
 ): Record<string, any> {

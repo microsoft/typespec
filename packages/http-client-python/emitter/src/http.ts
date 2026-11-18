@@ -26,7 +26,7 @@ import type { HttpStatusCodeRange } from "@typespec/http";
 import { getHeaderFieldName } from "@typespec/http";
 import type { PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
-import { emitProperty, getType, KnownTypes } from "./types.js";
+import { getType, KnownTypes } from "./types.js";
 import {
   emitParamBase,
   getAddedOn,
@@ -299,24 +299,51 @@ function emitLroMetadata(
   const step = metadata.statusMonitorStep;
   const pollingOperation =
     step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
+  let operationIdUri: { location: string; property: string; pattern: string } | undefined;
+  if (pathId) {
+    const template = pollingOperation?.uriTemplate;
+    const path = template?.split(/\{[?&]/, 1)[0].split("?", 1)[0];
+    const segments = path?.split(/(\{[^{}]*\})/);
+    const parameter = `{${pathId.pathParameter.serializedName}}`;
+    const valid =
+      segments &&
+      segments.filter((segment) => segment === parameter).length === 1 &&
+      segments.every((segment) => /^\{[a-zA-Z0-9._%~-]+\}$/.test(segment) || !/[{}]/.test(segment));
+    if (valid) {
+      const pattern =
+        segments
+          .map((segment) =>
+            segment === parameter
+              ? "(?P<operation_id>[^/]+)"
+              : segment.startsWith("{")
+                ? "[^/]+"
+                : segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+          )
+          .join("") + "/?$";
+      operationIdUri = {
+        location: pathId.source.location,
+        property:
+          pathId.source.location === "ResponseHeader" && pathId.source.property.__raw
+            ? getHeaderFieldName(context.program, pathId.source.property.__raw)
+            : (pathId.source.property.serializationOptions.json?.name ??
+              pathId.source.property.name),
+        pattern,
+      };
+    } else {
+      reportDiagnostic(context.program, {
+        code: "unsupported-lro-operation-id-template",
+        target: NoTarget,
+        format: { operationId: method.name, template: template ?? "(missing)" },
+      });
+    }
+  }
   return {
+    responseModel: getType(context, metadata.pollingInfo.responseModel),
     statusMetadata: metadata.statusMetadata?.map((selection) => ({
-      ...emitProperty(context, selection.property),
       propertySegments: wirePath(selection.propertySegments),
     })),
     operationIdPath: bodyId ? wirePath(bodyId.propertySegments) : undefined,
-    operationIdUri: pathId
-      ? {
-          location: pathId.source.location,
-          property:
-            pathId.source.location === "ResponseHeader" && pathId.source.property.__raw
-              ? getHeaderFieldName(context.program, pathId.source.property.__raw)
-              : (pathId.source.property.serializationOptions.json?.name ??
-                pathId.source.property.name),
-          path: pollingOperation!.path,
-          parameter: pathId.pathParameter.serializedName,
-        }
-      : undefined,
+    operationIdUri,
     initialResponseIsMonitor: method.operation.responses.some(
       (response) => response.type === metadata.pollingInfo.responseModel,
     ),

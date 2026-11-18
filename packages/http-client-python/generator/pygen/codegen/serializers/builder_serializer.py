@@ -1106,7 +1106,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 deserialize_code.append("deserialized = self._deserialize(")
                 serialization_type = response.serialization_type(serialize_namespace=self.serialize_namespace)
                 deserialize_code.append(f"    '{serialization_type}',{pylint_disable}")
-                deserialize_code.append(" pipeline_response.http_response")
+                deserialize_input = (
+                    f"response.json(){response.result_property}"
+                    if response.result_property
+                    else "pipeline_response.http_response"
+                )
+                deserialize_code.append(f"    {deserialize_input}")
                 deserialize_code.append(")")
             elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
@@ -1853,27 +1858,25 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
         metadata_argument = "lro_metadata=lro_metadata," if builder.lro_metadata else ""
         if builder.lro_metadata:
             retval.extend(["lro_metadata = _LroMetadata(", "    status_metadata={"])
-            for selection, metadata_type in builder.status_metadata:
+            for name, path in builder.status_metadata:
+                retval.append(f"        {name!r}: {path!r},")
+            deserialize = "value"
+            if (builder.status_metadata or builder.operation_id_path) and builder.status_monitor_type:
                 if self.code_model.options["models-mode"] == "msrest":
-                    serialization_type = metadata_type.serialization_type(serialize_namespace=self.serialize_namespace)
+                    serialization_type = builder.status_monitor_type.serialization_type(
+                        serialize_namespace=self.serialize_namespace
+                    )
                     deserialize = f"self._deserialize({serialization_type!r}, value)"
                 elif self.code_model.options["models-mode"] == "dpg" and not self.code_model.generate_typeddict_only:
-                    annotation = metadata_type.type_annotation(
+                    annotation = builder.status_monitor_type.type_annotation(
                         serialize_namespace=self.serialize_namespace, is_operation_file=True
                     )
-                    encoding = getattr(metadata_type, "encode", None) or selection.get("encode")
-                    format_argument = f", format={encoding!r}" if encoding else ""
-                    deserialize = f"_deserialize({annotation}, value{format_argument})"
-                else:
-                    deserialize = "value"
-                retval.append(
-                    f"        {selection['clientName']!r}: "
-                    f"({selection['propertySegments']!r}, lambda value: {deserialize}),"
-                )
+                    deserialize = f"_deserialize({annotation}, value)"
             retval.extend(
                 [
                     "    },",
-                    f"    operation_id_path={builder.lro_metadata.get('operationIdPath')!r},",
+                    f"    deserialize_monitor=lambda value: {deserialize},",
+                    f"    operation_id_path={builder.operation_id_path!r},",
                     f"    operation_id_uri={builder.lro_metadata.get('operationIdUri')!r},",
                     f"    initial_response_is_monitor={builder.lro_metadata['initialResponseIsMonitor']!r},",
                     ")",

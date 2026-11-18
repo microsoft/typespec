@@ -9,7 +9,9 @@ import pytest
 import pytest_asyncio
 from azure.core.exceptions import HttpResponseError
 from specs.azure.clientgenerator.core.lro.metadata import models
-from specs.azure.clientgenerator.core.lro.metadata.aio import MetadataClient
+from specs.azure.clientgenerator.core.lro.metadata.aio import AsyncMetadataLROPoller, MetadataClient
+
+pytestmark = pytest.mark.xdist_group(name="lro_metadata")
 
 
 @pytest_asyncio.fixture
@@ -21,7 +23,8 @@ async def client():
 @pytest.mark.asyncio
 async def test_usage(client):
     poller = await client.begin_analyze_with_usage("analyzer-1", polling_interval=0)
-    assert poller.details == {}
+    assert isinstance(poller, AsyncMetadataLROPoller)
+    assert poller.details == {"usage": None}
     await poller.polling_method().update_status()
     assert poller.details["usage"] == models.UsageDetails(document_pages_basic=1, tokens={"input": 10})
     assert await poller.result() == models.ContentAnalysisResult(contents="The document contains three sections.")
@@ -34,8 +37,8 @@ async def test_latest_job_metadata_including_failure(client, fails):
     begin = client.begin_analyze_job_with_failure if fails else client.begin_analyze_job
     poller = await begin(polling_interval=0)
     assert poller.details["job_id"] == ("job-failure" if fails else "job-success")
-    assert "statistics" not in poller.details
-    assert "errors" not in poller.details
+    assert poller.details["statistics"] is None
+    assert poller.details["errors"] is None
     await poller.polling_method().update_status()
     assert poller.details["statistics"] == models.JobStatistics(total=3, succeeded=1, failed=0)
     assert poller.details["last_updated_date_time"] == datetime(2025, 1, 1, 10, 1, tzinfo=timezone.utc)
@@ -56,6 +59,6 @@ async def test_metadata_repopulates_after_resume(client):
     await poller.polling_method().update_status()
     token = poller.continuation_token()
     resumed = await client.begin_analyze_job(continuation_token=token, polling_interval=0)
-    assert resumed.details == {}
+    assert all(value is None for value in resumed.details.values())
     await resumed.result()
     assert resumed.details["statistics"] == models.JobStatistics(total=3, succeeded=3, failed=0)

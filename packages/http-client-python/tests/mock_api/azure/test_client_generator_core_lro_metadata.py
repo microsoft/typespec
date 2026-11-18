@@ -7,7 +7,9 @@ from datetime import datetime, timezone
 
 import pytest
 from azure.core.exceptions import HttpResponseError
-from specs.azure.clientgenerator.core.lro.metadata import MetadataClient, models
+from specs.azure.clientgenerator.core.lro.metadata import MetadataClient, MetadataLROPoller, models
+
+pytestmark = pytest.mark.xdist_group(name="lro_metadata")
 
 
 @pytest.fixture
@@ -18,6 +20,7 @@ def client():
 
 def test_usage(client):
     poller = client.begin_analyze_with_usage("analyzer-1", polling_interval=0)
+    assert isinstance(poller, MetadataLROPoller)
     assert poller.result() == models.ContentAnalysisResult(contents="The document contains three sections.")
     assert poller.details["usage"] == models.UsageDetails(document_pages_basic=1, tokens={"input": 10, "output": 4})
 
@@ -26,8 +29,8 @@ def test_job_initial_metadata(client):
     poller = client.begin_analyze_job(polling=False)
     assert poller.details["job_id"] == "job-success"
     assert poller.details["created_date_time"] == datetime(2025, 1, 1, 10, tzinfo=timezone.utc)
-    assert "statistics" not in poller.details
-    assert "errors" not in poller.details
+    assert poller.details["statistics"] is None
+    assert poller.details["errors"] is None
 
 
 @pytest.mark.parametrize("fails", [False, True])

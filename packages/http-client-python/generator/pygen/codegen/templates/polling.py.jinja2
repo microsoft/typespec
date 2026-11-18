@@ -3,83 +3,96 @@
 {% endif %}
 """Pollers exposing selected status-monitor metadata and operation identity."""
 
+import logging
 import re
 from typing import Any, Callable, Mapping, Optional, TypeVar
 from urllib.parse import unquote, urlsplit
 
-from azure.core.polling import AsyncLROPoller, LROPoller
+from azure.core.polling import LROPoller
+{% if not code_model.options.get("no-async") %}
+from azure.core.polling import AsyncLROPoller
+{% endif %}
 {% if code_model.options["azure-arm"] %}
 from azure.mgmt.core.polling.arm_polling import ARMPolling
+{% if not code_model.options.get("no-async") %}
 from azure.mgmt.core.polling.async_arm_polling import AsyncARMPolling
+{% endif %}
 {% else %}
-from azure.core.polling.async_base_polling import AsyncLROBasePolling
 from azure.core.polling.base_polling import LROBasePolling
+{% if not code_model.options.get("no-async") %}
+from azure.core.polling.async_base_polling import AsyncLROBasePolling
+{% endif %}
 {% endif %}
 
-__all__ = ["MetadataLROPoller", "AsyncMetadataLROPoller"]
+__all__ = ["MetadataLROPoller"{% if not code_model.options.get("no-async") %}, "AsyncMetadataLROPoller"{% endif %}]
 
 T = TypeVar("T")
 _MISSING = object()
+_LOGGER = logging.getLogger(__name__)
 
 
 def _read_property(body: Any, path: list[str]) -> Any:
     for segment in path:
-        if not isinstance(body, Mapping) or segment not in body:
+        if isinstance(body, dict):
+            body = body.get(segment, _MISSING)
+        else:
+            body = getattr(body, segment, _MISSING)
+        if body is _MISSING or body is None:
             return _MISSING
-        body = body[segment]
     return body
 
 
 class _LroMetadata:
     def __init__(
         self,
-        status_metadata: Mapping[str, tuple[list[str], Callable[[Any], Any]]],
+        status_metadata: Mapping[str, list[str]],
         *,
+        deserialize_monitor: Callable[[Any], Any],
         operation_id_path: Optional[list[str]] = None,
         operation_id_uri: Optional[dict[str, str]] = None,
         initial_response_is_monitor: bool = False,
     ) -> None:
         self._status_metadata = status_metadata
+        self._deserialize_monitor = deserialize_monitor
         self._operation_id_path = operation_id_path
         self._operation_id_uri = operation_id_uri
         self._initial_response_is_monitor = initial_response_is_monitor
-        self._snapshot: tuple[dict[str, Any], Optional[str]] = ({}, None)
+        self._snapshot: tuple[dict[str, Any], Optional[str]] = ({name: None for name in status_metadata}, None)
         self._uri_id: Optional[str] = None
         self.rehydrated = False
 
     def initialize(self, response: Any) -> None:
         if self._operation_id_uri:
             source = self._operation_id_uri
-            if source["location"] == "ResponseHeader":
-                url = response.headers.get(source["property"])
-            elif source["location"] == "Self":
-                url = response.json() if response.content else None
-            else:
-                url = _read_property(response.json(), [source["property"]]) if response.content else None
-            if isinstance(url, str):
-                # Match the modeled route, not the last URL component: IDs may precede a suffix.
-                segments = re.split(r"(\{[^}]+\})", source["path"])
-                pattern = "".join(
-                    "(?P<operation_id>[^/]+)"
-                    if segment == "{" + source["parameter"] + "}"
-                    else "[^/]+"
-                    if segment.startswith("{")
-                    else re.escape(segment)
-                    for segment in segments
-                )
-                match = re.search(pattern + r"/?$", urlsplit(url).path)
-                self._uri_id = unquote(match.group("operation_id")) if match else None
+            try:
+                if source["location"] == "ResponseHeader":
+                    url = response.headers.get(source["property"])
+                elif source["location"] == "Self":
+                    url = response.json() if response.content else None
+                else:
+                    url = _read_property(response.json(), [source["property"]]) if response.content else None
+                if isinstance(url, str):
+                    match = re.search(source["pattern"], urlsplit(url).path)
+                    self._uri_id = unquote(match.group("operation_id")) if match else None
+            except Exception:  # pylint: disable=broad-exception-caught
+                _LOGGER.warning("Unable to extract the LRO operation ID from the polling URI.", exc_info=True)
         if self._initial_response_is_monitor and not self.rehydrated:
             self.update(response)
 
     def update(self, response: Any) -> None:
-        body = response.json() if response.content else {}
-        details = {}
-        for name, (path, deserialize) in self._status_metadata.items():
-            value = _read_property(body, path)
-            if value is not _MISSING:
-                details[name] = deserialize(value)
-        body_id = _read_property(body, self._operation_id_path) if self._operation_id_path else None
+        if not self._status_metadata and not self._operation_id_path:
+            return
+        try:
+            body = response.json() if response.content else {}
+            monitor = self._deserialize_monitor(body)
+            details = {}
+            for name, path in self._status_metadata.items():
+                value = _read_property(monitor, path)
+                details[name] = None if value is _MISSING else value
+            body_id = _read_property(monitor, self._operation_id_path) if self._operation_id_path else None
+        except Exception:  # pylint: disable=broad-exception-caught
+            _LOGGER.warning("Unable to deserialize LRO status-monitor metadata.", exc_info=True)
+            return
         self._snapshot = (details, body_id if isinstance(body_id, str) else None)
 
     @property
@@ -92,23 +105,21 @@ class _LroMetadata:
         values, body_id = self._snapshot
         details = values.copy()
         operation_id = body_id if body_id is not None else self._uri_id
-        if operation_id is not None:
+        if operation_id is not None and "operation_id" not in self._status_metadata:
             details["operation_id"] = operation_id
         return details
 
 
-{% for async_mode in [false, true] %}
+{% for async_mode in ([false] if code_model.options.get("no-async") else [false, true]) %}
 {% set prefix = "Async" if async_mode else "" %}
 class _{{ prefix }}MetadataPolling({{ prefix }}{{ "ARMPolling" if code_model.options["azure-arm"] else "LROBasePolling[T, Any, Any]" }}):
     def __init__(self, *args: Any, lro_metadata: _LroMetadata, **kwargs: Any) -> None:
         self._lro_metadata = lro_metadata
         super().__init__(*args, **kwargs)
 
-    {{ "async " if async_mode else "" }}def request_status(self, status_link: str) -> Any:
-        response = {{ "await " if async_mode else "" }}super().request_status(status_link)
-        if status_link == self._operation.get_polling_url():
-            self._lro_metadata.update(response.http_response)
-        return response
+    {{ "async " if async_mode else "" }}def update_status(self) -> None:
+        {{ "await " if async_mode else "" }}super().update_status()
+        self._lro_metadata.update(self._pipeline_response.http_response)
 
 
 class {{ prefix }}MetadataLROPoller({{ prefix }}LROPoller[T]):
@@ -138,7 +149,7 @@ class {{ prefix }}MetadataLROPoller({{ prefix }}LROPoller[T]):
     def details(self) -> Mapping[str, Any]:
         """Selected metadata, decoded using the generated model types.
 
-        Absent values are omitted. Values are refreshed after each monitor response,
+        Absent selected values are None. Values are refreshed after each monitor response,
         including failed or canceled responses. After resuming, the next poll
         repopulates metadata; it is not stored separately in continuation tokens.
 
