@@ -129,6 +129,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(property.Body.HasSetter);
         }
 
+        [TestCase("internal", false, MethodSignatureModifiers.Internal)]
+        [TestCase("internal", true, MethodSignatureModifiers.Internal)]
+        [TestCase("public", false, MethodSignatureModifiers.Public)]
+        [TestCase(null, false, MethodSignatureModifiers.Public)]
+        public void OutputOnlyPropertyPreservesAccess(string? access, bool hasOwner, MethodSignatureModifiers expected)
+        {
+            var input = InputFactory.Property("details", InputPrimitiveType.String);
+            if (access != null)
+            {
+                input.Update(access: access);
+            }
+            if (hasOwner)
+            {
+                InputFactory.Model("Monitor", properties: [input]);
+            }
+
+            var property = new PropertyProvider(input, new TestTypeProvider(), isOutputOnly: true);
+
+            Assert.AreEqual(expected, property.Modifiers);
+        }
+
+        [Test]
+        public void OrdinaryModelPropertyKeepsExistingAccessibility()
+        {
+            var input = InputFactory.Property("details", InputPrimitiveType.String);
+            input.Update(access: "internal");
+            InputFactory.Model("Monitor", properties: [input]);
+
+            var property = new PropertyProvider(input, new TestTypeProvider());
+
+            Assert.AreEqual(MethodSignatureModifiers.Public, property.Modifiers);
+        }
+
         [Test]
         public void TestPropertyDocumentationPreservesCodeSpans()
         {

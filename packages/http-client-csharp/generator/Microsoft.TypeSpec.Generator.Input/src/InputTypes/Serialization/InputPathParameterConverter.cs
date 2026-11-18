@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isReadOnly = false;
             bool isOptional = false;
             string? access = null;
+            string? style = null;
             string? serverUrlTemplate = null;
             bool allowReserved = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -88,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadBoolean("explode", ref explode)
+                    || reader.TryReadString("style", ref style)
                     || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments)
@@ -115,6 +117,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.Explode = explode;
+            parameter.Style = style switch
+            {
+                "simple" => InputPathParameterStyle.Simple,
+                "label" => InputPathParameterStyle.Label,
+                "matrix" => InputPathParameterStyle.Matrix,
+                "path" => InputPathParameterStyle.Path,
+                "fragment" => InputPathParameterStyle.Fragment,
+                _ => InputPathParameterStyle.Unknown,
+            };
             parameter.SkipUrlEncoding = skipUrlEncoding;
             parameter.MethodParameterSegments = methodParameterSegments;
             parameter.IsExactName = isExactName;

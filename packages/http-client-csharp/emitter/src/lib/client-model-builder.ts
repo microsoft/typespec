@@ -6,6 +6,7 @@ import type {
   SdkEnumType,
   SdkHttpOperation,
 } from "@azure-tools/typespec-client-generator-core";
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic } from "@typespec/compiler";
 import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import type { CSharpEmitterContext } from "../sdk-context.js";
@@ -21,8 +22,8 @@ import { createDiagnostic } from "./lib.js";
 import { updateModelConstructorRequirements } from "./model-constructor.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { fromSdkType } from "./type-converter.js";
-import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
+import { fromSdkType, normalizeLiteralTypeForProperty } from "./type-converter.js";
+import { getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -104,7 +105,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
   // Fix naming conflicts for constants, enums, and models
-  fixNamingConflicts(models, constants);
+  fixNamingConflicts(models, constants, sdkContext.__typeCache.lroMetadataEnums);
 
   // Resolve the root namespace. When this cannot be determined the generated code model
   // has no name, which the .NET generator rejects with an opaque root-level deserialization
@@ -166,7 +167,11 @@ function parseApiVersions(
  * @param enums - Array of input enum types
  * @param constants - Array of input literal types (constants)
  */
-function fixNamingConflicts(models: InputModelType[], constants: InputLiteralType[]): void {
+function fixNamingConflicts(
+  models: InputModelType[],
+  constants: InputLiteralType[],
+  lroMetadataEnums: Set<InputEnumType>,
+): void {
   // First, fix names for constants and constant-derived enums in model properties
   for (const model of models) {
     for (const property of model.properties) {
@@ -174,16 +179,13 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
 
       if (type.kind === "constant") {
         // Fix constant property names
-        type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
-        type.namespace = model.namespace;
-        type.access = model.access;
-        type.usage = model.usage;
+        normalizeLiteralTypeForProperty(type, model, property.name);
       } else if (type.kind === "enum" && type.crossLanguageDefinitionId === "") {
         // Fix enum names for enums created from constants
-        type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
-        type.namespace = model.namespace;
-        type.access = model.access;
-        type.usage = model.usage;
+        normalizeLiteralTypeForProperty(type, model, property.name);
+        if (lroMetadataEnums.has(type)) {
+          type.usage |= UsageFlags.Output | UsageFlags.Json;
+        }
       }
     }
   }

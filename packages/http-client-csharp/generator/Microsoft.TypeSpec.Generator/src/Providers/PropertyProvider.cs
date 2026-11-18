@@ -117,7 +117,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = isOutputOnly || (inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false);
-            Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            Modifiers = IsDiscriminator || (isOutputOnly && inputProperty.Access == "internal") || (!hasOutputUsage && _isRequiredNonNullableConstant)
+                ? MethodSignatureModifiers.Internal
+                : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
             if (!inputProperty.IsExactName)
             {

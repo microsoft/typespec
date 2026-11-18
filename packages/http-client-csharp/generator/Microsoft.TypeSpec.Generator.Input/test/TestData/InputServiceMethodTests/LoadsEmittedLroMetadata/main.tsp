@@ -35,6 +35,7 @@ model Monitor extends BaseMonitor {
   id: string;
 
   @lroStatusMetadata
+  @access(Access.internal, "csharp")
   @clientName("progress")
   @encodedName("application/json", "percent_complete")
   percent?: int32;
@@ -49,6 +50,7 @@ op getStatus(@lroOperationId @path("jobId") id: string): Monitor;
 
 @post
 @route("/jobs")
+@access(Access.internal, "csharp")
 @pollingOperation(getStatus)
 op begin(): {
   @statusCode code: 202;

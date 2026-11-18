@@ -1,3 +1,4 @@
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { expectDiagnostics, type TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { readFileSync } from "node:fs";
@@ -393,6 +394,76 @@ describe("Operation Converter", () => {
     strictEqual(path.pollingPath, "/jobs/{jobId}/status");
   });
 
+  it.each([
+    { expansion: "{jobId}", style: "simple" },
+    { expansion: "{.jobId}", style: "label" },
+    { expansion: "{;jobId}", style: "matrix" },
+    { expansion: "{/jobId}", style: "path" },
+    { expansion: "{#jobId}", style: "fragment" },
+  ])(
+    "preserves the $style style and shared identity of a spread polling ID",
+    async ({ expansion, style }) => {
+      const program = await typeSpecCompile(
+        `
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroResult result?: string;
+        }
+        model PollingParameters {
+          @lroOperationId @path("jobId") id: string;
+        }
+        @get @route("/jobs${expansion}/status")
+        op getStatus(...PollingParameters): Monitor;
+        @post @route("/jobs") @pollingOperation(getStatus)
+        op begin(): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+        };
+        `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      const start = root.clients[0].methods.find((method) => method.name === "begin");
+      const poll = root.clients[0].methods.find((method) => method.name === "getStatus");
+      ok(start?.kind === "lro");
+      ok(poll);
+      const selected = start.lroMetadata.operationId?.find((entry) => entry.kind === "path");
+      ok(selected?.kind === "path");
+      const parameter = poll.operation.parameters.find((parameter) => parameter.kind === "path");
+      ok(parameter?.kind === "path");
+      strictEqual(selected.pathParameter, parameter);
+      strictEqual(selected.pollingPath, "/jobs{jobId}/status");
+      strictEqual(parameter.serializedName, "jobId");
+      strictEqual(parameter.style, style);
+
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      const serializedStart = serialized.clients[0].methods.find(
+        (method: { name: string }) => method.name === "begin",
+      );
+      const serializedPoll = serialized.clients[0].methods.find(
+        (method: { name: string }) => method.name === "getStatus",
+      );
+      const serializedSelection = serializedStart.lroMetadata.operationId.find(
+        (entry: { kind: string }) => entry.kind === "path",
+      );
+      const serializedParameter = serializedPoll.operation.parameters.find(
+        (entry: { kind: string }) => entry.kind === "path",
+      );
+      strictEqual(
+        serializedSelection.pathParameter.$id ?? serializedSelection.pathParameter.$ref,
+        serializedParameter.$id ?? serializedParameter.$ref,
+      );
+      ok(serializedSelection.pathParameter.$ref || serializedParameter.$ref);
+      strictEqual(
+        (serializedParameter.$ref ? serializedSelection.pathParameter : serializedParameter).style,
+        style,
+      );
+    },
+  );
+
   it.each([true, false])(
     "preserves selected properties without converting an unexposed polling model, path ID: %s",
     async (hasPathId) => {
@@ -519,6 +590,371 @@ describe("Operation Converter", () => {
         method.lroMetadata.statusMetadata?.[0].property,
         monitor.properties.find((property) => property.name === "progress"),
       );
+    },
+  );
+
+  it.each([true, false])(
+    "uses a monitor exposed by a different protocol-only method regardless of its order: %s",
+    async (readerFirst) => {
+      const reader = `
+        @get @route("/inspect")
+        @convenientAPI(false, "csharp")
+        op inspect(): Monitor;
+      `;
+      const start = `
+        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+        @useFinalStateVia("original-uri")
+        @convenientAPI(false, "csharp")
+        op begin(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+      `;
+      const program = await typeSpecCompile(
+        `
+        model FinalResult { value: string; }
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroStatusMetadata progress?: int32;
+        }
+        @get @route("/jobs/{jobId}/status")
+        op getStatus(@path("jobId") id: string): Monitor;
+        @get @route("/jobs/{jobId}")
+        op getResult(@path("jobId") id: string): FinalResult;
+        @client({ service: Azure.Csharp.Testing })
+        interface PublicOperations {
+          ${readerFirst ? `${reader}\n${start}` : `${start}\n${reader}`}
+        }
+        `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      strictEqual(
+        sdkContext.sdkPackage.models.some((model) => model.name === "Monitor"),
+        false,
+      );
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      const method = root.clients[0].methods.find((method) => method.name === "begin");
+      ok(method?.kind === "lro");
+      const monitor = root.models.find((model) => model.name === "Monitor");
+      ok(monitor);
+      strictEqual(method.lroMetadata.pollingResponseModel === monitor, true);
+      strictEqual(
+        method.lroMetadata.statusMetadata?.[0].property,
+        monitor.properties.find((property) => property.name === "progress"),
+      );
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      const serializedMethod = serialized.clients[0].methods.find(
+        (method: { name: string }) => method.name === "begin",
+      );
+      const serializedMonitor = serialized.models.find(
+        (model: { name: string }) => model.name === "Monitor",
+      );
+      strictEqual(serializedMethod.lroMetadata.pollingResponseModel.$ref, serializedMonitor.$id);
+    },
+  );
+
+  it("does not convert the original polling model when the exposed response uses an alternate type", async () => {
+    const program = await typeSpecCompile(
+      `
+      model FinalResult { value: string; }
+      model Replacement { value: string; }
+      @alternateType(Replacement, "csharp")
+      model Monitor {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroStatusMetadata progress?: int32;
+        unrelated: [string, int32];
+      }
+      @get @route("/jobs/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getStatus(@path("jobId") id: string): Monitor;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+      @useFinalStateVia("original-uri")
+      @convenientAPI(false, "csharp")
+      op begin(@path("jobId") id: string): {
+        @statusCode code: 202;
+        @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+        @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+      };
+      `,
+      runner,
+      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const sdkStart = sdkContext.sdkPackage.clients[0].methods.find(
+      (method) => method.name === "begin",
+    );
+    const sdkPoll = sdkContext.sdkPackage.clients[0].methods.find(
+      (method) => method.name === "getStatus",
+    );
+    ok(sdkStart?.kind === "lro");
+    ok(sdkPoll);
+    strictEqual(sdkStart.lroMetadata.pollingInfo.responseModel.name, "Monitor");
+    strictEqual(
+      sdkPoll.operation.responses.some(
+        (response) => response.type?.kind === "model" && response.type.name === "Replacement",
+      ),
+      true,
+    );
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(
+      diagnostics.map((diagnostic) => diagnostic.code),
+      [],
+    );
+    const method = root.clients[0].methods.find((method) => method.name === "begin");
+    ok(method?.kind === "lro");
+    strictEqual(method.lroMetadata.pollingResponseModel, undefined);
+    strictEqual(
+      root.models.some((model) => model.name === "Monitor"),
+      false,
+    );
+    strictEqual(method.lroMetadata.statusMetadata?.[0].property.name, "progress");
+  });
+
+  it("preserves effective scoped access on the type graph of a hidden monitor selection", async () => {
+    const program = await typeSpecCompile(
+      `
+      enum State { Ready: "ready", Waiting: "waiting" }
+      model BaseDetails { state: State; }
+      model NestedDetails extends BaseDetails { value: string; }
+      model Details { nested: NestedDetails; }
+      model PublicDetails { value: string; }
+      model FinalResult { value: string; }
+      model Monitor {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroStatusMetadata @access(Access.internal, "csharp")
+        details?: Details;
+        @lroStatusMetadata @access(Access.internal, "csharp")
+        publicDetails?: PublicDetails;
+      }
+      @get @route("/jobs/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getStatus(@path("jobId") id: string): Monitor;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @client({ service: Azure.Csharp.Testing })
+      interface PublicOperations {
+        @get @route("/publicDetails") op readPublicDetails(): PublicDetails;
+        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+        @useFinalStateVia("original-uri") @access(Access.internal, "csharp")
+        @convenientAPI(false, "csharp")
+        op begin(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+      }
+      `,
+      runner,
+      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    deepStrictEqual(sdkContext.diagnostics, []);
+    strictEqual(
+      sdkContext.sdkPackage.models.find((model) => model.name === "Details")?.access,
+      "internal",
+    );
+    strictEqual(
+      sdkContext.sdkPackage.models.find((model) => model.name === "NestedDetails")?.access,
+      "internal",
+    );
+    strictEqual(
+      sdkContext.sdkPackage.models.find((model) => model.name === "BaseDetails")?.access,
+      "internal",
+    );
+    strictEqual(
+      sdkContext.sdkPackage.models.find((model) => model.name === "PublicDetails")?.access,
+      "public",
+    );
+    strictEqual(
+      sdkContext.sdkPackage.enums.find((type) => type.name === "State")?.access,
+      "internal",
+    );
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    strictEqual(
+      root.models.some((model) => model.name === "Monitor"),
+      false,
+    );
+    const method = root.clients[0].methods.find((method) => method.name === "begin");
+    ok(method?.kind === "lro");
+    strictEqual(method.lroMetadata.statusMetadata?.[0].property.access, "internal");
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const serializedMethod = serialized.clients[0].methods.find(
+      (method: { name: string }) => method.name === "begin",
+    );
+    strictEqual(serializedMethod.lroMetadata.statusMetadata[0].property.access, "internal");
+    strictEqual(root.models.find((model) => model.name === "Details")?.access, "internal");
+    strictEqual(root.models.find((model) => model.name === "NestedDetails")?.access, "internal");
+    strictEqual(root.models.find((model) => model.name === "BaseDetails")?.access, "internal");
+    strictEqual(root.models.find((model) => model.name === "PublicDetails")?.access, undefined);
+    strictEqual(root.enums.find((type) => type.name === "State")?.access, "internal");
+  });
+
+  it("does not apply a selection access override scoped to another emitter", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Monitor {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroResult result?: string;
+        @lroStatusMetadata @access(Access.internal, "python")
+        progress?: int32;
+      }
+      @get @route("/jobs/{jobId}/status")
+      op getStatus(@path("jobId") id: string): Monitor;
+      @post @route("/jobs") @pollingOperation(getStatus)
+      op begin(): {
+        @statusCode code: 202;
+        @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+      };
+      `,
+      runner,
+      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    const method = root.clients[0].methods.find((method) => method.name === "begin");
+    ok(method?.kind === "lro");
+    strictEqual(method.lroMetadata.statusMetadata?.[0].property.access, undefined);
+  });
+
+  it.each(
+    ['"ready"', '"ready" | null'].flatMap((literal) => [
+      { literal, ownerAccess: true, propertyAccess: false },
+      { literal, ownerAccess: false, propertyAccess: true },
+    ]),
+  )(
+    "normalizes a hidden enum selection: $literal, internal owner: $ownerAccess",
+    async ({ literal, ownerAccess, propertyAccess }) => {
+      const program = await typeSpecCompile(
+        `
+      model FinalResult { value: string; }
+      ${ownerAccess ? '@access(Access.internal, "csharp")' : ""}
+      model Monitor {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroStatusMetadata ${propertyAccess ? '@access(Access.internal, "csharp")' : ""}
+        mode?: ${literal};
+      }
+      @get @route("/jobs/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getStatus(@path("jobId") id: string): Monitor;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @client({ service: Azure.Csharp.Testing })
+      interface PublicOperations {
+        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+        @useFinalStateVia("original-uri") @access(Access.internal, "csharp")
+        @convenientAPI(false, "csharp")
+        op begin(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+      }
+      `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const sdkStart = sdkContext.sdkPackage.clients[0].methods.find(
+        (method) => method.name === "begin",
+      );
+      ok(sdkStart?.kind === "lro");
+      strictEqual(
+        sdkStart.lroMetadata.pollingInfo.responseModel.access,
+        ownerAccess ? "internal" : "public",
+      );
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      const method = root.clients[0].methods.find((method) => method.name === "begin");
+      ok(method?.kind === "lro");
+      let selected = method.lroMetadata.statusMetadata?.[0].property.type;
+      if (selected?.kind === "nullable") selected = selected.type;
+      ok(selected?.kind === "enum");
+      strictEqual(selected.name, "MonitorMode");
+      strictEqual(selected.access, "internal");
+      ok(selected.usage & UsageFlags.Output);
+      strictEqual(root.enums.includes(selected), true);
+      strictEqual(
+        root.models.some((model) => model.name === "Monitor"),
+        false,
+      );
+    },
+  );
+
+  it.each([
+    { optional: true, shareSdkType: false },
+    { optional: false, shareSdkType: false },
+    { optional: true, shareSdkType: true },
+  ])(
+    "keeps a shared model's literal type, optional: $optional, shared SDK type: $shareSdkType",
+    async ({ optional, shareSdkType }) => {
+      const program = await typeSpecCompile(
+        `
+        model Shared { value${optional ? "?" : ""}: "ready"; }
+        model FinalResult { value: string; }
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroStatusMetadata mode?: "ready";
+        }
+        @get @route("/jobs/{jobId}/status")
+        op getStatus(@path("jobId") id: string): Monitor;
+        @get @route("/jobs/{jobId}")
+        op getResult(@path("jobId") id: string): FinalResult;
+        @client({ service: Azure.Csharp.Testing })
+        interface PublicOperations {
+          @post @route("/shared") op useShared(@body input: Shared): void;
+          @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+          @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
+          op begin(@path("jobId") id: string): {
+            @statusCode code: 202;
+            @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+            @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+          };
+        }
+        `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      if (shareSdkType) {
+        const sharedModel = sdkContext.sdkPackage.models.find((model) => model.name === "Shared");
+        const start = sdkContext.sdkPackage.clients[0].methods.find(
+          (method) => method.name === "begin",
+        );
+        ok(sharedModel);
+        ok(start?.kind === "lro");
+        ok(start.lroMetadata.statusMetadata?.[0]);
+        start.lroMetadata.statusMetadata[0].property.type = sharedModel.properties[0].type;
+      }
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(
+        diagnostics.map((diagnostic) => diagnostic.code),
+        [],
+      );
+      const method = root.clients[0].methods.find((method) => method.name === "begin");
+      ok(method?.kind === "lro");
+      const selected = method.lroMetadata.statusMetadata?.[0].property.type;
+      const shared = root.models.find((model) => model.name === "Shared")?.properties[0].type;
+      ok(selected?.kind === "enum");
+      ok(selected.usage & UsageFlags.Output);
+      ok(shared);
+      strictEqual(shared.kind, optional ? "enum" : "constant");
+      if (shared.kind === "enum") {
+        strictEqual(shared.name, "SharedValue");
+        ok(shared.usage & UsageFlags.Input);
+        strictEqual(selected === shared, shareSdkType);
+      }
+      strictEqual(root.enums.includes(selected), true);
     },
   );
 

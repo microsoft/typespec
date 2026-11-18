@@ -265,6 +265,7 @@
           },
           "optional": true,
           "readOnly": false,
+          "access": "internal",
           "discriminator": false,
           "flatten": false,
           "decorators": [],
@@ -511,13 +512,13 @@
           "kind": "lro",
           "name": "begin",
           "isExactName": false,
-          "accessibility": "public",
+          "accessibility": "internal",
           "apiVersions": [],
           "operation": {
             "$id": "35",
             "name": "begin",
             "isExactName": false,
-            "accessibility": "public",
+            "accessibility": "internal",
             "parameters": [],
             "responses": [
               {

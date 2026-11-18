@@ -31,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             CollectionAssert.AreEqual(new[] { "percent_complete", "statistics", "last_updated" },
                 metadata.StatusMetadata.Select(selection => selection.PropertySegments.Single().SerializedName));
             Assert.AreSame(monitor.Properties.Single(p => p.Name == "progress"), metadata.StatusMetadata[0].Property);
+            Assert.AreEqual("internal", metadata.StatusMetadata[0].Property.Access);
             Assert.AreSame(monitor.Properties.Single(p => p.Name == "statistics"), metadata.StatusMetadata[1].Property);
             Assert.AreSame(statistics, metadata.StatusMetadata[1].Property.Type);
             Assert.AreSame(baseMonitor.Properties.Single(p => p.Name == "updatedAt"), metadata.StatusMetadata[2].Property);
@@ -52,6 +53,28 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreSame(property.Property, property.PropertySegments.Single());
         }
 
+        [TestCase("simple", InputPathParameterStyle.Simple)]
+        [TestCase("label", InputPathParameterStyle.Label)]
+        [TestCase("matrix", InputPathParameterStyle.Matrix)]
+        [TestCase("path", InputPathParameterStyle.Path)]
+        [TestCase("fragment", InputPathParameterStyle.Fragment)]
+        [TestCase("future-style", InputPathParameterStyle.Unknown)]
+        [TestCase(null, InputPathParameterStyle.Unknown)]
+        public void LoadsPollingIdPathStyle(string? style, InputPathParameterStyle expected)
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false, method: nameof(LoadsEmittedLroMetadata));
+            var json = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            json = json.Replace("\"style\": \"simple\",", style == null ? "" : $"\"style\": \"{style}\",");
+            var input = TypeSpecSerialization.Deserialize(json)!;
+            var methods = input.Clients.Single().Methods;
+            var polling = methods.Single(m => m.Name == "getStatus").Operation;
+            var metadata = ((InputLongRunningServiceMethod)methods.Single(m => m.Name == "begin"))
+                .LongRunningServiceMetadata;
+            var selection = (InputLroOperationIdPathMetadata)metadata.OperationId[0];
+            Assert.AreSame(polling.Parameters.Single(p => p.Name == "id"), selection.PathParameter);
+            Assert.AreEqual(expected, selection.PathParameter.Style);
+        }
+
         [TestCase("lro")]
         [TestCase("lropaging")]
         public void LoadsLongRunningMetadataWithTypedPathsAndOrderedIdSources(string methodKind)
@@ -61,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "finalStateVia": 1,
                   "statusMetadata": [{
                     "property": {
-                      "$id": "progress", "name": "progress", "serializedName": "percent_complete",
+                      "$id": "progress", "name": "progress", "serializedName": "percent_complete", "access": "internal",
                       "optional": true, "type": { "kind": "int32" }
                     },
                     "propertySegments": [{ "$ref": "progress" }]
@@ -116,6 +139,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.AreEqual(2, metadata.StatusMetadata.Count);
             Assert.AreEqual("progress", metadata.StatusMetadata[0].Property.Name);
+            Assert.AreEqual("internal", metadata.StatusMetadata[0].Property.Access);
             Assert.IsFalse(metadata.StatusMetadata[0].Property.IsRequired);
             Assert.AreEqual("percent_complete", metadata.StatusMetadata[0].Property.SerializedName);
             Assert.AreSame(metadata.StatusMetadata[0].Property, metadata.StatusMetadata[0].PropertySegments[0]);
