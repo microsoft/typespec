@@ -1110,6 +1110,31 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
 
+model ResponseStreamEvent {
+  sequenceNumber: int32;
+}
+
+model ResponseStreamCreated extends ResponseStreamEvent {
+  id: string;
+}
+
+model ResponseStreamTextDelta extends ResponseStreamEvent {
+  delta: string;
+}
+
+@events
+union ResponseStreamEvents extends ResponseStreamEvent {
+  @Events.contentType("application/json")
+  `response.created`: ResponseStreamCreated,
+
+  @Events.contentType("application/json")
+  `response.output_text.delta`: ResponseStreamTextDelta,
+}
+
+@get
+@route("/streaming/sse/receive-response-events")
+op receiveResponseEvents(): SSEStream<ResponseStreamEvents>;
+
 @route("/experimental/jsonl")
 @get
 op receiveExperimentalJsonLines(): JsonlStream<PreviewDetails>;

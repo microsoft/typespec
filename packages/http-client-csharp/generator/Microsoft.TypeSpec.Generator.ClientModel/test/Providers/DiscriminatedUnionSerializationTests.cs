@@ -506,14 +506,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase("nullable")]
         [TestCase("stream")]
         [TestCase("union")]
+        [TestCase("sse")]
         public void StandaloneBaseUsesKeepConcreteJsonDeserialization(string shape)
         {
             var model = InputFactory.Model("pet", properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
             var cat = InputFactory.Model("cat", baseModel: model);
             var union = new InputUnionType("pets", [cat], model, "kind", "value",
                 new Dictionary<string, InputModelType> { ["cat"] = cat });
+            // Unknown SSE events deserialize as the base, so an SSE events union sharing the base keeps it concrete.
+            var events = new InputUnionType("petEvents", [cat], model, null, null,
+                new Dictionary<string, InputModelType> { ["cat.created"] = cat });
             InputType directType = shape switch
             {
+                "sse" => new InputStreamingType("SseStream", "Streaming.Sse.SseStream", events, ["text/event-stream"], streamKind: "sse"),
                 "array" => InputFactory.Array(model),
                 "dictionary" => InputFactory.Dictionary(model),
                 "nullable" => new InputNullableType(model),
@@ -533,7 +538,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 parameters: shape == "request" ? [InputFactory.MethodParameter("pet", model, location: InputRequestLocation.Body)] : [],
                 response: InputFactory.ServiceMethodResponse(responseType, null));
             var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            LoadUnions([model, cat, container], [union], [client]);
+            LoadUnions([model, cat, container], shape == "sse" ? [union, events] : [union], [client]);
             var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
             Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
             var serialization = provider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();

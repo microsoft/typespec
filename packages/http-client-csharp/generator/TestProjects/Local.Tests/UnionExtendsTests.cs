@@ -6,6 +6,10 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.ServerSentEvents;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -666,6 +670,46 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(JsonValueKind.Null, document.RootElement.ValueKind);
             Assert.IsNull(UnionPet.DeserializeUnionPetsUnion(
                 document.RootElement, ModelSerializationExtensions.WireOptions));
+        }
+
+        [Test]
+        public async Task SseEventsParseIntoVariantByEventType()
+        {
+            const string body =
+                "event: response.created\ndata: {\"sequenceNumber\":1,\"id\":\"resp_1\"}\n\n" +
+                "event: response.output_text.delta\ndata: {\"sequenceNumber\":2,\"delta\":\"Hi\"}\n\n" +
+                "event: response.unknown\ndata: {\"sequenceNumber\":3}\n\n";
+            var options = new SampleTypeSpecClientOptions
+            {
+                Transport = new HttpClientPipelineTransport(new HttpClient(new SseHandler(body)))
+            };
+            var client = new SampleTypeSpecClient(new Uri("https://localhost"), new ApiKeyCredential("key"), options);
+
+            await using var result = await client.ReceiveResponseEventsAsync();
+            var events = new List<SseItem<ResponseStreamEvent>>();
+            await foreach (var item in result)
+            {
+                events.Add(item);
+            }
+
+            Assert.AreEqual(3, events.Count);
+            var created = (ResponseStreamCreated)events[0].Data;
+            Assert.AreEqual(1, created.SequenceNumber);
+            Assert.AreEqual("resp_1", created.Id);
+            var delta = (ResponseStreamTextDelta)events[1].Data;
+            Assert.AreEqual(2, delta.SequenceNumber);
+            Assert.AreEqual("Hi", delta.Delta);
+            Assert.AreEqual(typeof(ResponseStreamEvent), events[2].Data.GetType());
+            Assert.AreEqual(3, events[2].Data.SequenceNumber);
+        }
+
+        private sealed class SseHandler(string body) : HttpMessageHandler
+        {
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+                => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "text/event-stream")
+                });
         }
 
         private static BinaryData Serialize(UnionPet value)
