@@ -891,6 +891,115 @@ describe("Operation Converter", () => {
     },
   );
 
+  it.each(["waiting", "ready"])(
+    "emits distinct literal enums for same-named hidden monitors: %s",
+    async (secondValue) => {
+      const program = await typeSpecCompile(
+        `
+      namespace First {
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroStatusMetadata mode?: "ready";
+        }
+      }
+      namespace Second {
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroStatusMetadata mode?: "${secondValue}";
+        }
+      }
+      enum MonitorMode { Known: "known" }
+      model MonitorMode1 { value: string; }
+      model FinalResult { value: string; }
+      @get @route("/first/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getFirstStatus(@path("jobId") id: string): First.Monitor;
+      @get @route("/second/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getSecondStatus(@path("jobId") id: string): Second.Monitor;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @client({ service: Azure.Csharp.Testing })
+      interface PublicOperations {
+        @get @route("/known") op readKnown(): MonitorMode;
+        @get @route("/known-model") op readKnownModel(): MonitorMode1;
+        @post @route("/first/{jobId}") @pollingOperation(getFirstStatus)
+        @finalOperation(getResult) @useFinalStateVia("original-uri")
+        @convenientAPI(false, "csharp")
+        op beginFirst(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<First.Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+        @post @route("/second/{jobId}") @pollingOperation(getSecondStatus)
+        @finalOperation(getResult) @useFinalStateVia("original-uri")
+        @convenientAPI(false, "csharp")
+        op beginSecond(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Second.Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+      }
+      `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      const first = root.clients[0].methods.find((method) => method.name === "beginFirst");
+      const second = root.clients[0].methods.find((method) => method.name === "beginSecond");
+      ok(first?.kind === "lro");
+      ok(second?.kind === "lro");
+      const firstEnum = first.lroMetadata.statusMetadata?.[0].property.type;
+      const secondEnum = second.lroMetadata.statusMetadata?.[0].property.type;
+      ok(firstEnum?.kind === "enum");
+      ok(secondEnum?.kind === "enum");
+      notStrictEqual(firstEnum, secondEnum);
+      deepStrictEqual(
+        firstEnum.values.map((value) => value.value),
+        ["ready"],
+      );
+      deepStrictEqual(
+        secondEnum.values.map((value) => value.value),
+        [secondValue],
+      );
+      strictEqual(root.enums.includes(firstEnum), true);
+      strictEqual(root.enums.includes(secondEnum), true);
+      const knownEnum = root.enums.find((type) =>
+        type.crossLanguageDefinitionId.endsWith(".MonitorMode"),
+      );
+      const knownModel = root.models.find((type) => type.name === "MonitorMode1");
+      ok(knownEnum);
+      ok(knownModel);
+      strictEqual(knownEnum.name, "MonitorMode");
+      strictEqual(
+        new Set([knownEnum.name, knownModel.name, firstEnum.name, secondEnum.name]).size,
+        4,
+      );
+      strictEqual(
+        root.models.some((model) => model.name === "Monitor"),
+        false,
+      );
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      for (const [methodName, enumType] of [
+        ["beginFirst", firstEnum],
+        ["beginSecond", secondEnum],
+      ] as const) {
+        const method = serialized.clients[0].methods.find(
+          (candidate: { name: string }) => candidate.name === methodName,
+        );
+        const propertyType = method.lroMetadata.statusMetadata[0].property.type;
+        const serializedEnum = serialized.enums[root.enums.indexOf(enumType)];
+        strictEqual(
+          propertyType.$ref ?? propertyType.$id,
+          serializedEnum.$ref ?? serializedEnum.$id,
+        );
+      }
+    },
+  );
+
   it.each([
     { optional: true, shareSdkType: false },
     { optional: false, shareSdkType: false },

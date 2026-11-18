@@ -150,6 +150,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(expected, property.Modifiers);
         }
 
+        [TestCase("internal", true, false, MethodSignatureModifiers.Internal)]
+        [TestCase("internal", false, false, MethodSignatureModifiers.Internal)]
+        [TestCase("internal", false, true, MethodSignatureModifiers.Internal)]
+        [TestCase("public", true, false, MethodSignatureModifiers.Public)]
+        [TestCase("public", false, false, MethodSignatureModifiers.Public)]
+        public void OutputOnlyPropertyDoesNotExposeNonPublicTypes(string access, bool isEnum, bool isCollection, MethodSignatureModifiers expected)
+        {
+            InputType type = isEnum
+                ? InputFactory.StringEnum("MonitorMode", [("Ready", "ready")], access: access, isExtensible: true)
+                : InputFactory.Model("Details", access: access);
+            if (isCollection)
+            {
+                type = InputFactory.Array(type);
+            }
+            var input = InputFactory.Property("details", type);
+
+            var property = new PropertyProvider(input, new TestTypeProvider(), isOutputOnly: true);
+
+            Assert.AreEqual(expected, property.Modifiers);
+        }
+
         [Test]
         public void OrdinaryModelPropertyKeepsExistingAccessibility()
         {

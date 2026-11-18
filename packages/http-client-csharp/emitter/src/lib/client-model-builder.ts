@@ -15,6 +15,7 @@ import type {
   InputEnumType,
   InputLiteralType,
   InputModelType,
+  InputType,
   InputUnionType,
 } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
@@ -83,7 +84,9 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // operation-parameter enums) where the namespace can be inconsistent across emission
   // paths. Distinct named types that share a name across different namespaces still have
   // distinct crossLanguageDefinitionIds and are preserved.
+  // Metadata selections retain distinct enum identities even if their anonymous names collide.
   const existingEnumKeys = new Set(enums.map((e) => typeDedupeKey(e)));
+  const existingEnums = new Set(enums);
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
     if (type.kind === "model") {
@@ -95,9 +98,17 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     } else if (type.kind === "enum") {
       const enumType = type as InputEnumType;
       const key = typeDedupeKey(enumType);
-      if (existingEnumKeys.has(key)) continue;
+      if (
+        existingEnums.has(enumType) ||
+        (existingEnumKeys.has(key) && !sdkContext.__typeCache.lroMetadataEnums.has(enumType))
+      ) {
+        continue;
+      }
       enums.push(enumType);
-      existingEnumKeys.add(key);
+      existingEnums.add(enumType);
+      if (!sdkContext.__typeCache.lroMetadataEnums.has(enumType)) {
+        existingEnumKeys.add(key);
+      }
     }
   }
 
@@ -105,7 +116,13 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
   // Fix naming conflicts for constants, enums, and models
-  fixNamingConflicts(models, constants, sdkContext.__typeCache.lroMetadataEnums);
+  fixNamingConflicts(
+    models,
+    enums,
+    constants,
+    sdkContext.__typeCache.lroMetadataEnums,
+    typesBeforeClients,
+  );
 
   // Resolve the root namespace. When this cannot be determined the generated code model
   // has no name, which the .NET generator rejects with an opaque root-level deserialization
@@ -169,13 +186,19 @@ function parseApiVersions(
  */
 function fixNamingConflicts(
   models: InputModelType[],
+  enums: InputEnumType[],
   constants: InputLiteralType[],
   lroMetadataEnums: Set<InputEnumType>,
+  typesBeforeClients: Set<InputType>,
 ): void {
+  const modelEnums = new Set<InputEnumType>();
   // First, fix names for constants and constant-derived enums in model properties
   for (const model of models) {
     for (const property of model.properties) {
       const type = property.type;
+      let nestedType = type;
+      while (nestedType.kind === "nullable") nestedType = nestedType.type;
+      if (nestedType.kind === "enum") modelEnums.add(nestedType);
 
       if (type.kind === "constant") {
         // Fix constant property names
@@ -217,6 +240,25 @@ function fixNamingConflicts(
     } else {
       modelNameMap.set(key, 1);
     }
+  }
+
+  // Metadata enums must have distinct output file names without renaming preexisting types.
+  const usedTypeNames = new Set(models.map((model) => model.name.toLowerCase()));
+  for (const type of enums) {
+    if (!lroMetadataEnums.has(type) || typesBeforeClients.has(type)) {
+      usedTypeNames.add(type.name.toLowerCase());
+    }
+  }
+  const metadataEnums = enums
+    .filter((type) => lroMetadataEnums.has(type) && !typesBeforeClients.has(type))
+    .sort((a, b) => Number(modelEnums.has(b)) - Number(modelEnums.has(a)));
+  for (const type of metadataEnums) {
+    const baseName = type.name;
+    let suffix = 1;
+    while (usedTypeNames.has(type.name.toLowerCase())) {
+      type.name = `${baseName}${suffix++}`;
+    }
+    usedTypeNames.add(type.name.toLowerCase());
   }
 }
 

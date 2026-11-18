@@ -113,6 +113,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         continue;
                     }
 
+                    if (metadata.PollingResponseModel is { } pollingModel
+                        && ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(pollingModel) is { } pollingType)
+                    {
+                        types.Add(pollingType.WithNullable(false));
+                    }
+
                     var properties = metadata.StatusMetadata.SelectMany(selection => selection.PropertySegments)
                         .Concat(metadata.OperationId.OfType<InputLroOperationIdPropertyMetadata>()
                             .SelectMany(selection => selection.PropertySegments));

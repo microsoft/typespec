@@ -128,6 +128,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             CollectionAssert.AreEquivalent(expected, attributes.Select(attribute => attribute.Arguments[0].ToDisplayString()));
         }
 
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void InternalLroPollingResponseModelHasBuildableContext(bool paging, bool operationId)
+        {
+            var selected = InputFactory.Property("progress", InputPrimitiveType.Int32);
+            var monitor = InputFactory.Model("Monitor", access: "internal", properties: [selected]);
+            var unrelated = InputFactory.Model("Unrelated", access: "internal");
+            var operation = InputFactory.Operation("Start");
+            var metadata = new InputLongRunningServiceMetadata(1, InputFactory.OperationResponse(), null,
+                operationId ? [] : [new InputLroStatusMetadata(selected, [selected])],
+                operationId ? [new InputLroOperationIdPropertyMetadata(selected, [selected])] : [],
+                monitor);
+            var response = InputFactory.ServiceMethodResponse(null, null);
+            InputServiceMethod method = paging
+                ? new InputLongRunningPagingServiceMethod("Start", "internal", [], null, null, operation, [],
+                    response, null, false, false, true, "", metadata,
+                    InputFactory.PagingMetadata([], null, null))
+                : new InputLongRunningServiceMethod("Start", "internal", [], null, null, operation, [],
+                    response, null, false, false, true, "", metadata);
+
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [monitor, unrelated],
+                clients: () => [InputFactory.Client("Client", methods: [method])],
+                createClientCore: _ => null);
+
+            var attributes = GetBuildableAttributes(new ModelReaderWriterContextDefinition());
+            CollectionAssert.AreEquivalent(
+                new[] { "typeof(global::Sample.Models.Monitor)" },
+                attributes.Select(attribute => attribute.Arguments[0].ToDisplayString()));
+        }
+
         [Test]
         public void PrimitiveLroMetadataDoesNotAddUnrelatedInternalModelsToContext()
         {
