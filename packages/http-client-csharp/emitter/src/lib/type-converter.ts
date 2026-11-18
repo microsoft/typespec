@@ -29,6 +29,7 @@ import {
   getDeprecated,
   NoTarget,
 } from "@typespec/compiler";
+import { isEvents } from "@typespec/events";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type {
@@ -478,20 +479,62 @@ function fromUnionType(
 ): [InputUnionType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const variantTypes: InputType[] = [];
+  const inputUnion: InputUnionType = {
+    kind: "union",
+    name: union.name,
+    variantTypes,
+    namespace: union.namespace,
+    decorators: union.decorators,
+    external: fromSdkExternalTypeInfo(union),
+    isExactName: union.isExactName,
+  };
+  sdkContext.__typeCache.updateSdkTypeReferences(union, inputUnion);
+
   for (const value of union.variantTypes) {
     const variantType = diagnostics.pipe(fromSdkType(sdkContext, value));
     variantTypes.push(variantType);
   }
 
-  return diagnostics.wrap({
-    kind: "union",
-    name: union.name,
-    variantTypes: variantTypes,
-    namespace: union.namespace,
-    decorators: union.decorators,
-    external: fromSdkExternalTypeInfo(union),
-    isExactName: union.isExactName,
-  });
+  const envelope = getDiscriminatedUnionEnvelope(sdkContext, union);
+  if (envelope) {
+    inputUnion.baseModel = diagnostics.pipe(fromSdkType(sdkContext, envelope.base));
+    inputUnion.discriminatorPropertyName = envelope.options.discriminatorPropertyName;
+    inputUnion.envelopePropertyName = envelope.options.envelopePropertyName;
+    const subtypes: Record<string, InputModelType> = Object.create(null);
+    for (const [tag, variant] of envelope.variants) {
+      subtypes[tag] = diagnostics.pipe(fromSdkType(sdkContext, variant));
+    }
+    inputUnion.discriminatedSubtypes = subtypes;
+  }
+
+  return diagnostics.wrap(inputUnion);
+}
+
+function getDiscriminatedUnionEnvelope(sdkContext: CSharpEmitterContext, union: SdkUnionType) {
+  const base = union.baseType;
+  const options = union.discriminatedOptions;
+  if (
+    options?.envelope !== "object" ||
+    base?.kind !== "model" ||
+    !base.name ||
+    union.variants.size === 0 ||
+    (union.__raw?.kind === "Union" && isEvents(sdkContext.program, union.__raw)) ||
+    new Set(union.variants.values()).size !== union.variants.size
+  ) {
+    return undefined;
+  }
+
+  const variants = new Map<string, SdkModelType>();
+  for (const [tag, variant] of union.variants) {
+    if (typeof tag !== "string" || variant.kind !== "model") return undefined;
+    let ancestor = variant.baseModel;
+    while (ancestor && ancestor !== base) {
+      ancestor = ancestor.baseModel;
+    }
+    if (!ancestor) return undefined;
+    variants.set(tag, variant);
+  }
+  return { base, options, variants };
 }
 
 function fromSdkConstantType(

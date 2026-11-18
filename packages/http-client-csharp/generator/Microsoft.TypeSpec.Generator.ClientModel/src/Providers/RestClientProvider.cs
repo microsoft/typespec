@@ -793,8 +793,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     appendStatement = BuildQueryOrHeaderOrPathParameterNullCheck(propertyType, propertyAccess, appendStatement);
                 }
 
-                statements.Add(ExperimentalApiHelpers.Suppress(
-                    appendStatement, ExperimentalApiHelpers.GetMemberSuppressions(property)));
+                statements.Add(appendStatement);
             }
 
             return statements;
@@ -1344,6 +1343,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (parameter is null)
                 {
                     continue;
+                }
+
+                if (methodType is ScmMethodKind.Convenience && parameter.Location == ParameterLocation.Body &&
+                    DiscriminatedUnionSerialization.RequiresEnvelope(inputParam.Type) &&
+                    !DiscriminatedUnionSerialization.UsesJsonRequest(operation))
+                {
+                    parameter.Type = new CSharpType(typeof(BinaryData), isNullable: parameter.Type.IsNullable);
                 }
 
                 if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)
