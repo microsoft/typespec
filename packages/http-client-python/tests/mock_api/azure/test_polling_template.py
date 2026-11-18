@@ -30,7 +30,7 @@ def testserver():
 @pytest.fixture(params=[False, True], ids=["data-plane", "arm"])
 def polling(request):
     env = Environment(
-        loader=FileSystemLoader(Path(__file__).parents[2] / "generator/pygen/codegen/templates"),
+        loader=FileSystemLoader(Path(__file__).parents[3] / "generator/pygen/codegen/templates"),
         undefined=StrictUndefined,
         trim_blocks=True,
         lstrip_blocks=True,
