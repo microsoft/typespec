@@ -12,6 +12,7 @@ import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type { CodeModel } from "../type/code-model.js";
 import type {
+  InputClient,
   InputEnumType,
   InputLiteralType,
   InputModelType,
@@ -122,6 +123,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     constants,
     sdkContext.__typeCache.lroMetadataEnums,
     typesBeforeClients,
+    sdkContext.__typeCache.clients.values(),
   );
 
   // Resolve the root namespace. When this cannot be determined the generated code model
@@ -190,6 +192,7 @@ function fixNamingConflicts(
   constants: InputLiteralType[],
   lroMetadataEnums: Set<InputEnumType>,
   typesBeforeClients: Set<InputType>,
+  clients: Iterable<InputClient>,
 ): void {
   const modelEnums = new Set<InputEnumType>();
   // First, fix names for constants and constant-derived enums in model properties
@@ -242,11 +245,20 @@ function fixNamingConflicts(
     }
   }
 
-  // Metadata enums must have distinct output file names without renaming preexisting types.
-  const usedTypeNames = new Set(models.map((model) => model.name.toLowerCase()));
+  // Metadata enums must have distinct C# type and output file names without renaming existing types.
+  const usedTypeNames = new Set([...clients].map(csharpTypeNameKey));
+  for (const model of models) {
+    const name = csharpTypeNameKey(model);
+    usedTypeNames.add(name);
+    if (!model.isExactName) {
+      // ModelProvider may project Request/Response suffixes to Content/Result.
+      if (name.endsWith("REQUEST")) usedTypeNames.add(`${name.slice(0, -7)}CONTENT`);
+      if (name.endsWith("RESPONSE")) usedTypeNames.add(`${name.slice(0, -8)}RESULT`);
+    }
+  }
   for (const type of enums) {
     if (!lroMetadataEnums.has(type) || typesBeforeClients.has(type)) {
-      usedTypeNames.add(type.name.toLowerCase());
+      usedTypeNames.add(csharpTypeNameKey(type));
     }
   }
   const metadataEnums = enums
@@ -255,11 +267,24 @@ function fixNamingConflicts(
   for (const type of metadataEnums) {
     const baseName = type.name;
     let suffix = 1;
-    while (usedTypeNames.has(type.name.toLowerCase())) {
+    while (usedTypeNames.has(csharpTypeNameKey(type))) {
       type.name = `${baseName}${suffix++}`;
     }
-    usedTypeNames.add(type.name.toLowerCase());
+    usedTypeNames.add(csharpTypeNameKey(type));
   }
+}
+
+function csharpTypeNameKey(type: { name: string; isExactName?: boolean }): string {
+  if (type.isExactName) return type.name.toUpperCase();
+  // C# checks UTF-16 code units and removes separators (including underscores).
+  const codeUnits = type.name.replace(/[\uD800-\uDFFF]/g, " ");
+  const startsWithDigit = /^\p{Nd}/u.test(codeUnits);
+  const start = startsWithDigit ? 0 : codeUnits.search(/[\p{L}\p{Nl}_]/u);
+  const name = start < 0 ? codeUnits : codeUnits.slice(start);
+  return `${startsWithDigit ? "_" : ""}${name.replace(
+    /_|[^\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]/gu,
+    "",
+  )}`.toUpperCase();
 }
 
 /**

@@ -1001,6 +1001,249 @@ describe("Operation Converter", () => {
   );
 
   it.each([
+    {
+      description: "client type",
+      monitor: "Testing",
+      property: "client",
+      client: "TestingClient",
+      knownType: "",
+      knownOperation: "",
+      expected: "TestingClient1",
+    },
+    {
+      description: "normalized model type",
+      monitor: "Monitor",
+      property: "some_mode",
+      client: "PublicOperations",
+      knownType: "model MonitorSomeMode { value: string; }",
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
+      expected: "MonitorSome_mode1",
+    },
+    {
+      description: "normalized enum type",
+      monitor: "Monitor",
+      property: "some_mode",
+      client: "PublicOperations",
+      knownType: 'enum MonitorSomeMode { Known: "known" }',
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
+      expected: "MonitorSome_mode1",
+    },
+    {
+      description: "separator-normalized type",
+      monitor: "Monitor",
+      property: '@clientName("some-mode", "csharp") someMode',
+      client: "PublicOperations",
+      knownType: "model MonitorSomeMode { value: string; }",
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
+      expected: "MonitorSome-mode1",
+    },
+    {
+      description: "Unicode-cased type",
+      monitor: "Monitor",
+      property: '@clientName("some_\u03c2_code", "csharp") someSigma',
+      client: "PublicOperations",
+      knownType:
+        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSome\u03a3Code"), "csharp") model Known { value: string; }',
+      knownOperation: '@get @route("/known") op readKnown(): Known;',
+      expected: "MonitorSome_\u03c2_code1",
+    },
+    {
+      description: "supplementary-character-normalized type",
+      monitor: "Monitor",
+      property: '@clientName("some_\u{10400}mode", "csharp") someMode',
+      client: "PublicOperations",
+      knownType: "model MonitorSomeMode { value: string; }",
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
+      expected: "MonitorSome_\u{10400}mode1",
+    },
+    {
+      description: "request model projected to a content type",
+      monitor: "Monitor",
+      property: "someContent",
+      client: "PublicOperations",
+      knownType: "model MonitorSomeRequest { value: string; }",
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeRequest;',
+      expected: "MonitorSomeContent1",
+    },
+    {
+      description: "response model projected to a result type",
+      monitor: "Monitor",
+      property: "someResult",
+      client: "PublicOperations",
+      knownType: "model MonitorSomeResponse { value: string; }",
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeResponse;',
+      expected: "MonitorSomeResult1",
+    },
+    {
+      description: "exact response model type",
+      monitor: "Monitor",
+      property: "someResult",
+      client: "PublicOperations",
+      knownType:
+        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSomeResponse"), "csharp") model Known { value: string; }',
+      knownOperation: '@get @route("/known") op readKnown(): Known;',
+      expected: "MonitorSomeResult",
+    },
+    {
+      description: "distinct type",
+      monitor: "Monitor",
+      property: "other_mode",
+      client: "PublicOperations",
+      knownType: "model MonitorSomeMode { value: string; }",
+      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
+      expected: "MonitorOther_mode",
+    },
+    {
+      description: "exact projected model type",
+      monitor: "Monitor",
+      property: "some_mode",
+      client: "PublicOperations",
+      knownType:
+        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSomeMode"), "csharp") model Known { value: string; }',
+      knownOperation: '@get @route("/known") op readKnown(): Known;',
+      expected: "MonitorSome_mode1",
+    },
+    {
+      description: "distinct exact model type",
+      monitor: "Monitor",
+      property: "some_mode",
+      client: "PublicOperations",
+      knownType:
+        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSome_mode"), "csharp") model Known { value: string; }',
+      knownOperation: '@get @route("/known") op readKnown(): Known;',
+      expected: "MonitorSome_mode",
+    },
+  ])(
+    "avoids a metadata literal enum collision with a $description",
+    async ({ monitor, property, client, knownType, knownOperation, expected }) => {
+      const program = await typeSpecCompile(
+        `
+        ${knownType}
+        model FinalResult { value: string; }
+        model ${monitor} {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroStatusMetadata ${property}?: "ready";
+        }
+        @get @route("/jobs/{jobId}/status")
+        @convenientAPI(false, "csharp")
+        op getStatus(@path("jobId") id: string): ${monitor};
+        @get @route("/jobs/{jobId}")
+        @convenientAPI(false, "csharp")
+        op getResult(@path("jobId") id: string): FinalResult;
+        @client({ service: Azure.Csharp.Testing })
+        interface ${client} {
+          ${knownOperation}
+          @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+          @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
+          op begin(@path("jobId") id: string): {
+            @statusCode code: 202;
+            @pollingLocation @header("Operation-Location") location: ResourceLocation<${monitor}>;
+            @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+          };
+        }
+        `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      strictEqual(root.clients[0].name, client);
+      const method = root.clients[0].methods.find((candidate) => candidate.name === "begin");
+      ok(method?.kind === "lro");
+      const selected = method.lroMetadata.statusMetadata?.[0].property.type;
+      ok(selected?.kind === "enum");
+      strictEqual(selected.name, expected);
+      strictEqual(root.enums.includes(selected), true);
+    },
+  );
+
+  it("avoids a metadata literal enum collision with a nested client", async () => {
+    const program = await typeSpecCompile(
+      `
+      model FinalResult { value: string; }
+      model Testing {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroStatusMetadata client?: "ready";
+      }
+      @get @route("/jobs/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getStatus(@path("jobId") id: string): Testing;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+      @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
+      op begin(@path("jobId") id: string): {
+        @statusCode code: 202;
+        @pollingLocation @header("Operation-Location") location: ResourceLocation<Testing>;
+        @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+      };
+      interface TestingClient {
+        @get @route("/ping") op ping(): void;
+      }
+      `,
+      runner,
+      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    ok(root.clients[0].children?.some((client) => client.name === "TestingClient"));
+    const method = root.clients[0].methods.find((candidate) => candidate.name === "begin");
+    ok(method?.kind === "lro");
+    const selected = method.lroMetadata.statusMetadata?.[0].property.type;
+    ok(selected?.kind === "enum");
+    strictEqual(selected.name, "TestingClient1");
+  });
+
+  it("avoids normalized-name collisions between selected literal enums", async () => {
+    const program = await typeSpecCompile(
+      `
+      model FinalResult { value: string; }
+      model Monitor {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroStatusMetadata some_mode?: "ready";
+        @lroStatusMetadata someMode?: "waiting";
+      }
+      @get @route("/jobs/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getStatus(@path("jobId") id: string): Monitor;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @client({ service: Azure.Csharp.Testing })
+      interface PublicOperations {
+        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+        @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
+        op begin(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+      }
+      `,
+      runner,
+      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    const method = root.clients[0].methods.find((candidate) => candidate.name === "begin");
+    ok(method?.kind === "lro");
+    const selections = method.lroMetadata.statusMetadata;
+    ok(selections);
+    deepStrictEqual(
+      selections.map((entry) => {
+        const type = entry.property.type;
+        ok(type.kind === "enum");
+        return type.name;
+      }),
+      ["MonitorSome_mode", "MonitorSomeMode1"],
+    );
+  });
+
+  it.each([
     { optional: true, shareSdkType: false },
     { optional: false, shareSdkType: false },
     { optional: true, shareSdkType: true },
