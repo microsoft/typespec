@@ -14,6 +14,7 @@ import {
   getEncode,
   getOpExamples,
   ignoreDiagnostics,
+  isTemplateInstance,
   serializeValueAsJson,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
@@ -30,7 +31,7 @@ import { getParameterStyle } from "./parameters.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import type { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
 import type { HttpParameterProperties, SharedHttpOperation } from "./util.js";
-import { isHttpParameterProperty, isSharedHttpOperation } from "./util.js";
+import { isHttpParameterProperty, isSharedHttpOperation, isStdType } from "./util.js";
 
 export interface OperationExamples {
   requestBody: Record<string, [Example, Type][]>;
@@ -256,9 +257,14 @@ function getDefaultHeaderEncodeAs(program: Program, header: ModelProperty): Enco
   if (!tk.scalar.is(header.type)) return;
 
   // A scalar with its own encoding keeps it, as its schema does, also when the example
-  // value was built with a scalar derived from it
+  // value was built with a scalar derived from it. A std scalar or a template instance is
+  // inlined in the header schema, where `rfc3339` still becomes `http-date`, so it keeps
+  // the default.
   const scalarEncodeData = getEncode(program, header.type);
-  if (scalarEncodeData) return scalarEncodeData;
+  const isInlined = isTemplateInstance(header.type) || isStdType(program, header.type);
+  if (scalarEncodeData && !(isInlined && scalarEncodeData.encoding === "rfc3339")) {
+    return scalarEncodeData;
+  }
 
   // Use the default encoding for date-time headers
   return {

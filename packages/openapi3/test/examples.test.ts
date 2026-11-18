@@ -1131,4 +1131,46 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       ["date", 1609459200],
     ]);
   });
+
+  it("serialize header parameter examples of a templated scalar like its inlined schema", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      @encode(DateTimeKnownEncoding.rfc3339) scalar IsoDate<T> extends utcDateTime;
+      scalar IsoString extends IsoDate<string>;
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar UnixDate<T> extends utcDateTime;
+      scalar UnixString extends UnixDate<string>;
+
+      @opExample(#{
+        parameters: #{
+          iso: IsoString.fromISO("2021-01-01T00:00:00Z"),
+          unix: UnixString.fromISO("2021-01-01T00:00:00Z"),
+        },
+      })
+      op read(@header iso: IsoDate<string>, @header unix: UnixDate<string>): void;
+      `,
+      { "experimental-parameter-examples": "data" },
+    );
+    const parameters = res.paths["/"].get?.parameters as OpenAPI3Parameter[];
+    expect(parameters.map((x) => [x.name, x.schema, x.example])).toEqual([
+      ["iso", { type: "string", format: "http-date" }, "Fri, 01 Jan 2021 00:00:00 GMT"],
+      ["unix", { type: "integer", format: "unixtime" }, 1609459200],
+    ]);
+  });
+
+  it("serialize header parameter examples of an encoded std scalar like its inlined schema", async () => {
+    const res: OpenAPI3Document = await openApiFor(
+      `
+      @@encode(utcDateTime, DateTimeKnownEncoding.rfc3339);
+
+      @opExample(#{ parameters: #{ date: utcDateTime.fromISO("2021-01-01T00:00:00Z") } })
+      op read(@header date: utcDateTime): void;
+      `,
+      { "experimental-parameter-examples": "data" },
+    );
+    const parameters = res.paths["/"].get?.parameters as OpenAPI3Parameter[];
+    expect(parameters.map((x) => [x.name, x.schema, x.example])).toEqual([
+      ["date", { type: "string", format: "http-date" }, "Fri, 01 Jan 2021 00:00:00 GMT"],
+    ]);
+  });
 });
