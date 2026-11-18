@@ -5,6 +5,7 @@ export { httpRuntimeTemplateLib } from "./external-packages/ts-http-runtime.js";
 export { uriTemplateLib } from "./external-packages/uri-template.js";
 export { Models } from "./models.js";
 export { ModelSerializers } from "./serializers.js";
+export { FormUrlEncodedHelpers } from "./static-helpers/form-urlencoded.jsx";
 export { Interfaces } from "./static-helpers/interfaces.jsx";
 export { MultipartHelpers } from "./static-helpers/multipart-helpers.jsx";
 export { PagingHelpers } from "./static-helpers/paging-helper.jsx";

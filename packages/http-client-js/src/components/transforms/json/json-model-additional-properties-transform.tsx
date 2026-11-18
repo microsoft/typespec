@@ -4,16 +4,21 @@ import * as ts from "@alloy-js/typescript";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getJsonRecordTransformRefkey } from "./json-record-transform.jsx";
+import {
+  type SerializerTransformKind,
+} from "../../../utils/serializer-transform.js";
 
 export interface JsonAdditionalPropertiesTransformProps {
   itemRef: Children;
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertiesTransformProps) {
   const { $ } = useTsp();
   const additionalProperties = $.model.getAdditionalPropertiesRecord(props.type);
+  const serializerKind = props.serializerKind ?? "json";
 
   if (!additionalProperties) {
     return null;
@@ -32,7 +37,7 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
 
     // Inline destructuring that extracts the properties and passes the rest to jsonRecordUnknownToApplicationTransform_2
     const inlineDestructure = code`
-    ${getJsonRecordTransformRefkey(additionalProperties, props.target)}(
+    ${getJsonRecordTransformRefkey(additionalProperties, props.target, serializerKind)}(
       (({ ${destructuredProperties} ...rest }) => rest)(${props.itemRef})
     ),
     `;
@@ -48,7 +53,7 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
 
   return (
     <>
-      ...({getJsonRecordTransformRefkey(additionalProperties, props.target)}({itemRef}) ),
+      ...({getJsonRecordTransformRefkey(additionalProperties, props.target, serializerKind)}({itemRef}) ),
     </>
   );
 }

@@ -14,6 +14,7 @@ import { Client } from "./components/client.jsx";
 import { Models } from "./components/models.js";
 import { Output } from "./components/output.jsx";
 import { ModelSerializers } from "./components/serializers.js";
+import { FormUrlEncodedHelpers } from "./components/static-helpers/form-urlencoded.jsx";
 import { Interfaces } from "./components/static-helpers/interfaces.jsx";
 import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.jsx";
 import { PagingHelpers } from "./components/static-helpers/paging-helper.jsx";
@@ -53,6 +54,7 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
               <PagingHelpers />
               <Interfaces />
               <MultipartHelpers />
+              <FormUrlEncodedHelpers />
               <ts.SourceFile path="error.ts">
                 <RestError />
               </ts.SourceFile>
