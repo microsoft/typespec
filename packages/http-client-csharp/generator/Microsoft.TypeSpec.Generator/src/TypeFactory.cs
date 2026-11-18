@@ -35,19 +35,34 @@ namespace Microsoft.TypeSpec.Generator
             => InputTypeToModelProvider.Values.OfType<ModelProvider>();
 
         private IReadOnlyDictionary<InputModelType, string>? _modelNames;
-        internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
-        private readonly Dictionary<InputModelType, string> _restoredUnknownModelOriginalNames = [];
+        private bool _isBuildingModelNames;
+        internal IReadOnlyDictionary<InputModelType, string> ModelNames
+        {
+            get
+            {
+                if (_modelNames is null)
+                {
+                    _isBuildingModelNames = true;
+                    try
+                    {
+                        _modelNames = BuildModelNames();
+                    }
+                    finally
+                    {
+                        _isBuildingModelNames = false;
+                    }
+                }
 
-        internal string? GetOriginalUnknownModelName(InputModelType model)
-            => _restoredUnknownModelOriginalNames.GetValueOrDefault(model);
+                return _modelNames;
+            }
+        }
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
 
         private IReadOnlyDictionary<InputModelType, string> BuildModelNames()
         {
             var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping)>();
-            var providers = new Dictionary<InputModelType, ModelProvider>();
+            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping, bool IsRestoredUnknownName, string DefaultName)>();
             var nameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var reservedNames = GetReservedModelTypeNames().ToArray();
             var originalNames = reservedNames.Select(type => type.OriginalName).ToHashSet(StringComparer.Ordinal);
@@ -67,9 +82,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 // Do not construct CSharpTypes while collecting names: their creation calls BuildName.
-                var provider = new ModelProvider(model);
-                var candidate = provider.GetNameForCollisionCheck();
-                providers.Add(model, provider);
+                var candidate = new ModelProvider(model).GetNameForCollisionCheck();
                 candidates.Add(model, candidate);
                 originalNames.Add(candidate.OriginalName);
                 ReserveName(candidate.FinalName);
@@ -99,6 +112,23 @@ namespace Microsoft.TypeSpec.Generator
             var result = new Dictionary<InputModelType, string>();
             foreach (var (model, candidate) in candidates)
             {
+                if (candidate.IsRestoredUnknownName &&
+                    (nameCounts[candidate.FinalName] > 1 || reservedTypes.Contains((candidate.FinalName, candidate.FinalNamespace))))
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Skipping back-compat unknown discriminator model name '{candidate.FinalName}' for '{candidate.Namespace}.{candidate.DefaultName}'; the name is already used by another generated type.",
+                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
+                    result.Add(model, candidate.DefaultName);
+                    continue;
+                }
+
+                if (candidate.IsRestoredUnknownName)
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Changed unknown discriminator model name from '{candidate.DefaultName}' to '{candidate.Name}' to match the last contract.",
+                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNamePreserved);
+                }
+
                 // A direct input takes precedence over an implicit suffix match for the same mapping.
                 var mappingBelongsToModel = candidate.HasTypeMapping &&
                     !originalNames.Contains(candidate.Name);
@@ -120,82 +150,24 @@ namespace Microsoft.TypeSpec.Generator
                 ReserveName(name);
                 result.Add(model, name);
             }
-
-            var source = CodeModelGenerator.Instance.SourceInputModel;
-            if (source.LastContract is null)
-            {
-                return result;
-            }
-
-            // Resolve historical unknown names only after all base names are fixed. These lookups
-            // must not construct generated types or depend on an unknown model's name.
-            var emittedTypes = candidates.ToDictionary(
-                pair => pair.Key,
-                pair => (pair.Value.FinalName == pair.Value.Name ? result[pair.Key] : pair.Value.FinalName, pair.Value.FinalNamespace));
-            foreach (var (model, candidate) in candidates)
-            {
-                if (!model.IsUnknownDiscriminatorModel || model.BaseModel is not { } baseModel ||
-                    !candidates.ContainsKey(baseModel))
-                {
-                    continue;
-                }
-
-                var (baseName, baseNamespace) = emittedTypes[baseModel];
-                var proxyType = providers[baseModel].GetLastContractProxyType(baseName, baseNamespace);
-                if (proxyType is null)
-                {
-                    continue;
-                }
-
-                var proxyNamespace = proxyType.ContainingNamespace.ToDisplayString();
-                var custom = source.FindForTypeInCurrentCompilation(candidate.Namespace, proxyType.Name);
-                var legacyCustom = source.FindForTypeInCurrentCompilation(candidate.Namespace, result[model]);
-                var finalName = custom?.Name ?? proxyType.Name;
-                var finalNamespace = custom?.Type.Namespace ?? candidate.Namespace;
-                string? reason = null;
-                if (proxyNamespace != candidate.FinalNamespace)
-                {
-                    reason = "the proxy type is in a different namespace";
-                }
-                else if (proxyType.ContainingType is not null || proxyType.IsGenericType)
-                {
-                    reason = "the proxy type is nested or generic";
-                }
-                else if (source.ApiCompatBaseline.IsTypeSuppressed(proxyType.ToDisplayString()))
-                {
-                    reason = "the proxy type is an accepted removal in the ApiCompat baseline";
-                }
-                else if (emittedTypes.Any(pair => pair.Key != model && pair.Value == (finalName, finalNamespace)) ||
-                    reservedTypes.Contains((finalName, finalNamespace)))
-                {
-                    reason = "the name is already used by another generated type";
-                }
-                else if (custom is not null && custom.Type != legacyCustom?.Type &&
-                    !source.IsCustomizationOf(custom, result[model], proxyType.Name))
-                {
-                    reason = "the name is already used by an unrelated custom type";
-                }
-
-                if (reason is not null)
-                {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat unknown discriminator model name '{proxyType.ToDisplayString()}' for '{baseNamespace}.{baseName}'; {reason}.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                    continue;
-                }
-
-                if (result[model] != proxyType.Name)
-                {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed unknown discriminator model name from '{result[model]}' to '{proxyType.Name}' for '{baseNamespace}.{baseName}' to match the last contract.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNamePreserved);
-                    _restoredUnknownModelOriginalNames[model] = result[model];
-                    result[model] = proxyType.Name;
-                    emittedTypes[model] = (legacyCustom?.Name ?? finalName, legacyCustom?.Type.Namespace ?? finalNamespace);
-                }
-            }
-
             return result;
+        }
+
+        internal bool TryGetModelName(InputModelType model, out string name)
+        {
+            if (!_isBuildingModelNames && _modelNames is null)
+            {
+                _ = ModelNames;
+            }
+
+            if (_modelNames is not null && _modelNames.TryGetValue(model, out var modelName))
+            {
+                name = modelName;
+                return true;
+            }
+
+            name = string.Empty;
+            return false;
         }
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);

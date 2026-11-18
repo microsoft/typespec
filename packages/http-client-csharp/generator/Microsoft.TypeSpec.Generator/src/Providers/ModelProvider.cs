@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string RequestSuffix = "Request";
         private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
+        private readonly Lazy<string?> _lastContractUnknownDiscriminatorModelName;
         internal InputModelType InputModel => _inputModel;
 
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
@@ -88,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
+            _lastContractUnknownDiscriminatorModelName = new(BuildLastContractUnknownDiscriminatorModelName);
             _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
@@ -442,14 +444,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
-            return CodeModelGenerator.Instance.TypeFactory.ModelNames.TryGetValue(_inputModel, out var name)
-                ? name
+            if (CodeModelGenerator.Instance.TypeFactory.TryGetModelName(_inputModel, out var name))
+            {
+                return name;
+            }
+
+            return IsUnknownDiscriminatorModel && _lastContractUnknownDiscriminatorModelName.Value is { } historicalName
+                ? historicalName
                 : BuildNameWithoutCollisionCheck();
         }
 
-        internal INamedTypeSymbol? GetLastContractProxyType(string typeName, string typeNamespace)
+        private string? BuildLastContractUnknownDiscriminatorModelName()
         {
-            var attributes = BuildLastContractView(typeName, typeNamespace)?.Attributes
+            if (_inputModel.BaseModel is not { } baseModel ||
+                CodeModelGenerator.Instance.SourceInputModel.LastContract is null ||
+                new ModelProvider(baseModel).LastContractView is not { } lastContractBase)
+            {
+                return null;
+            }
+
+            var attributes = lastContractBase.Attributes
                 .Where(attribute => attribute.Data?.AttributeClass?.ToDisplayString() ==
                     "System.ClientModel.Primitives.PersistableModelProxyAttribute").ToArray();
             if (attributes is null or { Length: 0 })
@@ -457,28 +471,59 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            if (attributes.Length == 1 &&
-                attributes[0].Data!.ConstructorArguments is [{ Kind: TypedConstantKind.Type, Value: INamedTypeSymbol { TypeKind: not TypeKind.Error } proxyType }])
+            if (attributes.Length != 1 ||
+                attributes[0].Data!.ConstructorArguments is not [{ Kind: TypedConstantKind.Type, Value: INamedTypeSymbol { TypeKind: not TypeKind.Error } proxyType }])
             {
-                return proxyType;
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat unknown discriminator model name for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; expected exactly one PersistableModelProxyAttribute with a resolvable type argument.",
+                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
+                return null;
             }
 
-            CodeModelGenerator.Instance.Emitter.Info(
-                $"Skipping back-compat unknown discriminator model name for '{typeNamespace}.{typeName}'; expected exactly one PersistableModelProxyAttribute with a resolvable type argument.",
-                BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-            return null;
+            var typeNamespace = BuildNamespace();
+            var proxyNamespace = proxyType.ContainingNamespace.ToDisplayString();
+            string? reason = null;
+            if (proxyNamespace != typeNamespace)
+            {
+                reason = "the proxy type is in a different namespace";
+            }
+            else if (proxyType.ContainingType is not null || proxyType.IsGenericType)
+            {
+                reason = "the proxy type is nested or generic";
+            }
+            else if (CodeModelGenerator.Instance.SourceInputModel.ApiCompatBaseline.IsTypeSuppressed(proxyType.ToDisplayString()))
+            {
+                reason = "the proxy type is an accepted removal in the ApiCompat baseline";
+            }
+            else if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, proxyType.Name) is { } custom &&
+                !CodeModelGenerator.Instance.SourceInputModel.IsCustomizationOf(custom, BuildNameWithoutCollisionCheck(), proxyType.Name))
+            {
+                reason = "the name is already used by an unrelated custom type";
+            }
+
+            if (reason is not null)
+            {
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat unknown discriminator model name '{proxyType.ToDisplayString()}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; {reason}.",
+                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
+                return null;
+            }
+
+            return proxyType.Name;
         }
 
-        internal (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping) GetNameForCollisionCheck()
+        internal (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping, bool IsRestoredUnknownName, string DefaultName) GetNameForCollisionCheck()
         {
-            var name = BuildNameWithoutCollisionCheck();
+            var defaultName = BuildNameWithoutCollisionCheck();
+            var name = BuildName();
             var originalName = _inputModel.IsExactName ? _inputModel.Name : _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
             var typeNamespace = BuildNamespace();
             var customType = base.BuildCustomCodeView(name, typeNamespace);
-            var canRename = !_inputModel.IsExactName && name != originalName &&
-                name == RenameModelSuffix(originalName);
+            var canRename = !_inputModel.IsExactName && defaultName != originalName &&
+                defaultName == RenameModelSuffix(originalName);
             return (name, customType?.Name ?? name, originalName, typeNamespace, customType?.Type.Namespace ?? typeNamespace,
-                canRename, CodeModelGenerator.Instance.SourceInputModel.HasTypeMapping(typeNamespace, name, DeclaringTypeName));
+                canRename, CodeModelGenerator.Instance.SourceInputModel.HasTypeMapping(typeNamespace, name, DeclaringTypeName),
+                IsUnknownDiscriminatorModel && name != defaultName, defaultName);
         }
 
         private string BuildNameWithoutCollisionCheck()
@@ -532,8 +577,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
             if (IsUnknownDiscriminatorModel &&
-                CodeModelGenerator.Instance.TypeFactory.GetOriginalUnknownModelName(_inputModel) is { } originalName &&
-                base.BuildCustomCodeView(originalName, typeNamespace) is { } legacyCustomCodeView)
+                base.BuildCustomCodeView(BuildNameWithoutCollisionCheck(), typeNamespace) is { } legacyCustomCodeView)
             {
                 return legacyCustomCodeView;
             }
