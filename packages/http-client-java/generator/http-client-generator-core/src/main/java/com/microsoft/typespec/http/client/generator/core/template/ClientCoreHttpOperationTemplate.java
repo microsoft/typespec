@@ -169,6 +169,7 @@ final class ClientCoreHttpOperationTemplate {
     }
 
     private static void writeOperation(Proxy proxy, ProxyMethod method, JavaBlock block, JavaSettings settings) {
+        // Reserve parameter names so generated locals like httpRequest cannot collide with them.
         Set<String> names
             = method.getParameters().stream().map(ProxyMethodParameter::getName).collect(Collectors.toSet());
         String request = localName(names, "httpRequest");
@@ -247,6 +248,7 @@ final class ClientCoreHttpOperationTemplate {
 
         List<String> parts = new ArrayList<>();
         if (!hasHost) {
+            // Without a host template, URI-bound parameters supply the base endpoint in declaration order.
             method.getParameters()
                 .stream()
                 .filter(parameter -> parameter.getRequestParameterLocation() == RequestParameterLocation.URI)
@@ -293,6 +295,7 @@ final class ClientCoreHttpOperationTemplate {
                 name = parameter.getHeaderCollectionPrefix();
             }
             if (!CoreUtils.isNullOrEmpty(name)) {
+                // Match the processor: the first header or query parameter for a wire name wins.
                 bindings.putIfAbsent(name, parameter);
             }
         }
@@ -347,6 +350,7 @@ final class ClientCoreHttpOperationTemplate {
         if (body == null) {
             return null;
         }
+        // The processor let a parameter named contentType override the declared media type.
         String mediaType = method.getParameters()
             .stream()
             .filter(parameter -> "contentType".equals(parameter.getName()))
@@ -368,6 +372,7 @@ final class ClientCoreHttpOperationTemplate {
     private static boolean serializesBody(ProxyMethod method, ProxyMethodParameter body) {
         String contentType = method.getRequestContentType();
         IType type = body.getWireType();
+        // A declared JSON body is serialized even for String. For other media types, raw text and bytes pass through.
         return (contentType != null && "application/json".equalsIgnoreCase(contentType.trim()))
             || !(ClassType.BINARY_DATA.equals(type)
                 || ClassType.STRING.equals(type)
@@ -439,6 +444,7 @@ final class ClientCoreHttpOperationTemplate {
             String bytes = localName(names, "responseBody");
             block.line("BinaryData %s = %s.getValue();", bytes, response);
             String decode = bytes + ".toBytes()";
+            // Both raw and base64url responses return byte[]; the wire type determines whether to decode.
             if (ClassType.BASE_64_URL.equals(method.getReturnValueWireType())) {
                 decode = "new " + ClassType.BASE_64_URL.getName() + "(" + decode + ").decodedBytes()";
             }
@@ -494,6 +500,7 @@ final class ClientCoreHttpOperationTemplate {
     private static String typeToken(IType type) {
         if (type instanceof GenericType) {
             GenericType generic = (GenericType) type;
+            // Preserve nested type arguments for deserialization; a raw class literal would erase them.
             return Arrays.stream(generic.getTypeArguments())
                 .map(argument -> typeToken(argument.asNullable()))
                 .collect(Collectors.joining(", ", "CoreUtils.createParameterizedType(" + generic.getName() + ".class, ",
@@ -512,6 +519,7 @@ final class ClientCoreHttpOperationTemplate {
         if (method.getUnexpectedResponseExceptionTypes() != null) {
             method.getUnexpectedResponseExceptionTypes().forEach((exception, codes) -> {
                 ClientModel model = errorModel(exception, settings);
+                // An explicit status without a model still needs an Object entry to override the default error model.
                 String type = "CoreUtils.createParameterizedType(" + (model == null ? "Object" : model.getFullName())
                     + ".class)";
                 codes.forEach(code -> types.put(code, type));
