@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodExample;
@@ -36,12 +37,15 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventSerializerTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,10 +94,50 @@ public class JavaPackage {
         return textFiles;
     }
 
+    public final void addExperimentalAnnotation() {
+        String fullName = settings.getExperimentalAnnotation();
+        int separator = fullName.lastIndexOf('.');
+        String name = fullName.substring(separator + 1);
+        JavaFile javaFile = javaFileFactory.createSourceFile(fullName.substring(0, separator), name);
+        if (filePaths.contains(javaFile.getFilePath())) {
+            throw new IllegalArgumentException(
+                "experimental-annotation conflicts with a generated Java type: " + fullName);
+        }
+        javaFile.declareImport("java.lang.annotation.Documented", "java.lang.annotation.ElementType",
+            "java.lang.annotation.Retention", "java.lang.annotation.RetentionPolicy", "java.lang.annotation.Target");
+        javaFile.javadocComment(comment -> comment.description("Marks an API as experimental and subject to change."));
+        javaFile.annotation("Documented", "Retention(RetentionPolicy.CLASS)",
+            "Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER})");
+        javaFile.getContents().block("public @interface " + name, block -> {
+            block.javadocComment(comment -> comment.description("The warning text for generated experimental APIs."));
+            block.line("String WARNING_TEXT = "
+                + ClassType.STRING.defaultValueExpression(ExperimentalAnnotationUtil.DEFAULT_WARNING_TEXT) + ";");
+            block.line();
+            block.javadocComment(comment -> {
+                comment.description("Gets the warning text describing the experimental API.");
+                comment.methodReturns("the warning text.");
+            });
+            block.line("String warningText();");
+        });
+        addJavaFile(javaFile);
+    }
+
     public final void addServiceClient(String packageKeyword, String name, ServiceClient model) {
         JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyword, name);
         Templates.getServiceClientTemplate().write(model, javaFile);
         addJavaFile(javaFile);
+    }
+
+    public final void addSseEventSerializer(ClientModel baseModel) {
+        var serializerType = SseUtil.requireSseMetadata(baseModel).getSerializerType();
+        JavaFile serializerFile
+            = javaFileFactory.createSourceFile(serializerType.getPackage(), serializerType.getName());
+        if (filePaths.contains(serializerFile.getFilePath())) {
+            throw new IllegalStateException("SSE generated source file '" + serializerFile.getFilePath()
+                + "' conflicts with another generated source file.");
+        }
+        SseEventSerializerTemplate.getInstance().write(baseModel, serializerFile);
+        addJavaFile(serializerFile);
     }
 
     public final void addAsyncServiceClient(String packageKeyWord, AsyncSyncClient asyncClient) {

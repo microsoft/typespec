@@ -18,6 +18,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [SetUp]
         public void Setup() => MockHelpers.LoadMockGenerator();
 
+        [TestCase(typeof(int[]), typeof(int?[]), false)]
+        [TestCase(typeof(int?[]), typeof(int[]), false)]
+        [TestCase(typeof(int?[][]), typeof(int[][]), false)]
+        [TestCase(typeof(int[]), typeof(int[,]), false)]
+        [TestCase(typeof(int?[][]), typeof(int?[][]), true)]
+        public void ArrayContractChecksElementTypeAndRank(Type previous, Type current, bool compatible)
+        {
+            Assert.That(ModelBaseMemberCompatibility.AreTypesCompatible(new CSharpType(previous), new CSharpType(current)),
+                Is.EqualTo(compatible));
+        }
+
         [TestCase("public virtual string Value { get; set; }", "public string Value { get; set; }")]
         [TestCase("public string Value { get; set; }", "protected string Value { get; set; }")]
         [TestCase("public string Value { get; set; }", "public string Value { get; protected set; }")]

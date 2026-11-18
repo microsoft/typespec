@@ -1,6 +1,6 @@
 public void Foo()
 {
-    global::System.Boolean[] foo = new bool[] 
+    bool[] foo = new bool[] 
     {
         false,
         true,

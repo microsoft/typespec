@@ -618,22 +618,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string key)
         {
-            var suppressions = new List<SuppressionStatement>();
-            foreach (var attribute in typeProvider.CanonicalView.Attributes)
+            AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
+                .FirstOrDefault(a => ExperimentalApiHelpers.IsExperimentalAttribute(a) || a.Type.Equals(typeof(ObsoleteAttribute)));
+
+            if (experimentalOrObsoleteAttribute is not null && ExperimentalApiHelpers.IsExperimentalAttribute(experimentalOrObsoleteAttribute))
             {
-                if (ExperimentalApiHelpers.IsExperimentalAttribute(attribute))
-                {
-                    string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
-                    suppressions.Add(new SuppressionStatement(null, attribute.Arguments[0], justification));
-                }
-                else if (DeprecationApiHelpers.IsObsoleteAttribute(attribute))
-                {
-                    string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
-                    suppressions.Add(new SuppressionStatement(null,
-                        Literal(DeprecationApiHelpers.GetDiagnosticId(attribute) ?? DefaultObsoleteDiagnosticId), justification));
-                }
+                string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));
             }
-            attributes.Add(key, ExperimentalApiHelpers.Suppress(attributeStatement, suppressions));
+            else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
+            {
+                string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), justification));
+            }
+            else
+            {
+                attributes.Add(key, attributeStatement);
+            }
         }
 
         private static void AddAttributeForType(
@@ -644,7 +645,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string obsoleteTypeJustification)
         {
             var key = frameworkType.FullName ?? frameworkType.Name;
-            var suppressions = new List<SuppressionStatement>();
 
             // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
             // target netstandard2.0 polyfill their own System.Diagnostics.CodeAnalysis.ExperimentalAttribute,
@@ -658,7 +658,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var diagnosticId = experimentalData.ConstructorArguments.Count > 0
                     ? experimentalData.ConstructorArguments[0].Value as string
                     : null;
-                suppressions.Add(new SuppressionStatement(null, Literal(diagnosticId), experimentalTypeJustification));
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
+                return;
             }
 
             var obsoleteAttr = frameworkType.GetCustomAttributes(typeof(ObsoleteAttribute), false)
@@ -667,10 +668,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var diagnosticId = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
                     ?? DefaultObsoleteDiagnosticId;
-                suppressions.Add(new SuppressionStatement(null, Literal(diagnosticId), obsoleteTypeJustification));
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), obsoleteTypeJustification));
+                return;
             }
 
-            attributes.Add(key, ExperimentalApiHelpers.Suppress(attributeStatement, suppressions));
+            attributes.Add(key, attributeStatement);
         }
 
         /// <summary>

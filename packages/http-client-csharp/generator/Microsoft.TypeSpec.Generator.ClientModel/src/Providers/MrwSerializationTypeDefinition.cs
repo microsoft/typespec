@@ -82,6 +82,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool? _shouldOverrideMethods;
         private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
             (_model.BaseModelProvider != null || HasCustomBaseJsonModelWriteCoreMethod());
+        private bool ShouldOverrideJsonModelWriteCore => ShouldOverrideMethods &&
+            (_model.BaseModelProvider is not SystemObjectModelProvider systemBase ||
+                ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase) ||
+                HasCustomBaseJsonModelWriteCoreMethod());
         private bool? _shouldSkipSerializationMethodOverrides;
         private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
@@ -328,7 +332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
 
         /// <summary>
-        /// Determines whether the hand-authored base declares a <c>JsonModelWriteCore</c> method that the
+        /// Determines whether the hand-authored or external base declares a <c>JsonModelWriteCore</c> method that the
         /// generated one can legally override.
         /// </summary>
         /// <remarks>
@@ -337,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <c>override</c> against it produces CS0506/CS0115/CS0507.
         /// </remarks>
         private bool HasCustomBaseJsonModelWriteCoreMethod()
-            => GetCustomSerializationBaseType() is { } baseType &&
+            => (_model.BaseModelProvider is SystemObjectModelProvider ? _model.BaseType : GetCustomSerializationBaseType()) is { } baseType &&
                 ModelReaderWriterHelpers.FindMethodInHierarchy(
                     baseType,
                     IsJsonModelWriteCoreSignature,
@@ -484,6 +488,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methods.Add(BuildJsonModelCreateMethod());
                 methods.Add(BuildJsonModelCreateCoreMethod());
                 methods.Add(BuildDeserializationMethod());
+                foreach (var union in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Unions
+                    .Where(union => union.BaseModel == _inputModel && DiscriminatedUnionSerialization.RequiresEnvelope(union)))
+                {
+                    methods.AddRange(DiscriminatedUnionSerialization.BuildMethods(union, this));
+                }
 
                 if (_isStruct)
                 {
@@ -736,7 +745,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (ShouldOverrideMethods)
+            if (ShouldOverrideJsonModelWriteCore)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -1091,6 +1100,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildDeserializationMethodBody()
         {
+            if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return
+                [
+                    new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
+                    Throw(New.Instance<JsonException>(Literal($"Cannot deserialize abstract model '{_model.Name}' without a discriminator.")))
+                ];
+            }
+
             // Build the deserialization statements for each property
             ForEachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
             {
@@ -1288,7 +1306,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase)
         {
             // base.<JsonModelWriteCore>()
-            bool callBaseWriteMethod = ShouldOverrideMethods
+            bool callBaseWriteMethod = ShouldOverrideJsonModelWriteCore
                 && (_jsonPatchProperty is null || !isDynamicModelWithNonDynamicBase);
             return callBaseWriteMethod ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
@@ -1782,7 +1800,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement[] deserializationStatements;
-            if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType, propertyType))
+            {
+                deserializationStatements =
+                [
+                    DiscriminatedUnionSerialization.DeserializeValue(
+                        wireInfo.InputType!, propertyType, jsonProperty.Value(), _mrwOptionsParameterSnippet, out var value),
+                    variableExpression.Assign(value).Terminate()
+                ];
+            }
+            else if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))
             {
                 if (ArrayKnownEncodingExtensions.TryGetDelimiter(serializationFormat.Value, out var delimiter))
                 {
@@ -2157,7 +2184,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var propertyIsNullable = wireInfo.IsNullable;
 
             // Generate the serialization statements for the property
-            var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
+            var serializationStatement = DiscriminatedUnionSerialization.RequiresEnvelope(wireInfo.InputType, propertyType)
+                ? CreateEnvelopeSerializationStatement(
+                    wireInfo.InputType!, propertyType, propertyExpression, propertySerializationName)
+                : CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
             // Check for encoded arrays and override the serialization statement
             if (serializationFormat.HasValue && (propertyType.IsList || propertyType.IsArray))

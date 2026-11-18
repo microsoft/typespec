@@ -16,6 +16,12 @@ public final class NonResourceImpl implements NonResource, NonResource.Definitio
     NonResourceImpl(NonResourceInner innerObject, azure.resourcemanager.nonresource.NonResourceManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.location = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}",
+            "location");
+        this.parameter = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}",
+            "parameter");
     }
 
     public String id() {

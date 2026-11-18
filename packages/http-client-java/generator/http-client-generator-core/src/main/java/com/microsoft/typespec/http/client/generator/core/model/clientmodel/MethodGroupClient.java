@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
@@ -154,6 +155,7 @@ public class MethodGroupClient {
      * implementations.
      */
     public final void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         if (!settings.isFluent() && settings.isGenerateClientInterfaces()) {
             imports.add(String.format("%1$s.%2$s", settings.getPackage(), getInterfaceName()));
         }

@@ -10,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayEncoding;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -52,6 +53,7 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         ClientModelProperty.Builder builder
             = new ClientModelProperty.Builder().name(property.getLanguage().getJava().getName())
                 .required(property.isRequired())
+                .apiMetadata(new ApiMetadata.Builder().experimental(SchemaUtil.getExperimental(property)).build())
                 .readOnly(property.isReadOnly());
 
         List<ClientModelProperty.Mutability> mutabilities = null;

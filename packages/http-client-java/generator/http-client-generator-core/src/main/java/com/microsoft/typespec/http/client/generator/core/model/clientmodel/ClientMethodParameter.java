@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,6 +72,7 @@ public class ClientMethodParameter extends MethodParameter {
     private final List<ClassType> annotations;
 
     private final Versioning versioning;
+    private final ApiMetadata apiMetadata;
 
     /**
      * Create a new Parameter with the provided properties.
@@ -87,12 +89,13 @@ public class ClientMethodParameter extends MethodParameter {
      */
     private ClientMethodParameter(String description, boolean isFinal, IType wireType, IType rawType, String name,
         boolean isRequired, boolean isConstant, boolean fromClient, String defaultValue, List<ClassType> annotations,
-        RequestParameterLocation location, Versioning versioning) {
+        RequestParameterLocation location, Versioning versioning, ApiMetadata apiMetadata) {
         super(description, wireType, rawType, wireType.getClientType(), name, location, isConstant, isRequired,
             fromClient, defaultValue);
         this.isFinal = isFinal;
         this.annotations = annotations;
         this.versioning = versioning;
+        this.apiMetadata = apiMetadata;
     }
 
     public final boolean isFinal() {
@@ -105,6 +108,10 @@ public class ClientMethodParameter extends MethodParameter {
 
     public Versioning getVersioning() {
         return versioning;
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**
@@ -120,7 +127,9 @@ public class ClientMethodParameter extends MethodParameter {
      * The full declaration of this parameter as it appears in a method signature.
      */
     public final String getDeclaration() {
-        return getAnnotations().stream().map(annotation -> "@" + annotation.getName()).collect(Collectors.joining(""))
+        String experimentalAnnotation = ExperimentalAnnotationUtil.getAnnotation(apiMetadata);
+        return (experimentalAnnotation == null ? "" : "@" + experimentalAnnotation + " ")
+            + getAnnotations().stream().map(annotation -> "@" + annotation.getName()).collect(Collectors.joining(""))
             + (isFinal() ? "final " : "") + String.format("%1$s %2$s", getClientType(), getName());
     }
 
@@ -132,6 +141,7 @@ public class ClientMethodParameter extends MethodParameter {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, apiMetadata);
         for (ClassType annotation : getAnnotations()) {
             annotation.addImportsTo(imports, includeImplementationImports);
         }
@@ -157,6 +167,7 @@ public class ClientMethodParameter extends MethodParameter {
         private List<ClassType> annotations;
         private RequestParameterLocation requestParameterLocation;
         private Versioning versioning;
+        private ApiMetadata apiMetadata;
 
         /**
          * Sets the description of this parameter.
@@ -284,6 +295,11 @@ public class ClientMethodParameter extends MethodParameter {
             return this;
         }
 
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
+            return this;
+        }
+
         /**
          * Creates a new instance of Builder.
          */
@@ -303,11 +319,12 @@ public class ClientMethodParameter extends MethodParameter {
             this.annotations = parameter.getAnnotations();
             this.requestParameterLocation = parameter.getRequestParameterLocation();
             this.versioning = parameter.getVersioning();
+            this.apiMetadata = parameter.getApiMetadata();
         }
 
         public ClientMethodParameter build() {
             return new ClientMethodParameter(description, isFinal, wireType, rawType, name, isRequired, isConstant,
-                fromClient, defaultValue, annotations, requestParameterLocation, versioning);
+                fromClient, defaultValue, annotations, requestParameterLocation, versioning, apiMetadata);
         }
     }
 }

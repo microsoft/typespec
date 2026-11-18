@@ -33,6 +33,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String customTypes;
     private String customTypeSubpackage;
     private String customizationClass;
+    private String experimentalAnnotation;
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
@@ -138,6 +139,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public String getCustomizationClass() {
         return customizationClass;
+    }
+
+    public String getExperimentalAnnotation() {
+        return experimentalAnnotation;
     }
 
     public Map<String, PollingSettings> getPolling() {
@@ -262,6 +267,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.customTypeSubpackage = emptyToNull(reader.getString());
             } else if ("customization-class".equals(fieldName)) {
                 options.customizationClass = emptyToNull(reader.getString());
+            } else if ("experimental-annotation".equals(fieldName)) {
+                options.experimentalAnnotation = reader.getString();
             } else if ("include-api-view-properties".equals(fieldName)) {
                 options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-object-for-unknown".equals(fieldName)) {

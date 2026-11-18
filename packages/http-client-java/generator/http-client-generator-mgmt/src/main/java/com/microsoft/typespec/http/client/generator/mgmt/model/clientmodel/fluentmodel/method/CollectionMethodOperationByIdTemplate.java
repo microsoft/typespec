@@ -100,6 +100,7 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                 .build();
 
         methodTemplate = MethodTemplate.builder()
+            .apiMetadata(collectionMethod.getInnerClientMethod().getApiMetadata())
             .comment(commentBlock -> ClientMethodTemplate.generateJavadoc(dummyClientMethodForJavadoc, commentBlock,
                 dummyClientMethodForJavadoc.getProxyMethod(), true))
             .methodSignature(this.getMethodSignature(returnType, parameters))
@@ -177,9 +178,8 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
     }
 
     private String getMethodSignature(IType returnType, List<ClientMethodParameter> parameters) {
-        String parameterText = parameters.stream()
-            .map(p -> String.format("%1$s %2$s", p.getClientType().toString(), p.getName()))
-            .collect(Collectors.joining(", "));
+        String parameterText
+            = parameters.stream().map(ClientMethodParameter::getDeclaration).collect(Collectors.joining(", "));
         return String.format("%1$s %2$s(%3$s)", returnType.toString(), this.name, parameterText);
     }
 }

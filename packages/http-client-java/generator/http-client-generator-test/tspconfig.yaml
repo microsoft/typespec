@@ -1,3 +1,7 @@
+kind: project
+features:
+  - union-extends
+  - typeref
 emit:
   - "@typespec/http-client-java"
 options:
