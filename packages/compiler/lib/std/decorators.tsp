@@ -236,7 +236,7 @@ extern dec maxItems(target: unknown[] | ModelProperty, value: valueof integer);
  * @example
  * ```typespec
  * @minValue(18)
- * scalar Age is int32;
+ * scalar Age extends int32;
  * ```
  */
 extern dec minValue(
@@ -251,7 +251,7 @@ extern dec minValue(
  * @example
  * ```typespec
  * @maxValue(200)
- * scalar Age is int32;
+ * scalar Age extends int32;
  * ```
  */
 extern dec maxValue(
@@ -267,7 +267,7 @@ extern dec maxValue(
  * @example
  * ```typespec
  * @minValueExclusive(0)
- * scalar distance is float64;
+ * scalar distance extends float64;
  * ```
  */
 extern dec minValueExclusive(
@@ -283,7 +283,7 @@ extern dec minValueExclusive(
  * @example
  * ```typespec
  * @maxValueExclusive(50)
- * scalar distance is float64;
+ * scalar distance extends float64;
  * ```
  */
 extern dec maxValueExclusive(
@@ -297,7 +297,7 @@ extern dec maxValueExclusive(
  * @example
  * ```typespec
  * @secret
- * scalar Password is string;
+ * scalar Password extends string;
  * ```
  */
 extern dec secret(target: Scalar | ModelProperty | Model | Union | Enum);
