@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Perf
     public class ModelReaderWriterContextDefinitionBenchmark
     {
         private ModelReaderWriterContextDefinition? _contextDefinition;
-        private Func<object, IReadOnlyList<AttributeStatement>>? _privateDelegate;
+        private Func<object, IReadOnlyList<MethodBodyStatement>>? _privateDelegate;
 
         [Params(1, 10, 100)]
         public int ModelCount;
@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Perf
             _contextDefinition = generator.Object.OutputLibrary.TypeProviders.OfType<ModelReaderWriterContextDefinition>().FirstOrDefault();
 
             var methodInfo = typeof(ModelReaderWriterContextDefinition).GetMethod("BuildAttributes", BindingFlags.Instance | BindingFlags.NonPublic);
-            _privateDelegate = CreateDelegate<Func<object, IReadOnlyList<AttributeStatement>>>(methodInfo!);
+            _privateDelegate = CreateDelegate<Func<object, IReadOnlyList<MethodBodyStatement>>>(methodInfo!);
         }
 
         [GlobalCleanup]
@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Perf
         }
 
         [Benchmark]
-        public IReadOnlyList<AttributeStatement> CollectBuildableTypes()
+        public IReadOnlyList<MethodBodyStatement> CollectBuildableTypes()
         {
             return _privateDelegate!(_contextDefinition!);
         }

@@ -44,7 +44,18 @@ namespace Microsoft.TypeSpec.Generator.Statements
         {
             using var scope = new CodeWriter.XmlDocWritingScope(writer);
 
-            writer.Append($"/// <exception cref=\"{ExceptionType}\">");
+            writer.AppendRaw("/// <exception cref=\"");
+            // Admit only the simple named payload; generic/nested exception shapes
+            // retain the previous unrecorded path and its existing behavior.
+            if (ExceptionType.IsGenericType || ExceptionType.IsNested)
+            {
+                writer.Append($"{ExceptionType}");
+            }
+            else
+            {
+                writer.AppendTypeInCref(ExceptionType);
+            }
+            writer.AppendRaw("\">");
 
             if (Parameters.Count > 0)
             {
