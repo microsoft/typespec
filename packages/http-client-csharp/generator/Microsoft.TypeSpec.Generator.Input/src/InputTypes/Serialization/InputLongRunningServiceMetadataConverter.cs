@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             int finalStateVia = default;
             InputOperationResponse? finalResponse = null;
             string? resultPath = null;
+            InputModelType? pollingResponseModel = null;
             IReadOnlyList<InputLroStatusMetadata>? statusMetadata = null;
             IReadOnlyList<InputLroOperationIdMetadata>? operationId = null;
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -37,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 var isKnownProperty = reader.TryReadInt32("finalStateVia", ref finalStateVia)
                     || reader.TryReadComplexType("finalResponse", options, ref finalResponse)
                     || reader.TryReadString("resultPath", ref resultPath)
+                    || reader.TryReadComplexType("pollingResponseModel", options, ref pollingResponseModel)
                     || reader.TryReadComplexType("statusMetadata", options, ref statusMetadata)
                     || reader.TryReadComplexType("operationId", options, ref operationId);
 
@@ -46,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var result = new InputLongRunningServiceMetadata(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath, statusMetadata ?? [], operationId ?? []);
+            var result = new InputLongRunningServiceMetadata(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath, statusMetadata ?? [], operationId ?? [], pollingResponseModel);
 
             return result;
         }

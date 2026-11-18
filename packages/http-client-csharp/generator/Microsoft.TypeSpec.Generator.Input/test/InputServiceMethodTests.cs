@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Linq;
@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreSame(metadata.StatusMetadata[1].Property, metadata.StatusMetadata[1].PropertySegments[1]);
             Assert.AreEqual(2, metadata.OperationId.Count);
             var path = (InputLroOperationIdPathMetadata)metadata.OperationId[0];
-            Assert.AreEqual("ResponseHeader", path.Source.Location);
+            Assert.AreEqual(InputOperationLinkLocation.ResponseHeader, path.Source.Location);
             Assert.AreEqual("Operation-Location", path.Source.Property.SerializedName);
             Assert.AreEqual("jobId", path.PathParameter.SerializedName);
             Assert.AreEqual("/jobs/{jobId}/status", path.PollingPath);
@@ -124,6 +124,147 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 ((InputLroOperationIdPropertyMetadata)registeredMetadata.OperationId[1]).Property);
         }
 
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        public void ResolvesInheritedStatusAndPollingOperationReferences(bool pollingFirst, bool modelsFirst)
+        {
+            const string parameter = """
+                {
+                  "$id": "jobId", "kind": "path", "name": "id", "serializedName": "jobId",
+                  "type": { "kind": "string" }, "scope": "method"
+                }
+                """;
+            const string reference = """{ "$ref": "jobId" }""";
+            var pollingMethod = $$"""
+                {
+                  "$id": "poll", "kind": "basic", "name": "getStatus",
+                  "crossLanguageDefinitionId": "Test.getStatus",
+                  "operation": {
+                    "$id": "polling", "name": "getStatus", "httpMethod": "GET",
+                    "uri": "https://example.com", "path": "/jobs/{jobId}/status",
+                    "crossLanguageDefinitionId": "Test.getStatus",
+                    "parameters": [{{(pollingFirst ? parameter : reference)}}]
+                  },
+                  "response": {}
+                }
+                """;
+            var beginMethod = $$"""
+                {
+                  "$id": "begin", "kind": "lro", "name": "begin",
+                  "crossLanguageDefinitionId": "Test.begin",
+                  "operation": {
+                    "$id": "start", "name": "begin", "httpMethod": "POST",
+                    "uri": "https://example.com", "path": "/jobs",
+                    "crossLanguageDefinitionId": "Test.begin"
+                  },
+                  "response": {},
+                  "lroMetadata": {
+                    "finalStateVia": 1,
+                    "pollingResponseModel": { "$ref": "monitor" },
+                    "statusMetadata": [{
+                      "property": { "$ref": "inherited" },
+                      "propertySegments": [{ "$ref": "inherited" }]
+                    }],
+                    "operationId": [{
+                      "kind": "path",
+                      "source": { "location": "ResponseBody", "property": { "$ref": "link" } },
+                      "pathParameter": {{(pollingFirst ? reference : parameter)}},
+                      "pollingPath": "/jobs/{jobId}/status"
+                    }]
+                  }
+                }
+                """;
+            var methodsJson = pollingFirst
+                ? $"{pollingMethod}, {beginMethod}"
+                : $"{beginMethod}, {pollingMethod}";
+            const string modelsJson = """
+                  "models": [{
+                    "$id": "base", "name": "BaseMonitor",
+                    "properties": [{
+                      "$id": "inherited", "name": "updated", "serializedName": "updated_at",
+                      "type": { "kind": "string" }
+                    }]
+                  }, {
+                    "$id": "monitor", "name": "Monitor", "baseModel": { "$ref": "base" },
+                    "properties": []
+                  }, {
+                    "$id": "startResponse", "name": "StartResponse",
+                    "properties": [{
+                      "$id": "link", "name": "location", "serializedName": "location",
+                      "type": { "kind": "string" }
+                    }]
+                  }]
+                """;
+            var clientsJson = $$"""
+                  "clients": [{
+                    "$id": "client", "name": "TestClient",
+                    "methods": [{{methodsJson}}]
+                  }]
+                """;
+            var input = TypeSpecSerialization.Deserialize($$"""
+                {
+                  "name": "Test",
+                  {{(modelsFirst ? $"{modelsJson}, {clientsJson}" : $"{clientsJson}, {modelsJson}")}}
+                }
+                """)!;
+
+            var methods = input.Clients.Single().Methods;
+            var pollingOperation = methods.Single(m => m.Name == "getStatus").Operation;
+            var metadata = ((InputLongRunningServiceMethod)methods.Single(m => m.Name == "begin"))
+                .LongRunningServiceMetadata;
+            var path = (InputLroOperationIdPathMetadata)metadata.OperationId.Single();
+            var baseModel = input.Models.Single(m => m.Name == "BaseMonitor");
+            var monitor = input.Models.Single(m => m.Name == "Monitor");
+            var startResponse = input.Models.Single(m => m.Name == "StartResponse");
+
+            Assert.AreSame(baseModel, monitor.BaseModel);
+            Assert.AreSame(monitor, metadata.PollingResponseModel);
+            Assert.AreSame(baseModel.Properties[0], metadata.StatusMetadata[0].Property);
+            Assert.AreSame(baseModel.Properties[0], metadata.StatusMetadata[0].PropertySegments[0]);
+            Assert.AreSame(startResponse.Properties[0], path.Source.Property);
+            Assert.AreSame(pollingOperation.Parameters.Single(), path.PathParameter);
+        }
+
+        [TestCase("ResponseHeader", InputOperationLinkLocation.ResponseHeader)]
+        [TestCase("ResponseBody", InputOperationLinkLocation.ResponseBody)]
+        [TestCase("Self", InputOperationLinkLocation.Self)]
+        [TestCase("FutureLocation", InputOperationLinkLocation.Unknown)]
+        public void LoadsOperationLinkLocations(string location, InputOperationLinkLocation expected)
+        {
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputOperationLinkConverter(),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+            var link = JsonSerializer.Deserialize<InputOperationLink>($$"""
+                {
+                  "location": "{{location}}",
+                  "property": { "$id": "link", "name": "link", "type": { "kind": "string" } }
+                }
+                """, options)!;
+
+            Assert.AreEqual(expected, link.Location);
+        }
+
+        [TestCase("""{}""")]
+        [TestCase("""{ "location": null }""")]
+        public void RejectsOperationLinkWithoutLocation(string json)
+        {
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationLinkConverter() }
+            };
+            Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<InputOperationLink>(json, options));
+        }
+
         [TestCase("""{"kind":"future"}""")]
         [TestCase("""{"kind":"path"}""")]
         [TestCase("""{"kind":"property","propertySegments":[]}""")]
@@ -150,6 +291,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("result", metadata.ResultPath);
             Assert.IsEmpty(metadata.StatusMetadata);
             Assert.IsEmpty(metadata.OperationId);
+            Assert.IsNull(metadata.PollingResponseModel);
             Assert.IsEmpty(new InputLongRunningServiceMetadata().StatusMetadata);
         }
 

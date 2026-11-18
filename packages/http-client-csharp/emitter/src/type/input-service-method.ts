@@ -5,6 +5,7 @@ import type { InputOperation } from "./input-operation.js";
 import type {
   InputMethodParameter,
   InputModelProperty,
+  InputModelType,
   InputParameter,
   InputPathParameter,
   InputType,
@@ -81,6 +82,7 @@ export interface InputLongRunningServiceMetadata {
   finalStateVia: OperationFinalStateVia;
   finalResponse: OperationResponse;
   resultPath?: string;
+  pollingResponseModel?: InputModelType;
   statusMetadata?: InputLroStatusMetadata[];
   operationId?: InputLroOperationIdMetadata[];
 }
@@ -91,23 +93,33 @@ export interface InputLroStatusMetadata {
   propertySegments: InputModelProperty[];
 }
 
+export enum InputOperationLinkLocation {
+  Unknown = "Unknown",
+  ResponseHeader = "ResponseHeader",
+  ResponseBody = "ResponseBody",
+  Self = "Self",
+}
+
 export interface InputOperationLink {
-  location: "ResponseHeader" | "ResponseBody" | "Self";
+  location: InputOperationLinkLocation;
   property: InputModelProperty;
 }
 
+export interface InputLroOperationIdPathMetadata {
+  kind: "path";
+  source: InputOperationLink;
+  pathParameter: InputPathParameter;
+  pollingPath: string;
+}
+
+export interface InputLroOperationIdPropertyMetadata {
+  kind: "property";
+  property: InputModelProperty;
+  propertySegments: InputModelProperty[];
+}
+
 export type InputLroOperationIdMetadata =
-  | {
-      kind: "path";
-      source: InputOperationLink;
-      pathParameter: InputPathParameter;
-      pollingPath: string;
-    }
-  | {
-      kind: "property";
-      property: InputModelProperty;
-      propertySegments: InputModelProperty[];
-    };
+  InputLroOperationIdPathMetadata | InputLroOperationIdPropertyMetadata;
 
 export interface InputLongRunningPagingServiceMethod extends InputServiceMethodBase {
   kind: "lropaging";

@@ -15,12 +15,20 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public InputLongRunningServiceMetadata(int finalStateVia, InputOperationResponse finalResponse, string? resultPath,
             IReadOnlyList<InputLroStatusMetadata> statusMetadata, IReadOnlyList<InputLroOperationIdMetadata> operationId)
+            : this(finalStateVia, finalResponse, resultPath, statusMetadata, operationId, null)
+        {
+        }
+
+        public InputLongRunningServiceMetadata(int finalStateVia, InputOperationResponse finalResponse, string? resultPath,
+            IReadOnlyList<InputLroStatusMetadata> statusMetadata, IReadOnlyList<InputLroOperationIdMetadata> operationId,
+            InputModelType? pollingResponseModel)
         {
             FinalStateVia = finalStateVia;
             FinalResponse = finalResponse;
             ResultPath = resultPath;
             StatusMetadata = statusMetadata;
             OperationId = operationId;
+            PollingResponseModel = pollingResponseModel;
         }
 
         public InputLongRunningServiceMetadata() : this(1, new InputOperationResponse(), null) { }
@@ -28,6 +36,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         public int FinalStateVia { get; }
         public InputOperationResponse FinalResponse { get; }
         public string? ResultPath { get; }
+        /// <summary>
+        /// The polling response model owning the selected status metadata and operation ID paths, when present.
+        /// </summary>
+        public InputModelType? PollingResponseModel { get; }
         /// <summary>
         /// Auxiliary values from the latest polling response, in selection order.
         /// </summary>

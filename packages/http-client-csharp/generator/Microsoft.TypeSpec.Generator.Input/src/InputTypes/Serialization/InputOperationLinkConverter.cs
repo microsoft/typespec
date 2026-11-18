@@ -27,12 +27,16 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            if (location is not ("ResponseHeader" or "ResponseBody" or "Self"))
+            var parsedLocation = location switch
             {
-                throw new JsonException($"Unknown operation link location: '{location}'.");
-            }
+                nameof(InputOperationLinkLocation.ResponseHeader) => InputOperationLinkLocation.ResponseHeader,
+                nameof(InputOperationLinkLocation.ResponseBody) => InputOperationLinkLocation.ResponseBody,
+                nameof(InputOperationLinkLocation.Self) => InputOperationLinkLocation.Self,
+                null => throw new JsonException("Operation link must have a location."),
+                _ => InputOperationLinkLocation.Unknown
+            };
 
-            return new InputOperationLink(location,
+            return new InputOperationLink(parsedLocation,
                 property ?? throw new JsonException("Operation link must have a property."));
         }
 

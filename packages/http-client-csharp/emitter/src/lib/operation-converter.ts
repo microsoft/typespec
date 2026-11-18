@@ -27,6 +27,7 @@ import {
   getHttpOperationParameter,
   getParamAlias,
   getResponseAsBool,
+  getSdkModelWithDiagnostics,
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
@@ -55,17 +56,21 @@ import type {
   InputLongRunningPagingServiceMethod,
   InputLongRunningServiceMetadata,
   InputLongRunningServiceMethod,
+  InputLroOperationIdMetadata,
+  InputLroStatusMetadata,
   InputNextLink,
   InputPagingServiceMetadata,
   InputPagingServiceMethod,
   InputServiceMethod,
   InputServiceMethodResponse,
 } from "../type/input-service-method.js";
+import { InputOperationLinkLocation } from "../type/input-service-method.js";
 import type {
   InputBodyParameter,
   InputHeaderParameter,
   InputHttpParameter,
   InputMethodParameter,
+  InputModelProperty,
   InputPathParameter,
   InputQueryParameter,
   InputStreamingType,
@@ -136,7 +141,7 @@ export function fromSdkServiceMethod(
         ),
       );
       lroServiceMethod.lroMetadata = diagnostics.pipe(
-        loadLongRunningMetadata(sdkContext, sdkMethod),
+        loadLongRunningMetadata(sdkContext, sdkMethod, rootApiVersions),
       );
       method = lroServiceMethod;
       break;
@@ -151,7 +156,7 @@ export function fromSdkServiceMethod(
         ),
       );
       lroPagingMethod.lroMetadata = diagnostics.pipe(
-        loadLongRunningMetadata(sdkContext, sdkMethod),
+        loadLongRunningMetadata(sdkContext, sdkMethod, rootApiVersions),
       );
       lroPagingMethod.pagingMetadata = diagnostics.pipe(
         loadPagingServiceMetadata(sdkContext, sdkMethod, rootApiVersions, uri, namespace),
@@ -724,17 +729,164 @@ export function fromMethodParameter(
 function loadLongRunningMetadata(
   sdkContext: CSharpEmitterContext,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  rootApiVersions: string[],
 ): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-
   const metadata = method.lroMetadata;
-  const convertProperty = (property: SdkModelPropertyType) => {
-    const converted = diagnostics.pipe(
-      fromSdkModelProperty(sdkContext, property, metadata.pollingInfo.responseModel),
+  const reportInvalidSelection = (message: string) => {
+    diagnostics.add(
+      createDiagnostic({
+        code: "general-error",
+        format: { message: `Invalid LRO metadata for '${method.name}': ${message}` },
+        target: method.__raw ?? NoTarget,
+      }),
     );
-    compilerAssert(converted, "LRO metadata must reference a supported model property.");
-    return converted;
   };
+
+  const convertSelection = (entry: {
+    property: SdkModelPropertyType;
+    propertySegments: SdkModelPropertyType[];
+  }): InputLroStatusMetadata | undefined => {
+    if (!entry.property || !entry.propertySegments?.length) {
+      reportInvalidSelection("a selected property must have a nonempty property path.");
+      return undefined;
+    }
+
+    const property = diagnostics.pipe(
+      fromSdkModelProperty(sdkContext, entry.property, metadata.pollingInfo.responseModel),
+    );
+    if (!property) {
+      reportInvalidSelection("a selected property could not be converted.");
+      return undefined;
+    }
+
+    const propertySegments: InputModelProperty[] = [];
+    for (const segment of entry.propertySegments) {
+      const converted = diagnostics.pipe(
+        fromSdkModelProperty(sdkContext, segment, metadata.pollingInfo.responseModel),
+      );
+      if (!converted) {
+        reportInvalidSelection("a selected property path could not be converted.");
+        return undefined;
+      }
+      propertySegments.push(converted);
+    }
+    return { property, propertySegments };
+  };
+
+  const statusMetadata: InputLroStatusMetadata[] = [];
+  for (const entry of metadata.statusMetadata ?? []) {
+    const selection = convertSelection(entry);
+    if (selection) {
+      statusMetadata.push(selection);
+    }
+  }
+
+  const operationId: InputLroOperationIdMetadata[] = [];
+  for (const entry of metadata.operationId ?? []) {
+    if (entry.kind === "property") {
+      const selection = convertSelection(entry);
+      if (selection) {
+        operationId.push({ kind: "property", ...selection });
+      }
+      continue;
+    }
+
+    if (entry.kind !== "path") {
+      reportInvalidSelection("the operation ID has an unsupported selection kind.");
+      continue;
+    }
+
+    const step = metadata.statusMonitorStep;
+    const pollingOperation =
+      step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
+    if (!pollingOperation?.path || !entry.pathParameter || entry.pathParameter.kind !== "path") {
+      reportInvalidSelection(
+        "the operation ID requires a linked polling operation and path parameter.",
+      );
+      continue;
+    }
+
+    const pollingClient = sdkContext.getClientForOperation(pollingOperation.__raw.operation);
+    const clients = [...sdkContext.sdkPackage.clients];
+    let pollingMethod: SdkServiceMethod<SdkHttpOperation> | undefined;
+    for (let index = 0; index < clients.length; index++) {
+      const client = clients[index];
+      if (client.__raw === pollingClient) {
+        pollingMethod = client.methods.find(
+          (candidate) => candidate.operation.__raw.operation === pollingOperation.__raw.operation,
+        );
+        break;
+      }
+      clients.push(...(client.children ?? []));
+    }
+
+    // TCGC constructs a separate polling operation for LRO metadata. Use the actual
+    // client method's parameter when it is exposed so its cached input is shared.
+    const sdkPollingOperation = pollingMethod?.operation ?? pollingOperation;
+    const sdkPathParameters = sdkPollingOperation.parameters.filter(
+      (parameter) =>
+        parameter.kind === "path" &&
+        parameter.crossLanguageDefinitionId === entry.pathParameter.crossLanguageDefinitionId,
+    );
+    if (sdkPathParameters.length !== 1) {
+      reportInvalidSelection(
+        "the operation ID path parameter must uniquely match a polling operation parameter.",
+      );
+      continue;
+    }
+    const pathParameter = diagnostics.pipe(
+      fromParameter(sdkContext, sdkPathParameters[0], rootApiVersions),
+    );
+    if (!pathParameter || pathParameter.kind !== "path") {
+      reportInvalidSelection("the operation ID path parameter could not be converted.");
+      continue;
+    }
+
+    if (!entry.source?.property) {
+      reportInvalidSelection("the operation ID polling link must have a source property.");
+      continue;
+    }
+
+    let location: InputOperationLinkLocation;
+    switch (entry.source.location) {
+      case "ResponseHeader":
+        location = InputOperationLinkLocation.ResponseHeader;
+        break;
+      case "ResponseBody":
+        location = InputOperationLinkLocation.ResponseBody;
+        break;
+      case "Self":
+        location = InputOperationLinkLocation.Self;
+        break;
+      default:
+        reportInvalidSelection("the operation ID has an unsupported polling link location.");
+        continue;
+    }
+
+    const source = entry.source.property;
+    const rawSource = source?.__raw;
+    if (!rawSource?.model) {
+      reportInvalidSelection("the operation ID polling link must have a source model property.");
+      continue;
+    }
+    const sourceModel = diagnostics.pipe(getSdkModelWithDiagnostics(sdkContext, rawSource.model));
+    const convertedSource = diagnostics.pipe(fromSdkModelProperty(sdkContext, source, sourceModel));
+    if (!convertedSource) {
+      reportInvalidSelection("the operation ID polling link property could not be converted.");
+      continue;
+    }
+    const sourceProperty =
+      location === InputOperationLinkLocation.ResponseHeader
+        ? { ...convertedSource, serializedName: getHeaderFieldName(sdkContext.program, rawSource) }
+        : convertedSource;
+    operationId.push({
+      kind: "path",
+      source: { location, property: sourceProperty },
+      pathParameter,
+      pollingPath: pollingOperation.path,
+    });
+  }
 
   return diagnostics.wrap({
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
@@ -750,48 +902,12 @@ function loadLongRunningMetadata(
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
-    statusMetadata: metadata.statusMetadata?.map((entry) => ({
-      property: convertProperty(entry.property),
-      propertySegments: entry.propertySegments.map(convertProperty),
-    })),
-    operationId: metadata.operationId?.map((entry) => {
-      if (entry.kind === "property") {
-        return {
-          kind: "property",
-          property: convertProperty(entry.property),
-          propertySegments: entry.propertySegments.map(convertProperty),
-        };
-      }
-
-      const step = metadata.statusMonitorStep;
-      const pollingOperation =
-        step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
-      compilerAssert(pollingOperation, "A path operation ID requires a linked polling operation.");
-      const pathParameter = diagnostics.pipe(
-        fromParameter(sdkContext, entry.pathParameter, method.apiVersions),
-      );
-      compilerAssert(pathParameter?.kind === "path", "An operation ID requires a path parameter.");
-      const sourceProperty = convertProperty(entry.source.property);
-      if (entry.source.location === "ResponseHeader") {
-        compilerAssert(
-          entry.source.property.__raw,
-          "A polling header must have a source property.",
-        );
-        sourceProperty.serializedName = getHeaderFieldName(
-          sdkContext.program,
-          entry.source.property.__raw,
-        );
-      }
-      return {
-        kind: "path",
-        source: {
-          location: entry.source.location,
-          property: sourceProperty,
-        },
-        pathParameter,
-        pollingPath: pollingOperation.path,
-      };
-    }),
+    pollingResponseModel:
+      statusMetadata.length > 0 || operationId.length > 0
+        ? diagnostics.pipe(fromSdkType(sdkContext, metadata.pollingInfo.responseModel))
+        : undefined,
+    statusMetadata: metadata.statusMetadata ? statusMetadata : undefined,
+    operationId: metadata.operationId ? operationId : undefined,
   });
 }
 

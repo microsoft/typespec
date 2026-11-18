@@ -5,13 +5,13 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public sealed class InputOperationLink
     {
-        public InputOperationLink(string location, InputModelProperty property)
+        public InputOperationLink(InputOperationLinkLocation location, InputModelProperty property)
         {
             Location = location;
             Property = property;
         }
 
-        public string Location { get; }
+        public InputOperationLinkLocation Location { get; }
         public InputModelProperty Property { get; }
     }
 }
