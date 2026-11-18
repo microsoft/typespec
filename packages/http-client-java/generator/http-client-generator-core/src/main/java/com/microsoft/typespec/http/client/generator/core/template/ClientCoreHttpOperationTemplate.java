@@ -45,7 +45,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/** Emits ClientCore pipeline calls from the same model used by the annotated proxy. */
+/**
+ * Generates ClientCore HTTP operations directly from the proxy model, replacing the ClientCore annotation processor.
+ *
+ * <p>By default, {@link ProxyTemplate} uses this template for the {@code generic} and {@code azurev2} flavors.
+ * The proxy template emits the service interface and its factory; this template emits the private nested class
+ * that the factory instantiates. Methods with an existing default implementation are inherited from the interface.
+ * Enabling {@code use-rest-proxy} bypasses this template and retains the annotated interface for runtime reflection.
+ *
+ * <p>{@link ProxyMethod} describes the HTTP verb, route, and response types, while {@link ProxyMethodParameter}
+ * describes how each wire value is bound to the request. The emitted methods use that metadata to build requests,
+ * send them through the client's existing HTTP pipeline, and handle success and error responses.
+ */
 final class ClientCoreHttpOperationTemplate {
     private static final Pattern PATH_PLACEHOLDER = Pattern.compile("\\{([^{}]+)}");
     private static final String RESPONSE_DECODER
@@ -175,6 +186,7 @@ final class ClientCoreHttpOperationTemplate {
             method.getHttpMethod(), uri);
         writeHeaders(method, block, request);
         String requestFormat = writeRequestBody(method, block, request, names);
+        // Run the callback after setting headers and body so callers can inspect or modify the complete request.
         method.getParameters()
             .stream()
             .filter(parameter -> ClassType.REQUEST_CONTEXT.equals(parameter.getWireType()))
@@ -187,6 +199,7 @@ final class ClientCoreHttpOperationTemplate {
         String response = localName(names, "networkResponse");
         String responseDeclaration = "Response<BinaryData> " + response + " = this.httpPipeline.send(" + request + ")";
         IType entity = entityType(method);
+        // Match the processor's close behavior. Raw BinaryData and InputStream results must remain usable by the caller.
         boolean closeResponse = isVoid(entity)
             || isBooleanHead(method)
             || ArrayType.BYTE_ARRAY.equals(entity)
@@ -201,6 +214,14 @@ final class ClientCoreHttpOperationTemplate {
         }
     }
 
+    /**
+     * Builds a Java expression for the request URI before adding query parameters. Absolute URLs bypass the
+     * service host. Placeholders are matched by wire name, and only unencoded string path values are escaped.
+     *
+     * @param proxy the proxy that supplies the service host
+     * @param method the operation that supplies the path and parameter bindings
+     * @return the Java expression for the request URI
+     */
     private static String uriExpression(Proxy proxy, ProxyMethod method) {
         String host = proxy.getBaseURL();
         String path = method.getUrlPath();
@@ -297,7 +318,7 @@ final class ClientCoreHttpOperationTemplate {
     }
 
     private static ProxyMethodParameter bodyParameter(ProxyMethod method) {
-        // The annotated form uses @FormParam rather than @BodyParam for this media type.
+        // The processor did not treat @FormParam as a request body binding.
         if ("application/x-www-form-urlencoded".equals(method.getRequestContentType())) {
             return null;
         }
@@ -310,6 +331,17 @@ final class ClientCoreHttpOperationTemplate {
         return body;
     }
 
+    /**
+     * Emits the body and its Content-Type together. To match the processor, typed response decoding reuses the
+     * serialization format computed for a primitive request body. For reference types, any format variable is scoped
+     * to the body null check, so response decoding uses the response Content-Type instead.
+     *
+     * @param method the operation whose body binding and media type are used
+     * @param block the generated method body
+     * @param request the generated request variable name
+     * @param names the names already in use in the generated method
+     * @return the serialization format variable if available to response decoding, or {@code null}
+     */
     private static String writeRequestBody(ProxyMethod method, JavaBlock block, String request, Set<String> names) {
         ProxyMethodParameter body = bodyParameter(method);
         if (body == null) {
@@ -354,7 +386,7 @@ final class ClientCoreHttpOperationTemplate {
             block.line("%s.setBody(BinaryData.fromObject(%s, this.xmlSerializer.supportsFormat(%s)"
                 + " ? this.xmlSerializer : this.jsonSerializer));", request, value, format);
         } else if (ClassType.BINARY_DATA.equals(type)) {
-            // HttpRequest.setBody sets Content-Length for known lengths. Match the processor for unknown lengths.
+            // The processor did not attach raw bodies of unknown length. For known lengths, setBody sets Content-Length.
             block.ifBlock(value + ".getLength() != null", known -> known.line("%s.setBody(%s);", request, value));
         } else if (ClassType.STRING.equals(type)) {
             block.line("%s.setBody(BinaryData.fromString(%s));", request, value);
@@ -369,12 +401,14 @@ final class ClientCoreHttpOperationTemplate {
         String status = localName(names, "responseCode");
         block.line("int %s = %s.getStatusCode();", status, response);
         List<Integer> statuses = method.getResponseExpectedStatusCodes();
+        // Only an empty list accepts any 2xx. Even a boolean HEAD operation must pass this check before returning.
         String success = CoreUtils.isNullOrEmpty(statuses)
             ? status + " >= 200 && " + status + " < 300"
             : statuses.stream().map(code -> status + " == " + code).collect(Collectors.joining(" || "));
         String expected = localName(names, "expectedResponse");
         block.line("boolean %s = %s;", expected, success);
         block.ifBlock("!" + expected, unexpected -> {
+            // The runtime prefers a status-specific error body type over the default and closes the failed response.
             String defaultType = defaultErrorType(method, settings);
             Map<Integer, String> errorTypes = statusErrorTypes(method, settings);
             String specificTypes = errorTypes.isEmpty()
