@@ -1,3 +1,4 @@
+import { getCachedTemplateProjectReference, walkPropertiesInherited } from "../checker.js";
 import { getSourceLocation } from "../diagnostics.js";
 import type { Program } from "../program.js";
 import {
@@ -37,7 +38,7 @@ export function findUsageSite(program: Program, target: DiagnosticTarget): Usage
   if (type.kind !== "ModelProperty") return undefined;
 
   const origins = getOrigins(type);
-  return findArgument(program, type, origins) ?? findComposition(program, type, origins);
+  return findArgument(program, origins) ?? findComposition(program, type, origins);
 }
 
 /** The property and every property it was copied from (spread, `is`, template instantiation). */
@@ -63,18 +64,14 @@ function* getMappers(origins: ModelProperty[]): Generator<TypeMapper> {
   }
 }
 
-function findArgument(
-  program: Program,
-  prop: ModelProperty,
-  origins: ModelProperty[],
-): UsageSite | undefined {
+function findArgument(program: Program, origins: ModelProperty[]): UsageSite | undefined {
   // Only a property whose declared type is written in terms of a template parameter (`value: T`,
   // `items: T[]`) gets its type from the user. A property that merely has the same type as an
   // argument (`id: string` next to `Wrapper<string>`) is the library's own declaration.
   const suppliedTypes = getTemplateParameterArguments(program, origins);
 
   for (const mapper of getMappers(origins)) {
-    const reference = mapper.source.node;
+    const reference = getCachedTemplateProjectReference(mapper) ?? mapper.source.node;
     if (reference.kind !== SyntaxKind.TypeReference || !isInProject(program, reference)) {
       continue;
     }
@@ -157,10 +154,9 @@ function findComposition(
   if (node.kind === SyntaxKind.ModelStatement && node.is?.kind === SyntaxKind.TypeReference) {
     candidates.push(node.is);
   }
-  const sources = new Set<Type>(origins.slice(1).map((x) => x.model as Type));
   for (const candidate of candidates) {
     const type = tryGetType(program, candidate);
-    if (type && sources.has(type)) {
+    if (type && isComposedFrom(type, origins.slice(1))) {
       return { kind: "composition", node: candidate };
     }
   }
@@ -179,7 +175,7 @@ function narrowToOperand(program: Program, node: Node, origins: ModelProperty[])
 
 function isComposedFrom(arg: Type, origins: ModelProperty[]): boolean {
   if (arg.kind !== "Model") return false;
-  for (const p of arg.properties.values()) {
+  for (const p of walkPropertiesInherited(arg)) {
     if (getOrigins(p).some((o) => origins.includes(o))) return true;
   }
   return false;

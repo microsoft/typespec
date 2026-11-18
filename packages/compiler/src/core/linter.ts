@@ -540,7 +540,7 @@ export function createLinterRuleContext<
   options: Options,
   diagnosticCollector: DiagnosticCollector,
 ): LinterRuleContext<DM, Options> & { flushDiagnostics(): void } {
-  const reportedAtUsage = new Set<string>();
+  const reportedAtUsage = new Map<DiagnosticTarget | typeof NoTarget, Set<string>>();
   const libraryTargets = new Set<DiagnosticTarget>();
   const pending: {
     diagnostic: Diagnostic;
@@ -609,9 +609,18 @@ export function createLinterRuleContext<
         continue;
       }
       const location = getSourceLocation(useSite);
-      const key = `${rule.id}:${location.file.path}:${location.pos}`;
-      if (!reportedAtUsage.has(key)) {
-        reportedAtUsage.add(key);
+      const key = JSON.stringify([
+        location.file.path,
+        location.pos,
+        location.end,
+        diagnostic.message,
+      ]);
+      let reported = reportedAtUsage.get(diagnostic.target);
+      if (!reported) {
+        reportedAtUsage.set(diagnostic.target, (reported = new Set()));
+      }
+      if (!reported.has(key)) {
+        reported.add(key);
         diagnosticCollector.add({ ...diagnostic, target: useSite });
       }
     }
