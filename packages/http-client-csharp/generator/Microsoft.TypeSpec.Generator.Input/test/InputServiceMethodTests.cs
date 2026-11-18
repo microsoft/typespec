@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -10,6 +11,47 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class InputServiceMethodTests
     {
+        [Test]
+        public void LoadsEmittedLroMetadata()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var input = TypeSpecSerialization.Deserialize(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
+            var methods = input.Clients.Single().Methods;
+            var polling = methods.Single(m => m.Name == "getStatus").Operation;
+            var metadata = ((InputLongRunningServiceMethod)methods.Single(m => m.Name == "begin"))
+                .LongRunningServiceMetadata;
+            var monitor = input.Models.Single(m => m.Name == "Monitor");
+            var baseMonitor = input.Models.Single(m => m.Name == "BaseMonitor");
+            var statistics = input.Models.Single(m => m.Name == "Statistics");
+
+            Assert.AreSame(monitor, metadata.PollingResponseModel);
+            Assert.AreSame(baseMonitor, monitor.BaseModel);
+            CollectionAssert.AreEqual(new[] { "progress", "statistics", "updatedAt" },
+                metadata.StatusMetadata.Select(selection => selection.Property.Name));
+            CollectionAssert.AreEqual(new[] { "percent_complete", "statistics", "last_updated" },
+                metadata.StatusMetadata.Select(selection => selection.PropertySegments.Single().SerializedName));
+            Assert.AreSame(monitor.Properties.Single(p => p.Name == "progress"), metadata.StatusMetadata[0].Property);
+            Assert.AreSame(monitor.Properties.Single(p => p.Name == "statistics"), metadata.StatusMetadata[1].Property);
+            Assert.AreSame(statistics, metadata.StatusMetadata[1].Property.Type);
+            Assert.AreSame(baseMonitor.Properties.Single(p => p.Name == "updatedAt"), metadata.StatusMetadata[2].Property);
+            foreach (var selection in metadata.StatusMetadata)
+            {
+                Assert.AreSame(selection.Property, selection.PropertySegments.Single());
+            }
+
+            Assert.AreEqual(2, metadata.OperationId.Count);
+            var path = (InputLroOperationIdPathMetadata)metadata.OperationId[0];
+            var property = (InputLroOperationIdPropertyMetadata)metadata.OperationId[1];
+            Assert.AreSame(polling.Parameters.Single(p => p.Name == "id"), path.PathParameter);
+            Assert.AreEqual("jobId", path.PathParameter.SerializedName);
+            Assert.AreEqual("/jobs/{jobId}/status", path.PollingPath);
+            Assert.AreEqual(InputOperationLinkLocation.ResponseHeader, path.Source.Location);
+            Assert.AreEqual("Operation-Location", path.Source.Property.SerializedName);
+            Assert.AreSame(monitor.Properties.Single(p => p.Name == "jobId"), property.Property);
+            Assert.AreEqual("job_id", property.Property.SerializedName);
+            Assert.AreSame(property.Property, property.PropertySegments.Single());
+        }
+
         [TestCase("lro")]
         [TestCase("lropaging")]
         public void LoadsLongRunningMetadataWithTypedPathsAndOrderedIdSources(string methodKind)
@@ -293,6 +335,51 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsEmpty(metadata.OperationId);
             Assert.IsNull(metadata.PollingResponseModel);
             Assert.IsEmpty(new InputLongRunningServiceMetadata().StatusMetadata);
+        }
+
+        [Test]
+        public void LoadsSelectedModelPropertyWithoutPollingResponseModel()
+        {
+            var input = TypeSpecSerialization.Deserialize("""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "detailsModel", "name": "Details",
+                    "properties": [{ "$id": "value", "name": "value", "type": { "kind": "string" } }]
+                  }],
+                  "clients": [{
+                    "$id": "client", "name": "TestClient",
+                    "methods": [{
+                      "$id": "begin", "kind": "lro", "name": "begin",
+                      "crossLanguageDefinitionId": "Test.begin",
+                      "operation": {
+                        "$id": "operation", "name": "begin", "httpMethod": "POST",
+                        "uri": "https://example.com", "path": "/jobs",
+                        "crossLanguageDefinitionId": "Test.begin"
+                      },
+                      "response": {},
+                      "lroMetadata": {
+                        "finalStateVia": 1,
+                        "statusMetadata": [{
+                          "property": {
+                            "$id": "details", "name": "details", "serializedName": "details",
+                            "optional": true, "type": { "$ref": "detailsModel" }
+                          },
+                          "propertySegments": [{ "$ref": "details" }]
+                        }]
+                      }
+                    }]
+                  }]
+                }
+                """)!;
+            var method = (InputLongRunningServiceMethod)input.Clients.Single().Methods.Single();
+            var metadata = method.LongRunningServiceMetadata;
+            var selection = metadata.StatusMetadata.Single();
+
+            Assert.IsNull(metadata.PollingResponseModel);
+            Assert.IsNull(selection.Property.EnclosingType);
+            Assert.AreSame(selection.Property, selection.PropertySegments.Single());
+            Assert.AreSame(input.Models.Single(), selection.Property.Type);
         }
 
         [Test]

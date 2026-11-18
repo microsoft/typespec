@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputOperationResponse FinalResponse { get; }
         public string? ResultPath { get; }
         /// <summary>
-        /// The polling response model owning the selected status metadata and operation ID paths, when present.
+        /// The polling response model when it is otherwise emitted. Selections may be present even when this is null.
         /// </summary>
         public InputModelType? PollingResponseModel { get; }
         /// <summary>

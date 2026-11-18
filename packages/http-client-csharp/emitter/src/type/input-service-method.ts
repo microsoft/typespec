@@ -82,6 +82,7 @@ export interface InputLongRunningServiceMetadata {
   finalStateVia: OperationFinalStateVia;
   finalResponse: OperationResponse;
   resultPath?: string;
+  /** Present when the polling response model is otherwise emitted. */
   pollingResponseModel?: InputModelType;
   statusMetadata?: InputLroStatusMetadata[];
   operationId?: InputLroOperationIdMetadata[];

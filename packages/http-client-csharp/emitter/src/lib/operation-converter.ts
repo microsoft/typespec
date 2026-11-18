@@ -42,7 +42,7 @@ import {
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
-import { getHeaderFieldName } from "@typespec/http";
+import { getHeaderFieldName, isBody, isBodyRoot } from "@typespec/http";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -733,6 +733,24 @@ function loadLongRunningMetadata(
 ): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const metadata = method.lroMetadata;
+  const step = metadata.statusMonitorStep;
+  const pollingOperation =
+    step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
+  let pollingMethod: SdkServiceMethod<SdkHttpOperation> | undefined;
+  if (pollingOperation && (metadata.statusMetadata?.length || metadata.operationId?.length)) {
+    const pollingClient = sdkContext.getClientForOperation(pollingOperation.__raw.operation);
+    const clients = [...sdkContext.sdkPackage.clients];
+    for (let index = 0; index < clients.length; index++) {
+      const client = clients[index];
+      if (client.__raw === pollingClient) {
+        pollingMethod = client.methods.find(
+          (candidate) => candidate.operation.__raw.operation === pollingOperation.__raw.operation,
+        );
+        break;
+      }
+      clients.push(...(client.children ?? []));
+    }
+  }
   const reportInvalidSelection = (message: string) => {
     diagnostics.add(
       createDiagnostic({
@@ -797,28 +815,11 @@ function loadLongRunningMetadata(
       continue;
     }
 
-    const step = metadata.statusMonitorStep;
-    const pollingOperation =
-      step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
     if (!pollingOperation?.path || !entry.pathParameter || entry.pathParameter.kind !== "path") {
       reportInvalidSelection(
         "the operation ID requires a linked polling operation and path parameter.",
       );
       continue;
-    }
-
-    const pollingClient = sdkContext.getClientForOperation(pollingOperation.__raw.operation);
-    const clients = [...sdkContext.sdkPackage.clients];
-    let pollingMethod: SdkServiceMethod<SdkHttpOperation> | undefined;
-    for (let index = 0; index < clients.length; index++) {
-      const client = clients[index];
-      if (client.__raw === pollingClient) {
-        pollingMethod = client.methods.find(
-          (candidate) => candidate.operation.__raw.operation === pollingOperation.__raw.operation,
-        );
-        break;
-      }
-      clients.push(...(client.children ?? []));
     }
 
     // TCGC constructs a separate polling operation for LRO metadata. Use the actual
@@ -848,13 +849,23 @@ function loadLongRunningMetadata(
       continue;
     }
 
+    const source = entry.source.property;
+    const rawSource = source.__raw;
+    if (!rawSource?.model) {
+      reportInvalidSelection("the operation ID polling link must have a source model property.");
+      continue;
+    }
+
     let location: InputOperationLinkLocation;
     switch (entry.source.location) {
       case "ResponseHeader":
         location = InputOperationLinkLocation.ResponseHeader;
         break;
       case "ResponseBody":
-        location = InputOperationLinkLocation.ResponseBody;
+        location =
+          isBody(sdkContext.program, rawSource) || isBodyRoot(sdkContext.program, rawSource)
+            ? InputOperationLinkLocation.Self
+            : InputOperationLinkLocation.ResponseBody;
         break;
       case "Self":
         location = InputOperationLinkLocation.Self;
@@ -864,12 +875,6 @@ function loadLongRunningMetadata(
         continue;
     }
 
-    const source = entry.source.property;
-    const rawSource = source?.__raw;
-    if (!rawSource?.model) {
-      reportInvalidSelection("the operation ID polling link must have a source model property.");
-      continue;
-    }
     const sourceModel = diagnostics.pipe(getSdkModelWithDiagnostics(sdkContext, rawSource.model));
     const convertedSource = diagnostics.pipe(fromSdkModelProperty(sdkContext, source, sourceModel));
     if (!convertedSource) {
@@ -903,7 +908,8 @@ function loadLongRunningMetadata(
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
     pollingResponseModel:
-      statusMetadata.length > 0 || operationId.length > 0
+      (statusMetadata.length > 0 || operationId.length > 0) &&
+      (pollingMethod || sdkContext.__typeCache.types.has(metadata.pollingInfo.responseModel))
         ? diagnostics.pipe(fromSdkType(sdkContext, metadata.pollingInfo.responseModel))
         : undefined,
     statusMetadata: metadata.statusMetadata ? statusMetadata : undefined,

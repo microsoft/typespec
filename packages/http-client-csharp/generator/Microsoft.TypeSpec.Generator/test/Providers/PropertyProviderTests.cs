@@ -76,6 +76,59 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Description for snake_case", property.Description!.ToString());
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OutputOnlyPropertyCanBeCreatedWithoutAnInputModel(bool isReadOnly)
+        {
+            var input = InputFactory.Property(
+                "StartTime",
+                new InputDateTimeType(
+                    DateTimeKnownEncoding.Rfc7231,
+                    "utcDateTime",
+                    "TypeSpec.utcDateTime",
+                    InputPrimitiveType.String),
+                isReadOnly: isReadOnly,
+                wireName: "started_at");
+
+            var property = new PropertyProvider(input, new TestTypeProvider(), isOutputOnly: true);
+
+            Assert.IsNull(input.EnclosingType);
+            Assert.AreEqual("StartsOn", property.Name);
+            Assert.AreEqual(new CSharpType(typeof(DateTimeOffset)).WithNullable(true), property.Type);
+            Assert.AreEqual(SerializationFormat.DateTime_RFC7231, property.SerializationFormat);
+            Assert.AreEqual("started_at", property.WireInfo?.SerializedName);
+            Assert.IsFalse(property.Body.HasSetter);
+        }
+
+        [Test]
+        public void OutputOnlyPropertyPreservesPropertyLevelArrayEncoding()
+        {
+            var input = InputFactory.Property(
+                "items",
+                InputFactory.Array(InputPrimitiveType.String),
+                encode: ArrayKnownEncoding.PipeDelimited);
+
+            var property = new PropertyProvider(input, new TestTypeProvider(), isOutputOnly: true);
+
+            Assert.IsNull(input.EnclosingType);
+            Assert.AreEqual(SerializationFormat.Array_PipeDelimited, property.SerializationFormat);
+            Assert.IsFalse(property.Body.HasSetter);
+        }
+
+        [Test]
+        public void OutputOnlyPropertyCanUseAModelTypeWithoutAnInputModelOwner()
+        {
+            var details = InputFactory.Model("Details", properties: []);
+            var input = InputFactory.Property("details", details, isReadOnly: true);
+
+            var property = new PropertyProvider(input, new TestTypeProvider(), isOutputOnly: true);
+
+            Assert.IsNull(input.EnclosingType);
+            Assert.AreEqual("Details", property.Type.Name);
+            Assert.IsTrue(property.Type.IsNullable);
+            Assert.IsFalse(property.Body.HasSetter);
+        }
+
         [Test]
         public void TestPropertyDocumentationPreservesCodeSpans()
         {

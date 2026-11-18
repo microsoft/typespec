@@ -1,5 +1,6 @@
-import type { TestHost } from "@typespec/compiler/testing";
+import { expectDiagnostics, type TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
+import { readFileSync } from "node:fs";
 import { beforeEach, describe, it } from "vitest";
 import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -17,6 +18,21 @@ describe("Operation Converter", () => {
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
+  });
+
+  it("emits the LRO metadata fixture consumed by the C# deserializer", async () => {
+    const fixture = new URL(
+      "../../../generator/Microsoft.TypeSpec.Generator.Input/test/TestData/InputServiceMethodTests/LoadsEmittedLroMetadata/",
+      import.meta.url,
+    );
+    runner.addTypeSpecFile("main.tsp", readFileSync(new URL("main.tsp", fixture), "utf8"));
+    await runner.compile("./", { noEmit: true });
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(runner.program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    const actual = JSON.parse(serializeCodeModel(sdkContext, root));
+    const expected = JSON.parse(readFileSync(new URL("tspCodeModel.json", fixture), "utf8"));
+    deepStrictEqual(actual, expected);
   });
 
   it.each(
@@ -254,14 +270,11 @@ describe("Operation Converter", () => {
       method.lroMetadata.operationId?.map((entry) => entry.kind),
       ["property"],
     );
-    ok(
-      diagnostics.some(
-        (d) =>
-          d.severity === "error" &&
-          d.code === "@typespec/http-client-csharp/general-error" &&
-          d.message.includes("operation ID"),
-      ),
-    );
+    expectDiagnostics(diagnostics, {
+      severity: "error",
+      code: "@typespec/http-client-csharp/general-error",
+      message: /Invalid LRO metadata for 'begin': .*operation ID/,
+    });
   });
 
   it("reports an empty status metadata path without dropping valid selections", async () => {
@@ -298,14 +311,12 @@ describe("Operation Converter", () => {
       method.lroMetadata.operationId?.map((entry) => entry.kind),
       ["path", "property"],
     );
-    ok(
-      diagnostics.some(
-        (d) =>
-          d.severity === "error" &&
-          d.code === "@typespec/http-client-csharp/general-error" &&
-          d.message.includes("nonempty property path"),
-      ),
-    );
+    expectDiagnostics(diagnostics, {
+      severity: "error",
+      code: "@typespec/http-client-csharp/general-error",
+      message:
+        "Invalid LRO metadata for 'begin': a selected property must have a nonempty property path.",
+    });
   });
 
   it("shares the selected parameter with a polling operation in another client", async () => {
@@ -382,6 +393,135 @@ describe("Operation Converter", () => {
     strictEqual(path.pollingPath, "/jobs/{jobId}/status");
   });
 
+  it.each([true, false])(
+    "preserves selected properties without converting an unexposed polling model, path ID: %s",
+    async (hasPathId) => {
+      const program = await typeSpecCompile(
+        `
+      model Details { value: string; }
+      model FinalResult { value: string; }
+      model Monitor {
+        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+        @lroStatusMetadata details?: Details;
+        unrelated: [string, int32];
+      }
+      @get @route("/jobs/{jobId}/status")
+      @convenientAPI(false, "csharp")
+      op getStatus(${hasPathId ? "@lroOperationId" : ""} @path("jobId") id: string): Monitor;
+      @get @route("/jobs/{jobId}")
+      @convenientAPI(false, "csharp")
+      op getResult(@path("jobId") id: string): FinalResult;
+      @client({ service: Azure.Csharp.Testing })
+      interface PublicOperations {
+        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
+        @useFinalStateVia("original-uri")
+        @convenientAPI(false, "csharp")
+        op begin(@path("jobId") id: string): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
+        };
+      }
+      `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const client = sdkContext.sdkPackage.clients[0];
+      strictEqual(
+        client.methods.some((method) => method.name === "getStatus"),
+        false,
+      );
+      strictEqual(
+        sdkContext.sdkPackage.models.some((model) => model.name === "Monitor"),
+        false,
+      );
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(
+        diagnostics.map((diagnostic) => diagnostic.code),
+        [],
+      );
+      const method = root.clients[0].methods.find((m) => m.name === "begin");
+      ok(method?.kind === "lro");
+      strictEqual(method.lroMetadata.pollingResponseModel, undefined);
+      strictEqual(method.lroMetadata.operationId?.length ?? 0, hasPathId ? 1 : 0);
+      strictEqual(
+        root.models.some((model) => model.name === "Monitor"),
+        false,
+      );
+      const selection = method.lroMetadata.statusMetadata?.[0];
+      ok(selection);
+      strictEqual(selection.propertySegments[0], selection.property);
+      ok(selection.property.type.kind === "model");
+      strictEqual(selection.property.type.properties[0].name, "value");
+      strictEqual(
+        selection.property.type,
+        root.models.find((model) => model.name === "Details"),
+      );
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      const serializedMethod = serialized.clients[0].methods.find(
+        (m: { name: string }) => m.name === "begin",
+      );
+      const serializedSelection = serializedMethod.lroMetadata.statusMetadata[0];
+      strictEqual(serializedMethod.lroMetadata.pollingResponseModel, undefined);
+      strictEqual(serializedSelection.propertySegments[0].$ref, serializedSelection.property.$id);
+      strictEqual(
+        serializedSelection.property.type.$ref,
+        serialized.models.find((model: { name: string }) => model.name === "Details").$id,
+      );
+    },
+  );
+
+  it.each([true, false])(
+    "retains an exposed protocol-only polling model when declared first: %s",
+    async (pollingFirst) => {
+      const pollingOperation = `
+        @get @route("/jobs/{jobId}/status")
+        @convenientAPI(false, "csharp")
+        op getStatus(@lroOperationId @path("jobId") id: string): Monitor;
+      `;
+      const startOperation = `
+        @post @route("/jobs") @pollingOperation(getStatus)
+        @convenientAPI(false, "csharp")
+        op begin(): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+        };
+      `;
+      const program = await typeSpecCompile(
+        `
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroResult result?: string;
+          @lroStatusMetadata progress?: int32;
+        }
+        ${pollingFirst ? `${pollingOperation}\n${startOperation}` : `${startOperation}\n${pollingOperation}`}
+        `,
+        runner,
+        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      strictEqual(
+        sdkContext.sdkPackage.models.some((model) => model.name === "Monitor"),
+        false,
+      );
+      const [root, diagnostics] = createModel(sdkContext);
+      deepStrictEqual(diagnostics, []);
+      const method = root.clients[0].methods.find((m) => m.name === "begin");
+      ok(method?.kind === "lro");
+      const monitor = method.lroMetadata.pollingResponseModel;
+      ok(monitor);
+      strictEqual(
+        monitor,
+        root.models.find((model) => model.name === "Monitor"),
+      );
+      strictEqual(
+        method.lroMetadata.statusMetadata?.[0].property,
+        monitor.properties.find((property) => property.name === "progress"),
+      );
+    },
+  );
+
   it.each([
     {
       decorators: '@pollingLocation @header("Operation-Location")',
@@ -395,6 +535,11 @@ describe("Operation Converter", () => {
     },
     {
       decorators: "@pollingLocation @body",
+      expectedLocation: "Self",
+      expectedName: undefined,
+    },
+    {
+      decorators: "@pollingLocation @bodyRoot",
       expectedLocation: "Self",
       expectedName: undefined,
     },
@@ -432,10 +577,6 @@ describe("Operation Converter", () => {
       ok(sdkMethod?.kind === "lro");
       const sdkPath = sdkMethod.lroMetadata.operationId?.find((entry) => entry.kind === "path");
       ok(sdkPath?.kind === "path");
-      if (expectedLocation === "Self") {
-        // The linked-operation fixture is classified as ResponseBody by the current TCGC.
-        sdkPath.source.location = "Self";
-      }
 
       const [root, diagnostics] = createModel(sdkContext);
       deepStrictEqual(diagnostics, []);
