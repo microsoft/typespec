@@ -4,9 +4,9 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Support the LRO operation ID from `@lroOperationId`. Poll-result models now have a read-only `getOperationId()` method. It returns the operation ID from the status monitor response body when it is there, and otherwise from the polling URL. Polling still uses the complete polling URL. Status values from `@lroStatusMetadata` are available on the typed poll result.
+Expose the LRO operation ID selected by `@lroOperationId` on supported typed poll-result models via `getOperationId()`. The poll-result model is available once a status response with a body is received; its body property takes precedence over the polling URL path. Polling continues to use the complete polling URL.
 
 ```java
-SyncPoller<DocumentAnalysisStatus, AnalyzeResult> poller = client.beginAnalyze();
+SyncPoller<DocumentAnalysisStatus, DocumentAnalysisResult> poller = client.beginAnalyze("document-1");
 String operationId = poller.poll().getValue().getOperationId();
 ```

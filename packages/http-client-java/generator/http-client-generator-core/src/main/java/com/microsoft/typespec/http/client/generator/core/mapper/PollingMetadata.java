@@ -97,11 +97,13 @@ final class PollingMetadata {
             final String pathTemplateArg = ClassType.STRING.defaultValueExpression(operationId.getPathTemplate());
             final String pathParameterArg
                 = ClassType.STRING.defaultValueExpression(operationId.getPathParameterSerializedName());
-            final String operationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s)", packageName,
-                ClientModelUtil.OPERATION_ID_POLLING_STRATEGY, pollingStrategy, pathTemplateArg, pathParameterArg);
-            final String syncOperationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s)", packageName,
+            final String headerArg = ClassType.STRING.defaultValueExpression(operationId.getPollingHeaderName());
+            final String operationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s, %s)", packageName,
+                ClientModelUtil.OPERATION_ID_POLLING_STRATEGY, pollingStrategy, pathTemplateArg, pathParameterArg,
+                headerArg);
+            final String syncOperationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s, %s)", packageName,
                 ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY, syncPollingStrategy, pathTemplateArg,
-                pathParameterArg);
+                pathParameterArg, headerArg);
             return new MethodPollingDetails(operationIdPollingStrategy, syncOperationIdPollingStrategy, pollResultType,
                 finalResultType, pollIntervalInSeconds);
         }
@@ -256,9 +258,7 @@ final class PollingMetadata {
 
         // The operation ID is only populated on the poll result model generated from TypeSpec, for azure-core.
         final LongRunningOperationIdMetadata operationId
-            = settings.isAzureV1() && !settings.isFluent() && pollingSettings.getPollResultType() == null
-                ? lroMetadata.getOperationId()
-                : null;
+            = ClientModelUtil.supportsLroOperationId(settings, pollingSettings) ? lroMetadata.getOperationId() : null;
 
         return new PollingMetadata(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,
             pollingSettings.getPollIntervalInSeconds(), httpMethod, operationId);

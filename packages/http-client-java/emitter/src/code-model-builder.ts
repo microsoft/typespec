@@ -66,7 +66,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import type { Authentication, HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
-import { Visibility, getAuthentication } from "@typespec/http";
+import { Visibility, getAuthentication, getHeaderFieldName } from "@typespec/http";
 import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
@@ -1796,7 +1796,26 @@ export class CodeModelBuilder {
         operationId = this.processLroOperationIdMetadata(lroMetadata);
         if (operationId) {
           pollingSchema.extensions = pollingSchema.extensions ?? {};
-          pollingSchema.extensions["x-ms-lro-operation-id"] = { ...operationId };
+          const previous = pollingSchema.extensions["x-ms-lro-operation-id"] as
+            LongRunningOperationIdMetadata | undefined;
+          if (
+            previous?.propertySerializedName &&
+            operationId.propertySerializedName &&
+            previous.propertySerializedName !== operationId.propertySerializedName
+          ) {
+            reportDiagnostic(this.program, {
+              code: "generator-error",
+              format: {
+                errorMessage:
+                  "Long-running operations using the same status model select different operation ID properties.",
+              },
+              target: lroMetadata.operation.__raw?.operation ?? NoTarget,
+            });
+          }
+          pollingSchema.extensions["x-ms-lro-operation-id"] = {
+            ...operationId,
+            ...previous,
+          };
         }
       }
 
@@ -1824,19 +1843,50 @@ export class CodeModelBuilder {
     for (const selection of lroMetadata.operationId) {
       if (selection.kind === "path") {
         const statusMonitorStep = lroMetadata.statusMonitorStep;
-        const statusMonitorOperation =
+        const selectedLink =
           statusMonitorStep?.kind === "nextOperationReference"
-            ? statusMonitorStep.target.operation
-            : statusMonitorStep?.operation;
-        if (statusMonitorOperation) {
+            ? statusMonitorStep.target.link
+            : statusMonitorStep?.target;
+        const statusMonitorOperation =
+          selectedLink === selection.source
+            ? statusMonitorStep?.kind === "nextOperationReference"
+              ? statusMonitorStep.target.operation
+              : statusMonitorStep?.operation
+            : undefined;
+        const source = selection.source;
+        const header = source.property.__raw;
+        if (
+          statusMonitorOperation &&
+          source.location === "ResponseHeader" &&
+          header &&
+          statusMonitorOperation.path.includes(`{${selection.pathParameter.serializedName}}`)
+        ) {
           operationId.pathTemplate = statusMonitorOperation.path;
           operationId.pathParameterSerializedName = selection.pathParameter.serializedName;
+          operationId.pollingHeaderName = getHeaderFieldName(this.program, header).toLowerCase();
+        } else {
+          reportDiagnostic(this.program, {
+            code: "generator-warning",
+            format: {
+              warningMessage:
+                "Cannot expose the long-running operation ID from the selected polling URL: its header or status-monitor path could not be resolved.",
+            },
+            target: selection.pathParameter.__raw ?? NoTarget,
+          });
         }
       } else if (selection.kind === "property" && selection.propertySegments.length === 1) {
         // nested property is not supported, TCGC currently only provides a single segment
         operationId.propertySerializedName = getPropertySerializedName(
           selection.propertySegments[0],
         );
+      } else if (selection.kind === "property") {
+        reportDiagnostic(this.program, {
+          code: "generator-warning",
+          format: {
+            warningMessage: "Nested long-running operation ID properties are not supported.",
+          },
+          target: selection.property.__raw ?? NoTarget,
+        });
       }
     }
     return operationId.pathTemplate || operationId.propertySerializedName ? operationId : undefined;

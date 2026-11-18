@@ -396,7 +396,7 @@ public final class OperationIdClientImpl {
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
                 "/azure/client-generator-core/lro/operation-id/documentModels/{modelId}/analyzeResults/{resultId}",
-                "resultId"),
+                "resultId", "operation-location"),
             TypeReference.createInstance(DocumentAnalysisStatus.class),
             TypeReference.createInstance(DocumentAnalysisResult.class));
     }
@@ -426,7 +426,7 @@ public final class OperationIdClientImpl {
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
                 "/azure/client-generator-core/lro/operation-id/documentModels/{modelId}/analyzeResults/{resultId}",
-                "resultId"),
+                "resultId", "operation-location"),
             TypeReference.createInstance(DocumentAnalysisStatus.class),
             TypeReference.createInstance(DocumentAnalysisResult.class));
     }
@@ -793,7 +793,8 @@ public final class OperationIdClientImpl {
                             : Context.NONE)
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
-                "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId"),
+                "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId",
+                "operation-location"),
             TypeReference.createInstance(TranslationWithPathStatus.class),
             TypeReference.createInstance(TranslationResult.class));
     }
@@ -822,7 +823,8 @@ public final class OperationIdClientImpl {
                             : Context.NONE)
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
-                "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId"),
+                "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId",
+                "operation-location"),
             TypeReference.createInstance(TranslationWithPathStatus.class),
             TypeReference.createInstance(TranslationResult.class));
     }

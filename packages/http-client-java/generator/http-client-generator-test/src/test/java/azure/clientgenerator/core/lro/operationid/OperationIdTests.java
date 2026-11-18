@@ -66,7 +66,12 @@ public class OperationIdTests {
         OperationIdClient client = new OperationIdClientBuilder().buildClient();
         SyncPoller<TranslationWithPathStatus, TranslationResult> poller = client.beginStartTranslationWithPath();
 
-        PollResponse<TranslationWithPathStatus> response = poller.waitForCompletion();
+        PollResponse<TranslationWithPathStatus> response = poller.poll();
+        Assertions.assertEquals(LongRunningOperationStatus.IN_PROGRESS, response.getStatus());
+        Assertions.assertEquals("translation-456", response.getValue().getOperationId());
+        Assertions.assertEquals(response.getValue().getId(), response.getValue().getOperationId());
+
+        response = poller.waitForCompletion();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
         Assertions.assertEquals("translation-456", response.getValue().getOperationId());
         Assertions.assertNotNull(poller.getFinalResult());

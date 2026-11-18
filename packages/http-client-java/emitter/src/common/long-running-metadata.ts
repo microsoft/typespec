@@ -9,6 +9,8 @@ export interface LongRunningOperationIdMetadata {
   pathTemplate?: string;
   /** Name of the path parameter in "pathTemplate". */
   pathParameterSerializedName?: string;
+  /** Name of the response header containing the polling URL. */
+  pollingHeaderName?: string;
   /** Serialized name of the status-monitor response property. */
   propertySerializedName?: string;
 }

@@ -11,6 +11,7 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 public class LongRunningOperationIdMetadata {
     private String pathTemplate;
     private String pathParameterSerializedName;
+    private String pollingHeaderName;
     private String propertySerializedName;
 
     /**
@@ -56,6 +57,24 @@ public class LongRunningOperationIdMetadata {
     }
 
     /**
+     * Gets the response header containing the polling URL.
+     *
+     * @return the polling URL header name.
+     */
+    public String getPollingHeaderName() {
+        return pollingHeaderName;
+    }
+
+    /**
+     * Sets the response header containing the polling URL.
+     *
+     * @param pollingHeaderName the polling URL header name.
+     */
+    public void setPollingHeaderName(String pollingHeaderName) {
+        this.pollingHeaderName = pollingHeaderName;
+    }
+
+    /**
      * Gets the serialized name of the status monitor response property that is the operation ID.
      *
      * @return the serialized name of the status monitor response property that is the operation ID.
@@ -79,6 +98,6 @@ public class LongRunningOperationIdMetadata {
      * @return whether the operation ID is extracted from the path of the polling URL.
      */
     public boolean hasPathSource() {
-        return pathTemplate != null && pathParameterSerializedName != null;
+        return pathTemplate != null && pathParameterSerializedName != null && pollingHeaderName != null;
     }
 }

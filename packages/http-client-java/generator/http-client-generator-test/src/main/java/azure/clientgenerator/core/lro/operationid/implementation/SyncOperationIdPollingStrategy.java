@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 public final class SyncOperationIdPollingStrategy<T, U> implements SyncPollingStrategy<T, U> {
     private final SyncPollingStrategy<T, U> pollingStrategy;
     private final Pattern pathPattern;
+    private final String pollingHeaderName;
 
     /**
      * Creates an instance of the polling strategy.
@@ -32,11 +33,13 @@ public final class SyncOperationIdPollingStrategy<T, U> implements SyncPollingSt
      * @param pollingStrategy the polling strategy to delegate to.
      * @param pathTemplate the path template of the status monitor operation.
      * @param pathParameterName the name of the path parameter that is the operation ID.
+     * @param pollingHeaderName the response header containing the polling URL.
      */
     public SyncOperationIdPollingStrategy(SyncPollingStrategy<T, U> pollingStrategy, String pathTemplate,
-        String pathParameterName) {
+        String pathParameterName, String pollingHeaderName) {
         this.pollingStrategy = Objects.requireNonNull(pollingStrategy, "'pollingStrategy' cannot be null.");
         this.pathPattern = OperationIdPollingStrategy.createPathPattern(pathTemplate, pathParameterName);
+        this.pollingHeaderName = Objects.requireNonNull(pollingHeaderName, "'pollingHeaderName' cannot be null.");
     }
 
     /**
@@ -53,6 +56,7 @@ public final class SyncOperationIdPollingStrategy<T, U> implements SyncPollingSt
     @Override
     public PollResponse<T> onInitialResponse(Response<?> response, PollingContext<T> pollingContext,
         TypeReference<T> pollResponseType) {
+        OperationIdPollingStrategy.savePollingUrl(response, pollingContext, pollingHeaderName);
         return OperationIdPollingStrategy.setOperationId(
             pollingStrategy.onInitialResponse(response, pollingContext, pollResponseType), pollingContext, pathPattern);
     }

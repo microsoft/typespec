@@ -7,6 +7,8 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningOperationIdMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
@@ -33,6 +35,7 @@ import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +53,51 @@ public class TypeSpecPlugin extends Javagen {
     public Client processClient(CodeModel codeModel) {
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
+        filterLroOperationIdMetadata(codeModel);
 
         // map to client model
         return Mappers.getClientMapper().map(codeModel);
+    }
+
+    private void filterLroOperationIdMetadata(CodeModel codeModel) {
+        JavaSettings settings = JavaSettings.getInstance();
+        Map<Schema, LongRunningOperationIdMetadata> supported = new IdentityHashMap<>();
+        if (codeModel.getClients() != null) {
+            codeModel.getClients()
+                .stream()
+                .filter(client -> client.getOperationGroups() != null)
+                .flatMap(client -> client.getOperationGroups().stream())
+                .filter(group -> group.getOperations() != null)
+                .flatMap(group -> group.getOperations().stream())
+                .filter(operation -> operation.getConvenienceApi() != null && operation.getLroMetadata() != null)
+                .filter(operation -> ClientModelUtil.supportsLroOperationId(settings,
+                    settings.getPollingSettings(Mappers.getProxyMethodMapper().getOperationId(operation, settings))))
+                .forEach(operation -> {
+                    Schema schema = operation.getLroMetadata().getPollResultType();
+                    LongRunningOperationIdMetadata current = operation.getLroMetadata().getOperationId();
+                    if (schema == null || current == null) {
+                        return;
+                    }
+                    LongRunningOperationIdMetadata merged
+                        = supported.computeIfAbsent(schema, ignored -> new LongRunningOperationIdMetadata());
+                    if (current.hasPathSource() && !merged.hasPathSource()) {
+                        merged.setPathTemplate(current.getPathTemplate());
+                        merged.setPathParameterSerializedName(current.getPathParameterSerializedName());
+                        merged.setPollingHeaderName(current.getPollingHeaderName());
+                    }
+                    if (current.getPropertySerializedName() != null) {
+                        merged.setPropertySerializedName(current.getPropertySerializedName());
+                    }
+                });
+        }
+        if (codeModel.getSchemas() != null && codeModel.getSchemas().getObjects() != null) {
+            codeModel.getSchemas()
+                .getObjects()
+                .stream()
+                .filter(
+                    schema -> schema.getExtensions() != null && schema.getExtensions().getXmsLroOperationId() != null)
+                .forEach(schema -> schema.getExtensions().setXmsLroOperationId(supported.get(schema)));
+        }
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {

@@ -31,6 +31,17 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
     private DocumentAnalysisResult result;
 
     /**
+     * The operation ID from the polling URL, set by the polling strategy after deserialization.
+     */
+    @Generated
+    private String lroOperationId;
+
+    static {
+        OperationIdPollingStrategy.setOperationIdAccessor(DocumentAnalysisStatus.class,
+            (model, operationId) -> model.lroOperationId = operationId);
+    }
+
+    /**
      * Creates an instance of DocumentAnalysisStatus class.
      * 
      * @param status the status value to set.
@@ -60,25 +71,15 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
         return this.result;
     }
 
-    /*
-     * The ID of the long-running operation, from the polling URL.
-     */
-    @Generated
-    private String operationId;
-
-    static {
-        OperationIdPollingStrategy.setOperationIdAccessor(DocumentAnalysisStatus.class,
-            (model, operationId) -> model.operationId = operationId);
-    }
-
     /**
      * Get the ID of the long-running operation, from the polling URL.
      * 
-     * @return the ID of the long-running operation.
+     * @return the ID of the long-running operation, or null if unavailable. The poll result is available when a status
+     * response with a body has been received.
      */
     @Generated
     public String getOperationId() {
-        return this.operationId;
+        return this.lroOperationId;
     }
 
     /**

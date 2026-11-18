@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
@@ -846,6 +847,7 @@ public class ClientModelUtil {
         if (CoreUtils.isNullOrEmpty(codeModel.getClients())) {
             return false;
         }
+
         return codeModel.getClients()
             .stream()
             .filter(client -> client.getOperationGroups() != null)
@@ -855,6 +857,20 @@ public class ClientModelUtil {
             .anyMatch(operation -> operation.getLroMetadata() != null
                 && operation.getLroMetadata().getOperationId() != null
                 && operation.getLroMetadata().getOperationId().hasPathSource());
+    }
+
+    /**
+     * Whether an operation uses its generated status model for long-running operation ID metadata.
+     *
+     * @param settings the generator settings.
+     * @param pollingSettings the operation's polling settings.
+     * @return whether the generated status model can expose operation ID metadata.
+     */
+    public static boolean supportsLroOperationId(JavaSettings settings, PollingSettings pollingSettings) {
+        return settings.isAzureV1()
+            && !settings.isFluent()
+            && pollingSettings != null
+            && pollingSettings.getPollResultType() == null;
     }
 
     /**

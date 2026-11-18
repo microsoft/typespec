@@ -26,11 +26,12 @@ import reactor.core.publisher.Mono;
  * @param <U> the type of the final result object to deserialize into
  */
 public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T, U> {
-    private static final String[] POLLING_URL_KEYS = { "Operation-Location", "Azure-AsyncOperation", "Location" };
+    private static final String POLLING_URL_KEY = OperationIdPollingStrategy.class.getName() + ".pollingUrl";
     private static final Map<Class<?>, BiConsumer<Object, String>> ACCESSORS = new ConcurrentHashMap<>();
 
     private final PollingStrategy<T, U> pollingStrategy;
     private final Pattern pathPattern;
+    private final String pollingHeaderName;
 
     /**
      * Creates an instance of the polling strategy.
@@ -38,11 +39,13 @@ public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T
      * @param pollingStrategy the polling strategy to delegate to.
      * @param pathTemplate the path template of the status monitor operation.
      * @param pathParameterName the name of the path parameter that is the operation ID.
+     * @param pollingHeaderName the response header containing the polling URL.
      */
     public OperationIdPollingStrategy(PollingStrategy<T, U> pollingStrategy, String pathTemplate,
-        String pathParameterName) {
+        String pathParameterName, String pollingHeaderName) {
         this.pollingStrategy = Objects.requireNonNull(pollingStrategy, "'pollingStrategy' cannot be null.");
         this.pathPattern = createPathPattern(pathTemplate, pathParameterName);
+        this.pollingHeaderName = Objects.requireNonNull(pollingHeaderName, "'pollingHeaderName' cannot be null.");
     }
 
     /**
@@ -71,6 +74,7 @@ public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T
     @Override
     public Mono<PollResponse<T>> onInitialResponse(Response<?> response, PollingContext<T> pollingContext,
         TypeReference<T> pollResponseType) {
+        savePollingUrl(response, pollingContext, pollingHeaderName);
         return pollingStrategy.onInitialResponse(response, pollingContext, pollResponseType)
             .map(pollResponse -> setOperationId(pollResponse, pollingContext, pathPattern));
     }
@@ -126,18 +130,27 @@ public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T
         if (value == null) {
             return pollResponse;
         }
-        BiConsumer<Object, String> accessor = ACCESSORS.get(value.getClass());
+        Class<?> valueType = value.getClass();
+        BiConsumer<Object, String> accessor = null;
+        while (valueType != null && accessor == null) {
+            accessor = ACCESSORS.get(valueType);
+            valueType = valueType.getSuperclass();
+        }
         if (accessor == null) {
             return pollResponse;
         }
-        for (String key : POLLING_URL_KEYS) {
-            String operationId = getOperationId(pollingContext.getData(key), pathPattern);
-            if (operationId != null) {
-                accessor.accept(value, operationId);
-                break;
-            }
+        String operationId = getOperationId(pollingContext.getData(POLLING_URL_KEY), pathPattern);
+        if (operationId != null) {
+            accessor.accept(value, operationId);
         }
         return pollResponse;
+    }
+
+    static void savePollingUrl(Response<?> response, PollingContext<?> pollingContext, String pollingHeaderName) {
+        String pollingUrl = response.getHeaders().getValue(pollingHeaderName);
+        if (pollingUrl != null) {
+            pollingContext.setData(POLLING_URL_KEY, pollingUrl);
+        }
     }
 
     private static String getOperationId(String pollingUrl, Pattern pathPattern) {
