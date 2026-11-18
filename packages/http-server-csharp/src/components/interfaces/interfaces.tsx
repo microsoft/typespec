@@ -175,7 +175,9 @@ function BusinessLogicMethod(props: BusinessLogicMethodProps): Children {
           </>
         );
       } else {
-        typeExpr = <TypeExpression type={nullableValueType ?? prop.type} />;
+        typeExpr = (
+          <TypeExpression type={nullableValueType ?? prop.type} nullable={!prop.optional} />
+        );
       }
       return {
         name: namePolicy.getName(pName, "parameter"),

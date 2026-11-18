@@ -168,7 +168,9 @@ function MockMethods(props: MockMethodsProps): Children {
               : undefined;
             return {
               name: namePolicy.getName(pName, "parameter"),
-              type: <TypeExpression type={nullableValueType ?? prop.type} />,
+              type: (
+                <TypeExpression type={nullableValueType ?? prop.type} nullable={!prop.optional} />
+              ),
               optional: prop.optional,
             };
           })
