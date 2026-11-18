@@ -31,6 +31,7 @@ op analyze(): Azure.Core.Foundations.AcceptedResponse &
 model CombinedStatus {
   @lroOperationId
   id: string;
+
   status: Azure.Core.Foundations.OperationState;
   result?: Result;
 }
