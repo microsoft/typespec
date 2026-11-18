@@ -33,8 +33,8 @@ catalog:
   "@alloy-js/rollup-plugin": ^0.2.0
   "@alloy-js/typescript": ^0.26.0
   "@astrojs/check": ^0.9.12
-  "@astrojs/markdown-remark": ^7.3.6
-  "@astrojs/react": ^7.1.5
+  "@astrojs/markdown-remark": ^7.3.7
+  "@astrojs/react": ^7.1.7
   "@astrojs/starlight": ^0.42.10
   "@azure/identity": ^4.14.1
   "@azure/storage-blob": ^12.34.0
@@ -94,7 +94,7 @@ catalog:
   "@vscode/vsce": ^4.1.0
   ajv: ^8.20.0
   ajv-formats: ^3.0.1
-  astro: ^7.4.8
+  astro: ^7.4.10
   astro-expressive-code: ^0.44.3
   astro-rehype-relative-markdown-links: ^0.19.2
   c8: ^12.0.0
