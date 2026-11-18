@@ -129,16 +129,9 @@ export const AZURE_EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptio
   "azure/client-generator-core/hierarchy-building": {
     namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
   },
-  "azure/client-generator-core/lro/metadata": [
-    {
-      namespace: "specs.azure.clientgenerator.core.lro.metadata",
-    },
-    {
-      "package-name": "azure-client-generator-core-lro-metadata-msrest",
-      "models-mode": "msrest",
-      "generate-packaging-files": false,
-    },
-  ],
+  "azure/client-generator-core/lro/metadata": {
+    namespace: "specs.azure.clientgenerator.core.lro.metadata",
+  },
   "azure/client-generator-core/lro/operation-id": {
     namespace: "specs.azure.clientgenerator.core.lro.operationid",
   },

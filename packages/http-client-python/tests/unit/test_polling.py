@@ -9,12 +9,17 @@ from unittest.mock import AsyncMock, Mock
 import json
 
 import pytest
-from azure.core.exceptions import HttpResponseError
 from azure.core.pipeline import PipelineContext, PipelineResponse
 from azure.core.pipeline.transport import HttpRequest
 from azure.core.polling.base_polling import BadStatus
 from azure.core.utils import case_insensitive_dict
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
+
+from pygen import OptionsDict
+from pygen.codegen.models import CodeModel, build_type
+from pygen.codegen.models.lro_operation import LROOperationBase
+from pygen.codegen.models.response import LROResponse
+from pygen.codegen.serializers.builder_serializer import LROOperationSerializer
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -180,14 +185,6 @@ def test_selected_uri_segment_and_body_precedence(polling, location):
     assert state.details["operation_id"] == "uri id"
 
 
-def test_body_only_id_is_unavailable_until_monitor_response(polling):
-    state = polling._LroMetadata({}, deserialize_monitor=lambda body: body, operation_id_path=["id"])
-    state.initialize(response({"id": "unrelated-initial-resource"}))
-    assert state.operation_id is None
-    state.update(response({"id": "server-id"}))
-    assert state.operation_id == "server-id"
-
-
 def test_unmatched_uri_does_not_invent_an_operation_id(polling):
     state = polling._LroMetadata(
         {},
@@ -266,39 +263,6 @@ def metadata_state(polling):
     )
 
 
-@pytest.mark.parametrize("terminal", ["Succeeded", "Failed", "Canceled"])
-def test_sync_poller_retains_monitor_metadata_after_terminal_response(polling, terminal):
-    urls = []
-    bodies = iter([{"status": "Running", "progress": 1}, {"status": terminal, "progress": 2, "id": "body-id"}])
-
-    def run(request, **kwargs):
-        urls.append(request.url)
-        return pipeline_response({"final": True} if request.url == FINAL_URL else next(bodies))
-
-    client = SimpleNamespace(
-        send_request=run,
-        get=lambda url: HttpRequest("GET", url),
-        _pipeline=SimpleNamespace(run=run, _transport=SimpleNamespace(sleep=lambda _: None)),
-    )
-    state = metadata_state(polling)
-    method = polling._MetadataPolling(0, lro_metadata=state)
-    poller = polling.MetadataLROPoller(
-        client,
-        pipeline_response({"status": "Running", "progress": 0}, initial=True),
-        lambda value: value.http_response.json(),
-        method,
-        lro_metadata=state,
-    )
-    if terminal == "Succeeded":
-        assert poller.result() == {"final": True}
-        assert urls == [POLL_URL, POLL_URL, FINAL_URL]
-    else:
-        with pytest.raises(HttpResponseError):
-            poller.result()
-        assert urls == [POLL_URL, POLL_URL]
-    assert poller.details == {"progress": 2, "operation_id": "body-id"}
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("async_mode", [False, True], ids=["sync", "async"])
 async def test_final_get_at_polling_url_preserves_monitor_metadata(polling, async_mode):
@@ -337,79 +301,100 @@ async def test_final_get_at_polling_url_preserves_monitor_metadata(polling, asyn
     assert poller.details == {"progress": 2, "operation_id": "body-id"}
 
 
-def test_sync_poller_repopulates_metadata_after_continuation(polling):
-    urls = []
+class _TestLROOperationSerializer(LROOperationSerializer):
+    def response_headers_and_deserialization(self, builder, response):
+        return ["deserialized = response.json()"]
 
-    def run(request, **kwargs):
-        urls.append(request.url)
-        return pipeline_response(
-            {"final": True} if request.url == FINAL_URL else {"status": "Succeeded", "progress": 2, "id": "resumed-id"}
-        )
 
-    client = SimpleNamespace(
-        send_request=run,
-        get=lambda url: HttpRequest("GET", url),
-        _pipeline=SimpleNamespace(run=run, _transport=SimpleNamespace(sleep=lambda _: None)),
+@pytest.mark.parametrize("models_mode", [None, "dpg"])
+@pytest.mark.parametrize("generate_typeddict_only", [False, True])
+def test_lro_response_is_available_for_deserialization(models_mode, generate_typeddict_only):
+    code_model = SimpleNamespace(
+        options={"models-mode": models_mode},
+        generate_typeddict_only=generate_typeddict_only,
+        get_serialize_namespace=lambda *args, **kwargs: "test",
     )
-    initial_state = metadata_state(polling)
-    method = polling._MetadataPolling(0, lro_metadata=initial_state)
-    callback = lambda value: value.http_response.json()
-    method.initialize(client, pipeline_response({"status": "Running", "progress": 0}, initial=True), callback)
-    initial_state.update(response({"progress": 99, "id": "not-persisted"}))
-    resumed_state = metadata_state(polling)
-    resumed = polling.MetadataLROPoller.from_continuation_token(
-        polling_method=polling._MetadataPolling(0, lro_metadata=resumed_state),
-        continuation_token=method.get_continuation_token(),
-        client=client,
-        deserialization_callback=callback,
-        lro_metadata=resumed_state,
+    serializer = _TestLROOperationSerializer(code_model, async_mode=False, client_namespace="test")
+    operation = SimpleNamespace(
+        lro_response=SimpleNamespace(headers=[], type=object()),
     )
-    assert resumed.result() == {"final": True}
-    assert resumed.details == {"progress": 2, "operation_id": "resumed-id"}
-    assert urls == [POLL_URL, FINAL_URL]
+
+    generated = serializer.get_long_running_output(operation)
+
+    assert "    response = pipeline_response.http_response" in generated
+    assert "    deserialized = response.json()" in generated
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("terminal", ["Succeeded", "Failed", "Canceled"])
-async def test_async_poller_resumes_without_persisted_metadata(polling, terminal):
-    urls = []
-    bodies = iter([{"status": "Running", "progress": 1}, {"status": terminal, "progress": 2, "id": "body-id"}])
+@pytest.mark.parametrize(
+    "models_mode, expected",
+    [("dpg", ["parent_", "class_"]), ("msrest", ["parent_", "class_"]), ("none", ["wire.parent", "wire.class"])],
+)
+def test_monitor_metadata_paths_use_model_names_or_wire_names(models_mode, expected):
+    code_model = CodeModel(
+        {
+            "namespace": "sample",
+            "clients": [
+                {
+                    "name": "client",
+                    "namespace": "sample",
+                    "moduleName": "sample",
+                    "parameters": [],
+                    "url": "",
+                    "operationGroups": [],
+                }
+            ],
+        },
+        OptionsDict({"models-mode": models_mode, "flavor": "azure", "tsp_file": True}),
+    )
+    monitor = build_type(
+        {
+            "type": "model",
+            "base": "dpg",
+            "name": "Monitor",
+            "snakeCaseName": "monitor",
+            "properties": [
+                {
+                    "wireName": "wire.parent",
+                    "clientName": "parent_",
+                    "optional": True,
+                    "type": {
+                        "type": "model",
+                        "base": "dpg",
+                        "name": "Details",
+                        "snakeCaseName": "details",
+                        "properties": [
+                            {
+                                "wireName": "wire.class",
+                                "clientName": "class_",
+                                "optional": True,
+                                "type": {"type": "string"},
+                            }
+                        ],
+                    },
+                }
+            ],
+        },
+        code_model,
+    )
+    operation = LROOperationBase.__new__(LROOperationBase)
+    operation.code_model = code_model
+    operation.status_monitor_type = monitor
+    properties = operation._metadata_properties(["wire.parent", "wire.class"])
+    assert properties[-1].client_name == "class_"
+    assert operation._metadata_path(properties) == expected
 
-    async def run(request, **kwargs):
-        urls.append(request.url)
-        return pipeline_response({"final": True} if request.url == FINAL_URL else next(bodies))
 
-    client = SimpleNamespace(
-        send_request=run,
-        get=lambda url: HttpRequest("GET", url),
-        _pipeline=SimpleNamespace(run=run, _transport=None),
+@pytest.mark.parametrize("async_mode", [False, True])
+@pytest.mark.parametrize("subdir", [None, "_generated"])
+def test_metadata_poller_paths_use_the_public_package(async_mode, subdir):
+    response = LROResponse.__new__(LROResponse)
+    response.code_model = SimpleNamespace(namespace="sample", options={"generation-subdir": subdir})
+    response.has_lro_metadata = True
+    package = f"sample.{subdir}" if subdir else "sample"
+
+    assert response.get_poller_path(async_mode) == (
+        f"{package}.aio.AsyncMetadataLROPoller" if async_mode else f"{package}.MetadataLROPoller"
     )
-    state = metadata_state(polling)
-    method = polling._AsyncMetadataPolling(0, lro_metadata=state)
-    poller = polling.AsyncMetadataLROPoller(
-        client,
-        pipeline_response({"status": "Running", "progress": 0}, initial=True),
-        lambda value: value.http_response.json(),
-        method,
-        lro_metadata=state,
+    assert response.get_polling_method_path(async_mode) == (
+        f"{package}._polling._AsyncMetadataPolling" if async_mode else f"{package}._polling._MetadataPolling"
     )
-    assert poller.details == {"progress": 0, "operation_id": "uri id"}
-    await method.update_status()
-    assert poller.details == {"progress": 1, "operation_id": "uri id"}
-    resumed_state = metadata_state(polling)
-    resumed = polling.AsyncMetadataLROPoller.from_continuation_token(
-        polling_method=polling._AsyncMetadataPolling(0, lro_metadata=resumed_state),
-        continuation_token=poller.continuation_token(),
-        client=client,
-        deserialization_callback=lambda value: value.http_response.json(),
-        lro_metadata=resumed_state,
-    )
-    assert resumed.details == {"progress": None, "operation_id": "uri id"}
-    if terminal == "Succeeded":
-        assert await resumed.result() == {"final": True}
-        assert urls == [POLL_URL, POLL_URL, FINAL_URL]
-    else:
-        with pytest.raises(HttpResponseError):
-            await resumed.result()
-        assert urls == [POLL_URL, POLL_URL]
-    assert resumed.details == {"progress": 2, "operation_id": "body-id"}

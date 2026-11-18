@@ -20,10 +20,6 @@ import pytest
 # eng/scripts/ci/regenerate.ts. They should have setup.py and no pyproject.toml.
 KEEP_SETUP_PY_PACKAGES = {"setuppy-authentication-union"}
 
-# Code-only fixtures exercise alternate generator modes without installing a second distribution
-# into the same Python namespace as the standard fixture.
-NO_PACKAGING_PACKAGES = {"azure-client-generator-core-lro-metadata-msrest"}
-
 _GENERATED_ROOT = Path(__file__).resolve().parents[1] / "generated"
 
 
@@ -47,10 +43,6 @@ def _iter_generated_packages():
 def test_generated_package_uses_pyproject_toml(flavor, pkg_dir):
     has_setup_py = (pkg_dir / "setup.py").is_file()
     has_pyproject = (pkg_dir / "pyproject.toml").is_file()
-
-    if pkg_dir.name in NO_PACKAGING_PACKAGES:
-        assert not has_setup_py and not has_pyproject
-        return
 
     if pkg_dir.name in KEEP_SETUP_PY_PACKAGES:
         assert has_setup_py, f"{flavor}/{pkg_dir.name} should have setup.py (keep-setup-py=true)"
