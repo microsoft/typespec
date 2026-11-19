@@ -41,6 +41,10 @@ try {
             # test the generator
             Invoke-LoggedCommand "dotnet test ./generator -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
 
+            Invoke-LoggedCommand "dotnet test ./playground-server.Tests -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
+
+            Invoke-LoggedCommand "node --test ./playground-server.Tests/install-azure-generators.node-test.mjs ./playground-server.Tests/deploy.node-test.mjs" -GroupOutput
+
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }
         finally {

@@ -10,10 +10,10 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class DualFileRequest
+    public partial class DualFileContent
     {
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public DualFileRequest(string id, string primaryFilePath)
+        public DualFileContent(string id, string primaryFilePath)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNullOrEmpty(primaryFilePath, nameof(primaryFilePath));
@@ -23,7 +23,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public DualFileRequest(string id, global::System.IO.Stream primaryFile)
+        public DualFileContent(string id, global::System.IO.Stream primaryFile)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(primaryFile, nameof(primaryFile));
@@ -33,7 +33,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public DualFileRequest(string id, global::System.BinaryData primaryFile)
+        public DualFileContent(string id, global::System.BinaryData primaryFile)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(primaryFile, nameof(primaryFile));
@@ -43,7 +43,7 @@ namespace Sample.Models
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public DualFileRequest(string id, global::System.ClientModel.FileBinaryContent primaryFile)
+        public DualFileContent(string id, global::System.ClientModel.FileBinaryContent primaryFile)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
             global::Sample.Argument.AssertNotNull(primaryFile, nameof(primaryFile));
@@ -53,7 +53,7 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DualFileRequest(string id, global::System.ClientModel.FileBinaryContent primaryFile, global::System.ClientModel.FileBinaryContent secondaryFile)
+        internal DualFileContent(string id, global::System.ClientModel.FileBinaryContent primaryFile, global::System.ClientModel.FileBinaryContent secondaryFile)
         {
             Id = id;
             PrimaryFile = primaryFile;

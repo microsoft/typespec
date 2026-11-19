@@ -1,5 +1,12 @@
 # Change Log - @typespec/versioning
 
+## 0.88.0
+
+### Bug Fixes
+
+- [#11968](https://github.com/microsoft/typespec/pull/11968) Preserve transformed property optionality in version snapshots and skip incompatible optionality diagnostics when the property differs from its original declaration, without special-casing transformation helpers.
+
+
 ## 0.87.0
 
 ### Features

@@ -1,8 +1,6 @@
 ---
 changeKind: dependencies
 packages:
-  - "@typespec/html-program-viewer"
-  - "@typespec/playground"
   - "@typespec/react-components"
   - "@typespec/spec-dashboard"
 ---

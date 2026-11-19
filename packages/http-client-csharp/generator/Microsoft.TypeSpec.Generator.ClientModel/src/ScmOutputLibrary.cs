@@ -99,8 +99,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
-                new LifecycleModelReaderWriterOptionsDefinition(),
-                new LifecycleVisibilityDefinition(),
                 .. GetJsonLinesTypes(),
                 new BinaryContentHelperDefinition(),
                 ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,

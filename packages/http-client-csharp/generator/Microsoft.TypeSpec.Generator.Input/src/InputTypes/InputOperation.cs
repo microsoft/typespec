@@ -88,7 +88,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
-        public InputVisibility? RequestVisibility { get; internal set; }
         public bool ResponseAsBool { get; internal set; }
         public string Uri { get; internal set; }
         public string Path { get; internal set; }
@@ -124,8 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? crossLanguageDefinitionId = null,
             string? ns = null,
             InputExperimentalDetails? experimental = null,
-            bool? responseAsBool = null,
-            InputVisibility? requestVisibility = null)
+            bool? responseAsBool = null)
         {
             if (name != null)
             {
@@ -202,10 +200,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (responseAsBool.HasValue)
             {
                 ResponseAsBool = responseAsBool.Value;
-            }
-            if (requestVisibility.HasValue)
-            {
-                RequestVisibility = requestVisibility.Value;
             }
         }
     }

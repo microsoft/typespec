@@ -452,7 +452,7 @@ describe("identifiers", () => {
     ]);
   });
 
-  it("does not complete functions or decorators in type position", async () => {
+  it("completes declared TypeSpec functions but not JavaScript exports or decorators", async () => {
     const completions = await complete(
       `
       model M {
@@ -462,10 +462,13 @@ describe("identifiers", () => {
     );
 
     deepStrictEqual(
-      [],
-      completions.items.filter(
-        (c) => c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function,
-      ),
+      completions.items
+        .filter(
+          (c) =>
+            c.label === "doc" || c.label === "getDoc" || c.kind === CompletionItemKind.Function,
+        )
+        .map((c) => c.label),
+      ["typeref"],
     );
   });
 

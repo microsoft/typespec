@@ -1,5 +1,75 @@
 # Change Log - @typespec/compiler
 
+## 1.18.0
+
+### Deprecations
+
+- [#11980](https://github.com/microsoft/typespec/pull/11980) `getDiscriminatedUnionFromInheritance(type, discriminator)` is deprecated. Pass the program as the first argument so enum member discriminator values use their `@encodedName`.
+  
+  ```ts
+  const [union, diagnostics] = getDiscriminatedUnionFromInheritance(program, type, discriminator);
+  ```
+
+### Features
+
+- [#12095](https://github.com/microsoft/typespec/pull/12095) Inspect inline suppressions and local linter disables without compiling a project. Inline results include declaration context and source locations; config results include rule-key locations and diagnostics. For compiled programs, inspect whether each project suppression matched a diagnostic using `getSuppressions`.
+  
+  ```ts
+  import { collectLinterDisables } from "@typespec/compiler";
+  import { collectSuppressions, getSuppressions, parse } from "@typespec/compiler/ast";
+  
+  const script = parse(source);
+  const suppressions = collectSuppressions(script);
+  const [disables, diagnostics] = collectLinterDisables(configText);
+  const observedSuppressions = getSuppressions(program); // Includes a `used` flag.
+  ```
+  
+  Usage is a snapshot of diagnostics matched so far in that compilation, including rejected attempts to suppress errors. An unmatched suppression may be needed under other settings: its rule could be disabled, its diagnostic source unavailable, its emitter skipped, or compilation could stop before the relevant stage runs.
+- [#12195](https://github.com/microsoft/typespec/pull/12195) Override linter configuration for a single compilation without editing `tspconfig.yaml`. Select rulesets with `--linter-ruleset`, enable, disable, or configure individual rules with `--linter-rule`, and skip linting with `--no-linter`.
+  
+  ```bash
+  tsp compile . --linter-ruleset @typespec/http/all
+  tsp compile . --linter-rule @typespec/compiler/unused-using=true
+  tsp compile . --no-linter
+  ```
+- [#12166](https://github.com/microsoft/typespec/pull/12166) Expose `skipTrivia` through `@typespec/compiler/ast` so codefixes can reuse the compiler whitespace and comment handling.
+  
+  ```ts
+  import { skipTrivia } from "@typespec/compiler/ast";
+  
+  const cursor = skipTrivia(sourceText, property.end, property.parent?.end);
+  ```
+- [#12461](https://github.com/microsoft/typespec/pull/12461) Add `typeref(Type)` for referencing types from metadata values. Enable the `typeref` compiler feature in the calling project or library's `tspconfig.yaml`. Its result has type `TypeRef<T>`, where `T` is the referenced type. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to constrain its target. JavaScript implementations and generated signatures use `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler type. Type references are compilation metadata and cannot be represented as JSON values.
+  
+  ```typespec
+  model Item { id: string; }
+  model Registration { name: string; type: TypeRef; }
+  const entry: Registration = #{ name: "item", type: typeref(Item) };
+  ```
+- [#12399](https://github.com/microsoft/typespec/pull/12399) [API] Widen `isTemplateDeclaration` and `isTemplateDeclarationOrInstance` to accept any `Type`.
+
+### Bug Fixes
+
+- [#12314](https://github.com/microsoft/typespec/pull/12314) Suppress deprecated type warnings in deprecated operations, including parameter and response types nested in inline models and template arguments.
+- [#12225](https://github.com/microsoft/typespec/pull/12225) Preserve source model and property documentation in generated extern signatures.
+- [#11980](https://github.com/microsoft/typespec/pull/11980) `@encodedName` on an enum member now sets the value the member is serialized as, including when it has an explicit value. Emitters can resolve it with `resolveEncodedEnumMemberValue`. A spec that relied on the encoded name being ignored can now report errors, such as an encoded name equal to another member's value, or a `@discriminated` union variant named after the member instead of its encoded name.
+  
+  ```tsp
+  enum ConversationStatus {
+    // Keeps 0 for protobuf, serialized as "unknown" in JSON
+    @encodedName("application/json", "unknown")
+    CONVERSATION_STATUS_UNSPECIFIED: 0,
+  }
+  ```
+- [#12323](https://github.com/microsoft/typespec/pull/12323) Fix the underline in the diagnostic source preview starting one character to the right of the target since the upgrade to `@babel/code-frame` 8.
+- [#12202](https://github.com/microsoft/typespec/pull/12202) Highlight type-reference names without their template arguments when reporting diagnostics.
+- [#12358](https://github.com/microsoft/typespec/pull/12358) Fix decorators being skipped when concrete types are first referenced from template declarations, including references through model properties, union variants, and enum members.
+- [#12204](https://github.com/microsoft/typespec/pull/12204) Recommend npm run build instead of tsp compile . after initializing a TypeSpec library or emitter.
+- [#12180](https://github.com/microsoft/typespec/pull/12180) Fix `enumMember` and `exitEnumMember` semantic navigation callbacks so linter rules can validate enum members. Scoped navigation uses the parent enum's namespace to avoid visiting members outside the requested scope.
+- [#12203](https://github.com/microsoft/typespec/pull/12203) Explain that createTester requires a library root directory when its package.json cannot be found.
+- [#12461](https://github.com/microsoft/typespec/pull/12461) Correct reflection type constraint comparisons in function signatures, template parameters, and type references so namespace and other non-model constraints are not accepted as model constraints.
+
+
 ## 1.17.0
 
 ### Features

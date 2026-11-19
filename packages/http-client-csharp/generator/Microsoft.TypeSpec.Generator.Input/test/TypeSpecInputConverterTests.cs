@@ -11,53 +11,115 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class TypeSpecInputConverterTests
     {
         [TestCase(null)]
-        [TestCase(0)]
-        [TestCase(2)]
-        [TestCase(6)]
-        public void LoadsRequestVisibility(int? visibility)
-        {
-            var json = $$"""
-                {
-                  "$id": "1",
-                  "name": "send",
-                  {{(visibility.HasValue ? $"\"requestVisibility\": {visibility.Value}," : "")}}
-                  "httpMethod": "POST",
-                  "uri": "https://example.com",
-                  "path": "/widgets",
-                  "crossLanguageDefinitionId": "Test.send"
-                }
-                """;
-            var options = new JsonSerializerOptions
-            {
-                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
-            };
-            var operation = JsonSerializer.Deserialize<InputOperation>(json, options)!;
-            Assert.AreEqual(visibility.HasValue ? (InputVisibility)visibility.Value : null, operation.RequestVisibility);
-            operation.Update(requestVisibility: InputVisibility.Update);
-            operation.Update();
-            Assert.AreEqual(InputVisibility.Update, operation.RequestVisibility);
-        }
-
-        [TestCase(null, InputVisibility.All)]
-        [TestCase(0, InputVisibility.None)]
-        [TestCase(5, InputVisibility.Read | InputVisibility.Update)]
-        public void LoadsPropertyLifecycleVisibility(int? visibility, InputVisibility expected)
+        [TestCase("")]
+        [TestCase("Use \"Current\" instead.\nSee C:\\sdk.")]
+        public void LoadsPropertyDeprecationMetadata(string? message)
         {
             var content = $$"""
                 {
                   "name": "Test",
                   "models": [{
-                    "$id": "model", "name": "Topic",
+                    "$id": "model", "name": "Resource",
                     "properties": [{
-                      "$id": "property", "name": "state",
-                      {{(visibility.HasValue ? $"\"lifecycleVisibility\": {visibility.Value}," : "")}}
-                      "type": {"kind": "string"}
+                      "$id": "property", "name": "value",
+                      {{(message is not null ? $"\"deprecation\": {JsonSerializer.Serialize(message)}," : "")}}
+                      "type": {"kind":"string"}
                     }]
                   }]
                 }
                 """;
             var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
-            Assert.AreEqual(expected, property.Visibility);
+
+            Assert.AreEqual(message, property.Deprecation);
+        }
+
+        [Test]
+        public void LoadsContinuationTokenMarker(
+            [Values("query", "header", "path", "body", "method", "endpoint")] string kind,
+            [Values(null, false, true)] bool? isContinuationToken)
+        {
+            var json = $$"""
+                {
+                  "$id": "token",
+                  "kind": "{{kind}}",
+                  "name": "token",
+                  "serializedName": "token",
+                  "type": { "kind": "string" },
+                  "scope": "method",
+                  "location": "query",
+                  "contentTypes": ["application/json"],
+                  "defaultContentType": "application/json",
+                  {{(isContinuationToken.HasValue ? $"\"isContinuationToken\": {isContinuationToken.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "optional": true
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputParameterConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+
+            var parameter = JsonSerializer.Deserialize<InputParameter>(json, options)!;
+
+            Assert.AreEqual(isContinuationToken ?? false, parameter.IsContinuationToken);
+            parameter.Update(isContinuationToken: true);
+            parameter.Update();
+            Assert.IsTrue(parameter.IsContinuationToken);
+            parameter.Update(isContinuationToken: false);
+            Assert.IsFalse(parameter.IsContinuationToken);
+        }
+
+        [TestCase(null)]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsConstructorRequirednessSeparately(bool? requiredInConstructor)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "value", "optional": false,
+                      {{(requiredInConstructor.HasValue ? $"\"requiredInConstructor\": {requiredInConstructor.Value.ToString().ToLowerInvariant()}," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(requiredInConstructor, property.IsRequiredInConstructor);
+            Assert.IsTrue(property.IsRequired);
+        }
+
+        [TestCase(null)]
+        [TestCase("value")]
+        public void LoadsOriginalPropertyNameIndependentlyOfWireAndClientNames(string? originalName)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "renamedValue", "serializedName": "wireValue",
+                      {{(originalName is not null ? $"\"originalName\": \"{originalName}\"," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(originalName ?? "renamedValue", property.OriginalName);
+            Assert.AreEqual("renamedValue", property.Name);
+            Assert.AreEqual("wireValue", property.SerializedName);
         }
 
         [TestCase(null, false)]

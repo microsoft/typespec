@@ -18,7 +18,14 @@ import { createDiagnostic } from "./messages.js";
 import { numericRanges } from "./numeric-ranges.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
-import { isArrayModelType, isNeverType, isUnknownType, isValue, isVoidType } from "./type-utils.js";
+import {
+  isArrayModelType,
+  isNeverType,
+  isTypeRefType,
+  isUnknownType,
+  isValue,
+  isVoidType,
+} from "./type-utils.js";
 import type {
   ArrayModelType,
   ArrayValue,
@@ -121,6 +128,7 @@ const ReflectionNameToKind = {
   Namespace: "Namespace",
   Operation: "Operation",
   Scalar: "Scalar",
+  StringTemplate: "StringTemplate",
   TemplateParameter: "TemplateParameter",
   Tuple: "Tuple",
   Union: "Union",
@@ -301,13 +309,15 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return isTypeAssignableToInternal(source.type!, target, diagnosticTarget, relationCache);
     }
 
+    // Reflection declarations represent their named kind, not their implementation's Model kind.
+    const sourceKind = isReflectionType(source) ? ReflectionNameToKind[source.name] : source.kind;
     if (isReflectionType(target)) {
-      return source.kind === ReflectionNameToKind[target.name] || isNeverType(source)
+      return sourceKind === ReflectionNameToKind[target.name] || isNeverType(source)
         ? [Related.true, []]
         : [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
-    const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
+    const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target, relationCache);
     if (isSimpleTypeRelated === true) {
       return [Related.true, []];
     } else if (isSimpleTypeRelated === false) {
@@ -330,6 +340,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
         }
       }
       return [Related.true, []];
+    }
+
+    if (source.kind === "Model" && sourceKind !== "Model" && target.kind === "Model") {
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     if (
@@ -499,12 +513,18 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
     return (
       type.kind === "Model" &&
+      Object.hasOwn(ReflectionNameToKind, type.name) &&
       type.namespace?.name === "Reflection" &&
-      type.namespace?.namespace?.name === "TypeSpec"
+      type.namespace?.namespace?.name === "TypeSpec" &&
+      type.namespace?.namespace?.namespace?.name === ""
     );
   }
 
-  function isRelatedToScalar(source: Type, target: Scalar): boolean | undefined {
+  function isRelatedToScalar(
+    source: Type,
+    target: Scalar,
+    relationCache: RelationCache,
+  ): boolean | undefined {
     switch (source.kind) {
       case "Number":
         return isNumericLiteralRelatedTo(source, target);
@@ -514,7 +534,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       case "Boolean":
         return areScalarsRelated(target, checker.getStdType("boolean"));
       case "Scalar":
-        return areScalarsRelated(source, target);
+        return areScalarsRelated(source, target, relationCache);
       case "Union":
         return undefined;
       default:
@@ -522,7 +542,24 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
   }
 
-  function areScalarsRelated(source: Scalar, target: Scalar) {
+  function areScalarsRelated(
+    source: Scalar,
+    target: Scalar,
+    relationCache?: RelationCache,
+  ): boolean {
+    if (isTypeRefType(program, target)) {
+      if (!isTypeRefType(program, source)) return false;
+      relationCache ??= createRelationCache();
+      relationCache.set([source, target], [Related.maybe, []]);
+      const [related] = isTypeAssignableToInternal(
+        source.templateMapper?.args[0] ?? checker.unknownType,
+        target.templateMapper?.args[0] ?? checker.unknownType,
+        source,
+        relationCache,
+      );
+      return related !== Related.false;
+    }
+
     let current: Scalar | undefined = source;
     while (current) {
       if (current === target) {
@@ -534,13 +571,17 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return false;
   }
 
-  function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
+  function isSimpleTypeAssignableTo(
+    source: Type,
+    target: Type,
+    relationCache: RelationCache,
+  ): boolean | undefined {
     if (isNeverType(source)) return true;
     if (isVoidType(target)) return isVoidType(source);
     if (isUnknownType(target)) return true;
 
     if (target.kind === "Scalar") {
-      return isRelatedToScalar(source, target);
+      return isRelatedToScalar(source, target, relationCache);
     }
 
     if (source.kind === "Scalar" && target.kind === "Model") {
