@@ -32,7 +32,6 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ConstructorRequiredCollectionOverride))]
     [ModelReaderWriterBuildable(typeof(ConstructorWritableBase))]
     [ModelReaderWriterBuildable(typeof(ConstructorWritableLeaf))]
-    [ModelReaderWriterBuildable(typeof(CurrentDetails))]
     [ModelReaderWriterBuildable(typeof(CustomIntermediateCat))]
     [ModelReaderWriterBuildable(typeof(CustomIntermediateMammal))]
     [ModelReaderWriterBuildable(typeof(CustomUnionCat))]
@@ -56,11 +55,6 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
     [ModelReaderWriterBuildable(typeof(IntermediateUnionCat))]
-#pragma warning disable SAMPLE0011 // global::SampleTypeSpec.LegacyDetails is experimental and may change in future versions.
-#pragma warning disable CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
-    [ModelReaderWriterBuildable(typeof(LegacyDetails))]
-#pragma warning restore CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
-#pragma warning restore SAMPLE0011 // global::SampleTypeSpec.LegacyDetails is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
     [ModelReaderWriterBuildable(typeof(LiteralConstructorBase))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
@@ -92,6 +86,9 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(RenamedLiteralConstructorOverride))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(RequiredRenamedConstructorOverride))]
+    [ModelReaderWriterBuildable(typeof(ResponseStreamCreated))]
+    [ModelReaderWriterBuildable(typeof(ResponseStreamEvent))]
+    [ModelReaderWriterBuildable(typeof(ResponseStreamTextDelta))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResult))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]
     [ModelReaderWriterBuildable(typeof(SerializeNamedCat))]

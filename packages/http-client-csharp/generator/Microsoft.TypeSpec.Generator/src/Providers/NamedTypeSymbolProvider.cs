@@ -213,63 +213,55 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
-                properties.Add(BuildProperty(propertySymbol));
+                var modifiers = GetAccessModifier(propertySymbol.DeclaredAccessibility);
+                if (propertySymbol.IsStatic)
+                {
+                    modifiers |= MethodSignatureModifiers.Static;
+                }
+                if (propertySymbol.IsVirtual)
+                {
+                    modifiers |= MethodSignatureModifiers.Virtual;
+                }
+                if (propertySymbol.IsOverride)
+                {
+                    modifiers |= MethodSignatureModifiers.Override;
+                }
+                if (propertySymbol.IsAbstract)
+                {
+                    modifiers |= MethodSignatureModifiers.Abstract;
+                }
+                if (propertySymbol.IsSealed)
+                {
+                    modifiers |= MethodSignatureModifiers.Sealed;
+                }
+
+                var propertyProvider = new PropertyProvider(
+                    GetSymbolXmlDoc(propertySymbol, "summary"),
+                    modifiers,
+                    propertySymbol.Type.GetCSharpType(),
+                    propertySymbol.Name,
+                    new AutoPropertyBody(
+                        propertySymbol.SetMethod is not null,
+                        propertySymbol.SetMethod is null
+                            ? MethodSignatureModifiers.None
+                            : GetAccessModifier(propertySymbol.SetMethod.DeclaredAccessibility),
+                        GetPropertyInitializer(propertySymbol)),
+                    this,
+                    attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
+                {
+                    OriginalName = GetOriginalName(propertySymbol),
+                    IsInitOnly = propertySymbol.SetMethod?.IsInitOnly == true,
+                    HasUnsupportedBaseContract = propertySymbol.IsIndexer || propertySymbol.ReturnsByRef ||
+                        propertySymbol.ReturnsByRefReadonly || propertySymbol.IsRequired ||
+                        propertySymbol.GetMethod is null ||
+                        propertySymbol.GetMethod.DeclaredAccessibility != propertySymbol.DeclaredAccessibility,
+                    CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
+                        : null)
+                };
+                properties.Add(propertyProvider);
             }
             return [.. properties];
-        }
-
-        private PropertyProvider BuildProperty(IPropertySymbol propertySymbol)
-        {
-            var modifiers = GetAccessModifier(propertySymbol.DeclaredAccessibility);
-            if (propertySymbol.IsStatic)
-            {
-                modifiers |= MethodSignatureModifiers.Static;
-            }
-            if (propertySymbol.IsVirtual)
-            {
-                modifiers |= MethodSignatureModifiers.Virtual;
-            }
-            if (propertySymbol.IsOverride)
-            {
-                modifiers |= MethodSignatureModifiers.Override;
-            }
-            if (propertySymbol.IsAbstract)
-            {
-                modifiers |= MethodSignatureModifiers.Abstract;
-            }
-            if (propertySymbol.IsSealed)
-            {
-                modifiers |= MethodSignatureModifiers.Sealed;
-            }
-
-            return new PropertyProvider(
-                GetSymbolXmlDoc(propertySymbol, "summary"),
-                modifiers,
-                propertySymbol.Type.GetCSharpType(),
-                propertySymbol.Name,
-                new AutoPropertyBody(
-                    propertySymbol.SetMethod is not null,
-                    propertySymbol.SetMethod is null
-                        ? MethodSignatureModifiers.None
-                        : GetAccessModifier(propertySymbol.SetMethod.DeclaredAccessibility),
-                    GetPropertyInitializer(propertySymbol)),
-                this,
-                attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
-            {
-                OriginalName = GetOriginalName(propertySymbol),
-                // Build only the overridden member so deep hierarchies do not rebuild every ancestor property.
-                BaseProperty = propertySymbol.OverriddenProperty is { } baseProperty
-                    ? new NamedTypeSymbolProvider(baseProperty.ContainingType, _compilation).BuildProperty(baseProperty)
-                    : null,
-                IsInitOnly = propertySymbol.SetMethod?.IsInitOnly == true,
-                HasUnsupportedBaseContract = propertySymbol.IsIndexer || propertySymbol.ReturnsByRef ||
-                    propertySymbol.ReturnsByRefReadonly || propertySymbol.IsRequired ||
-                    propertySymbol.GetMethod is null ||
-                    propertySymbol.GetMethod.DeclaredAccessibility != propertySymbol.DeclaredAccessibility,
-                CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
-                    ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
-                    : null)
-            };
         }
 
         private ValueExpression? GetPropertyInitializer(IPropertySymbol propertySymbol)
@@ -409,8 +401,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
                     Attributes: [.. methodSymbol.GetAttributes()
-                        .Where(a => a.AttributeClass?.ToDisplayString() is { } name
-                            && (name == typeof(ExperimentalAttribute).FullName || name == typeof(ObsoleteAttribute).FullName))
+                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
                         .Select(a => new AttributeStatement(a))],
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null

@@ -73,7 +73,7 @@ namespace SampleTypeSpec
 
         /// <summary> Converts a string to a <see cref="StringExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator StringExtensibleEnum?(string value) => value == null ? null : new StringExtensibleEnum(value);
+        public static implicit operator StringExtensibleEnum?(string value) => value == null ? (StringExtensibleEnum?)null : new StringExtensibleEnum(value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
