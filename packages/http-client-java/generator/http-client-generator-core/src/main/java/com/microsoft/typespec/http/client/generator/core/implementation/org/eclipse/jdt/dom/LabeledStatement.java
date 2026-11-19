@@ -24,9 +24,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class LabeledStatement extends Statement {
 
     /**

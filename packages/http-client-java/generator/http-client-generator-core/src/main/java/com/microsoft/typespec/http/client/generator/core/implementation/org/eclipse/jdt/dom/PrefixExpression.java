@@ -24,13 +24,11 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class PrefixExpression extends Expression {
 
     /**
-     * Prefix operators (typesafe enumeration).
+     * Prefix operators.
      *
      * <pre>
      * PrefixOperator:
@@ -42,20 +40,23 @@ public class PrefixExpression extends Expression {
      *    <b><code>!</code></b>  <code>NOT</code>
      * </pre>
      */
-    public static class Operator {
+    public enum Operator {
+        /** Prefix increment "++" operator. */
+        INCREMENT("++"),
+        /** Prefix decrement "--" operator. */
+        DECREMENT("--"),
+        /** Unary plus "+" operator. */
+        PLUS("+"),
+        /** Unary minus "-" operator. */
+        MINUS("-"),
+        /** Bitwise complement "~" operator. */
+        COMPLEMENT("~"),
+        /** Logical complement "!" operator. */
+        NOT("!");
 
-        /**
-         * The token for the operator.
-         */
         private final String token;
 
-        /**
-         * Creates a new prefix operator with the given token. <p> Note: this constructor is private. The only instances
-         * ever created are the ones for the standard operators. </p>
-         *
-         * @param token the character sequence for the operator
-         */
-        private Operator(String token) {
+        Operator(String token) {
             this.token = token;
         }
 
@@ -68,19 +69,6 @@ public class PrefixExpression extends Expression {
         public String toString() {
             return this.token;
         }
-
-        /** Prefix increment "++" operator. */
-        public static final Operator INCREMENT = new Operator("++");//$NON-NLS-1$
-        /** Prefix decrement "--" operator. */
-        public static final Operator DECREMENT = new Operator("--");//$NON-NLS-1$
-        /** Unary plus "+" operator. */
-        public static final Operator PLUS = new Operator("+");//$NON-NLS-1$
-        /** Unary minus "-" operator. */
-        public static final Operator MINUS = new Operator("-");//$NON-NLS-1$
-        /** Bitwise complement "~" operator. */
-        public static final Operator COMPLEMENT = new Operator("~");//$NON-NLS-1$
-        /** Logical complement "!" operator. */
-        public static final Operator NOT = new Operator("!");//$NON-NLS-1$
     }
 
     /**
@@ -142,7 +130,6 @@ public class PrefixExpression extends Expression {
      */
     public void setOperator(PrefixExpression.Operator operator) {
 
-        preValueChange();
         this.operator = operator;
 
     }

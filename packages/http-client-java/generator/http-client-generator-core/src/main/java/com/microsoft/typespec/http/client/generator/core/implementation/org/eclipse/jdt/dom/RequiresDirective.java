@@ -24,10 +24,8 @@ import java.util.List;
  * </pre>
  *
  * @since 3.14
- * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class RequiresDirective extends ModuleDirective {
 
     /**
@@ -44,7 +42,7 @@ public class RequiresDirective extends ModuleDirective {
     /**
      * The extended modifiers (element type: {@link ModuleModifier}). defaults to an empty list
      */
-    private final ASTNode.NodeList modifiers = new ASTNode.NodeList(MODIFIERS_PROPERTY);
+    private final ASTNode.NodeList<ModuleModifier> modifiers = new ASTNode.NodeList<>(MODIFIERS_PROPERTY);
 
     /**
      * The referenced module name; lazily initialized; defaults to a unspecified, legal Java identifier.
@@ -80,7 +78,7 @@ public class RequiresDirective extends ModuleDirective {
      *
      * @return the live list of module modifiers (element type: {@link ModuleModifier})
      */
-    public List modifiers() {
+    public List<ModuleModifier> modifiers() {
         return this.modifiers;
     }
 

@@ -55,8 +55,4 @@ public class Argument extends LocalDeclaration {
         return this.type != null && (this.type.bits & 16384) != 0;
     }
 
-    public boolean hasElidedType() {
-        return (this.bits & 2) != 0;
-    }
-
 }

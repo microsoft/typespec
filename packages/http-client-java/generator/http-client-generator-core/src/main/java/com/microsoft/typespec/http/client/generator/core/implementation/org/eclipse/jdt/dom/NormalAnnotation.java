@@ -25,9 +25,7 @@ import java.util.List;
  * </pre>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public final class NormalAnnotation extends Annotation {
 
     /**
@@ -44,7 +42,7 @@ public final class NormalAnnotation extends Annotation {
     /**
      * The list of member value pairs (element type: {@link MemberValuePair}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList values = new ASTNode.NodeList(VALUES_PROPERTY);
+    private final ASTNode.NodeList<MemberValuePair> values = new ASTNode.NodeList<>(VALUES_PROPERTY);
 
     /**
      * Creates a new unparented normal annotation node owned by the given AST. By default, the annotation has an
@@ -85,7 +83,7 @@ public final class NormalAnnotation extends Annotation {
      *
      * @return the live list of member value pairs in this annotation (element type: {@link MemberValuePair})
      */
-    public List values() {
+    public List<MemberValuePair> values() {
         return this.values;
     }
 }

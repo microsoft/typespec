@@ -52,9 +52,6 @@ public interface TypeConstants {
     char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
     char[] VOID = "void".toCharArray(); //$NON-NLS-1$
 
-    // JEP 286
-    char[] VAR = "var".toCharArray(); //$NON-NLS-1$
-
     // Synthetics
     char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
     char[] CLINIT = "<clinit>".toCharArray(); //$NON-NLS-1$

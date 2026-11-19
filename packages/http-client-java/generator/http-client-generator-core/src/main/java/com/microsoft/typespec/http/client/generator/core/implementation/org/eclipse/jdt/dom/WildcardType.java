@@ -27,7 +27,6 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * node appears anywhere other than as an argument of a <code>ParameterizedType</code> node. </p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class WildcardType extends AnnotatableType {
 

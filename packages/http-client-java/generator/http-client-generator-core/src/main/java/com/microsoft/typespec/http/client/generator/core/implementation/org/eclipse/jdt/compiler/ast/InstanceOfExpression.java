@@ -29,7 +29,6 @@ public class InstanceOfExpression extends OperatorExpression {
 
     public Expression expression;
     public TypeReference type;
-    public Pattern pattern;
 
     public InstanceOfExpression(Expression expression, TypeReference type) {
         this.expression = expression;
@@ -38,16 +37,6 @@ public class InstanceOfExpression extends OperatorExpression {
         this.bits |= 23 << 8;
         this.sourceStart = expression.sourceStart;
         this.sourceEnd = type.sourceEnd;
-    }
-
-    public InstanceOfExpression(Expression expression, Pattern pattern) {
-        this.expression = expression;
-        this.pattern = pattern;
-        this.type = pattern.getType();
-        this.type.bits |= 1073741824;
-        this.bits |= 23 << 8;
-        this.sourceStart = expression.sourceStart;
-        this.sourceEnd = this.pattern.sourceEnd;
     }
 
 }

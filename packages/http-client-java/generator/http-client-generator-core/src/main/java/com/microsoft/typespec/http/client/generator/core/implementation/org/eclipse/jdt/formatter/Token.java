@@ -16,6 +16,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter;
 
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
+
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.Scanner;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken;
 import java.util.List;
@@ -70,13 +72,13 @@ public class Token {
     /** Position in source of the last character (this position is included in the token). */
     public final int originalEnd;
     /** Type of this token. See {@link TerminalToken} for constants definition. */
-    public final TerminalToken tokenType;
+    public final int tokenType;
     private boolean spaceBefore, spaceAfter;
     private int lineBreaksBefore, lineBreaksAfter;
     private boolean preserveLineBreaksBefore = true, preserveLineBreaksAfter = true;
     private boolean wrapped;
     private int indent;
-    private int emptyLineIndentAdjustment;
+
     private int align;
     private boolean toEscape;
 
@@ -87,7 +89,7 @@ public class Token {
 
     private List<Token> internalStructure;
 
-    public Token(int sourceStart, int sourceEnd, TerminalToken tokenType) {
+    public Token(int sourceStart, int sourceEnd, int tokenType) {
         assert sourceStart <= sourceEnd;
         this.originalStart = sourceStart;
         this.originalEnd = sourceEnd;
@@ -98,7 +100,7 @@ public class Token {
         this(tokenToCopy, tokenToCopy.originalStart, tokenToCopy.originalEnd, tokenToCopy.tokenType);
     }
 
-    public Token(Token tokenToCopy, int newOriginalStart, int newOriginalEnd, TerminalToken newTokenType) {
+    public Token(Token tokenToCopy, int newOriginalStart, int newOriginalEnd, int newTokenType) {
         this.originalStart = newOriginalStart;
         this.originalEnd = newOriginalEnd;
         this.tokenType = newTokenType;
@@ -115,7 +117,7 @@ public class Token {
         this.internalStructure = tokenToCopy.internalStructure;
     }
 
-    public static Token fromCurrent(Scanner scanner, TerminalToken currentToken) {
+    public static Token fromCurrent(Scanner scanner, int currentToken) {
         int start = scanner.getCurrentTokenStartPosition();
         int end = scanner.getCurrentTokenEndPosition();
         if (currentToken == TerminalToken.TokenNameCOMMENT_LINE) {
@@ -234,12 +236,8 @@ public class Token {
         return this.indent;
     }
 
-    public void setEmptyLineIndentAdjustment(int adjustment) {
-        this.emptyLineIndentAdjustment = adjustment;
-    }
-
     public int getEmptyLineIndentAdjustment() {
-        return this.emptyLineIndentAdjustment;
+        return 0;
     }
 
     public void setAlign(int align) {
@@ -256,10 +254,6 @@ public class Token {
 
     public boolean isToEscape() {
         return this.toEscape;
-    }
-
-    public void setNextLineOnWrap() {
-        this.nextLineOnWrap = true;
     }
 
     public boolean isNextLineOnWrap() {

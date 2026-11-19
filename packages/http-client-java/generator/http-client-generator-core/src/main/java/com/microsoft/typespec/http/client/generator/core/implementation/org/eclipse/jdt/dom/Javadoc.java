@@ -26,9 +26,7 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class Javadoc extends Comment {
 
     /**
@@ -44,7 +42,7 @@ public class Javadoc extends Comment {
      *
      * @since 3.0
      */
-    private final ASTNode.NodeList tags = new ASTNode.NodeList(TAGS_PROPERTY);
+    private final ASTNode.NodeList<TagElement> tags = new ASTNode.NodeList<>(TAGS_PROPERTY);
 
     /**
      * Creates a new AST node for a doc comment owned by the given AST. The new node has an empty list of tag elements
@@ -85,7 +83,7 @@ public class Javadoc extends Comment {
      * @return the live list of tag elements in this doc comment (element type: {@link TagElement})
      * @since 3.0
      */
-    public List tags() {
+    public List<TagElement> tags() {
         return this.tags;
     }
 

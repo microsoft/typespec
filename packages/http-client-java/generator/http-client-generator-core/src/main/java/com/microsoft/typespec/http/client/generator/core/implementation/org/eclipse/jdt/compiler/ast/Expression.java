@@ -35,22 +35,11 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.*;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.Constant;
-
 public abstract class Expression extends Statement {
 
-    public Constant constant;
     public int statementEnd = -1;
-
-    public static Expression[] NO_EXPRESSIONS = new Expression[0];
 
     public Expression() {
         super();
-    }
-
-    @Override
-    public boolean isTrulyExpression() {
-        return true;
     }
 }

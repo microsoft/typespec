@@ -34,9 +34,7 @@ import java.util.List;
  * collected into the <code>dimensions</code> list.</li> </ul>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class ArrayCreation extends Expression {
 
     /**
@@ -70,7 +68,7 @@ public class ArrayCreation extends Expression {
     /**
      * The list of dimension expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList dimensions = new ASTNode.NodeList(DIMENSIONS_PROPERTY);
+    private final ASTNode.NodeList<Expression> dimensions = new ASTNode.NodeList<>(DIMENSIONS_PROPERTY);
 
     /**
      * The optional array initializer, or <code>null</code> if none; defaults to none.
@@ -140,7 +138,7 @@ public class ArrayCreation extends Expression {
      *
      * @return the live list of dimension expressions (element type: {@link Expression})
      */
-    public List dimensions() {
+    public List<Expression> dimensions() {
         return this.dimensions;
     }
 

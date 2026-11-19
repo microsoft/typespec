@@ -29,9 +29,7 @@ import java.util.List;
  *
  * @see Javadoc
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class MethodRef extends ASTNode implements IDocElement {
 
     /**
@@ -69,7 +67,7 @@ public class MethodRef extends ASTNode implements IDocElement {
     /**
      * The parameter declarations (element type: {@link MethodRefParameter}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList parameters = new ASTNode.NodeList(PARAMETERS_PROPERTY);
+    private final ASTNode.NodeList<MethodRefParameter> parameters = new ASTNode.NodeList<>(PARAMETERS_PROPERTY);
 
     /**
      * Creates a new AST node for a method reference owned by the given AST. By default, the method reference is for a
@@ -155,7 +153,7 @@ public class MethodRef extends ASTNode implements IDocElement {
      *
      * @return the live list of method parameter references (element type: {@link MethodRefParameter})
      */
-    public List parameters() {
+    public List<MethodRefParameter> parameters() {
         return this.parameters;
     }
 }

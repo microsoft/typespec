@@ -24,10 +24,10 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Expression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.LocalDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Statement;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TypeDeclaration;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressWarnings("rawtypes")
 public class RecoveredLocalVariable extends RecoveredStatement {
 
     public RecoveredAnnotation[] annotations;
@@ -49,7 +49,7 @@ public class RecoveredLocalVariable extends RecoveredStatement {
      */
     @Override
     public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
-        if (this.alreadyCompletedLocalInitialization || !(stmt instanceof Expression && stmt.isTrulyExpression())) {
+        if (this.alreadyCompletedLocalInitialization || !(stmt instanceof Expression)) {
             return super.add(stmt, bracketBalanceValue);
         } else {
             this.alreadyCompletedLocalInitialization = true;
@@ -94,7 +94,7 @@ public class RecoveredLocalVariable extends RecoveredStatement {
     }
 
     @Override
-    public Statement updatedStatement(int depth, Set knownTypes) {
+    public void updatedStatement(int depth, Set<TypeDeclaration> knownTypes) {
         /* update annotations */
         if (this.modifiers != 0) {
             this.localDeclaration.modifiers |= this.modifiers;
@@ -121,7 +121,6 @@ public class RecoveredLocalVariable extends RecoveredStatement {
                 this.localDeclaration.declarationSourceStart = start;
             }
         }
-        return this.localDeclaration;
     }
 
     /*
@@ -164,7 +163,7 @@ public class RecoveredLocalVariable extends RecoveredStatement {
 
     @Override
     public void updateParseTree() {
-        updatedStatement(0, new HashSet());
+        updatedStatement(0, new HashSet<>());
     }
 
     /*

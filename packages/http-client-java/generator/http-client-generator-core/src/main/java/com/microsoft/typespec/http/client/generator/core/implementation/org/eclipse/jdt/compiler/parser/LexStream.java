@@ -14,8 +14,7 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOLON_COLON;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameEOF;
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.InvalidInputException;
@@ -24,7 +23,7 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 public class LexStream {
 
     public static class Token {
-        TerminalToken kind;
+        int kind;
         char[] name;
         int start;
         int end;
@@ -45,8 +44,8 @@ public class LexStream {
     private int currentInterval = -1;
     private boolean awaitingColonColon;
 
-    public LexStream(Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, TerminalToken firstToken,
-        int init, int eof) {
+    public LexStream(Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int firstToken, int init,
+        int eof) {
 
         this.tokenCache = new Token[32];
         this.tokenCacheIndex = 0;
@@ -71,7 +70,7 @@ public class LexStream {
 
         while (tokenNotFound) {
             try {
-                TerminalToken tokenKind = this.scanner.getNextToken();
+                int tokenKind = this.scanner.getNextToken();
                 if (tokenKind == TerminalToken.TokenNameBeginTypeArguments) {
                     this.awaitingColonColon = true;
                 } else if (tokenKind == TokenNameCOLON_COLON) {
@@ -167,7 +166,7 @@ public class LexStream {
         this.currentIndex = previous(i);
     }
 
-    public TerminalToken kind(int tokenIndex) {
+    public int kind(int tokenIndex) {
         return token(tokenIndex).kind;
     }
 

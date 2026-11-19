@@ -15,8 +15,6 @@
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.Constant;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IntConstant;
 
 public class IntLiteral extends NumberLiteral {
     private static final char[] HEXA_MIN_VALUE = "0x80000000".toCharArray(); //$NON-NLS-1$
@@ -26,7 +24,7 @@ public class IntLiteral extends NumberLiteral {
     private final char[] reducedForm; // no underscores
 
     // used for ++ and --
-    public static final IntLiteral One = new IntLiteral(new char[] { '1' }, null, 0, 0, IntConstant.fromValue(1));
+    public static final IntLiteral One = new IntLiteral(new char[] { '1' }, null, 0, 0);
 
     public static IntLiteral buildIntLiteral(char[] token, int s, int e) {
         // remove '_' and prefix '0' first
@@ -52,12 +50,6 @@ public class IntLiteral extends NumberLiteral {
     IntLiteral(char[] token, char[] reducedForm, int start, int end) {
         super(token, start, end);
         this.reducedForm = reducedForm;
-    }
-
-    IntLiteral(char[] token, char[] reducedForm, int start, int end, Constant constant) {
-        super(token, start, end);
-        this.reducedForm = reducedForm;
-        this.constant = constant;
     }
 
     public IntLiteral convertToMinValue() {

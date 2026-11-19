@@ -30,7 +30,6 @@ import java.util.List;
  * @see VariableDeclarationFragment
  * @since 2.0
  */
-@SuppressWarnings({ "rawtypes" })
 public abstract class VariableDeclaration extends ASTNode {
 
     /**
@@ -44,7 +43,7 @@ public abstract class VariableDeclaration extends ASTNode {
      *
      * @since 3.10
      */
-    final ASTNode.NodeList extraDimensions;
+    final ASTNode.NodeList<Dimension> extraDimensions;
 
     /**
      * The initializer expression, or <code>null</code> if none; defaults to none.
@@ -126,7 +125,7 @@ public abstract class VariableDeclaration extends ASTNode {
      */
     VariableDeclaration(AST ast) {
         super(ast);
-        this.extraDimensions = new ASTNode.NodeList(getExtraDimensions2Property());
+        this.extraDimensions = new ASTNode.NodeList<>(getExtraDimensions2Property());
     }
 
     /**
@@ -177,9 +176,7 @@ public abstract class VariableDeclaration extends ASTNode {
      * @return the live list of extra dimensions with optional annotations (element type: {@link Dimension})
      * @since 3.10
      */
-    public List extraDimensions() {
-        // more efficient than just calling unsupportedIn2_3_4() to check
-
+    public List<Dimension> extraDimensions() {
         return this.extraDimensions;
     }
 

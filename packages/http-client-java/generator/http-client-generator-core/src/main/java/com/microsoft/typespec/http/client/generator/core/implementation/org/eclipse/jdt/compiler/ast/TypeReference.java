@@ -41,7 +41,6 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.*;
 
-@SuppressWarnings({ })
 public abstract class TypeReference extends Expression {
     public static final TypeReference[] NO_TYPE_ARGUMENTS = new TypeReference[0];
 

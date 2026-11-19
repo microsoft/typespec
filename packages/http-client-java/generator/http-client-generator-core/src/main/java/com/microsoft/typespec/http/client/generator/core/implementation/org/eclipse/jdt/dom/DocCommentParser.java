@@ -14,6 +14,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom;
 
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
+
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.InvalidInputException;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.AbstractCommentParser;
@@ -27,18 +29,15 @@ import java.util.List;
  *
  * @since 3.0
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 class DocCommentParser extends AbstractCommentParser {
 
     private Javadoc docComment;
     private final AST ast;
 
-    DocCommentParser(AST ast, Scanner scanner, boolean check) {
+    DocCommentParser(AST ast, Scanner scanner) {
         super(null);
         this.ast = ast;
         this.scanner = scanner;
-        this.sourceLevel = 3407872L;
-        this.checkDocComment = check;
         this.kind = 2 | 256;
     }
 
@@ -60,12 +59,11 @@ class DocCommentParser extends AbstractCommentParser {
         this.docComment = new Javadoc(this.ast);
 
         // Parse
-        if (this.checkDocComment) {
-            this.javadocStart = start;
-            this.javadocEnd = start + length - 1;
-            this.firstTagPosition = this.javadocStart;
-            commentParse();
-        }
+        this.javadocStart = start;
+        this.javadocEnd = start + length - 1;
+        this.firstTagPosition = this.javadocStart;
+        commentParse();
+
         this.docComment.setSourceRange(start, length);
 
         return this.docComment;
@@ -111,7 +109,6 @@ class DocCommentParser extends AbstractCommentParser {
                 }
             }
             argument.setType(argType);
-            argument.setVarargs();
             argument.setSourceRange(argStart, argEnd - argStart + 1);
             return argument;
         } catch (ClassCastException ex) {
@@ -146,7 +143,7 @@ class DocCommentParser extends AbstractCommentParser {
     }
 
     @Override
-    protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
+    protected Object createMethodReference(Object receiver, List<Object> arguments) throws InvalidInputException {
         try {
             // Create method ref
             MethodRef methodRef = this.ast.newMethodRef();
@@ -192,8 +189,8 @@ class DocCommentParser extends AbstractCommentParser {
             this.scanner.getNextChar();
         }
         if ("@snippet".contentEquals(tagName)) {
+            // a rejected @snippet tag creates no tag element
             this.tagSourceEnd = this.index;
-            // need to use createSnippetTag to create @snippet
             return;
         }
         TagElement tagElement = this.ast.newTagElement();
@@ -219,7 +216,7 @@ class DocCommentParser extends AbstractCommentParser {
     }
 
     @Override
-    protected Object createTypeReference(TerminalToken primitiveToken) {
+    protected Object createTypeReference(int primitiveToken) {
         int size = this.identifierLengthStack[this.identifierLengthPtr];
         String[] identifiers = new String[size];
         int pos = this.identifierPtr - size + 1;
@@ -322,7 +319,7 @@ class DocCommentParser extends AbstractCommentParser {
 
         // Read tag name
         int currentPosition = this.index;
-        TerminalToken token = readTokenAndConsume();
+        int token = readTokenAndConsume();
         char[] tagName = CharOperation.NO_CHAR;
         if (currentPosition == this.scanner.startPosition) {
             this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
@@ -455,11 +452,11 @@ class DocCommentParser extends AbstractCommentParser {
                         } else if (length == 7 && CharOperation.equals(TAG_SNIPPET, tagName)) {
                             this.tagValue = 7;
                             if (!this.inlineTagStarted) {
-                                // @snippet is an inline comment
+                                // @snippet is an inline tag
                                 valid = false;
                             } else {
                                 this.tagValue = 30;
-                                valid = parseSnippet();
+                                rejectSnippet();
                             }
                         } else {
                             this.tagValue = 100;
@@ -651,7 +648,7 @@ class DocCommentParser extends AbstractCommentParser {
                 previousStart = previousTag.getStartPosition();
             }
             if (!previousTag.fragments.isEmpty() && this.tagValue == 7) {
-                ASTNode lastNode = (ASTNode) previousTag.fragments.get(previousTag.fragments.size() - 1);
+                ASTNode lastNode = previousTag.fragments.get(previousTag.fragments.size() - 1);
                 if (lastNode instanceof TagElement lastTag && lastTag.getTagName().equals("@return")) {
                     previousTag = lastTag;
                     previousStart = lastTag.getStartPosition();
@@ -687,7 +684,7 @@ class DocCommentParser extends AbstractCommentParser {
         }
 
         // If we're in a inline tag, then retrieve previous tag in its fragments
-        List fragments = previousTag.fragments();
+        List<ASTNode> fragments = previousTag.fragments();
         if (this.inlineTagStarted) {
             int size = fragments.size();
             if (size == 0) {
@@ -697,7 +694,7 @@ class DocCommentParser extends AbstractCommentParser {
                 previousTag = inlineTag;
             } else {
                 // If last fragment is a tag, then use it as previous tag
-                ASTNode lastFragment = (ASTNode) fragments.get(size - 1);
+                ASTNode lastFragment = fragments.get(size - 1);
                 if (lastFragment.getNodeType() == 65) {
                     previousTag = (TagElement) lastFragment;
                     previousStart = previousTag.getStartPosition();
@@ -725,7 +722,7 @@ class DocCommentParser extends AbstractCommentParser {
         }
         throwsTag.setSourceRange(this.tagSourceStart,
             this.scanner.getCurrentTokenEndPosition() - this.tagSourceStart + 1);
-        throwsTag.fragments().add(typeRef);
+        throwsTag.fragments().add((ASTNode) typeRef);
         pushOnAstStack(throwsTag, true);
         return true;
     }
@@ -738,7 +735,7 @@ class DocCommentParser extends AbstractCommentParser {
                 int previousStart = previousTag.getStartPosition();
                 previousTag.setSourceRange(previousStart, previousPosition - previousStart + 1);
                 if (!previousTag.fragments().isEmpty()) {
-                    ASTNode inlineTag = (ASTNode) previousTag.fragments().get(previousTag.fragments().size() - 1);
+                    ASTNode inlineTag = previousTag.fragments().get(previousTag.fragments().size() - 1);
                     if (inlineTag.getNodeType() == 65) {
                         int inlineStart = inlineTag.getStartPosition();
                         inlineTag.setSourceRange(inlineStart, previousPosition - inlineStart + 1);
@@ -754,7 +751,7 @@ class DocCommentParser extends AbstractCommentParser {
     @Override
     protected void updateDocComment() {
         for (int idx = 0; idx <= this.astPtr; idx++) {
-            this.docComment.tags().add(this.astStack[idx]);
+            this.docComment.tags().add((TagElement) this.astStack[idx]);
         }
     }
 

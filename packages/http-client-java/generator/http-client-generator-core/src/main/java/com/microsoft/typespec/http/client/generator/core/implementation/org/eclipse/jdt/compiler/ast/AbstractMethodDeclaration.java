@@ -31,12 +31,7 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilation;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilationUnit;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortMethod;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortType;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.Parser;
 
@@ -66,26 +61,6 @@ public abstract class AbstractMethodDeclaration extends ASTNode implements Refer
 
     AbstractMethodDeclaration(CompilationResult compilationResult) {
         this.compilationResult = compilationResult;
-    }
-
-    /*
-     * We cause the compilation task to abort to a given extent.
-     */
-    @Override
-    public void abort(int abortLevel, IProblem problem) {
-        switch (abortLevel) {
-            case 2:
-                throw new AbortCompilation(problem);
-
-            case 4:
-                throw new AbortCompilationUnit(problem);
-
-            case 8:
-                throw new AbortType(problem);
-
-            default:
-                throw new AbortMethod(problem);
-        }
     }
 
     @Override

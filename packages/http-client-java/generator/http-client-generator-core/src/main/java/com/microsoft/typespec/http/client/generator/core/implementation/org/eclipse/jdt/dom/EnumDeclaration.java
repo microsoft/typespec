@@ -29,6 +29,7 @@ import java.util.List;
  *         <b>}</b>
  * </pre>
  *
+ * <p>
  * The {@link #enumConstants()} list holds the enum constant declarations, while the {@link #bodyDeclarations()} list
  * holds the class body declarations that appear after the semicolon. <p> When a Javadoc comment is present, the source
  * range begins with the first character of the "/**" comment delimiter. When there is no Javadoc comment, the source
@@ -37,9 +38,7 @@ import java.util.List;
  * following the body declarations. </p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class EnumDeclaration extends AbstractTypeDeclaration {
 
     /**
@@ -79,12 +78,13 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
     /**
      * The superinterface types (element type: {@link Type}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList superInterfaceTypes = new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
+    private final ASTNode.NodeList<Type> superInterfaceTypes = new ASTNode.NodeList<>(SUPER_INTERFACE_TYPES_PROPERTY);
 
     /**
      * The enum constant declarations (element type: {@link EnumConstantDeclaration}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList enumConstants = new ASTNode.NodeList(ENUM_CONSTANTS_PROPERTY);
+    private final ASTNode.NodeList<EnumConstantDeclaration> enumConstants
+        = new ASTNode.NodeList<>(ENUM_CONSTANTS_PROPERTY);
 
     /**
      * Creates a new AST node for an enum declaration owned by the given AST. By default, the enum declaration has an
@@ -136,7 +136,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
             acceptChildren(visitor, this.enumConstants);
             acceptChildren(visitor, this.bodyDeclarations);
         }
-        visitor.endVisit(this);
+
     }
 
     /**
@@ -144,7 +144,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
      *
      * @return the live list of super interface types (element type: {@link Type})
      */
-    public List superInterfaceTypes() {
+    public List<Type> superInterfaceTypes() {
         return this.superInterfaceTypes;
     }
 
@@ -153,7 +153,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
      *
      * @return the live list of enum constant declarations (element type: {@link EnumConstantDeclaration})
      */
-    public List enumConstants() {
+    public List<EnumConstantDeclaration> enumConstants() {
         return this.enumConstants;
     }
 

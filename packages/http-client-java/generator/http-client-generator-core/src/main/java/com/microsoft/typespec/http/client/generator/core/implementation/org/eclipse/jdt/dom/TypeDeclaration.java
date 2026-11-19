@@ -27,13 +27,11 @@ import java.util.List;
  *			[ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *			[ <b>extends</b> Type ]
  *			[ <b>implements</b> Type { <b>,</b> Type } ]
- *			[ <b>permits</b> Type { <b>,</b> Type } ]
  *			<b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b>
  * InterfaceDeclaration:
  *      [ Javadoc ] { ExtendedModifier } <b>interface</b> Identifier
  *			[ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *			[ <b>extends</b> Type { <b>,</b> Type } ]
- *			[ <b>permits</b> Type { <b>,</b> Type } ]
  * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
  * </pre>
  *
@@ -44,9 +42,7 @@ import java.util.List;
  * </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class TypeDeclaration extends AbstractTypeDeclaration {
 
     /**
@@ -116,7 +112,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList typeParameters = null;
+    private final ASTNode.NodeList<TypeParameter> typeParameters;
 
     /**
      * The optional superclass type; <code>null</code> if none. Defaults to none. Note that this field is not used for
@@ -132,7 +128,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList superInterfaceTypes = null;
+    private final ASTNode.NodeList<Type> superInterfaceTypes;
 
     /**
      * Creates a new AST node for a type declaration owned by the given AST. By default, the type declaration is for a
@@ -145,8 +141,8 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
     TypeDeclaration(AST ast) {
         super(ast);
 
-        this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
-        this.superInterfaceTypes = new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
+        this.typeParameters = new ASTNode.NodeList<>(TYPE_PARAMETERS_PROPERTY);
+        this.superInterfaceTypes = new ASTNode.NodeList<>(SUPER_INTERFACE_TYPES_PROPERTY);
     }
 
     @Override
@@ -188,7 +184,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
             acceptChildren(visitor, this.superInterfaceTypes);
             acceptChildren(visitor, this.bodyDeclarations);
         }
-        visitor.endVisit(this);
+
     }
 
     /**
@@ -208,7 +204,6 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
      * class declaration
      */
     public void setInterface(boolean isInterface) {
-        preValueChange();
         this.isInterface = isInterface;
 
     }
@@ -220,9 +215,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
      * @return the live list of type parameters (element type: {@link TypeParameter})
      * @since 3.1
      */
-    public List typeParameters() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<TypeParameter> typeParameters() {
         return this.typeParameters;
     }
 
@@ -264,9 +257,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
      * @return the live list of interface types (element type: {@link Type})
      * @since 3.1
      */
-    public List superInterfaceTypes() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<Type> superInterfaceTypes() {
         return this.superInterfaceTypes;
     }
 

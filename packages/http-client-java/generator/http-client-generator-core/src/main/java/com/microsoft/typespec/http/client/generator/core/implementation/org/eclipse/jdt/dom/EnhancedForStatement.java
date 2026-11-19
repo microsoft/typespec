@@ -27,9 +27,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * <p>The FormalParameter is represented by a {@link SingleVariableDeclaration} (without an initializer).</p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class EnhancedForStatement extends Statement {
 
     /**

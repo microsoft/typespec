@@ -31,9 +31,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * @see QualifiedType
  *
  * @since 3.10
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class NameQualifiedType extends AnnotatableType {
 
     /**
@@ -84,14 +82,10 @@ public class NameQualifiedType extends AnnotatableType {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
-        if (visitChildren) {
-            // visit children in normal left to right reading order
-            acceptChild(visitor, getQualifier());
-            acceptChildren(visitor, this.annotations);
-            acceptChild(visitor, getName());
-        }
-
+        // visit children in normal left to right reading order
+        acceptChild(visitor, getQualifier());
+        acceptChildren(visitor, this.annotations);
+        acceptChild(visitor, getName());
     }
 
     /**

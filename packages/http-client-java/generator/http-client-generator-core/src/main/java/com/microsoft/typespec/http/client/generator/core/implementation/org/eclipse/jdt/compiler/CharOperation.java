@@ -24,7 +24,6 @@ import java.util.Arrays;
  * This class is a collection of helper methods to manipulate char arrays.
  *
  * @since 2.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public abstract class CharOperation {
 
@@ -37,37 +36,6 @@ public abstract class CharOperation {
      * Constant for an empty char array with two dimensions.
      */
     public static final char[][] NO_CHAR_CHAR = new char[0][];
-
-    /**
-     * Constant for an empty String array.
-     *
-     * @since 3.1
-     */
-    public static final String[] NO_STRINGS = new String[0];
-
-    /**
-     * Compares the two char arrays lexicographically.
-     *
-     * Returns a negative integer if array1 lexicographically precedes the array2, a positive integer if this array1
-     * lexicographically follows the array2, or zero if both arrays are equal.
-     *
-     * @param array1 the first given array
-     * @param array2 the second given array
-     * @return the returned value of the comparison between array1 and array2
-     * @throws NullPointerException if one of the arrays is null
-     * @since 3.3
-     */
-    public static int compareTo(char[] array1, char[] array2) {
-        int length1 = array1.length;
-        int length2 = array2.length;
-        int min = Math.min(length1, length2);
-        for (int i = 0; i < min; i++) {
-            if (array1[i] != array2[i]) {
-                return array1[i] - array2[i];
-            }
-        }
-        return length1 - length2;
-    }
 
     /**
      * Answers the concatenation of the two arrays. It answers null if the two arrays are null. If the first array is
@@ -433,51 +401,6 @@ public abstract class CharOperation {
     }
 
     /**
-     * Answers the first index in the array for which the corresponding character is equal to toBeFound starting the
-     * search at index start. Answers -1 if no occurrence of this character is found. <br> <br> For example: <ol> <li>
-     *
-     * <pre>
-     *    toBeFound = 'c'
-     *    array = { ' a', 'b', 'c', 'd' }
-     *    start = 2
-     *    result => 2
-     * </pre>
-     *
-     * </li> <li>
-     *
-     * <pre>
-     *    toBeFound = 'c'
-     *    array = { ' a', 'b', 'c', 'd' }
-     *    start = 3
-     *    result => -1
-     * </pre>
-     *
-     * </li> <li>
-     *
-     * <pre>
-     *    toBeFound = 'e'
-     *    array = { ' a', 'b', 'c', 'd' }
-     *    start = 1
-     *    result => -1
-     * </pre>
-     *
-     * </li> </ol>
-     *
-     * @param toBeFound the character to search
-     * @param array the array to be searched
-     * @param start the starting index
-     * @return the first index in the array for which the corresponding character is equal to toBeFound, -1 otherwise
-     * @throws NullPointerException if array is null
-     * @throws ArrayIndexOutOfBoundsException if start is lower than 0
-     */
-    public static int indexOf(char toBeFound, char[] array, int start) {
-        for (int i = start; i < array.length; i++)
-            if (toBeFound == array[i])
-                return i;
-        return -1;
-    }
-
-    /**
      * Answers the last index in the array for which the corresponding character is equal to toBeFound starting from the
      * end of the array. Answers -1 if no occurrence of this character is found. <br> <br> For example: <ol> <li>
      *
@@ -508,138 +431,6 @@ public abstract class CharOperation {
             if (toBeFound == array[i])
                 return i;
         return -1;
-    }
-
-    /**
-     * Return the int value represented by the designated subpart of array. The calculation of the result for
-     * single-digit positive integers is optimized in time.
-     *
-     * @param array the array within which the int value is to be parsed
-     * @param start first character of the int value in array
-     * @param length length of the int value in array
-     * @return the int value of a subpart of array
-     * @throws NumberFormatException if the designated subpart of array does not parse to an int
-     * @since 3.4
-     */
-    public static int parseInt(char[] array, int start, int length) throws NumberFormatException {
-        if (length == 1) {
-            int result = array[start] - '0';
-            if (result < 0 || result > 9) {
-                throw new NumberFormatException("invalid digit"); //$NON-NLS-1$
-            }
-            return result;
-        } else {
-            return Integer.parseInt(new String(array, start, length));
-        }
-    }
-
-    /**
-     * Answers true if the given name starts with the given prefix, false otherwise. The comparison is case sensitive.
-     * <br> <br> For example: <ol> <li>
-     *
-     * <pre>
-     *    prefix = { 'a' , 'b' }
-     *    name = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-     *    result => true
-     * </pre>
-     *
-     * </li> <li>
-     *
-     * <pre>
-     *    prefix = { 'a' , 'c' }
-     *    name = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-     *    result => false
-     * </pre>
-     *
-     * </li> </ol>
-     *
-     * @param name the given name
-     * @return true if the given name starts with the given prefix, false otherwise
-     * @throws NullPointerException if the given name is null or if the given prefix is null
-     */
-    public static boolean prefixEquals(char[] name) {
-        int max
-            = com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.AbstractCommentParser.TAG_SNIPPET.length;
-        if (name.length < max)
-            return false;
-        for (int i = max; --i >= 0;) // assumes the prefix is not larger than the name
-            if (com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.AbstractCommentParser.TAG_SNIPPET[i]
-                != name[i])
-                return false;
-        return true;
-    }
-
-    /**
-     * Return a new array which is the split of the given array using the given divider and trimming each subarray to
-     * remove whitespaces equals to ' '. <br> <br> For example: <ol> <li>
-     *
-     * <pre>
-     *    divider = 'b'
-     *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-     *    result => { { 'a' }, {  }, { 'a' }, { 'a' } }
-     * </pre>
-     *
-     * </li> <li>
-     *
-     * <pre>
-     *    divider = 'c'
-     *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
-     *    result => { { 'a', 'b', 'b', 'a', 'b', 'a' } }
-     * </pre>
-     *
-     * </li> <li>
-     *
-     * <pre>
-     *    divider = 'b'
-     *    array = { 'a' , ' ', 'b', 'b', 'a', 'b', 'a' }
-     *    result => { { 'a' }, {  }, { 'a' }, { 'a' } }
-     * </pre>
-     *
-     * </li> <li>
-     *
-     * <pre>
-     *    divider = 'c'
-     *    array = { ' ', ' ', 'a' , 'b', 'b', 'a', 'b', 'a', ' ' }
-     *    result => { { 'a', 'b', 'b', 'a', 'b', 'a' } }
-     * </pre>
-     *
-     * </li> </ol>
-     *
-     * @param array the given array
-     * @return a new array which is the split of the given array using the given divider and trimming each subarray to
-     * remove whitespaces equals to ' '
-     */
-    public static char[][] splitAndTrimOn(char[] array) {
-        int length = array.length;
-        if (length == 0)
-            return NO_CHAR_CHAR;
-
-        int wordCount = 1;
-        for (char c : array)
-            if (c == ',')
-                wordCount++;
-        char[][] split = new char[wordCount][];
-        int last = 0, currentWord = 0;
-        for (int i = 0; i < length; i++) {
-            if (array[i] == ',') {
-                int start = last, end = i - 1;
-                while (start < i && array[start] == ' ')
-                    start++;
-                while (end > start && array[end] == ' ')
-                    end--;
-                split[currentWord] = new char[end - start + 1];
-                System.arraycopy(array, start, split[currentWord++], 0, end - start + 1);
-                last = i + 1;
-            }
-        }
-        int start = last, end = length - 1;
-        while (start < length && array[start] == ' ')
-            start++;
-        while (end > start && array[end] == ' ')
-            end--;
-        split[currentWord] = new char[end - start + 1];
-        System.arraycopy(array, start, split[currentWord], 0, end - start + 1);
-        return split;
     }
 
     /**

@@ -33,9 +33,7 @@ import java.util.List;
  * or type. The source range extends through the last character of the final ";". </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class FieldDeclaration extends BodyDeclaration {
 
     /**
@@ -77,7 +75,8 @@ public class FieldDeclaration extends BodyDeclaration {
      * The list of variable declaration fragments (element type: {@link VariableDeclarationFragment}). Defaults to an
      * empty list.
      */
-    private final ASTNode.NodeList variableDeclarationFragments = new ASTNode.NodeList(FRAGMENTS_PROPERTY);
+    private final ASTNode.NodeList<VariableDeclarationFragment> variableDeclarationFragments
+        = new ASTNode.NodeList<>(FRAGMENTS_PROPERTY);
 
     /**
      * Creates a new unparented field declaration statement node owned by the given AST. By default, the field
@@ -157,7 +156,7 @@ public class FieldDeclaration extends BodyDeclaration {
      * @return the live list of variable declaration fragments in this statement (element type:
      * {@link VariableDeclarationFragment})
      */
-    public List fragments() {
+    public List<VariableDeclarationFragment> fragments() {
         return this.variableDeclarationFragments;
     }
 }

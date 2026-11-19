@@ -41,7 +41,6 @@ import java.util.List;
  *
  * @since 2.0
  */
-@SuppressWarnings("rawtypes")
 public abstract class BodyDeclaration extends ASTNode {
 
     /**
@@ -54,7 +53,7 @@ public abstract class BodyDeclaration extends ASTNode {
      *
      * @since 3.0
      */
-    final ASTNode.NodeList modifiers;
+    final ASTNode.NodeList<IExtendedModifier> modifiers;
 
     /**
      * Returns structural property descriptor for the "modifiers" property of this node as used in JLS3 (element type:
@@ -99,7 +98,7 @@ public abstract class BodyDeclaration extends ASTNode {
      */
     BodyDeclaration(AST ast) {
         super(ast);
-        this.modifiers = new ASTNode.NodeList(internalModifiers2Property());
+        this.modifiers = new ASTNode.NodeList<>(internalModifiers2Property());
     }
 
     /**
@@ -126,33 +125,12 @@ public abstract class BodyDeclaration extends ASTNode {
     }
 
     /**
-     * Returns the modifiers explicitly specified on this declaration. <p> This is a convenience method that computes
-     * these flags from {@link #modifiers()}. </p>
-     *
-     * @return the bit-wise "or" of <code>Modifier</code> constants
-     * @see Modifier
-     */
-    public int getModifiers() {
-        // performance could be improved by caching computed flags
-        // but this would require tracking changes to this.modifiers
-        int computedmodifierFlags = 0;
-        for (Object x : modifiers()) {
-            if (x instanceof Modifier) {
-                computedmodifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
-            }
-        }
-        return computedmodifierFlags;
-    }
-
-    /**
      * Returns the live ordered list of modifiers and annotations of this declaration (added in JLS3 API).
      *
      * @return the live list of modifiers and annotations (element type: {@link IExtendedModifier})
      * @since 3.1
      */
-    public List modifiers() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<IExtendedModifier> modifiers() {
         return this.modifiers;
     }
 }

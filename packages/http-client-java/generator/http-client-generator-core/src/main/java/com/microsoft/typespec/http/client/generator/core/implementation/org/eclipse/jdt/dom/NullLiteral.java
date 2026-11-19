@@ -19,9 +19,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * Null literal node.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class NullLiteral extends Expression {
 
     /**
@@ -41,7 +39,5 @@ public class NullLiteral extends Expression {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit(this);
-
     }
 }

@@ -14,12 +14,10 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IntConstant;
-
 public class IntLiteralMinValue extends IntLiteral {
 
     public IntLiteralMinValue(char[] token, char[] reducedToken, int start, int end) {
-        super(token, reducedToken, start, end, IntConstant.fromValue(Integer.MIN_VALUE));
+        super(token, reducedToken, start, end);
     }
 
 }

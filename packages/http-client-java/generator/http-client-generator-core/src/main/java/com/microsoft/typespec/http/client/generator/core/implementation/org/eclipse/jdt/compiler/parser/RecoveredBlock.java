@@ -24,7 +24,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.LocalDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Statement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TypeDeclaration;
-import java.util.HashSet;
 import java.util.Set;
 
 public class RecoveredBlock extends RecoveredStatement {
@@ -32,7 +31,6 @@ public class RecoveredBlock extends RecoveredStatement {
     public Block blockDeclaration;
     public RecoveredStatement[] statements;
     public int statementCount;
-    public boolean preserveContent;
     public RecoveredLocalVariable pendingArgument;
 
     int pendingModifiers;
@@ -44,8 +42,6 @@ public class RecoveredBlock extends RecoveredStatement {
         super(block, parent, bracketBalance);
         this.blockDeclaration = block;
         this.foundOpeningBrace = true;
-
-        this.preserveContent = parser().methodRecoveryActivated || parser().statementRecoveryActivated;
     }
 
     @Override
@@ -82,9 +78,6 @@ public class RecoveredBlock extends RecoveredStatement {
         if (this.pendingArgument != null) {
             element.attach(this.pendingArgument);
             this.pendingArgument = null;
-        }
-        if (parser().statementRecoveryActivated) {
-            addBlockStatement(element);
         }
         attach(element);
         if (nestedBlockDeclaration.sourceEnd == 0)
@@ -282,105 +275,10 @@ public class RecoveredBlock extends RecoveredStatement {
     }
 
     /*
-     * Rebuild a block from the nested structure which is in scope
-     */
-    public Block updatedBlock(int depth, Set<TypeDeclaration> knownTypes) {
-
-        // if block was not marked to be preserved or empty, then ignore it
-        if (!this.preserveContent || this.statementCount == 0)
-            return null;
-
-        Statement[] updatedStatements = new Statement[this.statementCount];
-        int updatedCount = 0;
-
-        // may need to update the end of the last statement
-        RecoveredStatement lastStatement = this.statements[this.statementCount - 1];
-        RecoveredMethod enclosingMethod = enclosingMethod();
-        RecoveredInitializer enclosingIntializer = enclosingInitializer();
-        int bodyEndValue;
-        if (enclosingMethod != null) {
-            bodyEndValue = enclosingMethod.methodDeclaration.bodyEnd;
-            if (enclosingIntializer != null
-                && enclosingMethod.methodDeclaration.sourceStart < enclosingIntializer.fieldDeclaration.sourceStart) {
-                bodyEndValue = enclosingIntializer.fieldDeclaration.declarationSourceEnd;
-            }
-        } else if (enclosingIntializer != null) {
-            bodyEndValue = enclosingIntializer.fieldDeclaration.declarationSourceEnd;
-        } else {
-            bodyEndValue = this.blockDeclaration.sourceEnd - 1;
-        }
-
-        if (lastStatement instanceof RecoveredLocalVariable lastLocalVariable) {
-            if (lastLocalVariable.localDeclaration.declarationSourceEnd == 0) {
-                lastLocalVariable.localDeclaration.declarationSourceEnd = bodyEndValue;
-                lastLocalVariable.localDeclaration.declarationEnd = bodyEndValue;
-            }
-        } else if (lastStatement instanceof RecoveredBlock lastBlock) {
-            if (lastBlock.blockDeclaration.sourceEnd == 0) {
-                lastBlock.blockDeclaration.sourceEnd = bodyEndValue;
-            }
-        } else if (!(lastStatement instanceof RecoveredType)) {
-            if (lastStatement.statement.sourceEnd == 0) {
-                lastStatement.statement.sourceEnd = bodyEndValue;
-            }
-        }
-
-        int lastEnd = this.blockDeclaration.sourceStart;
-
-        // only collect the non-null updated statements
-        next: for (int i = 0; i < this.statementCount; i++) {
-            Statement updatedStatement = this.statements[i].updatedStatement(depth, knownTypes);
-            if (updatedStatement != null) {
-                for (int j = 0; j < i; j++) {
-                    if (updatedStatements[j]instanceof LocalDeclaration local) {
-                        if (local.initialization != null) {
-                            if (updatedStatement.sourceStart >= local.initialization.sourceStart
-                                && updatedStatement.sourceEnd <= local.initialization.sourceEnd)
-                                continue next;
-                        }
-                    }
-                }
-                updatedStatements[updatedCount++] = updatedStatement;
-
-                if (updatedStatement instanceof LocalDeclaration localDeclaration) {
-                    if (localDeclaration.declarationSourceEnd > lastEnd) {
-                        lastEnd = localDeclaration.declarationSourceEnd;
-                    }
-                } else if (updatedStatement instanceof TypeDeclaration typeDeclaration) {
-                    if (typeDeclaration.declarationSourceEnd > lastEnd) {
-                        lastEnd = typeDeclaration.declarationSourceEnd;
-                    }
-                } else {
-                    if (updatedStatement.sourceEnd > lastEnd) {
-                        lastEnd = updatedStatement.sourceEnd;
-                    }
-                }
-            }
-        }
-        if (updatedCount == 0)
-            return null; // not interesting block
-
-        // resize statement collection if necessary
-        if (updatedCount != this.statementCount) {
-            this.blockDeclaration.statements = new Statement[updatedCount];
-            System.arraycopy(updatedStatements, 0, this.blockDeclaration.statements, 0, updatedCount);
-        } else {
-            this.blockDeclaration.statements = updatedStatements;
-        }
-
-        if (this.blockDeclaration.sourceEnd == 0) {
-            this.blockDeclaration.sourceEnd = Math.max(lastEnd, bodyEndValue);
-        }
-
-        return this.blockDeclaration;
-    }
-
-    /*
      * Rebuild a statement from the nested structure which is in scope
      */
     @Override
-    public Statement updatedStatement(int depth, Set<TypeDeclaration> knownTypes) {
-        return updatedBlock(depth, knownTypes);
+    public void updatedStatement(int depth, Set<TypeDeclaration> knownTypes) {
     }
 
     /*
@@ -417,14 +315,6 @@ public class RecoveredBlock extends RecoveredStatement {
         Block block = new Block(0);
         block.sourceStart = parser().scanner.startPosition;
         return this.add(block, 1);
-    }
-
-    /*
-     * Final update the corresponding parse node
-     */
-    @Override
-    public void updateParseTree() {
-        updatedBlock(0, new HashSet<>());
     }
 
     /*

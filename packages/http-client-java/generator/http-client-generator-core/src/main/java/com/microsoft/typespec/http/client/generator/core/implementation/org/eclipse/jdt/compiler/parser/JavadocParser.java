@@ -16,7 +16,6 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.InvalidInputException;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.Util;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.*;
 import java.util.List;
 
@@ -46,78 +45,24 @@ public class JavadocParser extends AbstractCommentParser {
         this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr] - 1;
         this.firstTagPosition = this.sourceParser.scanner.commentTagStarts[commentPtr];
 
-        // Init javadoc if necessary
-        if (this.checkDocComment) {
-            this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
-        } else {
-            this.docComment = null;
-        }
+        // Init javadoc
+        this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
 
         // If there's no tag in javadoc, return without parsing it
         if (this.firstTagPosition == 0) {
-            switch (this.kind & 255) {
-                case 1:
-                case 16:
-                    return false;
-            }
+            return false;
         }
 
         // Parse
         try {
             this.source = this.sourceParser.scanner.source;
             this.scanner.setSource(this.source); // updating source in scanner
-            if (this.checkDocComment) {
-                // Initialization
-                this.scanner.lineEnds = this.sourceParser.scanner.lineEnds;
-                this.scanner.linePtr = this.sourceParser.scanner.linePtr;
-                this.lineEnds = this.scanner.lineEnds;
-                commentParse();
-            } else {
+            // Initialization
+            this.scanner.lineEnds = this.sourceParser.scanner.lineEnds;
+            this.scanner.linePtr = this.sourceParser.scanner.linePtr;
+            this.lineEnds = this.scanner.lineEnds;
+            commentParse();
 
-                // Parse comment
-                Scanner sourceScanner = this.sourceParser.scanner;
-                int firstLineNumber
-                    = Util.getLineNumber(this.javadocStart, sourceScanner.lineEnds, sourceScanner.linePtr);
-                int lastLineNumber = Util.getLineNumber(this.javadocEnd, sourceScanner.lineEnds, sourceScanner.linePtr);
-                this.index = this.javadocStart + 3;
-
-                // scan line per line, since tags must be at beginning of lines only
-                this.deprecated = false;
-                nextLine: for (int line = firstLineNumber; line <= lastLineNumber; line++) {
-                    this.index = line == firstLineNumber
-                        ? this.javadocStart + 3 // skip leading /**
-                        : this.sourceParser.scanner.getLineStart(line);
-                    this.lineEnd = line == lastLineNumber
-                        ? this.javadocEnd - 2 // remove trailing * /
-                        : this.sourceParser.scanner.getLineEnd(line);
-                    nextCharacter: while (this.index < this.lineEnd) {
-                        char c = readChar(); // consider unicodes
-                        switch (c) {
-                            case '/':
-                                break;
-
-                            //$FALL-THROUGH$
-                            case '*':
-                            case '\u000c': /* FORM FEED */
-                            case ' ': /* SPACE */
-                            case '\t': /* HORIZONTAL TABULATION */
-                            case '\n': /* LINE FEED */
-                            case '\r': /* CR */
-                                // do nothing for space or '*' characters
-                                continue;
-
-                            case '@':
-                                parseSimpleTag();
-                                if (this.tagValue == 1) {
-                                    if (this.abort)
-                                        break nextCharacter;
-                                }
-                        }
-                        continue nextLine;
-                    }
-                }
-                return this.deprecated;
-            }
         } finally {
             this.source = null; // release source as soon as finished
             this.scanner.setSource((char[]) null); // release source in scanner
@@ -179,7 +124,7 @@ public class JavadocParser extends AbstractCommentParser {
     }
 
     @Override
-    protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
+    protected Object createMethodReference(Object receiver, List<Object> arguments) throws InvalidInputException {
         try {
             // Get receiver type
             TypeReference typeRef = null;
@@ -280,7 +225,7 @@ public class JavadocParser extends AbstractCommentParser {
     }
 
     @Override
-    protected Object createTypeReference(TerminalToken primitiveToken) {
+    protected Object createTypeReference(int primitiveToken) {
         TypeReference typeRef = null;
         int size = this.identifierLengthStack[this.identifierLengthPtr];
         if (size == 1) { // Single Type ref
@@ -331,49 +276,6 @@ public class JavadocParser extends AbstractCommentParser {
         }
 
         return false;
-    }
-
-    protected void parseSimpleTag() {
-
-        // Read first char
-        // readChar() code is inlined to balance additional method call in checkDeprectation(int)
-        char first = this.source[this.index++];
-        if (first == '\\' && this.source[this.index] == 'u') {
-            int c1, c2, c3, c4;
-            int pos = this.index;
-            do
-                this.index++;
-            while (this.source[this.index] == 'u');
-            if (!(((c1 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c1 < 0)
-                || ((c2 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c2 < 0)
-                || ((c3 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c3 < 0)
-                || ((c4 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c4 < 0))) {
-                first = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-            } else {
-                this.index = pos;
-            }
-        }
-
-        // switch on first tag char
-        if (first == 'd') {
-            if ((readChar() == 'e')
-                && (readChar() == 'p')
-                && (readChar() == 'r')
-                && (readChar() == 'e')
-                && (readChar() == 'c')
-                && (readChar() == 'a')
-                && (readChar() == 't')
-                && (readChar() == 'e')
-                && (readChar() == 'd')) {
-                // ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-                char c = readChar();
-                if (ScannerHelper.isWhitespace(c) || c == '*') {
-                    this.abort = true;
-                    this.deprecated = true;
-                    this.tagValue = 1;
-                }
-            }
-        }
     }
 
     @Override
@@ -542,7 +444,7 @@ public class JavadocParser extends AbstractCommentParser {
             case 'l':
                 if (length == 4 && CharOperation.equals(TAG_LINK, tagName, length)) {
                     this.tagValue = 7;
-                    if (this.inlineTagStarted || (this.kind & 8) != 0) {
+                    if (this.inlineTagStarted) {
                         valid = parseReference();
                     }
                 } else if (length == 9 && CharOperation.equals(TAG_LINKPLAIN, tagName, length)) {
@@ -599,7 +501,7 @@ public class JavadocParser extends AbstractCommentParser {
                 } else if (length == 7 && CharOperation.equals(TAG_SNIPPET, tagName, length)) {
                     this.tagValue = 30;
                     if (this.inlineTagStarted) {
-                        valid = parseSnippet();
+                        rejectSnippet();
                     }
                 }
                 break;
@@ -799,8 +701,6 @@ public class JavadocParser extends AbstractCommentParser {
     protected boolean parseUsesReference() {
         try {
             Object typeRef = parseQualifiedName(true);
-            if (this.abort)
-                return false; // May be aborted by specialized parser
             if (typeRef != null) {
                 return true;
             }
@@ -815,8 +715,6 @@ public class JavadocParser extends AbstractCommentParser {
     protected boolean parseProvidesReference() {
         try {
             Object typeRef = parseQualifiedName(true);
-            if (this.abort)
-                return false; // May be aborted by specialized parser
             if (typeRef != null) {
                 return true;
             }

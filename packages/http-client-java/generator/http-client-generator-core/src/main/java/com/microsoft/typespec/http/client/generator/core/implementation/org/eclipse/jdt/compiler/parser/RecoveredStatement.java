@@ -44,12 +44,11 @@ public class RecoveredStatement extends RecoveredElement {
         return this.statement;
     }
 
-    public Statement updatedStatement(int depth, Set<TypeDeclaration> knownTypes) {
+    public void updatedStatement(int depth, Set<TypeDeclaration> knownTypes) {
         if (this.nestedBlock != null) {
             this.nestedBlock.updatedStatement(depth, knownTypes);
             // block has already been assigned in its parent statement
         }
-        return this.statement;
     }
 
     @Override
@@ -95,9 +94,6 @@ public class RecoveredStatement extends RecoveredElement {
 
             RecoveredBlock element = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue);
 
-            if (parser().statementRecoveryActivated) {
-                addBlockStatement(element);
-            }
             this.nestedBlock = element;
 
             if (nestedBlockDeclaration.sourceEnd == 0)

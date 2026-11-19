@@ -36,9 +36,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * through the last character of the "}" token following the body declarations. </p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 
     /**
@@ -110,7 +108,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
             acceptChild(visitor, getName());
             acceptChildren(visitor, this.bodyDeclarations);
         }
-        visitor.endVisit(this);
+
     }
 
 }

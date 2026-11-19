@@ -29,9 +29,7 @@ import java.util.List;
  * @see ClassInstanceCreation
  * @see EnumConstantDeclaration
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class AnonymousClassDeclaration extends ASTNode {
 
     /**
@@ -45,7 +43,8 @@ public class AnonymousClassDeclaration extends ASTNode {
     /**
      * The body declarations (element type: {@link BodyDeclaration}). Defaults to none.
      */
-    private final ASTNode.NodeList bodyDeclarations = new ASTNode.NodeList(BODY_DECLARATIONS_PROPERTY);
+    private final ASTNode.NodeList<BodyDeclaration> bodyDeclarations
+        = new ASTNode.NodeList<>(BODY_DECLARATIONS_PROPERTY);
 
     /**
      * Creates a new AST node for an anonymous class declaration owned by the given AST. By default, the list of body
@@ -70,7 +69,7 @@ public class AnonymousClassDeclaration extends ASTNode {
             // visit children in normal left to right reading order
             acceptChildren(visitor, this.bodyDeclarations);
         }
-        visitor.endVisit(this);
+
     }
 
     /**
@@ -78,7 +77,7 @@ public class AnonymousClassDeclaration extends ASTNode {
      *
      * @return the live list of body declarations (element type: {@link BodyDeclaration})
      */
-    public List bodyDeclarations() {
+    public List<BodyDeclaration> bodyDeclarations() {
         return this.bodyDeclarations;
     }
 

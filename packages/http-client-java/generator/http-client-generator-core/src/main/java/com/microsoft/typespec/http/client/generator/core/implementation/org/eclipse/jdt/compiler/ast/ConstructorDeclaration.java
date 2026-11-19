@@ -49,10 +49,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
         return true;
     }
 
-    public boolean isCompactConstructor() {
-        return (this.modifiers & 8388608) != 0;
-    }
-
     @Override
     public boolean isDefaultConstructor() {
         return (this.bits & 128) != 0;
@@ -61,11 +57,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
     @Override
     public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
         // fill up the constructor body with its statements
-        if (this.isCompactConstructor()) {
-            this.constructorCall = SuperReference.implicitSuperConstructorCall();
-            this.constructorCall.sourceStart = this.sourceStart;
-            this.constructorCall.sourceEnd = this.sourceEnd;
-        } else if (((this.bits & 128) != 0) && this.constructorCall == null) {
+        if (((this.bits & 128) != 0) && this.constructorCall == null) {
             this.constructorCall = SuperReference.implicitSuperConstructorCall();
             this.constructorCall.sourceStart = this.sourceStart;
             this.constructorCall.sourceEnd = this.sourceEnd;

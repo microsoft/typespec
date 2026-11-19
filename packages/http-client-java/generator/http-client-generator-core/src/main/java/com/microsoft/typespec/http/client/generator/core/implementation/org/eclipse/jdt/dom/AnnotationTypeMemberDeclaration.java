@@ -30,9 +30,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * type (no modifiers). The source range extends through the last character of the ";" token. </p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 
     /**

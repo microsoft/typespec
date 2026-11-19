@@ -22,19 +22,15 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  *    <b>transitive</b>
  * </pre>
  *
- * <p> The numeric values of these flags match the ones for class files as described in the Java Virtual Machine
- * Specification. Note that the value of <b>static</b> does <b>not</b> correspond to the value of
- * the <b>static</b> {@link Modifier} (<code>8</code>)! </p>
+ * <p> The node records only the source range of its keyword, not which keyword it is. </p>
  *
  * @since 3.14
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public final class ModuleModifier extends ASTNode {
 
     /**
-     * Creates a new unparented MODULE modifier node owned by the given AST. By default, the node has unspecified (but
-     * legal) modifier. <p> N.B. This constructor is package-private. </p>
+     * Creates a new unparented module modifier node owned by the given AST. <p> N.B. This constructor is
+     * package-private. </p>
      *
      * @param ast the AST that is to own this node
      */
@@ -45,18 +41,6 @@ public final class ModuleModifier extends ASTNode {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit();
-    }
-
-    /**
-     * Sets the module modifier keyword of this module modifier node.
-     *
-     * @exception IllegalArgumentException if the argument is <code>null</code>
-     */
-    public void setKeyword() {
-
-        preValueChange();
-
     }
 
     @Override

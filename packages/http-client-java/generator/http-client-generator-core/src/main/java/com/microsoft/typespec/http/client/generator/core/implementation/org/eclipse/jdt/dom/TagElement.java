@@ -46,9 +46,7 @@ import java.util.List;
  *
  * @see Javadoc
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class TagElement extends ASTNode implements IDocElement {
 
     /**
@@ -65,7 +63,7 @@ public final class TagElement extends ASTNode implements IDocElement {
     /**
      * The list of doc elements. Defaults to an empty list.
      */
-    ASTNode.NodeList fragments = new ASTNode.NodeList(FRAGMENTS_PROPERTY);
+    ASTNode.NodeList<ASTNode> fragments = new ASTNode.NodeList<>(FRAGMENTS_PROPERTY);
 
     /**
      * Creates a new AST node for a tag element owned by the given AST. The new node has no name and an empty list of
@@ -113,7 +111,6 @@ public final class TagElement extends ASTNode implements IDocElement {
      * @param tagName the tag name, or <code>null</code> if none
      */
     public void setTagName(String tagName) {
-        preValueChange();
         this.optionalTagName = tagName;
     }
 
@@ -135,7 +132,7 @@ public final class TagElement extends ASTNode implements IDocElement {
      *
      * @return the live list of doc elements in this tag element
      */
-    public List fragments() {
+    public List<ASTNode> fragments() {
         return this.fragments;
     }
 

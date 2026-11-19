@@ -38,9 +38,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  *
  * @see Javadoc
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public final class TextElement extends ASTNode implements IDocElement {
 
     /**
@@ -61,8 +59,6 @@ public final class TextElement extends ASTNode implements IDocElement {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit(this);
-
     }
 
     /**
@@ -77,7 +73,6 @@ public final class TextElement extends ASTNode implements IDocElement {
         if (text.indexOf("*/") > 0) { //$NON-NLS-1$
             throw new IllegalArgumentException();
         }
-        preValueChange();
 
     }
 }

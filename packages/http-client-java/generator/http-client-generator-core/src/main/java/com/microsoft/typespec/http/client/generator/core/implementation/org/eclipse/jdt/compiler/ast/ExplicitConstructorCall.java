@@ -44,8 +44,6 @@ public class ExplicitConstructorCall extends Statement {
     // TODO Remove once DOMParser is activated
     public int typeArgumentsSourceStart;
 
-    public boolean firstStatement = true; // Allow Statements before super
-
     public ExplicitConstructorCall(int accessMode) {
         this.accessMode = accessMode;
     }

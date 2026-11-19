@@ -31,9 +31,7 @@ import java.util.List;
  * SingleVariableDeclaration. </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class SingleVariableDeclaration extends VariableDeclaration {
 
     /**
@@ -90,7 +88,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList modifiers = null;
+    private final ASTNode.NodeList<IExtendedModifier> modifiers;
 
     /**
      * The type; lazily initialized; defaults to an unspecified, legal type.
@@ -103,7 +101,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      *
      * @since 3.10
      */
-    private ASTNode.NodeList varargsAnnotations = null;
+    private final ASTNode.NodeList<Annotation> varargsAnnotations;
 
     /**
      * Indicates the last parameter of a variable arity method; defaults to false.
@@ -121,8 +119,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      */
     SingleVariableDeclaration(AST ast) {
         super(ast);
-        this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
-        this.varargsAnnotations = new ASTNode.NodeList(VARARGS_ANNOTATIONS_PROPERTY);
+        this.modifiers = new ASTNode.NodeList<>(MODIFIERS2_PROPERTY);
+        this.varargsAnnotations = new ASTNode.NodeList<>(VARARGS_ANNOTATIONS_PROPERTY);
     }
 
     @Override
@@ -169,9 +167,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      * @return the live list of modifiers and annotations (element type: {@link IExtendedModifier})
      * @since 3.1
      */
-    public List modifiers() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<IExtendedModifier> modifiers() {
         return this.modifiers;
     }
 
@@ -222,8 +218,6 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      * @since 3.1
      */
     public boolean isVarargs() {
-        // more efficient than just calling unsupportedIn2() to check
-
         return this.variableArity;
     }
 
@@ -233,10 +227,6 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      * @since 3.1
      */
     public void setVarargs() {
-
-        // more efficient than just calling unsupportedIn2() to check
-
-        preValueChange();
         this.variableArity = true;
 
     }
@@ -251,7 +241,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
      * @see #isVarargs()
      * @since 3.10
      */
-    public List varargsAnnotations() {
+    public List<Annotation> varargsAnnotations() {
 
         return this.varargsAnnotations;
     }

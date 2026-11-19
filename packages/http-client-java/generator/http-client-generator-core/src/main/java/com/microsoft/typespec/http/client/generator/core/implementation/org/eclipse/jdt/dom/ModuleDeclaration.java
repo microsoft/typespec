@@ -28,9 +28,7 @@ import java.util.List;
  * @since 3.14
  *
  * @noextend This class is not intended to be subclassed by clients.
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class ModuleDeclaration extends ASTNode {
 
     /**
@@ -53,7 +51,7 @@ public class ModuleDeclaration extends ASTNode {
     /**
      * The annotations (element type: {@link Annotation}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+    private final ASTNode.NodeList<Annotation> annotations = new ASTNode.NodeList<>(ANNOTATIONS_PROPERTY);
 
     /**
      * The referenced module name; lazily initialized; defaults to a unspecified, legal Java identifier.
@@ -63,7 +61,8 @@ public class ModuleDeclaration extends ASTNode {
     /**
      * The list of statements (element type: {@link ModuleDirective}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList moduleStatements = new ASTNode.NodeList(MODULE_DIRECTIVES_PROPERTY);
+    private final ASTNode.NodeList<ModuleDirective> moduleStatements
+        = new ASTNode.NodeList<>(MODULE_DIRECTIVES_PROPERTY);
 
     ModuleDeclaration(AST ast) {
         super(ast);
@@ -85,7 +84,7 @@ public class ModuleDeclaration extends ASTNode {
             acceptChild(visitor, getName());
             acceptChildren(visitor, this.moduleStatements);
         }
-        visitor.endVisit(this);
+
     }
 
     /**
@@ -93,17 +92,8 @@ public class ModuleDeclaration extends ASTNode {
      *
      * @return the live list of annotations (element type: {@link Annotation})
      */
-    public List annotations() {
+    public List<Annotation> annotations() {
         return this.annotations;
-    }
-
-    /**
-     * Sets whether this module declaration is open or not.
-     *
-     */
-    public void setOpen() {
-        preValueChange();
-
     }
 
     /**
@@ -141,7 +131,7 @@ public class ModuleDeclaration extends ASTNode {
      *
      * @return the live list of statements in this module declaration (element type: {@link ModuleDirective})
      */
-    public List moduleStatements() {
+    public List<ModuleDirective> moduleStatements() {
         return this.moduleStatements;
     }
 

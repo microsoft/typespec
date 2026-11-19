@@ -39,9 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ClassFileConstants;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilerOptions;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.InvalidInputException;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.JavaFeature;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ProblemHandler;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.TypeConstants;
@@ -76,22 +74,18 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ContinueStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.DoStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.DoubleLiteral;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.EitherOrMultiPattern;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.EmptyStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.EqualExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ExplicitConstructorCall;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ExportsStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Expression;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.FakeDefaultLiteral;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.FalseLiteral;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.FieldDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.FieldReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.FloatLiteral;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ForStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ForeachStatement;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.GuardedPattern;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.IfStatement;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ImplicitTypeDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ImportReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Initializer;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.InstanceOfExpression;
@@ -116,7 +110,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.PackageVisibilityStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ParameterizedQualifiedTypeReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ParameterizedSingleTypeReference;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Pattern;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.PostfixExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.PrefixExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ProvidesStatement;
@@ -126,8 +119,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.QualifiedThisReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.QualifiedTypeReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Receiver;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.RecordComponent;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.RecordPattern;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Reference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ReferenceExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.RequiresStatement;
@@ -138,34 +129,25 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Statement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.StringLiteral;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.SuperReference;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.SwitchExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.SwitchStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.SynchronizedStatement;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TextBlock;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ThisReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ThrowStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TrueLiteral;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TryStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TypeDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TypeParameter;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TypePattern;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.UnaryExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.UnionTypeReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.UsesStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.WhileStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.Wildcard;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.YieldStatement;
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
-import java.util.Properties;
-import java.util.stream.Stream;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class Parser implements ConflictedParser {
 
     public static final char[] FALL_THROUGH_TAG = "$FALL-THROUGH$".toCharArray(); //$NON-NLS-1$
@@ -186,8 +168,6 @@ public abstract class Parser implements ConflictedParser {
     public static char[] nasr = null;
     public static char[] non_terminal_index = null;
 
-    public static String[] readableName = null;
-
     public static byte[] rhs = null;
 
     public static long[] rules_compliance = null;
@@ -200,7 +180,6 @@ public abstract class Parser implements ConflictedParser {
     public static char[] scope_state = null;
 
     public static char[] scope_state_set = null;
-    public static char[] scope_suffix = null;
 
     public static char[] term_action = null;
     public static char[] term_check = null;
@@ -213,16 +192,11 @@ public abstract class Parser implements ConflictedParser {
 
     protected enum CaseLabelKind {
         CASE_EXPRESSION,  // case null is subsumed by CASE_EXPRESSION
-        CASE_DEFAULT,
-        CASE_PATTERN
-    }
-
-    protected enum SwitchRuleKind {
-        EXPRESSION, BLOCK, THROW,
+        CASE_DEFAULT
     }
 
     public Scanner scanner;
-    public TerminalToken currentToken = TokenNameNotAToken;
+    public int currentToken = TokenNameNotAToken;
 
     static {
         try {
@@ -262,7 +236,7 @@ public abstract class Parser implements ConflictedParser {
         term_action = readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
 
         scope_prefix = readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
-        scope_suffix = readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
+        readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
         scope_lhs = readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
         scope_state_set = readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
         scope_rhs = readTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
@@ -276,8 +250,6 @@ public abstract class Parser implements ConflictedParser {
         name = readNameTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
 
         rules_compliance = readLongTable("parser" + (++i) + ".rsc"); //$NON-NLS-1$
-
-        readableName = readReadableNameTable();
 
         base_action = lhs;
     }
@@ -353,28 +325,6 @@ public abstract class Parser implements ConflictedParser {
         return result;
     }
 
-    protected static String[] readReadableNameTable() {
-        String[] result = new String[name.length];
-
-        Properties props = new Properties();
-        try (InputStream is = Parser.class.getResourceAsStream("readableNames.props")) {
-            props.load(is);
-        } catch (IOException e) {
-            result = name;
-            return result;
-        }
-        System.arraycopy(name, 0, result, 0, 137 + 1);
-        for (int i = 137; i < name.length; i++) {
-            String n = props.getProperty(name[i]);
-            if (n != null && !n.isEmpty()) {
-                result[i] = n;
-            } else {
-                result[i] = name[i];
-            }
-        }
-        return result;
-    }
-
     protected static char[] readTable(String filename) throws java.io.IOException {
 
         // files are located at Parser.class directory
@@ -426,7 +376,7 @@ public abstract class Parser implements ConflictedParser {
     protected int expressionPtr;
     protected Expression[] expressionStack = new Expression[100];
     protected int rBracketPosition;
-    public TerminalToken firstToken = TokenNameNotAToken; // handle for multiple parsing goals
+    public int firstToken = TokenNameNotAToken; // handle for multiple parsing goals
 
     /*
      * jsr308 -- Type annotation management, we now maintain type annotations in a separate stack as otherwise they get
@@ -467,8 +417,8 @@ public abstract class Parser implements ConflictedParser {
     public int lastAct;
     // error recovery management
     protected int lastCheckPoint;
-    protected int lastErrorEndPositionBeforeRecovery = -1;
-    protected TerminalToken lastIgnoredToken = TokenNameNotAToken, nextIgnoredToken = TokenNameNotAToken;
+
+    protected int lastIgnoredToken = TokenNameNotAToken, nextIgnoredToken = TokenNameNotAToken;
 
     protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 
@@ -485,8 +435,6 @@ public abstract class Parser implements ConflictedParser {
 
     Expression[] noExpressions = new Expression[100];
     // modifiers dimensions nestedType etc.......
-    protected boolean optimizeStringLiterals = true;
-    protected CompilerOptions options;
 
     protected ProblemHandler problemReporter;
 
@@ -496,13 +444,9 @@ public abstract class Parser implements ConflictedParser {
     protected int recoveredStaticInitializerStart;
     public ReferenceContext referenceContext;
 
-    public boolean reportSyntaxErrorIsRequired = true;
     protected boolean restartRecovery;
 
     protected int lastPosistion;
-// statement recovery
-    public boolean methodRecoveryActivated = false;
-    protected boolean statementRecoveryActivated = false;
 
     protected int[] stack = new int[255];
     protected int stateStackTop;
@@ -523,8 +467,6 @@ public abstract class Parser implements ConflictedParser {
     private boolean processingLambdaParameterList = false;
     private boolean expectTypeAnnotation = false;
 
-    protected boolean parsingRecordComponents = false;
-
     public Parser() {
         // Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is
         // initialized !
@@ -532,8 +474,6 @@ public abstract class Parser implements ConflictedParser {
 
     public Parser(ProblemHandler problemReporter) {
         this.problemReporter = problemReporter;
-        this.options = problemReporter.options;
-        this.optimizeStringLiterals = false;
         initializeScanner();
         this.astLengthStack = new int[50];
         this.expressionLengthStack = new int[30];
@@ -588,7 +528,6 @@ public abstract class Parser implements ConflictedParser {
          * initialize recovery by retrieving available reduced nodes also rebuild bracket balance
          */
         this.lastCheckPoint = 0;
-        this.lastErrorEndPositionBeforeRecovery = this.scanner.currentPosition;
 
         RecoveredElement element = null;
         if (this.referenceContext instanceof CompilationUnitDeclaration) {
@@ -603,7 +542,6 @@ public abstract class Parser implements ConflictedParser {
             this.compilationUnit.types = null;
             this.currentToken = TokenNameNotAToken;
             this.listLength = 0;
-            this.parsingRecordComponents = false;
             this.listTypeParameterLength = 0;
             this.endPosition = 0;
             this.endStatementPosition = 0;
@@ -611,9 +549,6 @@ public abstract class Parser implements ConflictedParser {
         } else if (this.referenceContext instanceof AbstractMethodDeclaration methodDeclaration) {
             element = new RecoveredMethod(methodDeclaration, null, 0, this);
             this.lastCheckPoint = methodDeclaration.bodyStart;
-            if (this.statementRecoveryActivated) {
-                element = element.add(new Block(0), 0);
-            }
         } else {
             /* Initializer bodies are parsed in the context of the type declaration, we must thus search it inside */
             if (this.referenceContext instanceof TypeDeclaration type) {
@@ -691,28 +626,6 @@ public abstract class Parser implements ConflictedParser {
             if (node instanceof ImportReference importRef) {
                 element = element.add(importRef, 0);
                 this.lastCheckPoint = importRef.declarationSourceEnd + 1;
-            }
-            if (this.statementRecoveryActivated) {
-                if (node instanceof Block block) {
-                    element = element.add(block, 0);
-                    this.lastCheckPoint = block.sourceEnd + 1;
-                } else if (node instanceof LocalDeclaration statement) {
-                    element = element.add(statement, 0);
-                    this.lastCheckPoint = statement.sourceEnd + 1;
-                } else if (node instanceof Expression statement && statement.isTrulyExpression()) {
-                    if (node instanceof Assignment || node instanceof AllocationExpression) {
-                        // recover only specific expressions
-                        element = element.add(statement, 0);
-                        if (statement.statementEnd != -1) {
-                            this.lastCheckPoint = statement.statementEnd + 1;
-                        } else {
-                            this.lastCheckPoint = statement.sourceEnd + 1;
-                        }
-                    }
-                } else if (node instanceof Statement statement) {
-                    element = element.add(statement, 0);
-                    this.lastCheckPoint = statement.sourceEnd + 1;
-                }
             }
         }
 
@@ -1429,49 +1342,7 @@ public abstract class Parser implements ConflictedParser {
 
             case 14:
                 // look for "string1" + "string2"
-                if (this.optimizeStringLiterals) {
-                    if (expr1 instanceof StringLiteral string1) {
-                        if (((expr1.bits & 534773760) >> 21) == 0) {
-                            if (expr2 instanceof CharLiteral charLiteral) { // string+char
-                                this.expressionStack[this.expressionPtr] = string1.extendWith(charLiteral);
-                            } else if (expr2 instanceof StringLiteral string2) { // string+string
-                                this.expressionStack[this.expressionPtr] = string1.extendWith(string2);
-                            } else {
-                                this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, 14);
-                            }
-                        } else {
-                            this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, 14);
-                        }
-                    } else if (expr1 instanceof CombinedBinaryExpression expr) {
-                        CombinedBinaryExpression cursor;
-                        // left branch is comprised of PLUS BEs
-                        // cursor is shifted upwards, while needed BEs are added
-                        // on demand; past the arityMax-th
-                        // consecutive BE, a CBE is inserted that holds a
-                        // full-fledged references table
-                        if ((cursor = expr).arity < cursor.arityMax) {
-                            cursor.left = new BinaryExpression(cursor);
-                            cursor.arity++;
-                        } else {
-                            cursor.left = new CombinedBinaryExpression(cursor);
-                            cursor.arity = 0;
-                            cursor.tuneArityMax();
-                        }
-                        cursor.right = expr2;
-                        cursor.sourceEnd = expr2.sourceEnd;
-                        this.expressionStack[this.expressionPtr] = cursor;
-                        // BE_INSTRUMENTATION: neutralized in the released code
-                    } else if (expr1 instanceof BinaryExpression &&
-                    // single out the a + b case, which is a BE
-                    // instead of a CBE (slightly more than a half of
-                    // strings concatenation are one-deep binary
-                    // expressions)
-                        ((expr1.bits & 7936) >> 8) == 14) {
-                        this.expressionStack[this.expressionPtr] = new CombinedBinaryExpression(expr1, expr2);
-                    } else {
-                        this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, 14);
-                    }
-                } else if (expr1 instanceof StringLiteral string) {
+                if (expr1 instanceof StringLiteral string) {
                     if (expr2 instanceof StringLiteral && ((expr1.bits & 534773760) >> 21) == 0) {
                         // string + string
                         this.expressionStack[this.expressionPtr] = string.extendsWith((StringLiteral) expr2);
@@ -1539,19 +1410,7 @@ public abstract class Parser implements ConflictedParser {
 
             case 14:
                 // look for "string1" + "string2"
-                if (this.optimizeStringLiterals) {
-                    if (expr1 instanceof StringLiteral string1 && ((expr1.bits & 534773760) >> 21) == 0) {
-                        if (expr2 instanceof CharLiteral char2) { // string+char
-                            this.expressionStack[this.expressionPtr] = string1.extendWith(char2);
-                        } else if (expr2 instanceof StringLiteral string2) { // string+string
-                            this.expressionStack[this.expressionPtr] = string1.extendWith(string2);
-                        } else {
-                            this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, 14);
-                        }
-                    } else {
-                        this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, 14);
-                    }
-                } else if (expr1 instanceof StringLiteral string1) {
+                if (expr1 instanceof StringLiteral string1) {
                     if (expr2 instanceof StringLiteral string2 && ((expr1.bits & 534773760) >> 21) == 0) {
                         // string + string
                         this.expressionStack[this.expressionPtr] = string1.extendsWith(string2);
@@ -1790,7 +1649,7 @@ public abstract class Parser implements ConflictedParser {
         int extendedDimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
         TypeReference type = (TypeReference) this.astStack[this.astPtr--];
         if (extendedDimensions > 0) {
-            type = augmentTypeWithAdditionalDimensions(type, extendedDimensions, null, false);
+            type = type.augmentTypeWithAdditionalDimensions(extendedDimensions, null, false);
             type.sourceEnd = this.endPosition;
             // https://bugs.eclipse.org/bugs/show_bug.cgi?id=391092
             if (type instanceof UnionTypeReference) {
@@ -1905,7 +1764,6 @@ public abstract class Parser implements ConflictedParser {
 
     protected void consumeClassDeclaration() {
         // ClassDeclaration ::= ClassHeader ClassBody
-        // RecordDeclaration ::= RecordHeaderPart ClassBody
 
         int length;
         if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
@@ -1918,8 +1776,6 @@ public abstract class Parser implements ConflictedParser {
 
         // convert constructors that do not have the type's name into methods
         boolean needDefaultConstructor = !typeDecl.checkConstructors(this);
-        if (typeDecl.isRecord())
-            needDefaultConstructor = false; // records require canonical constructors, not default no-arg constructors
 
         // add the default constructor when needed (interface don't have it)
         if (needDefaultConstructor) {
@@ -2002,7 +1858,8 @@ public abstract class Parser implements ConflictedParser {
         }
     }
 
-    private void consumeClassOrRecordHeaderName1(boolean isRecord) {
+    protected void consumeClassHeaderName1() {
+        // ClassHeaderName1 ::= Modifiersopt 'class' 'Identifier'
         TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
         if (this.nestedMethod[this.nestedType] == 0) {
             if (this.nestedType != 0) {
@@ -2027,9 +1884,6 @@ public abstract class Parser implements ConflictedParser {
         // we want to keep the beginning position but get rid of the end position
         // it is only used for the ClassLiteralAccess positions.
         typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
-        if (isRecord) {
-            typeDecl.restrictedIdentifierStart = typeDecl.declarationSourceStart;
-        }
         this.intPtr--; // remove the end position of the class token
 
         typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
@@ -2053,9 +1907,6 @@ public abstract class Parser implements ConflictedParser {
                 typeDecl.annotations = new Annotation[length], 0, length);
         }
         typeDecl.bodyStart = typeDecl.sourceEnd + 1;
-        if (isRecord) {
-            typeDecl.modifiers |= 16777216;
-        }
         pushOnAstStack(typeDecl);
 
         this.listLength = 0; // will be updated when reading super-interfaces
@@ -2068,11 +1919,6 @@ public abstract class Parser implements ConflictedParser {
         // javadoc
         typeDecl.javadoc = this.javadoc;
         this.javadoc = null;
-    }
-
-    protected void consumeClassHeaderName1() {
-        // ClassHeaderName1 ::= Modifiersopt 'class' 'Identifier'
-        consumeClassOrRecordHeaderName1(false);
     }
 
     protected void consumeClassInstanceCreationExpression() {
@@ -2407,17 +2253,8 @@ public abstract class Parser implements ConflictedParser {
         this.listLength = 0; // initialize this.listLength before reading parameters/throws
 
         if (isCompact) {
-            cd.modifiers |= 8388608;
-            cd.bits |= 512;
-            for (int i = this.astPtr; i >= 0; i--) {
-                if (this.astStack[i]instanceof TypeDeclaration declaringClass) {
-                    if (declaringClass.declarationSourceEnd > 0)
-                        continue; // skip preceding member types
-                    if (!declaringClass.isRecord())
-                        problemReporter().compactConstructorsOnlyInRecords(cd);
-                    break;
-                }
-            }
+            // Compact constructors belong to records, which Java 8 does not have.
+            problemReporter().compactConstructorsOnlyInRecords(cd);
         }
 
         // recovery
@@ -2589,11 +2426,6 @@ public abstract class Parser implements ConflictedParser {
         pushOnIntStack(0);
     }
 
-    protected void consumeUnnamedVariable() {
-        // VariableDeclaratorId ::= '_'
-        pushOnIntStack(0);
-    }
-
     protected void consumeEmptyEnumDeclarations() {
         // EnumBodyDeclarationsopt ::= $empty
         pushOnAstLengthStack(0);
@@ -2685,8 +2517,7 @@ public abstract class Parser implements ConflictedParser {
         // InterfaceMemberDeclaration ::= ';'
         // TypeDeclaration ::= ';'
         pushOnAstLengthStack(0);
-        if (!this.statementRecoveryActivated)
-            problemReporter().superfluousSemicolon(this.endPosition + 1, this.endStatementPosition);
+        problemReporter().superfluousSemicolon(this.endPosition + 1, this.endStatementPosition);
         flushCommentsDefinedPriorTo(this.endStatementPosition);
     }
 
@@ -2757,7 +2588,7 @@ public abstract class Parser implements ConflictedParser {
             localDeclaration.bits |= 1048576;
         }
         if (extraDims != 0) {
-            type = augmentTypeWithAdditionalDimensions(type, extraDims, annotationsOnExtendedDimensions, false);
+            type = type.augmentTypeWithAdditionalDimensions(extraDims, annotationsOnExtendedDimensions, false);
         }
         if (hasModifiers) {
             localDeclaration.declarationSourceStart = declarationSourceStart;
@@ -2918,7 +2749,7 @@ public abstract class Parser implements ConflictedParser {
 
         declaration.type = extendedDimensions == 0
             ? type
-            : augmentTypeWithAdditionalDimensions(type, extendedDimensions, annotationsOnExtendedDimensions, false);
+            : type.augmentTypeWithAdditionalDimensions(extendedDimensions, annotationsOnExtendedDimensions, false);
         declaration.bits |= (type.bits & 1048576);
 
         this.variablesCounter[this.nestedType]++;
@@ -3470,7 +3301,6 @@ public abstract class Parser implements ConflictedParser {
     }
 
     protected void consumeFieldDeclaration() {
-        // See consumeLocalVariableDeclarationDefaultModifier() in case of change: duplicated code
         // FieldDeclaration ::= Modifiersopt Type VariableDeclarators ';'
 
         /*
@@ -3526,15 +3356,15 @@ public abstract class Parser implements ConflictedParser {
         this.forStartPosition = 0;
     }
 
-// Common consumer for formal parameters and record components both of which use single variable declarator syntax (as opposed to say fields)
+// Common consumer for formal parameters, which use single variable declarator syntax (as opposed to say fields)
     protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
         // SingleVariableDeclarator ::= Modifiersopt Type VariableDeclaratorIdOrThis
         // SingleVariableDeclarator ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorIdOrThis
         // SingleVariableDeclarator ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorIdOrThis
         /*
          * this.astStack : this.identifierStack : type identifier this.intStack : dim dim 1||0 // 1 => normal parameter,
-         * 0 => this parameter this.parsingRecordComponents : true or false; ==> this.astStack : Single variable
-         * (Argument or RecordComponent) this.identifierStack : this.intStack : this.parsingRecordComponents: unchanged
+         * 0 => this parameter ==> this.astStack : Single variable (Argument or Receiver) this.identifierStack :
+         * this.intStack :
          */
         NameReference qualifyingNameReference = null;
         boolean isReceiver = this.intStack[this.intPtr--] == 0;  // flag pushed in consumeExplicitThisParameter -> 0,
@@ -3563,11 +3393,11 @@ public abstract class Parser implements ConflictedParser {
         TypeReference type = getTypeReference(firstDimensions);
         if (isVarArgs || extendedDimensions != 0) {
             if (isVarArgs) {
-                type = augmentTypeWithAdditionalDimensions(type, 1,
+                type = type.augmentTypeWithAdditionalDimensions(1,
                     varArgsAnnotations != null ? new Annotation[][] { varArgsAnnotations } : null, true);
             }
             if (extendedDimensions != 0) {
-                type = augmentTypeWithAdditionalDimensions(type, extendedDimensions, annotationsOnExtendedDimensions,
+                type = type.augmentTypeWithAdditionalDimensions(extendedDimensions, annotationsOnExtendedDimensions,
                     false);
             }
             type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
@@ -3580,17 +3410,11 @@ public abstract class Parser implements ConflictedParser {
         }
         int modifierPositions = this.intStack[this.intPtr--];
         AbstractVariableDeclaration singleVariable;
-        if (this.parsingRecordComponents) {
-            singleVariable
-                = createComponent(identifierName, namePositions, type, this.intStack[this.intPtr--] & ~1048576);
+        if (isReceiver) {
+            singleVariable = new Receiver(identifierName, namePositions, type, qualifyingNameReference,
+                this.intStack[this.intPtr--] & ~1048576);
         } else {
-            if (isReceiver) {
-                singleVariable = new Receiver(identifierName, namePositions, type, qualifyingNameReference,
-                    this.intStack[this.intPtr--] & ~1048576);
-            } else {
-                singleVariable
-                    = new Argument(identifierName, namePositions, type, this.intStack[this.intPtr--] & ~1048576); // modifiers
-            }
+            singleVariable = new Argument(identifierName, namePositions, type, this.intStack[this.intPtr--] & ~1048576); // modifiers
         }
         singleVariable.declarationSourceStart = modifierPositions;
         singleVariable.bits |= (type.bits & 1048576);
@@ -3612,12 +3436,9 @@ public abstract class Parser implements ConflictedParser {
         this.listLength++;
 
         if (isVarArgs) {
-            if (!this.statementRecoveryActivated && extendedDimensions > 0) {
+            if (extendedDimensions > 0) {
                 problemReporter().illegalExtendedDimensions(singleVariable);
             }
-        } else if (this.parsingRecordComponents) {
-            if (!this.statementRecoveryActivated && extendedDimensions > 0)
-                problemReporter().illegalExtendedDimensionsForRecordComponent(singleVariable);
         }
     }
 
@@ -3712,8 +3533,10 @@ public abstract class Parser implements ConflictedParser {
         Expression exp;
         // consume annotations
         if (length > 0) {
-            Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-            exp = consumePatternInsideInstanceof(pattern);
+            // a reported pattern, represented by its type
+            TypeReference type = (TypeReference) this.astStack[this.astPtr--];
+            this.expressionStack[this.expressionPtr]
+                = exp = new InstanceOfExpression(this.expressionStack[this.expressionPtr], type);
         } else {
             TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
             this.expressionLengthPtr--;
@@ -3730,11 +3553,6 @@ public abstract class Parser implements ConflictedParser {
             // array on base type....
             exp.sourceEnd = this.scanner.startPosition - 1;
         }
-    }
-
-    protected Expression consumePatternInsideInstanceof(Pattern pattern) {
-        return this.expressionStack[this.expressionPtr]
-            = new InstanceOfExpression(this.expressionStack[this.expressionPtr], pattern);
     }
 
     protected void consumeTypeReferenceWithModifiersAndAnnotations() {
@@ -3767,12 +3585,6 @@ public abstract class Parser implements ConflictedParser {
         pushOnAstLengthStack(0); // signal no pattern
     }
 
-    protected void consumeInstanceofPattern() {
-        // Only if we are not inside a block
-        if (this.realBlockPtr != -1)
-            blockReal();
-    }
-
     protected void consumeInstanceOfExpressionWithName() {
         // RelationalExpression_NotName ::= Name instanceof ReferenceType
         // optimize the push/pop
@@ -3780,9 +3592,11 @@ public abstract class Parser implements ConflictedParser {
         int length = this.astLengthStack[this.astLengthPtr--];
         Expression exp;
         if (length != 0) {
-            Pattern pattern = (Pattern) this.astStack[this.astPtr--];
+            // a reported pattern, represented by its type
+            TypeReference type = (TypeReference) this.astStack[this.astPtr--];
             pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-            exp = consumePatternInsideInstanceof(pattern);
+            this.expressionStack[this.expressionPtr]
+                = exp = new InstanceOfExpression(this.expressionStack[this.expressionPtr], type);
         } else {
             // by construction, no base type may be used in getTypeReference
             TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
@@ -3821,7 +3635,7 @@ public abstract class Parser implements ConflictedParser {
         for (int i = 0; i < fieldCount; i++) {
             FieldDeclaration field = fields[i];
             if (field instanceof Initializer) {
-                problemReporter().interfaceCannotHaveInitializers(typeDecl.name, field);
+                problemReporter().interfaceCannotHaveInitializers(field);
             }
         }
 
@@ -3933,24 +3747,6 @@ public abstract class Parser implements ConflictedParser {
         this.javadoc = null;
     }
 
-    protected void consumePermittedTypes() {
-        int length = this.astLengthStack[this.astLengthPtr--];
-        this.astPtr -= length;
-        TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-        typeDecl.restrictedIdentifierStart = this.intStack[this.intPtr--];
-        System.arraycopy(this.astStack, this.astPtr + 1, typeDecl.permittedTypes = new TypeReference[length], 0,
-            length);
-        for (TypeReference typeReference : typeDecl.permittedTypes) {
-            rejectIllegalTypeAnnotations(typeReference);
-        }
-        typeDecl.bodyStart = typeDecl.permittedTypes[length - 1].sourceEnd + 1;
-        this.listLength = 0; // reset after having read permitted types.
-        // recovery
-        if (this.currentElement != null) {
-            this.lastCheckPoint = typeDecl.bodyStart;
-        }
-    }
-
     protected void consumeInterfaceMemberDeclarations() {
         // InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
         concatNodeLists();
@@ -3993,50 +3789,22 @@ public abstract class Parser implements ConflictedParser {
     protected void consumeInternalCompilationUnitWithPotentialImplicitlyDeclaredClass() {
         int length;
         if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-            LinkedList<AbstractMethodDeclaration> methods = new LinkedList<>();
-            LinkedList<FieldDeclaration> fields = new LinkedList<>();
             LinkedList<TypeDeclaration> types = new LinkedList<>();
-            int sourceStart = Integer.MAX_VALUE;
+            boolean hasImplicitClassMembers = false;
             // here are length declarations
             for (int i = length - 1; i >= 0; i--) {
                 ASTNode astNode = this.astStack[this.astPtr--];
-                if (astNode instanceof MethodDeclaration method) {
-                    if (method.declarationSourceStart < sourceStart) {
-                        sourceStart = method.declarationSourceStart;
-                    }
-                    // methods and constructors have been regrouped into one single list
-                    methods.addFirst(method);
-                } else if (astNode instanceof TypeDeclaration type) {
-                    if (type.declarationSourceStart < sourceStart) {
-                        sourceStart = type.declarationSourceStart;
-                    }
+                if (astNode instanceof TypeDeclaration type) {
                     types.addFirst(type);
-                } else if (astNode instanceof FieldDeclaration field) {
-                    if (field.declarationSourceStart < sourceStart) {
-                        sourceStart = field.declarationSourceStart;
-                    }
-                    fields.addFirst(field);
+                } else if (astNode instanceof MethodDeclaration || astNode instanceof FieldDeclaration) {
+                    hasImplicitClassMembers = true;
                 }
             }
-            if (!methods.isEmpty() || !fields.isEmpty()) {
-                problemReporter().validateJavaFeatureSupport(JavaFeature.COMPACT_SOURCE_AND_INSTANCE_MAIN_METHODS, 0,
-                    0);
-                ImplicitTypeDeclaration implicitClass
-                    = new ImplicitTypeDeclaration(this.compilationUnit.compilationResult);
-                implicitClass.methods = methods.toArray(AbstractMethodDeclaration[]::new);
-                implicitClass.createDefaultConstructor(false);
-                implicitClass.fields = fields.toArray(FieldDeclaration[]::new);
-                implicitClass.memberTypes = types.toArray(TypeDeclaration[]::new);
-
-                implicitClass.declarationSourceStart = sourceStart;
-                implicitClass.declarationSourceEnd = this.scanner.eofPosition - 1;
-                implicitClass.bodyStart = sourceStart;
-                implicitClass.bodyEnd = this.scanner.eofPosition - 1;
-                implicitClass.sourceStart = sourceStart;
-                implicitClass.sourceEnd = this.scanner.eofPosition - 1;
-                this.compilationUnit.types = new TypeDeclaration[] { implicitClass };
-                implicitClass.addClinit();
-            } else if (!types.isEmpty()) {
+            if (hasImplicitClassMembers) {
+                // Implicitly declared classes are reported, not converted; their methods and fields are dropped.
+                problemReporter().javaFeatureNotSupported(0, 0);
+            }
+            if (!types.isEmpty()) {
                 // add types to compilation unit
                 this.compilationUnit.types = types.toArray(TypeDeclaration[]::new);
             }
@@ -4067,8 +3835,7 @@ public abstract class Parser implements ConflictedParser {
     protected void consumeInvalidAnnotationTypeDeclaration() {
         // BlockStatement ::= AnnotationTypeDeclaration
         TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-        if (!this.statementRecoveryActivated)
-            problemReporter().illegalLocalTypeDeclaration(typeDecl);
+        problemReporter().illegalLocalTypeDeclaration(typeDecl);
         // remove the ast node created in interface header
         this.astPtr--;
         pushOnAstLengthStack(-1);
@@ -4120,8 +3887,7 @@ public abstract class Parser implements ConflictedParser {
     protected void consumeInvalidEnumDeclaration() {
         // BlockStatement ::= EnumDeclaration
         TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-        if (!this.statementRecoveryActivated)
-            problemReporter().illegalLocalTypeDeclaration(typeDecl);
+        problemReporter().illegalLocalTypeDeclaration(typeDecl);
         // remove the ast node created in interface header
         this.astPtr--;
         pushOnAstLengthStack(-1);
@@ -4133,8 +3899,7 @@ public abstract class Parser implements ConflictedParser {
         // InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader
         // InterfaceBody
         TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-        if (!this.statementRecoveryActivated)
-            problemReporter().illegalLocalTypeDeclaration(typeDecl);
+        problemReporter().illegalLocalTypeDeclaration(typeDecl);
         // remove the ast node created in interface header
         this.astPtr--;
         pushOnAstLengthStack(-1);
@@ -4179,13 +3944,13 @@ public abstract class Parser implements ConflictedParser {
 
         boolean isDefault = (md.modifiers & 65536) != 0;
         boolean isStatic = (md.modifiers & 8) != 0;
-        boolean isPrivate = (md.modifiers & 2) != 0;
-        boolean bodyAllowed = (isParsingJava9Plus() && isPrivate) || isDefault || isStatic;
+        // Java 8 interfaces only allow bodies on default and static methods
+        boolean bodyAllowed = isDefault || isStatic;
         if (bodyAllowed && hasSemicolonBody) {
             md.modifiers |= 16777216; // avoid complaints regarding undocumented empty
                                       // body
         }
-        if (!bodyAllowed && !this.statementRecoveryActivated && !hasSemicolonBody) {
+        if (!bodyAllowed && !hasSemicolonBody) {
             problemReporter().abstractMethodNeedingNoBody(md);
         }
     }
@@ -4409,7 +4174,7 @@ public abstract class Parser implements ConflictedParser {
         int extendedDimensions = this.intStack[this.intPtr--];
         if (extendedDimensions != 0) {
             md.sourceEnd = this.endPosition;
-            md.returnType = augmentTypeWithAdditionalDimensions(md.returnType, extendedDimensions,
+            md.returnType = md.returnType.augmentTypeWithAdditionalDimensions(extendedDimensions,
                 getAnnotationsOnDimensions(extendedDimensions), false);
             md.bits |= (md.returnType.bits & 1048576);
             if (this.currentToken == TokenNameLBRACE) {
@@ -5775,7 +5540,7 @@ public abstract class Parser implements ConflictedParser {
                 consumeClassOrInterface();
                 break;
 
-            case 60, 66, 65, 811, 806, 791, 787, 783, 779, 756, 740, 728, 727, 632, 629, 628, 567, 566, 556, 488, 485, 428, 427, 426, 425, 415, 367, 332, 146, 93, 63:
+            case 60, 66, 65, 811, 806, 791, 787, 783, 779, 756, 740, 728, 727, 632, 629, 628, 567, 566, 556, 488, 485, 428, 427, 426, 425, 415, 367, 146, 93, 63:
 
                 break;
 
@@ -6019,7 +5784,7 @@ public abstract class Parser implements ConflictedParser {
                 consumeAnnotationAsModifier();
                 break;
 
-            case 208, 331:
+            case 208:
                 consumeClassDeclaration();
                 break;
 
@@ -6097,10 +5862,6 @@ public abstract class Parser implements ConflictedParser {
 
             case 250:
                 consumeRestoreDiet();
-                break;
-
-            case 252:
-                consumeUnnamedVariable();
                 break;
 
             case 256:
@@ -6306,26 +6067,6 @@ public abstract class Parser implements ConflictedParser {
                 consumeInvalidConstructorDeclaration(false);
                 break;
 
-            case 333:
-                consumeRecordHeaderNameWithTypeParameters();
-                break;
-
-            case 334:
-                consumeRecordHeaderName();
-                break;
-
-            case 335:
-                consumeRecordHeaderName1();
-                break;
-
-            case 336:
-                consumeRecordComponentHeaderRightParen();
-                break;
-
-            case 338:
-                consumeRecordComponentsopt();
-                break;
-
             case 341, 854:
                 consumeInstanceOfExpression();
                 break;
@@ -6334,11 +6075,7 @@ public abstract class Parser implements ConflictedParser {
                 consumeInstanceOfClassic();
                 break;
 
-            case 345:
-                consumeInstanceofPattern();
-                break;
-
-            case 348, 349:
+            case 348:
                 consumeTypePattern();
                 break;
 
@@ -6352,10 +6089,6 @@ public abstract class Parser implements ConflictedParser {
 
             case 354:
                 consumePatternList();
-                break;
-
-            case 357:
-                consumeUnnamedPattern();
                 break;
 
             case 359:
@@ -6459,15 +6192,11 @@ public abstract class Parser implements ConflictedParser {
                 break;
 
             case 441:
-                consumeSwitchLabels(false, false);
+                consumeSwitchLabels(false);
                 break;
 
             case 442:
-                consumeSwitchLabels(true, false);
-                break;
-
-            case 443:
-                consumeSwitchLabels(false, true);
+                consumeSwitchLabels(true);
                 break;
 
             case 445:
@@ -6476,18 +6205,6 @@ public abstract class Parser implements ConflictedParser {
 
             case 448:
                 consumeSwitchStatementOrExpression(false);
-                break;
-
-            case 449:
-                consumeSwitchRule(SwitchRuleKind.EXPRESSION);
-                break;
-
-            case 450:
-                consumeSwitchRule(SwitchRuleKind.BLOCK);
-                break;
-
-            case 451:
-                consumeSwitchRule(SwitchRuleKind.THROW);
                 break;
 
             case 453:
@@ -6500,18 +6217,6 @@ public abstract class Parser implements ConflictedParser {
 
             case 455:
                 consumeCaseLabelElement(CaseLabelKind.CASE_DEFAULT);
-                break;
-
-            case 456, 457:
-                consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN);
-                break;
-
-            case 459:
-                consumeGuard();
-                break;
-
-            case 460:
-                consumeStatementYield();
                 break;
 
             case 461, 462:
@@ -6722,16 +6427,12 @@ public abstract class Parser implements ConflictedParser {
                 consumeNestedLambda();
                 break;
 
-            case 537, 538:
+            case 538:
                 consumeTypeElidedLambdaParameter(false);
                 break;
 
             case 545:
                 consumeTypeElidedLambdaParameter(true);
-                break;
-
-            case 546:
-                consumeBracketedTypeElidedUnderscoreLambdaParameter();
                 break;
 
             case 547:
@@ -7086,10 +6787,6 @@ public abstract class Parser implements ConflictedParser {
                 consumeFormalParameterListopt();
                 break;
 
-            case 711:
-                consumePermittedTypes();
-                break;
-
             case 712:
                 consumeEmptyInterfaceMemberDeclarationsopt();
                 break;
@@ -7188,10 +6885,6 @@ public abstract class Parser implements ConflictedParser {
 
             case 751:
                 consumeStaticImportOnDemandDeclarationName();
-                break;
-
-            case 754:
-                consumeSingleModuleImportDeclarationName();
                 break;
 
             case 755:
@@ -7613,7 +7306,7 @@ public abstract class Parser implements ConflictedParser {
         lexp.setBody(body);
         lexp.sourceEnd = body.sourceEnd;
 
-        if (body instanceof Expression expression && expression.isTrulyExpression()) {
+        if (body instanceof Expression expression) {
             expression.statementEnd = body.sourceEnd;
         }
         pushOnExpressionStack(lexp);
@@ -7666,11 +7359,6 @@ public abstract class Parser implements ConflictedParser {
         }
         pushOnAstStack(arg);
         this.listLength++;  // not relevant really.
-    }
-
-    protected void consumeBracketedTypeElidedUnderscoreLambdaParameter() {
-        consumeDefaultModifiers();
-        consumeTypeElidedLambdaParameter(true);
     }
 
     protected void consumeLambdaBodyExpression() {
@@ -7898,17 +7586,6 @@ public abstract class Parser implements ConflictedParser {
 
     protected void consumeSingleStaticImportDeclarationName() {
         // SingleStaticImportDeclarationName ::= 'import' 'static' Name RejectTypeAnnotations
-        consumeSingleModifierImportDeclarationName(8);
-    }
-
-    protected void consumeSingleModuleImportDeclarationName() {
-        // SingleModuleImportDeclarationName ::= 'import' 'module' Name RejectTypeAnnotations
-        consumeSingleModifierImportDeclarationName(32768);
-    }
-
-    protected void consumeSingleModifierImportDeclarationName(int modifier) {
-        // SingleStaticImportDeclarationName ::= 'import' 'static' Name RejectTypeAnnotations
-        // SingleModuleImportDeclarationName ::= 'import' 'module' Name RejectTypeAnnotations
         /* push an ImportRef build from the last name stored in the identifier stack. */
 
         ImportReference impt;
@@ -7918,15 +7595,10 @@ public abstract class Parser implements ConflictedParser {
         long[] positions = new long[length];
         System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
         System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-        pushOnAstStack(impt = new ImportReference(tokens, positions, false, modifier));
+        pushOnAstStack(impt = new ImportReference(tokens, positions, false, 8));
 
         this.modifiers = 0;
-        // 'module' stores position on stack, 'static' sets modifiersSourceStart:
-        if (modifier == 32768) {
-            impt.modifiersSourceStart = this.intStack[this.intPtr--];
-        } else { // static
-            impt.modifiersSourceStart = this.modifiersSourceStart;
-        }
+        impt.modifiersSourceStart = this.modifiersSourceStart;
         this.modifiersSourceStart = -1; // see checkAndSetModifiers()
 
         if (this.currentToken == TokenNameSEMICOLON) {
@@ -7937,9 +7609,6 @@ public abstract class Parser implements ConflictedParser {
         impt.declarationEnd = impt.declarationSourceEnd;
         // this.endPosition is just before the ;
         impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-        if (modifier == 32768)
-            impt.bits |= 131072; // implicitly
 
         // recovery
         if (this.currentElement != null) {
@@ -7998,18 +7667,6 @@ public abstract class Parser implements ConflictedParser {
         pushOnAstStack(new BreakStatement(this.identifierStack[this.identifierPtr--], this.intStack[this.intPtr--],
             this.endStatementPosition));
         this.identifierLengthPtr--;
-    }
-
-    protected void consumeStatementYield() {
-        // YieldStatement ::= RestrictedIdentifierYield Expression ';'
-
-        // add the compliance check
-        if (this.expressionLengthStack[this.expressionLengthPtr--] != 0) {
-            Expression expr = this.expressionStack[this.expressionPtr--];
-            YieldStatement yieldStatement
-                = new YieldStatement(expr, false, this.intStack[this.intPtr--], this.endStatementPosition);
-            pushOnAstStack(yieldStatement);
-        }
     }
 
     protected void consumeStatementCatch() {
@@ -8158,7 +7815,7 @@ public abstract class Parser implements ConflictedParser {
         // created if some declaration occurs.
         this.nestedType--;
         int length;
-        SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
+        SwitchStatement switchStatement = new SwitchStatement();
         this.expressionLengthPtr--;
         switchStatement.expression = this.expressionStack[this.expressionPtr--];
         if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
@@ -8176,8 +7833,9 @@ public abstract class Parser implements ConflictedParser {
         if (isStmt)
             pushOnAstStack(switchStatement);
         else {
+            // Switch expressions are reported, not converted; a null literal holds their place.
             problemReporter().switchExpressionsNotSupported(switchStatement);
-            pushOnExpressionStack(switchStatement);
+            pushOnExpressionStack(new NullLiteral(switchStatement.sourceStart, switchStatement.sourceEnd));
         }
     }
 
@@ -8196,7 +7854,7 @@ public abstract class Parser implements ConflictedParser {
                 (Block) this.astStack[this.astPtr], this.intStack[this.intPtr--], this.endStatementPosition);
         }
         this.modifiers = 0;
-        this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+        this.modifiersSourceStart = -1;
     }
 
     protected void consumeStatementThrow() {
@@ -8245,11 +7903,9 @@ public abstract class Parser implements ConflictedParser {
 
             tryStmt.resources = stmts;
 
-            if (this.options.sourceLevel < 3473408L) {
-                for (Statement stmt : stmts) {
-                    if (stmt instanceof FieldReference || stmt instanceof NameReference) {
-                        problemReporter().autoManagedVariableResourcesNotBelow9((Expression) stmt);
-                    }
+            for (Statement stmt : stmts) {
+                if (stmt instanceof FieldReference || stmt instanceof NameReference) {
+                    problemReporter().autoManagedVariableResourcesNotBelow9((Expression) stmt);
                 }
             }
         }
@@ -8289,7 +7945,7 @@ public abstract class Parser implements ConflictedParser {
         this.intPtr--;
         this.modifiers = 0;
         impt.modifiersSourceStart = this.modifiersSourceStart;
-        this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+        this.modifiersSourceStart = -1;
 
         if (this.currentToken == TokenNameSEMICOLON) {
             impt.declarationSourceEnd = this.scanner.currentPosition - 1;
@@ -8357,16 +8013,6 @@ public abstract class Parser implements ConflictedParser {
         }
     }
 
-    private void consumeTextBlock() {
-        problemReporter().validateJavaFeatureSupport(JavaFeature.TEXT_BLOCKS, this.scanner.startPosition,
-            this.scanner.currentPosition - 1);
-
-        TextBlock textBlock = new TextBlock(this.scanner.getCurrentTextBlock(), this.scanner.startPosition,
-            this.scanner.currentPosition - 1);
-
-        pushOnExpressionStack(textBlock);
-    }
-
     protected void consumeSwitchBlock(boolean hasContents) {
         // SwitchBlock ::= '{' { SwitchBlockStatements SwitchLabels } '}'
         if (hasContents)
@@ -8385,38 +8031,35 @@ public abstract class Parser implements ConflictedParser {
         concatNodeLists();
     }
 
-    protected void consumeSwitchLabels(boolean shouldConcat, boolean isSwitchRule) {
+    protected void consumeSwitchLabels(boolean shouldConcat) {
         // SwitchLabels -> SwitchLabel ':'
         // SwitchLabels ::= SwitchLabels SwitchLabel ':'
-        Expression[] labelExpressions;
+        Expression constantExpression;
         int sourceEnd, sourceStart;
 
         int length;
         if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) > 0) {
             this.expressionPtr -= length;
-            System.arraycopy(this.expressionStack, this.expressionPtr + 1, labelExpressions = new Expression[length], 0,
-                length);
+            // Java 8 allows one constant per case label; the others are reported below and dropped.
+            constantExpression = this.expressionStack[this.expressionPtr + 1];
             sourceStart = this.intStack[this.intPtr--];
-            sourceEnd = labelExpressions[length - 1].sourceEnd;
-        } else { // default ->
+            sourceEnd = this.expressionStack[this.expressionPtr + length].sourceEnd;
+        } else { // default
             sourceEnd = this.intStack[this.intPtr--];
             sourceStart = this.intStack[this.intPtr--];
-            labelExpressions = Expression.NO_EXPRESSIONS;
+            constantExpression = null;
         }
 
-        CaseStatement caseStatement = new CaseStatement(labelExpressions, sourceStart, sourceEnd);
-        caseStatement.isSwitchRule = isSwitchRule;
-        if (labelExpressions.length > 1)
+        CaseStatement caseStatement = new CaseStatement(constantExpression, sourceStart, sourceEnd);
+        if (length > 1)
             problemReporter().multiConstantCaseLabelsNotSupported(caseStatement);
-        if (isSwitchRule)
-            problemReporter().arrowInCaseStatementsNotSupported(caseStatement);
 
         // Look for $fall-through$ tag in leading comment for case statement
         if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart))
             caseStatement.bits |= 536870912;
 
         // Look for $fall-through$ AND $CASES-OMITTED$ tags in leading comment for default statement
-        if (labelExpressions.length == 0 && hasLeadingTagComment(CASES_OMITTED_TAG, caseStatement.sourceStart))
+        if (constantExpression == null && hasLeadingTagComment(CASES_OMITTED_TAG, caseStatement.sourceStart))
             caseStatement.bits |= 1073741824;
 
         pushOnAstStack(caseStatement);
@@ -8424,29 +8067,9 @@ public abstract class Parser implements ConflictedParser {
             optimizedConcatNodeLists();
     }
 
-    protected void consumeSwitchRule(SwitchRuleKind kind) {
-        // SwitchRule ::= SwitchLabel CaseArrow { Expression | Block | ThrowStatement }
-        if (kind == SwitchRuleKind.EXPRESSION) {
-            consumeExpressionStatement();
-            Expression expr = (Expression) this.astStack[this.astPtr];
-            expr.bits &= ~1048576;
-            YieldStatement yieldStatement = new YieldStatement(expr, true, expr.sourceStart, this.endStatementPosition);
-            this.astStack[this.astPtr] = yieldStatement;
-        } else if (kind == SwitchRuleKind.BLOCK) {
-            Block block = (Block) this.astStack[this.astPtr];
-            block.bits |= 1;
-        }
-        concatNodeLists();
-    }
-
     protected void consumeCaseLabelElement(CaseLabelKind kind) {
         Expression pattern = null;
         switch (kind) {
-            case CASE_PATTERN -> {
-                this.astLengthPtr--;
-                pattern = (Pattern) this.astStack[this.astPtr--];
-                pushOnExpressionStack(pattern);
-            }
             case CASE_EXPRESSION -> {
                 if (!((pattern = this.expressionStack[this.expressionPtr]) instanceof NullLiteral))
                     pattern = null;
@@ -8454,42 +8077,19 @@ public abstract class Parser implements ConflictedParser {
             case CASE_DEFAULT -> {
                 int end = this.intStack[this.intPtr--];
                 int start = this.intStack[this.intPtr--];
-                pushOnExpressionStack(pattern = new FakeDefaultLiteral(start, end));
+                // 'default' as a case label element is reported; a null literal holds its place.
+                pushOnExpressionStack(pattern = new NullLiteral(start, end));
             }
         }
         if (pattern != null)
-            problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH, pattern.sourceStart,
-                pattern.sourceEnd);
+            problemReporter().javaFeatureNotSupported(pattern.sourceStart, pattern.sourceEnd);
     }
 
     protected void consumeCaseLabelElements() {
         concatExpressionLists();
-        boolean thisLabelIsPattern = this.expressionStack[this.expressionPtr] instanceof Pattern;
-        boolean lastLabelIsPattern = this.expressionStack[this.expressionPtr - 1] instanceof Pattern;
-        if (thisLabelIsPattern != lastLabelIsPattern)
-            problemReporter().illegalCaseConstantCombination(this.expressionStack[this.expressionPtr]);
-        if (thisLabelIsPattern && lastLabelIsPattern) {
-            Pattern lastPattern = (Pattern) this.expressionStack[this.expressionPtr - 1];
-            Pattern thisPattern = (Pattern) this.expressionStack[this.expressionPtr];
-            if (lastPattern instanceof GuardedPattern gp) {
-                problemReporter().parseErrorMisplacedConstruct(gp.whenSourceStart, gp.sourceEnd);
-            }
-            // current pattern can't have alternatives, but getAlternatives() is useful to strip the guard (which will
-            // be attached to the combined pattern below
-            Pattern[] patterns = Stream
-                .concat(Arrays.stream(lastPattern.getAlternatives()), Arrays.stream(thisPattern.getAlternatives()))
-                .toArray(Pattern[]::new);
-            Pattern combinedPattern = new EitherOrMultiPattern(patterns);
-            if (thisPattern instanceof GuardedPattern gp) {
-                combinedPattern = new GuardedPattern(combinedPattern, gp.condition);
-                ((GuardedPattern) combinedPattern).whenSourceStart = gp.whenSourceStart;
-            }
-            this.expressionStack[--this.expressionPtr] = combinedPattern;
-            this.expressionLengthStack[this.expressionLengthPtr]--;
-        }
     }
 
-    protected void consumeToken(TerminalToken type) {
+    protected void consumeToken(int type) {
         /* remember the last consumed value */
         /* try to minimize the number of build values */
         switch (type) {
@@ -8504,21 +8104,8 @@ public abstract class Parser implements ConflictedParser {
                 flushCommentsDefinedPriorTo(this.scanner.currentPosition);
                 break;
 
-            case TokenNameUNDERSCORE:
             case TokenNameIdentifier:
                 pushIdentifier();
-                if (this.scanner.useAssertAsAnIndentifier
-                    && this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-                    long positions = this.identifierPositionStack[this.identifierPtr];
-                    if (!this.statementRecoveryActivated)
-                        problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
-                }
-                if (this.scanner.useEnumAsAnIndentifier
-                    && this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-                    long positions = this.identifierPositionStack[this.identifierPtr];
-                    if (!this.statementRecoveryActivated)
-                        problemReporter().useEnumAsAnIdentifier((int) (positions >>> 32), (int) positions);
-                }
                 break;
 
             case TokenNameinterface:
@@ -8547,11 +8134,6 @@ public abstract class Parser implements ConflictedParser {
                 pushOnExpressionStackLengthStack();
                 break;
 
-            case TokenNamenon_sealed:
-                checkAndSetModifiers(67108864);
-                pushOnExpressionStackLengthStack();
-                break;
-
             case TokenNameopen, TokenNametransitive:
                 checkAndSetModifiers(32);
                 pushOnExpressionStackLengthStack();
@@ -8572,12 +8154,7 @@ public abstract class Parser implements ConflictedParser {
                 pushOnExpressionStackLengthStack();
                 break;
 
-            case TokenNameRestrictedIdentifiersealed:
-                checkAndSetModifiers(268435456);
-                pushOnExpressionStackLengthStack();
-                break;
-
-            case TokenNameRestrictedIdentifierWhen, TokenNameLESS, TokenNamecase, TokenNameRestrictedIdentifierpermits, TokenNametry:
+            case TokenNameLESS, TokenNamecase, TokenNametry:
                 pushOnIntStack(this.scanner.startPosition);
                 break;
 
@@ -8696,10 +8273,6 @@ public abstract class Parser implements ConflictedParser {
                 pushOnExpressionStack(stringLiteral);
                 break;
 
-            case TokenNameTextBlock:
-                consumeTextBlock();
-                break;
-
             case TokenNamefalse:
                 pushOnExpressionStack(new FalseLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1));
                 break;
@@ -8738,7 +8311,6 @@ public abstract class Parser implements ConflictedParser {
             case TokenNameopens:
             case TokenNameuses:
             case TokenNameprovides:
-            case TokenNameRestrictedIdentifierYield:
                 pushOnIntStack(this.scanner.startPosition);
                 break;
 
@@ -8754,7 +8326,6 @@ public abstract class Parser implements ConflictedParser {
                 pushOnIntStack(this.scanner.startPosition);
                 break;
 
-            case TokenNameRestrictedIdentifierrecord:
             case TokenNameclass:
                 pushOnIntStack(this.scanner.currentPosition - 1);
                 pushOnIntStack(this.scanner.startPosition);
@@ -9047,69 +8618,21 @@ public abstract class Parser implements ConflictedParser {
         }
     }
 
-    protected void consumeGuard() {
-        this.astLengthPtr--;
-        Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-        Expression expr = this.expressionStack[this.expressionPtr--];
-        this.expressionLengthPtr--;
-        GuardedPattern gPattern = new GuardedPattern(pattern, expr);
-        gPattern.whenSourceStart = this.intStack[this.intPtr--];
-        pushOnAstStack(gPattern);
-    }
-
     protected void consumeTypePattern() {
-        // name
-        char[] identifierName = this.identifierStack[this.identifierPtr];
-        long namePosition = this.identifierPositionStack[this.identifierPtr];
-
-        LocalDeclaration local
-            = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
-        local.declarationSourceEnd = local.declarationEnd;
-        local.bits |= 8388608;
+        // TypePattern ::= Modifiersopt Type 'Identifier'
+        // Patterns are reported, not converted; the pattern's type holds its place.
+        int nameEnd = (int) this.identifierPositionStack[this.identifierPtr];
         this.identifierPtr--;
         this.identifierLengthPtr--;
 
-        // type
         consumeTypeReferenceWithModifiersAndAnnotations();
         TypeReference type = (TypeReference) this.expressionStack[this.expressionPtr--];
         this.expressionLengthPtr--;
-
-        // Move annotations from type reference to LocalDeclaration
-        local.annotations = type.annotations != null && type.annotations.length > 0 ? type.annotations[0] : null;
         type.annotations = null;
-        local.type = type;
+        this.intPtr -= 2; // pattern start and modifiers
 
-        TypePattern aTypePattern = TypePattern.createTypePattern(local);
-        aTypePattern.sourceStart = this.intStack[this.intPtr--];
-        local.modifiers = this.intStack[this.intPtr--];
-        local.declarationSourceStart = type.sourceStart;
-        aTypePattern.sourceEnd = local.sourceEnd;
-
-        problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart,
-            local.declarationEnd);
-        pushOnAstStack(aTypePattern);
-    }
-
-    protected void consumeUnnamedPattern() {
-        // UnnamedPattern -> '_'
-
-        // name
-        char[] identifierName = this.identifierStack[this.identifierPtr];
-        long namePosition = this.identifierPositionStack[this.identifierPtr];
-
-        LocalDeclaration local
-            = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
-        local.declarationSourceEnd = local.declarationEnd;
-        local.bits |= 8388608;
-        local.declarationSourceStart = (int) (namePosition >>> 32);
-        this.identifierPtr--;
-        this.identifierLengthPtr--;
-
-        TypePattern aUnnamedPattern = TypePattern.createTypePattern(local);
-        aUnnamedPattern.sourceStart = local.sourceStart;
-        aUnnamedPattern.sourceEnd = local.sourceEnd;
-
-        pushOnAstStack(aUnnamedPattern);
+        problemReporter().javaFeatureNotSupported(type.sourceStart, nameEnd);
+        pushOnAstStack(type);
     }
 
     protected void consumeRecordPattern() {
@@ -9121,44 +8644,18 @@ public abstract class Parser implements ConflictedParser {
         }
 
         int sourceEnd = this.intStack[this.intPtr--];  // ')' position
-        this.intPtr--;  // pop '(' position
-
-        int dimension = this.intStack[this.intPtr--];
-
-        int modifierStart = this.intStack[this.intPtr--];
-        int modifier = this.intStack[this.intPtr--];
+        this.intPtr -= 4; // '(' position, dimensions, modifiers start, and modifiers
 
         TypeReference type = getTypeReference(0);
-
         if (typeAnnotations != null) {
-            int levels = type.getAnnotatableLevels();
-            if (type.annotations == null)
-                type.annotations = new Annotation[levels][];
-            type.annotations[0] = typeAnnotations;
-            type.sourceStart = type.annotations[0][0].sourceStart;
-            type.bits |= 1048576;
+            type.sourceStart = typeAnnotations[0].sourceStart;
         }
 
-        RecordPattern recPattern = new RecordPattern(type, type.sourceStart, sourceEnd);
-
+        // Record patterns are reported, not converted; the pattern's type holds their place.
         length = this.astLengthPtr == -1 ? 0 : this.astLengthStack[this.astLengthPtr--];
         this.astPtr -= length;
-
-        if (length != 0) {
-            Pattern[] patterns = new Pattern[length];
-            System.arraycopy(this.astStack, this.astPtr + 1, patterns, 0, length);
-            recPattern.patterns = patterns;
-        } else {
-            recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
-        }
-        if (dimension != 0) {
-            problemReporter().dimensionsIllegalOnRecordPattern(type.sourceStart, sourceEnd);
-        }
-        if (modifier != 0) {
-            problemReporter().illegalModifiers(modifierStart, type.sourceStart - 2);
-        }
-        problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, sourceEnd);
-        pushOnAstStack(recPattern);
+        problemReporter().javaFeatureNotSupported(type.sourceStart, sourceEnd);
+        pushOnAstStack(type);
     }
 
     protected void consumePatternList() {
@@ -9247,8 +8744,7 @@ public abstract class Parser implements ConflictedParser {
             if (!post) {
                 this.intPtr--;
             }
-            if (!this.statementRecoveryActivated)
-                problemReporter().invalidUnaryExpression(leftHandSide);
+            problemReporter().invalidUnaryExpression(leftHandSide);
         }
     }
 
@@ -9378,45 +8874,6 @@ public abstract class Parser implements ConflictedParser {
         pushOnGenericsStack(wildcard);
     }
 
-    protected void consumeRecordHeaderNameWithTypeParameters() {
-        // RecordHeaderName ::= RecordHeaderName1 TypeParameters
-        consumeTypeHeaderNameWithTypeParameters();
-        this.parsingRecordComponents = true;
-    }
-
-    protected void consumeRecordHeaderName() {
-        // RecordHeaderName1 ::= Modifiersopt RestrictedIdentifierrecord 'Identifier'
-        this.parsingRecordComponents = true;
-    }
-
-    protected void consumeRecordHeaderName1() {
-        // Modifiersopt RestrictedIdentifierrecord 'Identifier'
-        consumeClassOrRecordHeaderName1(true);
-    }
-
-    protected void consumeRecordComponentHeaderRightParen() {
-        // RecordComponentHeaderRightParen ::= ')'
-        this.parsingRecordComponents = false;
-        int length = this.astLengthStack[this.astLengthPtr--];
-        this.astPtr -= length;
-        TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-        typeDecl.bodyStart = this.rParenPos + 1;
-        this.listLength = 0; // reset this.listLength after having read all parameters
-        // recovery
-        if (this.currentElement != null) {
-            this.lastCheckPoint = typeDecl.bodyStart;
-            if (this.currentElement.parseTree() == typeDecl)
-                return;
-        }
-        resetModifiers();
-    }
-
-    protected void consumeRecordComponentsopt() {
-        // RecordComponentsopt ::= $empty
-        pushOnAstLengthStack(0);
-    }
-
-    /* Java 16 - Records - end */
     /**
      * Given the current comment stack, answer whether some comment is available in a certain exclusive range
      *
@@ -9463,23 +8920,8 @@ public abstract class Parser implements ConflictedParser {
         return m;
     }
 
-    protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeReference, int additionalDimensions,
-        Annotation[][] additionalAnnotations, boolean isVarargs) {
-        if (isParsingJava10Plus()
-            && typeReference instanceof SingleTypeReference singleTypeRef
-            && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR))
-            problemReporter().varLocalCannotBeArray(singleTypeRef);
-        return typeReference.augmentTypeWithAdditionalDimensions(additionalDimensions, additionalAnnotations,
-            isVarargs);
-    }
-
     protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, int sourceStart, int sourceEnd) {
         return new FieldDeclaration(fieldDeclarationName, sourceStart, sourceEnd);
-    }
-
-    protected RecordComponent createComponent(char[] identifierName, long namePositions, TypeReference type,
-        int modifier) {
-        return new RecordComponent(identifierName, namePositions, type, modifier);
     }
 
     protected JavadocParser createJavadocParser() {
@@ -9674,28 +9116,10 @@ public abstract class Parser implements ConflictedParser {
     protected CompilationUnitDeclaration endParse(int act) {
         this.lastAct = act;
 
-        if (this.statementRecoveryActivated) {
-            RecoveredElement recoveredElement = buildInitialRecoveryState();
-
-            if (recoveredElement != null) {
-                recoveredElement.topElement().updateParseTree();
-            }
-
-            if (this.hasError)
-                resetStacks();
-        } else if (this.currentElement != null) {
+        if (this.currentElement != null) {
             this.currentElement.topElement().updateParseTree();
         }
         persistLineSeparatorPositions();
-        for (int i = 0; i < this.scanner.foundTaskCount; i++) {
-            if (!this.statementRecoveryActivated)
-                problemReporter().task(new String(this.scanner.foundTaskTags[i]),
-                    new String(this.scanner.foundTaskMessages[i]),
-                    this.scanner.foundTaskPriorities[i] == null
-                        ? null
-                        : new String(this.scanner.foundTaskPriorities[i]),
-                    this.scanner.foundTaskPositions[i][0], this.scanner.foundTaskPositions[i][1]);
-        }
         this.javadoc = null;
         return this.compilationUnit;
     }
@@ -9785,7 +9209,7 @@ public abstract class Parser implements ConflictedParser {
         }
     }
 
-    public TerminalToken getFirstToken() {
+    public int getFirstToken() {
         // the first token is a virtual token that
         // allows the parser to parse several goals
         // even if they aren't LALR(1)....
@@ -9832,21 +9256,8 @@ public abstract class Parser implements ConflictedParser {
         }
     }
 
-    protected final TypeReference getTypeReference(int dim) {
-        TypeReference typeRef = constructTypeReference(dim);
-        if (isParsingJava10Plus()
-            && typeRef instanceof ArrayTypeReference singleTypeRef
-            && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR)) {
-            if (singleTypeRef.isParameterizedTypeReference())
-                problemReporter().varCannotBeUsedWithTypeArguments(singleTypeRef);
-            if (singleTypeRef.dimensions() > 0)
-                problemReporter().varLocalCannotBeArray(singleTypeRef);
-        }
-        return typeRef;
-    }
-
     /* Construct a TypeReference that may be qualified or not with dim as its dimensions */
-    protected TypeReference constructTypeReference(int dim) {
+    protected final TypeReference getTypeReference(int dim) {
         TypeReference ref;
         Annotation[][] annotationsOnDimensions = null;
         int length = this.identifierLengthStack[this.identifierLengthPtr--];
@@ -10078,7 +9489,6 @@ public abstract class Parser implements ConflictedParser {
         // tells the scanner to go for compilation unit parsing
 
         this.firstToken = TokenNamePLUS_PLUS;
-        this.scanner.foundTaskCount = 0;
         this.scanner.recordLineSeparator = true;
     }
 
@@ -10159,9 +9569,8 @@ public abstract class Parser implements ConflictedParser {
         ArrayInitializer arrayInitializer = (ArrayInitializer) this.expressionStack[this.expressionPtr--];
         this.expressionLengthPtr--;
         // report a syntax error and abort parsing
-        if (!this.statementRecoveryActivated)
-            problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart,
-                arrayInitializer.sourceEnd);
+        problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart,
+            arrayInitializer.sourceEnd);
     }
 
     public void initialize() {
@@ -10206,7 +9615,6 @@ public abstract class Parser implements ConflictedParser {
 
         // reset this.scanner state
         this.scanner.commentPtr = -1;
-        this.scanner.foundTaskCount = 0;
         this.scanner.eofPosition = Integer.MAX_VALUE;
         this.recordStringLiterals = true;
 
@@ -10219,10 +9627,9 @@ public abstract class Parser implements ConflictedParser {
         this.hasReportedError = false;
         this.recoveredStaticInitializerStart = 0;
         this.lastIgnoredToken = TokenNameInvalid;
-        this.lastErrorEndPositionBeforeRecovery = -1;
+
         this.lastJavadocEnd = -1;
         this.listLength = 0;
-        this.parsingRecordComponents = false;
         this.listTypeParameterLength = 0;
         this.lastPosistion = -1;
 
@@ -10237,10 +9644,7 @@ public abstract class Parser implements ConflictedParser {
     }
 
     public void initializeScanner() {
-        this.scanner = new Scanner(false /* comment */, false /* whitespace */,
-            this.options.sourceLevel /* sourceLevel */, this.options.complianceLevel /* complianceLevel */,
-            this.options.taskTags/* taskTags */, this.options.taskPriorities/* taskPriorities */,
-            true/* taskCaseSensitive */, false /* isPreviewEnabled */);
+        this.scanner = new Scanner(false /* comment */, false /* whitespace */);
     }
 
     public void jumpOverMethodBody() {
@@ -10349,7 +9753,6 @@ public abstract class Parser implements ConflictedParser {
         this.scanner.startPosition = pos;
         this.scanner.currentPosition = pos;
         this.scanner.commentPtr = -1;
-        this.scanner.foundTaskCount = 0;
         return true;
     }
 
@@ -10395,7 +9798,7 @@ public abstract class Parser implements ConflictedParser {
     }
 
     @Override
-    public boolean atConflictScenario(TerminalToken token) {
+    public boolean atConflictScenario(int token) {
 
         /*
          * Answer true if the parser is at a configuration where the scanner must look ahead and help disambiguate
@@ -10442,7 +9845,7 @@ public abstract class Parser implements ConflictedParser {
 
     /*
      * main loop of the automat When a rule is reduced, the method consumeRule(int) is called with the number of the
-     * consumed rule. When a terminal is consumed, the method consumeToken(TerminalToken) is called in order to remember
+     * consumed rule. When a terminal is consumed, the method consumeToken(int) is called in order to remember
      * (when needed) the consumed token
      */
 // (int)asr[asi(act)]
@@ -10450,7 +9853,7 @@ public abstract class Parser implements ConflictedParser {
     protected void parse() {
 
         boolean isDietParse = this.diet;
-        TerminalToken oldFirstToken = getFirstToken();
+        int oldFirstToken = getFirstToken();
         this.hasError = false;
 
         this.hasReportedError = false;
@@ -10472,7 +9875,7 @@ public abstract class Parser implements ConflictedParser {
                     System.arraycopy(this.stack, 0, this.stack = new int[stackLength + 255], 0, stackLength);
                 }
                 this.stack[this.stateStackTop] = act;
-                this.unstackedAct = act = tAction(act, this.currentToken.tokenNumber());
+                this.unstackedAct = act = tAction(act, this.currentToken);
                 if (act == 17981 || this.restartRecovery()) {
                     if (!this.hasReportedError) {
                         if (act == 17981)
@@ -10563,7 +9966,7 @@ public abstract class Parser implements ConflictedParser {
         }
 
         endParse(act);
-        if (this.reportSyntaxErrorIsRequired && this.hasError && !this.statementRecoveryActivated) {
+        if (this.hasError) {
             reportSyntaxErrors(isDietParse, oldFirstToken);
         }
         this.problemReporter.referenceContext = null; // Null this so we won't escalate problems needlessly (bug 393192)
@@ -10573,7 +9976,7 @@ public abstract class Parser implements ConflictedParser {
         return this.restartRecovery;
     }
 
-    protected TerminalToken fetchNextToken() throws InvalidInputException {
+    protected int fetchNextToken() throws InvalidInputException {
         return this.scanner.getNextToken();
     }
 
@@ -10658,7 +10061,7 @@ public abstract class Parser implements ConflictedParser {
             this.scanner.setSource(contents);
             this.compilationUnit.sourceEnd = this.scanner.source.length - 1;
 
-            if (this.javadocParser != null && this.javadocParser.checkDocComment) {
+            if (this.javadocParser != null) {
                 this.javadocParser.scanner.setSource(contents);
 
             }
@@ -10786,7 +10189,7 @@ public abstract class Parser implements ConflictedParser {
         /* scanner initialization */
         this.scanner.setSource(source);
         this.scanner.resetTo(0, length - 1);
-        if (this.javadocParser != null && this.javadocParser.checkDocComment) {
+        if (this.javadocParser != null) {
             this.javadocParser.scanner.setSource(source);
             this.javadocParser.scanner.resetTo(0, length - 1);
         }
@@ -10938,8 +10341,7 @@ public abstract class Parser implements ConflictedParser {
         }
         this.identifierLengthStack[this.identifierLengthPtr] = 1;
         if (identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList)
-            problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position,
-                isParsingJava9Plus());
+            problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, false);
     }
 
     protected void pushIdentifier() {
@@ -11169,7 +10571,7 @@ public abstract class Parser implements ConflictedParser {
     }
 
 // A P I
-    protected void reportSyntaxErrors(boolean isDietParse, TerminalToken oldFirstToken) {
+    protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
         if (this.referenceContext instanceof MethodDeclaration methodDeclaration) {
             if ((methodDeclaration.bits & 32) != 0) {
                 return;
@@ -11186,14 +10588,14 @@ public abstract class Parser implements ConflictedParser {
             int[][] intervalToSkip
                 = com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.RangeUtil
                     .computeDietRange(types);
-            DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0],
-                intervalToSkip[1], this.options);
+            DiagnoseParser diagnoseParser
+                = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1]);
             diagnoseParser.diagnoseParse();
 
             reportSyntaxErrorsForSkippedMethod(types);
             this.scanner.resetTo(start, end);
         } else {
-            DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, this.options);
+            DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end);
             diagnoseParser.diagnoseParse();
         }
     }
@@ -11212,11 +10614,11 @@ public abstract class Parser implements ConflictedParser {
                         if ((method.bits & 32) != 0) {
                             if (method.isAnnotationMethod()) {
                                 DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameQUESTION,
-                                    method.declarationSourceStart, method.declarationSourceEnd, this.options);
+                                    method.declarationSourceStart, method.declarationSourceEnd);
                                 diagnoseParser.diagnoseParse();
                             } else {
                                 DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameDIVIDE,
-                                    method.declarationSourceStart, method.declarationSourceEnd, this.options);
+                                    method.declarationSourceStart, method.declarationSourceEnd);
                                 diagnoseParser.diagnoseParse();
                             }
                         }
@@ -11229,7 +10631,7 @@ public abstract class Parser implements ConflictedParser {
                         if (field instanceof Initializer initializer) {
                             if ((initializer.bits & 32) != 0) {
                                 DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT,
-                                    initializer.declarationSourceStart, initializer.declarationSourceEnd, this.options);
+                                    initializer.declarationSourceStart, initializer.declarationSourceEnd);
                                 diagnoseParser.diagnoseParse();
                             }
                         }
@@ -11244,7 +10646,7 @@ public abstract class Parser implements ConflictedParser {
      */
     protected void resetModifiers() {
         this.modifiers = 0;
-        this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+        this.modifiersSourceStart = -1;
         this.annotationAsModifierSourceStart = -1;
         this.scanner.commentPtr = -1;
     }
@@ -11270,7 +10672,6 @@ public abstract class Parser implements ConflictedParser {
         this.realBlockStack[this.realBlockPtr = 0] = 0;
         this.recoveredStaticInitializerStart = 0;
         this.listLength = 0;
-        this.parsingRecordComponents = false;
         this.listTypeParameterLength = 0;
 
         this.genericsIdentifiersLengthPtr = -1;
@@ -11284,44 +10685,26 @@ public abstract class Parser implements ConflictedParser {
      * Move checkpoint location, reset internal stacks and decide which grammar goal is activated.
      */
     protected int resumeAfterRecovery() {
-        if (!this.methodRecoveryActivated && !this.statementRecoveryActivated) {
+        // reset internal stacks
+        resetStacks();
+        resetModifiers();
 
-            // reset internal stacks
-            resetStacks();
-            resetModifiers();
-
-            /* attempt to move checkpoint location */
-            if (!moveRecoveryCheckpoint()) {
-                return 0;
-            }
-
-            // only look for headers
-            if (this.referenceContext instanceof CompilationUnitDeclaration) {
-                goForHeaders();
-                this.diet = true; // passed this point, will not consider method bodies
-                this.dietInt = 0;
-                return 1;
-            }
-
-            // does not know how to restart
-            return 0;
-        } else if (!this.statementRecoveryActivated) {
-
-            // reset internal stacks
-            resetStacks();
-            resetModifiers();
-
-            /* attempt to move checkpoint location */
-            if (!moveRecoveryCheckpoint()) {
-                return 0;
-            }
-
-            // only look for headers
-            goForHeaders();
-            return 1;
-        } else {
+        /* attempt to move checkpoint location */
+        if (!moveRecoveryCheckpoint()) {
             return 0;
         }
+
+        // only look for headers
+        if (this.referenceContext instanceof CompilationUnitDeclaration) {
+            goForHeaders();
+            this.diet = true; // passed this point, will not consider method bodies
+            this.dietInt = 0;
+            return 1;
+        }
+
+        // does not know how to restart
+        return 0;
+
     }
 
     protected int resumeOnSyntaxError() {
@@ -11330,10 +10713,6 @@ public abstract class Parser implements ConflictedParser {
         if (this.currentElement == null) {
             // Reset javadoc before restart parsing after recovery
             this.javadoc = null;
-
-            // do not investigate deeper in statement recovery
-            if (this.statementRecoveryActivated)
-                return 0;
 
             // build some recovered elements
             this.currentElement = buildInitialRecoveryState();
@@ -11405,7 +10784,7 @@ public abstract class Parser implements ConflictedParser {
         exp.sourceStart = this.intStack[this.intPtr--];
     }
 
-    public boolean automatonWillShift(TerminalToken token, int lastAction) {
+    public boolean automatonWillShift(int token, int lastAction) {
         if (lastAction == 17981) {
             return false;
         }
@@ -11433,7 +10812,7 @@ public abstract class Parser implements ConflictedParser {
             }
             highWaterMark = ++stackTop;
             stackTopState = lastAction; // "push"
-            lastAction = tAction(lastAction, token.tokenNumber()); // can be looked up from a precomputed cache.
+            lastAction = tAction(lastAction, token); // can be looked up from a precomputed cache.
             if (lastAction <= 936) {
                 stackTop--;
                 lastAction += 17981;
@@ -11445,22 +10824,9 @@ public abstract class Parser implements ConflictedParser {
     }
 
     @Override
-    public boolean automatonWillShift(TerminalToken token) {
-        return automatonWillShift(token, this.unstackedAct);
-    }
-
-    @Override
     public boolean isParsingModuleDeclaration() {
         // It can be a null in case of a Vanguard parser, which means no module to be dealt with.
-        return (isParsingJava9Plus() && this.compilationUnit != null && this.compilationUnit.isModuleInfo());
-    }
-
-    protected boolean isParsingJava9Plus() {
-        return this.options != null && this.options.sourceLevel >= 3473408L;
-    }
-
-    protected boolean isParsingJava10Plus() {
-        return this.options != null && this.options.sourceLevel >= 3538944L;
+        return this.compilationUnit != null && this.compilationUnit.isModuleInfo();
     }
 
 }

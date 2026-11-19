@@ -46,15 +46,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilation;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilationUnit;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortMethod;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortType;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.TypeConstants;
 
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext {
     public Argument[] arguments;
@@ -73,15 +66,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 
     public void setArguments(Argument[] arguments) {
         this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
-        for (Argument argument : this.arguments) {
-            if (argument.hasElidedType())
-                this.bits |= 2;
-            else if (argument.type instanceof SingleTypeReference str
-                && CharOperation.equals(str.token, TypeConstants.VAR)) {
-                this.bits |= 2;
-
-            }
-        }
     }
 
     public Argument[] arguments() {
@@ -99,23 +83,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
     @Override
     public CompilationResult compilationResult() {
         return this.compilationResult;
-    }
-
-    @Override
-    public void abort(int abortLevel, IProblem problem) {
-        switch (abortLevel) {
-            case 2:
-                throw new AbortCompilation(problem);
-
-            case 4:
-                throw new AbortCompilationUnit(problem);
-
-            case 8:
-                throw new AbortType(problem);
-
-            default:
-                throw new AbortMethod(problem);
-        }
     }
 
     @Override

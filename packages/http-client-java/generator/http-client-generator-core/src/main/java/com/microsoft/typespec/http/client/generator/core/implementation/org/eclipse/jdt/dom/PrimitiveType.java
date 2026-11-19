@@ -35,9 +35,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * multiple instances of these nodes. </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class PrimitiveType extends AnnotatableType {
 
     /**
@@ -92,11 +90,6 @@ public class PrimitiveType extends AnnotatableType {
     public static final Code VOID = new Code();// $NON-NLS-1$
 
     /**
-     * The primitive type code; one of the PrimitiveType constants; default is int.
-     */
-    private PrimitiveType.Code typeCode = INT;
-
-    /**
      * The "annotations" structural property of this node type (element type: {@link Annotation}).
      *
      * @since 3.10
@@ -125,21 +118,8 @@ public class PrimitiveType extends AnnotatableType {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
-        if (visitChildren) {
-            // visit children in normal left to right reading order
-            acceptChildren(visitor, this.annotations);
-        }
-
-    }
-
-    /**
-     * Returns the primitive type code.
-     *
-     * @return one of the primitive type code constants declared in this class
-     */
-    public PrimitiveType.Code getPrimitiveTypeCode() {
-        return this.typeCode;
+        // visit children in normal left to right reading order
+        acceptChildren(visitor, this.annotations);
     }
 
     /**
@@ -152,8 +132,6 @@ public class PrimitiveType extends AnnotatableType {
         if (typeCode == null) {
             throw new IllegalArgumentException();
         }
-        preValueChange();
-        this.typeCode = typeCode;
 
     }
 }

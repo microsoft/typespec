@@ -14,8 +14,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom;
 
-import java.util.List;
-
 /**
  * Switch case AST node type. A switch case is a special kind of node used only in switch statements. It is a
  * <code>Statement</code> in name only.
@@ -24,45 +22,33 @@ import java.util.List;
  * SwitchCase:
  * 		<b>case</b> Expression  <b>:</b>
  * 		<b>default</b> <b>:</b>
- *
- * Switch case allows multiple expressions and '->' as part of Java 12 preview feature (JEP 325)
- *		<b>case</b> [ Expression { <b>,</b> Expression } ]  <b>{ : | ->}</b>
- *		<b>default</b> <b>{ : | ->}</b>
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class SwitchCase extends Statement {
 
     /**
-     * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
+     * The "expression" structural property of this node type (child type: {@link Expression}).
      *
-     * @since 3.18
+     * @since 3.0
      */
-    public static final ChildListPropertyDescriptor EXPRESSIONS2_PROPERTY
-        = new ChildListPropertyDescriptor(Expression.class, true);
+    public static final ChildPropertyDescriptor EXPRESSION_PROPERTY
+        = new ChildPropertyDescriptor(Expression.class, true);
 
     /**
-     * <code>true</code> indicates "->" and <code>false</code> indicates ":".
+     * The expression; <code>null</code> for the "default:" case.
      */
-    private boolean switchLabeledRule = false;
-
-    /**
-     * The expression list; <code>empty</code> for none;
-     */
-    private ASTNode.NodeList expressions = null;
+    private Expression optionalExpression = null;
 
     /**
      * Creates a new AST node for a switch case pseudo-statement owned by the given AST. By default, there is no
-     * expression, but legal, and switchLabeledRule is false which indicates ":".
+     * expression.
      *
      * @param ast the AST that is to own this node
      */
     SwitchCase(AST ast) {
         super(ast);
-        this.expressions = new ASTNode.NodeList(EXPRESSIONS2_PROPERTY);
     }
 
     @Override
@@ -74,57 +60,40 @@ public class SwitchCase extends Statement {
     void accept0(ASTVisitor visitor) {
         boolean visitChildren = visitor.visit(this);
         if (visitChildren) {
-            acceptChildren(visitor, this.expressions);
+            acceptChild(visitor, this.optionalExpression);
         }
-
     }
 
     /**
-     * Returns the list of expressions of this switch case, or <code>empty</code> if there is none (the "default:"
-     * case).
+     * Returns the expression of this switch case, or <code>null</code> if there is none (the "default:" case).
      *
-     * @return the list of expression nodes (element type: {@link Expression})
-     * @since 3.22
+     * @return the expression node, or <code>null</code> if there is none
      */
-    public List expressions() {
-
-        return this.expressions;
+    public Expression getExpression() {
+        return this.optionalExpression;
     }
 
     /**
-     * Sets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>. <code>true</code>
-     * indicates "->" and <code>false</code> indicates ":".
+     * Sets the expression of this switch case, or clears it (turns it into the "default:" case).
      *
-     * @param switchLabeledRule <code>true</code> or <code>false</code>
-     * @since 3.22
+     * @param expression the expression node, or <code>null</code> to turn it into the "default:" case
+     * @exception IllegalArgumentException if: <ul> <li>the node belongs to a different AST</li> <li>the node already
+     * has a parent</li> <li>a cycle in would be created</li> </ul>
      */
-    public void setSwitchLabeledRule(boolean switchLabeledRule) {
-
-        preValueChange();
-        this.switchLabeledRule = switchLabeledRule;
-
-    }
-
-    /**
-     * Gets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>. <code>true</code>
-     * indicates "->" and <code>false</code> indicates ":".
-     *
-     * @return switchLabeledRule <code>true</code> or <code>false</code>
-     * @since 3.22
-     */
-    public boolean isSwitchLabeledRule() {
-
-        return this.switchLabeledRule;
+    public void setExpression(Expression expression) {
+        ASTNode oldChild = this.optionalExpression;
+        preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
+        this.optionalExpression = expression;
     }
 
     /**
      * Returns whether this switch case represents the "default:" case. <p> This convenience method is equivalent to
-     * <code>getExpression() == null</code> or <code>expressions().isEmpty()</code>. </p>
+     * <code>getExpression() == null</code>. </p>
      *
      * @return <code>true</code> if this is the default switch case, and <code>false</code> if this is a non-default
      * switch case
      */
     public boolean isDefault() {
-        return expressions().isEmpty();
+        return this.optionalExpression == null;
     }
 }

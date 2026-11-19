@@ -34,9 +34,7 @@ import java.util.List;
  * </p> <p> {@link QualifiedType} discusses typical representations of qualified type references. </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ClassInstanceCreation extends Expression {
 
     /**
@@ -90,7 +88,7 @@ public class ClassInstanceCreation extends Expression {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList typeArguments = null;
+    private final ASTNode.NodeList<Type> typeArguments;
 
     /**
      * The type; lazily initialized; defaults to a unspecified type.
@@ -102,7 +100,7 @@ public class ClassInstanceCreation extends Expression {
     /**
      * The list of argument expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList arguments = new ASTNode.NodeList(ARGUMENTS_PROPERTY);
+    private final ASTNode.NodeList<Expression> arguments = new ASTNode.NodeList<>(ARGUMENTS_PROPERTY);
 
     /**
      * The optional anonymous class declaration; <code>null</code> for none; defaults to none.
@@ -119,7 +117,7 @@ public class ClassInstanceCreation extends Expression {
      */
     ClassInstanceCreation(AST ast) {
         super(ast);
-        this.typeArguments = new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
+        this.typeArguments = new ASTNode.NodeList<>(TYPE_ARGUMENTS_PROPERTY);
     }
 
     @Override
@@ -173,9 +171,7 @@ public class ClassInstanceCreation extends Expression {
      * @return the live list of type arguments (element type: {@link Type})
      * @since 3.1
      */
-    public List typeArguments() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<Type> typeArguments() {
         return this.typeArguments;
     }
 
@@ -217,7 +213,7 @@ public class ClassInstanceCreation extends Expression {
      *
      * @return the live list of argument expressions (possibly empty) (element type: {@link Expression})
      */
-    public List arguments() {
+    public List<Expression> arguments() {
         return this.arguments;
     }
 

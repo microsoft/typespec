@@ -26,9 +26,7 @@ import java.util.List;
  * </pre>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class TypeParameter extends ASTNode {
 
     /**
@@ -59,13 +57,13 @@ public class TypeParameter extends ASTNode {
     /**
      * The type bounds (element type: {@link Type}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList typeBounds = new ASTNode.NodeList(TYPE_BOUNDS_PROPERTY);
+    private final ASTNode.NodeList<Type> typeBounds = new ASTNode.NodeList<>(TYPE_BOUNDS_PROPERTY);
 
     /**
      * The modifiers (element type: {@link IExtendedModifier}). Null in JLS < 8. Added in JLS8; defaults to an empty
      * list (see constructor).
      */
-    private ASTNode.NodeList modifiers = null;
+    private final ASTNode.NodeList<IExtendedModifier> modifiers;
 
     /**
      * Creates a new unparented node for a parameterized type owned by the given AST. By default, an unspecified, but
@@ -76,7 +74,7 @@ public class TypeParameter extends ASTNode {
     TypeParameter(AST ast) {
         super(ast);
 
-        this.modifiers = new ASTNode.NodeList(MODIFIERS_PROPERTY);
+        this.modifiers = new ASTNode.NodeList<>(MODIFIERS_PROPERTY);
     }
 
     @Override
@@ -130,7 +128,7 @@ public class TypeParameter extends ASTNode {
      *
      * @return the live list of type bounds (element type: {@link Type})
      */
-    public List typeBounds() {
+    public List<Type> typeBounds() {
         return this.typeBounds;
     }
 
@@ -140,9 +138,7 @@ public class TypeParameter extends ASTNode {
      * @return the live list of modifiers (element type: {@link IExtendedModifier})
      * @since 3.10
      */
-    public List modifiers() {
-        // more efficient than just calling unsupportedIn2_3_4() to check
-
+    public List<IExtendedModifier> modifiers() {
         return this.modifiers;
     }
 }

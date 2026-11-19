@@ -36,10 +36,6 @@ import java.util.List;
  *        <b>)</b> { Dimension }
  *        [ <b>throws</b> Type { <b>,</b> Type } ]
  *        ( Block | <b>;</b> )
- * CompactConstructorDeclaration:
- *    [ Javadoc ] ExtendedModifier { ExtendedModifier}
- *        Identifier
- *        ( Block | <b>;</b> )
  * </pre>
  *
  * <p> The ReceiverParameter is represented as: <code>Type [ SimpleName <b>.</b> ] <b>this</b></code><br> The
@@ -49,12 +45,10 @@ import java.util.List;
  * of the "&lt;" token (method, no modifiers, type parameters), or the first character of the return type (method, no
  * modifiers, no type parameters), or the first character of the identifier (constructor, no modifiers). The source
  * range extends through the last character of the ";" token (if no body), or the last character of the block (if body).
- * The compact constructor must be declared public. (jls-8.10.5) </p>
+ * </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class MethodDeclaration extends BodyDeclaration {
 
     /**
@@ -171,7 +165,7 @@ public class MethodDeclaration extends BodyDeclaration {
     /**
      * The parameter declarations (element type: {@link SingleVariableDeclaration}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList parameters = new ASTNode.NodeList(PARAMETERS_PROPERTY);
+    private final ASTNode.NodeList<SingleVariableDeclaration> parameters = new ASTNode.NodeList<>(PARAMETERS_PROPERTY);
 
     /**
      * The return type. JLS2 behavior: lazily initialized; defaults to void. JLS3 and later: lazily initialized;
@@ -192,7 +186,7 @@ public class MethodDeclaration extends BodyDeclaration {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList typeParameters = null;
+    private final ASTNode.NodeList<TypeParameter> typeParameters;
 
     /**
      * List of extra dimensions this node has with optional annotations (element type: {@link Dimension}). Null before
@@ -200,7 +194,7 @@ public class MethodDeclaration extends BodyDeclaration {
      *
      * @since 3.10
      */
-    private ASTNode.NodeList extraDimensions = null;
+    private final ASTNode.NodeList<Dimension> extraDimensions;
 
     /**
      * The list of thrown exception Types (element type: {@link Type}). Null before JLS8. Added in JLS8; defaults to an
@@ -208,7 +202,7 @@ public class MethodDeclaration extends BodyDeclaration {
      *
      * @since 3.10
      */
-    private ASTNode.NodeList thrownExceptionTypes = null;
+    private final ASTNode.NodeList<Type> thrownExceptionTypes;
 
     /**
      * The method body, or <code>null</code> if none. Defaults to none.
@@ -226,9 +220,9 @@ public class MethodDeclaration extends BodyDeclaration {
      */
     MethodDeclaration(AST ast) {
         super(ast);
-        this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
-        this.extraDimensions = new ASTNode.NodeList(EXTRA_DIMENSIONS2_PROPERTY);
-        this.thrownExceptionTypes = new ASTNode.NodeList(THROWN_EXCEPTION_TYPES_PROPERTY);
+        this.typeParameters = new ASTNode.NodeList<>(TYPE_PARAMETERS_PROPERTY);
+        this.extraDimensions = new ASTNode.NodeList<>(EXTRA_DIMENSIONS2_PROPERTY);
+        this.thrownExceptionTypes = new ASTNode.NodeList<>(THROWN_EXCEPTION_TYPES_PROPERTY);
     }
 
     @Override
@@ -284,21 +278,8 @@ public class MethodDeclaration extends BodyDeclaration {
      * declaration
      */
     public void setConstructor(boolean isConstructor) {
-        preValueChange();
         this.isConstructor = isConstructor;
 
-    }
-
-    /**
-     * Returns whether this declaration declares a constructor or a method.
-     *
-     * @return <code>true</code> if this is a compact constructor declaration in a record, and <code>false</code> if
-     * this is a method declaration
-     * @since 3.26
-     */
-    public boolean isCompactConstructor() {
-
-        return false;
     }
 
     /**
@@ -308,9 +289,7 @@ public class MethodDeclaration extends BodyDeclaration {
      * @return the live list of type parameters (element type: {@link TypeParameter})
      * @since 3.1
      */
-    public List typeParameters() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<TypeParameter> typeParameters() {
         return this.typeParameters;
     }
 
@@ -345,7 +324,7 @@ public class MethodDeclaration extends BodyDeclaration {
 
     /**
      * Returns the receiver type explicitly declared in the method or constructor declaration (added in JLS8 API).
-     *
+     * <p>
      * If the receiver is not explicitly declared in the method or constructor declaration, <code>null</code> is
      * returned.
      *
@@ -391,7 +370,7 @@ public class MethodDeclaration extends BodyDeclaration {
      *
      * @return the live list of method parameter declarations (element type: {@link SingleVariableDeclaration})
      */
-    public List parameters() {
+    public List<SingleVariableDeclaration> parameters() {
         return this.parameters;
     }
 
@@ -401,7 +380,7 @@ public class MethodDeclaration extends BodyDeclaration {
      * @return the live list of exception types (element type: {@link Type})
      * @since 3.10
      */
-    public List thrownExceptionTypes() {
+    public List<Type> thrownExceptionTypes() {
 
         return this.thrownExceptionTypes;
     }
@@ -452,9 +431,7 @@ public class MethodDeclaration extends BodyDeclaration {
      * @return the live list of extra dimensions with optional annotations (element type: {@link Dimension})
      * @since 3.10
      */
-    public List extraDimensions() {
-        // more efficient than just calling unsupportedIn2_3_4() to check
-
+    public List<Dimension> extraDimensions() {
         return this.extraDimensions;
     }
 

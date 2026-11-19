@@ -14,22 +14,13 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameNotAToken;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameStringLiteral;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameTextBlock;
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ASTNode;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Expression;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.InfixExpression;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.InfixExpression.Operator;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.StringLiteral;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.TypeDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.Token.WrapMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -46,31 +37,21 @@ public class TokenManager implements Iterable<Token> {
 
     private final List<Token> tokens;
     private final String source;
-    private final int confTabSize;
-    private final int tabChar;
-    private final boolean wrapWithSpaces;
 
     final CommentWrapExecutor commentWrapper;
 
-    private HashMap<Integer, Integer> tokenIndexToNLSAlign;
     private final List<Token[]> formatOffTagPairs = new ArrayList<>();
     private int headerEndIndex = 0;
 
     public TokenManager(List<Token> tokens, String source, DefaultCodeFormatterOptions options) {
         this.tokens = tokens;
         this.source = source;
-        this.confTabSize = options.tab_size;
-        this.tabChar = options.tab_char;
-        this.wrapWithSpaces = options.use_tabs_only_for_leading_indentations;
         this.commentWrapper = new CommentWrapExecutor(this, options);
     }
 
     public TokenManager(List<Token> tokens, TokenManager parent) {
         this.tokens = tokens;
         this.source = parent.source;
-        this.confTabSize = parent.confTabSize;
-        this.tabChar = parent.tabChar;
-        this.wrapWithSpaces = parent.wrapWithSpaces;
         this.commentWrapper = parent.commentWrapper;
     }
 
@@ -145,7 +126,7 @@ public class TokenManager implements Iterable<Token> {
         return this.source.length();
     }
 
-    public int findIndex(int positionInSource, TerminalToken tokenType, boolean forward) {
+    public int findIndex(int positionInSource, int tokenType, boolean forward) {
         // binary search
         int left = 0, right = size() - 1;
         while (left < right) {
@@ -166,15 +147,7 @@ public class TokenManager implements Iterable<Token> {
             index--;
         if (forward && get(index).originalEnd < positionInSource)
             index++;
-        Token t;
-        while (tokenType != TerminalToken.TokenNameInvalid && (t = get(index)).tokenType != tokenType) {
-            if (TerminalToken.isRestrictedKeyword(tokenType) && t.tokenType == TerminalToken.TokenNameIdentifier) {
-                if (tokenType == TerminalToken.getRestrictedKeyword(toString(t)))
-                    break;
-            }
-            if (t.tokenType == TerminalToken.TokenNameUNDERSCORE && tokenType == TerminalToken.TokenNameIdentifier) {
-                break;
-            }
+        while (tokenType != TerminalToken.TokenNameInvalid && get(index).tokenType != tokenType) {
             index += forward ? 1 : -1;
         }
         return index;
@@ -189,39 +162,39 @@ public class TokenManager implements Iterable<Token> {
         return this.tokens.stream();
     }
 
-    public int firstIndexIn(ASTNode node, TerminalToken tokenType) {
+    public int firstIndexIn(ASTNode node, int tokenType) {
         int index = findIndex(node.getStartPosition(), tokenType, true);
         assert tokenInside(node, index);
         return index;
     }
 
-    public Token firstTokenIn(ASTNode node, TerminalToken tokenType) {
+    public Token firstTokenIn(ASTNode node, int tokenType) {
         return get(firstIndexIn(node, tokenType));
     }
 
-    public int lastIndexIn(ASTNode node, TerminalToken tokenType) {
+    public int lastIndexIn(ASTNode node, int tokenType) {
         int index = findIndex(node.getStartPosition() + node.getLength() - 1, tokenType, false);
         assert tokenInside(node, index);
         return index;
     }
 
-    public Token lastTokenIn(ASTNode node, TerminalToken tokenType) {
+    public Token lastTokenIn(ASTNode node, int tokenType) {
         return get(lastIndexIn(node, tokenType));
     }
 
-    public int firstIndexAfter(ASTNode node, TerminalToken tokenType) {
+    public int firstIndexAfter(ASTNode node, int tokenType) {
         return findIndex(node.getStartPosition() + node.getLength(), tokenType, true);
     }
 
-    public Token firstTokenAfter(ASTNode node, TerminalToken tokenType) {
+    public Token firstTokenAfter(ASTNode node, int tokenType) {
         return get(firstIndexAfter(node, tokenType));
     }
 
-    public int firstIndexBefore(ASTNode node, TerminalToken tokenType) {
+    public int firstIndexBefore(ASTNode node, int tokenType) {
         return findIndex(node.getStartPosition() - 1, tokenType, false);
     }
 
-    public Token firstTokenBefore(ASTNode node, TerminalToken tokenType) {
+    public Token firstTokenBefore(ASTNode node, int tokenType) {
         return get(firstIndexBefore(node, tokenType));
     }
 
@@ -261,20 +234,12 @@ public class TokenManager implements Iterable<Token> {
                 return false;
             }
             if (traversed.hasNLSTag()) {
-                assert traversed.tokenType == TokenNameStringLiteral || traversed.tokenType == TokenNameTextBlock;
+                assert traversed.tokenType == TokenNameStringLiteral;
                 this.isNLSTagInLine = true;
             }
             if (traversed.getAlign() > 0)
                 this.counter = traversed.getAlign();
-            if (traversed.tokenType == TokenNameTextBlock) {
-                List<Token> lines = traversed.getInternalStructure();
-                if (lines == null) {
-                    this.counter = getLength(traversed, 0);
-                } else {
-                    this.counter = traversed.getIndent() + lines.get(1).getIndent();
-                    this.counter += getLength(lines.get(lines.size() - 1), this.counter);
-                }
-            } else if (traversed.isComment()) {
+            if (traversed.isComment()) {
                 assert traversed.tokenType != TokenNameCOMMENT_LINE;
                 this.counter = TokenManager.this.commentWrapper.wrapMultiLineComment(traversed, this.counter, true,
                     this.isNLSTagInLine);
@@ -292,7 +257,7 @@ public class TokenManager implements Iterable<Token> {
         // find the first token in line and calculate position of given token
         int firstTokenIndex = token.getLineBreaksBefore() > 0 ? tokenIndex : findFirstTokenInLine(tokenIndex);
         Token firstToken = get(firstTokenIndex);
-        int startingPosition = toIndent(firstToken.getIndent(), firstToken.getWrapPolicy() != null);
+        int startingPosition = toIndent(firstToken.getIndent());
 
         this.positionInLineCounter.value = tokenIndex;
         this.positionInLineCounter.counter = startingPosition;
@@ -350,16 +315,11 @@ public class TokenManager implements Iterable<Token> {
      * @return length, considering tabs and escaping characters as HTML entities
      */
     public int getLength(int originalStart, int originalEnd, int startPosition) {
-        return getLength(originalStart, originalEnd, startPosition, this.confTabSize);
-    }
-
-    public int getLength(int originalStart, int originalEnd, int startPosition, int tabSize) {
         int position = startPosition;
         for (int i = originalStart; i <= originalEnd; i++) {
             switch (this.source.charAt(i)) {
                 case '\t':
-                    if (tabSize > 0)
-                        position += tabSize - position % tabSize;
+                    position += 4 - position % 4;
                     break;
 
                 case '\r':
@@ -376,16 +336,9 @@ public class TokenManager implements Iterable<Token> {
 
     /**
      * @param indent desired indentation (in positions, not in levels)
-     * @param isWrapped whether indented element is wrapped
      * @return actual indentation that can be achieved with current settings
      */
-    public int toIndent(int indent, boolean isWrapped) {
-        if (this.tabChar == 1 && !(isWrapped && this.wrapWithSpaces)) {
-            int tab = this.confTabSize;
-            if (tab <= 0)
-                return 0;
-            indent = ((indent + tab - 1) / tab) * tab;
-        }
+    public int toIndent(int indent) {
         return indent;
     }
 
@@ -394,16 +347,16 @@ public class TokenManager implements Iterable<Token> {
     }
 
     public int findFirstTokenInLine(int startIndex) {
-        return findFirstTokenInLine(startIndex, false, false);
+        return findFirstTokenInLine(startIndex, false);
     }
 
-    public int findFirstTokenInLine(int startIndex, boolean includeWraps, boolean includeIndents) {
+    public int findFirstTokenInLine(int startIndex, boolean includeIndents) {
         Token previous = get(startIndex); // going backwards, previous has higher index than current
         for (int i = startIndex - 1; i >= 0; i--) {
             Token token = get(i);
             if (token.getLineBreaksAfter() > 0 || previous.getLineBreaksBefore() > 0) {
                 boolean include = previous.getWrapPolicy() != null
-                    && (previous.getWrapPolicy().wrapMode() == WrapMode.BLOCK_INDENT ? includeIndents : includeWraps);
+                    && (previous.getWrapPolicy().wrapMode() == WrapMode.BLOCK_INDENT && includeIndents);
                 if (!include)
                     return i + 1;
             }
@@ -417,37 +370,13 @@ public class TokenManager implements Iterable<Token> {
             && get(index).originalEnd <= node.getStartPosition() + node.getLength();
     }
 
-    public boolean isStringConcatenation(InfixExpression node) {
-        if (!node.getOperator().equals(Operator.PLUS))
-            return false;
-        List<Expression> operands = new ArrayList<Expression>(node.extendedOperands());
-        operands.add(node.getLeftOperand());
-        operands.add(node.getRightOperand());
-        for (Expression o : operands) {
-            if (o instanceof StringLiteral)
-                return true;
-            if ((o instanceof InfixExpression) && isStringConcatenation((InfixExpression) o))
-                return true;
-        }
-        return false;
-    }
-
     public boolean isFake(TypeDeclaration node) {
         // might be a fake type created by parsing in class body mode
         return node.getName().getStartPosition() == -1;
     }
 
-    public void addNLSAlignIndex(int index, int align) {
-        if (this.tokenIndexToNLSAlign == null)
-            this.tokenIndexToNLSAlign = new HashMap<>();
-        this.tokenIndexToNLSAlign.put(index, align);
-    }
-
-    public int getNLSAlign(int index) {
-        if (this.tokenIndexToNLSAlign == null)
-            return 0;
-        Integer align = this.tokenIndexToNLSAlign.get(index);
-        return align != null ? align : 0;
+    public int getNLSAlign() {
+        return 0;
     }
 
     public void setHeaderEndIndex(int headerEndIndex) {

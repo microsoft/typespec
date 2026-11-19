@@ -15,14 +15,11 @@
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler;
 
 /*
- * Implementors are valid compilation contexts from which we can
- * escape in case of error:
- * For example: method, type, compilation unit or a lambda expression.
+ * Implementors are compilation contexts that problems are reported against,
+ * for example a method, type, compilation unit, or lambda expression.
  */
 
 public interface ReferenceContext {
-
-    void abort(int abortLevel, IProblem problem);
 
     CompilationResult compilationResult();
 

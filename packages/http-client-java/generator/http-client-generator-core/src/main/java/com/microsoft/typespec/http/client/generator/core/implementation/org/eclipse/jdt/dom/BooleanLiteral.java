@@ -25,9 +25,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class BooleanLiteral extends Expression {
 
     /**
@@ -47,16 +45,5 @@ public class BooleanLiteral extends Expression {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit(this);
-
-    }
-
-    /**
-     * Sets the boolean value of this boolean literal node.
-     *
-     */
-    public void setBooleanValue() {
-        preValueChange();
-
     }
 }

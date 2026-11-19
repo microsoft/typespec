@@ -25,14 +25,13 @@ import java.util.List;
  *    [ Javadoc ] { Annotation } <b>package</b> Name <b>;</b>
  * </pre>
  *
+ * <p>
  * Note that the standard AST parser only recognizes a Javadoc comment immediately preceding the package declaration
  * when it occurs in the special <code>package-info.java</code> compilation unit (JLS3 7.4.1.1). The Javadoc comment in
  * that file contains the package description.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class PackageDeclaration extends ASTNode {
 
     /**
@@ -70,7 +69,7 @@ public class PackageDeclaration extends ASTNode {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList annotations = null;
+    private final ASTNode.NodeList<Annotation> annotations;
 
     /**
      * The package name; lazily initialized; defaults to a unspecified, legal Java package identifier.
@@ -87,7 +86,7 @@ public class PackageDeclaration extends ASTNode {
      */
     PackageDeclaration(AST ast) {
         super(ast);
-        this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+        this.annotations = new ASTNode.NodeList<>(ANNOTATIONS_PROPERTY);
     }
 
     @Override
@@ -112,9 +111,7 @@ public class PackageDeclaration extends ASTNode {
      * @return the live list of annotations (element type: {@link Annotation})
      * @since 3.1
      */
-    public List annotations() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<Annotation> annotations() {
         return this.annotations;
     }
 
@@ -125,8 +122,6 @@ public class PackageDeclaration extends ASTNode {
      * @since 3.0
      */
     public Javadoc getJavadoc() {
-        // more efficient than just calling unsupportedIn2() to check
-
         return this.optionalDocComment;
     }
 
@@ -138,8 +133,6 @@ public class PackageDeclaration extends ASTNode {
      * @since 3.0
      */
     public void setJavadoc(Javadoc docComment) {
-        // more efficient than just calling unsupportedIn2() to check
-
         ASTNode oldChild = this.optionalDocComment;
         preReplaceChild(oldChild, docComment, JAVADOC_PROPERTY);
         this.optionalDocComment = docComment;

@@ -43,9 +43,4 @@
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
 public abstract class Statement extends ASTNode {
-
-    // for switch statement
-    public boolean isTrulyExpression() {
-        return false;
-    }
 }

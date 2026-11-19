@@ -191,9 +191,7 @@ public class RecoveredInitializer extends RecoveredField {
                 return this; // ignore
             return this.parent.add(typeDeclaration, bracketBalanceValue);
         }
-        if ((typeDeclaration.bits & 256) != 0
-            || parser().methodRecoveryActivated
-            || parser().statementRecoveryActivated) {
+        if ((typeDeclaration.bits & 256) != 0) {
             /* method body should have been created */
             Block block = new Block(0);
             block.sourceStart = this.fieldDeclaration.sourceStart;
@@ -273,16 +271,6 @@ public class RecoveredInitializer extends RecoveredField {
     @Override
     public FieldDeclaration updatedFieldDeclaration(int depth, Set<TypeDeclaration> knownTypes) {
         if (this.initializerBody != null) {
-            Block block = this.initializerBody.updatedBlock(depth, knownTypes);
-            if (block != null) {
-                Initializer initializer = (Initializer) this.fieldDeclaration;
-                initializer.block = block;
-
-                if (initializer.declarationSourceEnd == 0) {
-                    initializer.declarationSourceEnd = block.sourceEnd;
-                    initializer.bodyEnd = block.sourceEnd;
-                }
-            }
             if (this.localTypeCount > 0)
                 this.fieldDeclaration.bits |= 2;
         }

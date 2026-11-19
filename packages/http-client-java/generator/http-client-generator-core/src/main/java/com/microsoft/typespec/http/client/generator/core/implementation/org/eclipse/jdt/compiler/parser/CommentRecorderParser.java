@@ -255,9 +255,7 @@ public class CommentRecorderParser extends Parser {
      */
     @Override
     public void initializeScanner() {
-        this.scanner = new Scanner(false /* comment */, this.options.sourceLevel /* sourceLevel */,
-            this.options.taskTags/* taskTags */, this.options.taskPriorities/* taskPriorities */,
-            true/* taskCaseSensitive */, false /* isPreviewEnabled */);
+        this.scanner = new Scanner(false /* comment */);
     }
 
     /*

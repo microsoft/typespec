@@ -16,7 +16,6 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameARROW;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOLON;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMA;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
@@ -34,7 +33,6 @@ import static com.microsoft.typespec.http.client.generator.core.implementation.o
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameRPAREN;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameSEMICOLON;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameStringLiteral;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameTextBlock;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNamecase;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameenum;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameextends;
@@ -44,9 +42,7 @@ import static com.microsoft.typespec.http.client.generator.core.implementation.o
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNamethis;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNamethrows;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameto;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNamewhile;
 import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNamewith;
-import static java.util.stream.Collectors.toList;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ASTNode;
@@ -59,7 +55,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.AssertStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Assignment;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Block;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.CatchClause;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ClassInstanceCreation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ConditionalExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ConstructorInvocation;
@@ -79,7 +74,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.InfixExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.InfixExpression.Operator;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.LambdaExpression;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.MemberValuePair;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.MethodDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.MethodInvocation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Name;
@@ -89,7 +83,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ParameterizedType;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ProvidesDirective;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.QualifiedName;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SingleMemberAnnotation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SingleVariableDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Statement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SuperConstructorInvocation;
@@ -97,8 +90,6 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SuperMethodInvocation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SuperMethodReference;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SwitchCase;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SwitchExpression;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.SwitchStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ThisExpression;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.TryStatement;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Type;
@@ -114,13 +105,8 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.Token.WrapMode;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.Token.WrapPolicy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
 
 public class WrapPreparator extends ASTVisitor {
 
@@ -128,7 +114,6 @@ public class WrapPreparator extends ASTVisitor {
      * Helper for common handling of all expressions that should be treated the same as {@link FieldAccess}
      */
     private record FieldAccessAdapter(Expression accessExpression) {
-
         public static boolean isFieldAccess(ASTNode expr) {
             return expr instanceof FieldAccess
                 || expr instanceof QualifiedName
@@ -161,68 +146,9 @@ public class WrapPreparator extends ASTVisitor {
         }
     }
 
-    private static final Map<Operator, Integer> OPERATOR_PRECEDENCE;
-    private static final Map<Operator, ToIntFunction<DefaultCodeFormatterOptions>> OPERATOR_WRAPPING_OPTION;
-    private static final Map<Operator, Predicate<DefaultCodeFormatterOptions>> OPERATOR_WRAP_BEFORE_OPTION;
-
-    static {
-        HashMap<Operator, Integer> precedence = new HashMap<>();
-        HashMap<Operator, ToIntFunction<DefaultCodeFormatterOptions>> wrappingOption = new HashMap<>();
-        HashMap<Operator, Predicate<DefaultCodeFormatterOptions>> wrapBeforeOption = new HashMap<>();
-        for (Operator op : Arrays.asList(Operator.TIMES, Operator.DIVIDE, Operator.REMAINDER)) {
-            precedence.put(op, 1);
-            wrappingOption.put(op, o -> o.alignment_for_multiplicative_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_multiplicative_operator);
-        }
-        for (Operator op : Arrays.asList(Operator.PLUS, Operator.MINUS)) {
-            precedence.put(op, 2);
-            wrappingOption.put(op, o -> o.alignment_for_additive_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_additive_operator);
-        }
-        for (Operator op : Arrays.asList(Operator.LEFT_SHIFT, Operator.RIGHT_SHIFT_SIGNED,
-            Operator.RIGHT_SHIFT_UNSIGNED)) {
-            precedence.put(op, 3);
-            wrappingOption.put(op, o -> o.alignment_for_shift_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_shift_operator);
-        }
-        for (Operator op : Arrays.asList(Operator.LESS, Operator.GREATER, Operator.LESS_EQUALS,
-            Operator.GREATER_EQUALS)) {
-            precedence.put(op, 4);
-            wrappingOption.put(op, o -> o.alignment_for_relational_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_relational_operator);
-        }
-        for (Operator op : Arrays.asList(Operator.EQUALS, Operator.NOT_EQUALS)) {
-            precedence.put(op, 5);
-            wrappingOption.put(op, o -> o.alignment_for_relational_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_relational_operator);
-        }
-
-        precedence.put(Operator.AND, 6);
-        precedence.put(Operator.XOR, 7);
-        precedence.put(Operator.OR, 8);
-        for (Operator op : Arrays.asList(Operator.AND, Operator.XOR, Operator.OR)) {
-            wrappingOption.put(op, o -> o.alignment_for_bitwise_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_bitwise_operator);
-        }
-
-        precedence.put(Operator.CONDITIONAL_AND, 9);
-        precedence.put(Operator.CONDITIONAL_OR, 10);
-        for (Operator op : Arrays.asList(Operator.CONDITIONAL_AND, Operator.CONDITIONAL_OR)) {
-            wrappingOption.put(op, o -> o.alignment_for_logical_operator);
-            wrapBeforeOption.put(op, o -> o.wrap_before_logical_operator);
-        }
-        // ternary and assignment operators not relevant to infix expressions
-
-        OPERATOR_PRECEDENCE = Collections.unmodifiableMap(precedence);
-        OPERATOR_WRAPPING_OPTION = Collections.unmodifiableMap(wrappingOption);
-        OPERATOR_WRAP_BEFORE_OPTION = Collections.unmodifiableMap(wrapBeforeOption);
-    }
-
     final TokenManager tm;
     final DefaultCodeFormatterOptions options;
     final int kind;
-
-    final Aligner aligner;
 
     /*
      * temporary values used when calling {@link #handleWrap(int)} to avoid ArrayList initialization and long lists of
@@ -241,8 +167,6 @@ public class WrapPreparator extends ASTVisitor {
         this.tm = tokenManager;
         this.options = options;
         this.kind = kind;
-
-        this.aligner = new Aligner(this.tm, this.options);
     }
 
     @Override
@@ -267,31 +191,19 @@ public class WrapPreparator extends ASTVisitor {
 
     @Override
     public boolean visit(PackageDeclaration node) {
-        handleAnnotations(node.annotations(), this.options.alignment_for_annotations_on_package);
+        handleAnnotations(node.annotations(), 49);
         return true;
     }
 
     @Override
     public boolean visit(NormalAnnotation node) {
-        int lParen = this.tm.firstIndexAfter(node.getTypeName(), TokenNameLPAREN);
-        int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_annotation);
-
-        handleArguments(node.values(), this.options.alignment_for_arguments_in_annotation);
-        return true;
-    }
-
-    @Override
-    public boolean visit(SingleMemberAnnotation node) {
-        int lParen = this.tm.firstIndexAfter(node.getTypeName(), TokenNameLPAREN);
-        int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_annotation);
+        handleArguments(node.values(), 48);
         return true;
     }
 
     @Override
     public boolean visit(TypeDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_type);
+        handleAnnotations(node.modifiers(), 49);
 
         Type superclassType = node.getSuperclassType();
         if (superclassType != null) {
@@ -299,82 +211,58 @@ public class WrapPreparator extends ASTVisitor {
             this.wrapGroupEnd = this.tm.lastIndexIn(superclassType, TerminalToken.TokenNameInvalid);
             this.wrapIndexes.add(this.tm.firstIndexBefore(superclassType, TokenNameextends));
             this.wrapIndexes.add(this.tm.firstIndexIn(superclassType, TerminalToken.TokenNameInvalid));
-            handleWrap(this.options.alignment_for_superclass_in_type_declaration, 0.875f);
+            handleWrap(0.875f);
         }
 
         List<Type> superInterfaceTypes = node.superInterfaceTypes();
         if (!superInterfaceTypes.isEmpty()) {
-            TerminalToken implementsToken = node.isInterface() ? TokenNameextends : TokenNameimplements;
+            int implementsToken = node.isInterface() ? TokenNameextends : TokenNameimplements;
             this.wrapParentIndex = this.tm.lastIndexIn(node.getName(), TerminalToken.TokenNameInvalid);
             this.wrapIndexes.add(this.tm.firstIndexBefore(superInterfaceTypes.get(0), implementsToken));
             prepareElementsList(superInterfaceTypes, TokenNameCOMMA, TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_superinterfaces_in_type_declaration, 0.875f);
+            handleWrap(0.875f);
         }
 
         prepareElementsList(node.typeParameters(), TokenNameCOMMA, TokenNameLESS);
-        handleWrap(this.options.alignment_for_type_parameters);
-
-        this.aligner.handleAlign(node.bodyDeclarations());
+        handleWrap(0);
 
         return true;
     }
 
     @Override
     public boolean visit(AnnotationTypeDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_type);
-        this.aligner.handleAlign(node.bodyDeclarations());
+        handleAnnotations(node.modifiers(), 49);
         return true;
     }
 
     @Override
     public boolean visit(AnnotationTypeMemberDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_method);
-        return true;
-    }
-
-    @Override
-    public boolean visit(AnonymousClassDeclaration node) {
-        this.aligner.handleAlign(node.bodyDeclarations());
+        handleAnnotations(node.modifiers(), 49);
         return true;
     }
 
     @Override
     public boolean visit(MethodDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_method);
-
-        if (!node.isCompactConstructor()) {
-            int lParen = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
-            int rParen = node.getBody() == null
-                ? this.tm.lastIndexIn(node, TokenNameRPAREN)
-                : this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-            handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_declaration);
-        }
+        handleAnnotations(node.modifiers(), 49);
 
         List<SingleVariableDeclaration> parameters = node.parameters();
         Type receiverType = node.getReceiverType();
         if (!parameters.isEmpty() || receiverType != null) {
             if (receiverType != null)
                 this.wrapIndexes.add(this.tm.firstIndexIn(receiverType, TerminalToken.TokenNameInvalid));
-            int wrappingOption = node.isConstructor()
-                ? this.options.alignment_for_parameters_in_constructor_declaration
-                : this.options.alignment_for_parameters_in_method_declaration;
             this.wrapGroupEnd
                 = this.tm.lastIndexIn(parameters.isEmpty() ? receiverType : parameters.get(parameters.size() - 1),
                     TerminalToken.TokenNameInvalid);
-            handleArguments(parameters, wrappingOption);
+            handleArguments(parameters, 16);
         }
 
         List<Type> exceptionTypes = node.thrownExceptionTypes();
         if (!exceptionTypes.isEmpty()) {
-            int wrappingOption = node.isConstructor()
-                ? this.options.alignment_for_throws_clause_in_constructor_declaration
-                : this.options.alignment_for_throws_clause_in_method_declaration;
-            if ((wrappingOption & 2) == 0)
-                this.wrapParentIndex = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
+            this.wrapParentIndex = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
             prepareElementsList(exceptionTypes, TokenNameCOMMA, TokenNameRPAREN);
             // instead of the first exception type, wrap the "throws" token
             this.wrapIndexes.set(0, this.tm.firstIndexBefore(exceptionTypes.get(0), TokenNamethrows));
-            handleWrap(wrappingOption, 0.5f);
+            handleWrap(0.5f);
         }
 
         if (!node.isConstructor()) {
@@ -393,51 +281,27 @@ public class WrapPreparator extends ASTVisitor {
                 this.wrapParentIndex++;
             if (this.wrapParentIndex == this.wrapIndexes.get(0))
                 this.wrapIndexes.remove(0);
-            handleWrap(this.options.alignment_for_method_declaration);
+            handleWrap(16);
         }
 
         prepareElementsList(node.typeParameters(), TokenNameCOMMA, TokenNameLESS);
-        handleWrap(this.options.alignment_for_type_parameters);
+        handleWrap(0);
 
         return true;
     }
 
     @Override
     public boolean visit(EnumDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_type);
+        handleAnnotations(node.modifiers(), 49);
 
         List<EnumConstantDeclaration> enumConstants = node.enumConstants();
-        int constantsEnd = -1;
         if (!enumConstants.isEmpty()) {
             for (EnumConstantDeclaration constant : enumConstants)
                 this.wrapIndexes.add(this.tm.firstIndexIn(constant, TerminalToken.TokenNameInvalid));
-            this.wrapParentIndex = (this.options.alignment_for_enum_constants & 2) > 0
-                ? this.tm.firstIndexBefore(enumConstants.get(0), TokenNameLBRACE)
-                : this.tm.firstIndexIn(node, TokenNameenum);
-            this.wrapGroupEnd = constantsEnd
+            this.wrapParentIndex = this.tm.firstIndexIn(node, TokenNameenum);
+            this.wrapGroupEnd
                 = this.tm.lastIndexIn(enumConstants.get(enumConstants.size() - 1), TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_enum_constants, node);
-        }
-
-        if (!this.options.join_wrapped_lines) {
-            // preserve a line break between the last comma and semicolon
-            int commaIndex = -1;
-            int i = constantsEnd > 0 ? constantsEnd : this.tm.firstIndexAfter(node.getName(), TokenNameLBRACE);
-            while (++i < this.tm.size()) {
-                Token t = this.tm.get(i);
-                if (t.isComment())
-                    continue;
-                if (t.tokenType == TokenNameCOMMA) {
-                    commaIndex = i;
-                    continue;
-                }
-                if (t.tokenType == TokenNameSEMICOLON
-                    && commaIndex >= 0
-                    && this.tm.countLineBreaksBetween(this.tm.get(commaIndex), t) == 1) {
-                    t.setWrapPolicy(new WrapPolicy(WrapMode.WHERE_NECESSARY, commaIndex, 0));
-                }
-                break;
-            }
+            handleWrap(48, node);
         }
 
         List<Type> superInterfaceTypes = node.superInterfaceTypes();
@@ -445,29 +309,17 @@ public class WrapPreparator extends ASTVisitor {
             this.wrapParentIndex = this.tm.lastIndexIn(node.getName(), TerminalToken.TokenNameInvalid);
             this.wrapIndexes.add(this.tm.firstIndexBefore(superInterfaceTypes.get(0), TokenNameimplements));
             prepareElementsList(superInterfaceTypes, TokenNameCOMMA, TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_superinterfaces_in_enum_declaration, 0.875f);
+            handleWrap(0.875f);
         }
-
-        this.aligner.handleAlign(node.bodyDeclarations());
 
         return true;
     }
 
     @Override
     public boolean visit(EnumConstantDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_enum_constant);
+        handleAnnotations(node.modifiers(), 49);
 
-        int lParen = this.tm.firstIndexAfter(node.getName(), TerminalToken.TokenNameInvalid);
-        while (this.tm.get(lParen).isComment())
-            lParen++;
-        if (this.tm.get(lParen).tokenType == TokenNameLPAREN) {
-            int rParen = node.getAnonymousClassDeclaration() == null
-                ? this.tm.lastIndexIn(node, TokenNameRPAREN)
-                : this.tm.firstIndexBefore(node.getAnonymousClassDeclaration(), TokenNameRPAREN);
-            handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_enum_constant_declaration);
-        }
-
-        handleArguments(node.arguments(), this.options.alignment_for_arguments_in_enum_constant);
+        handleArguments(node.arguments(), 16);
         AnonymousClassDeclaration anonymousClass = node.getAnonymousClassDeclaration();
         if (anonymousClass != null) {
             forceContinuousWrapping(anonymousClass,
@@ -477,18 +329,9 @@ public class WrapPreparator extends ASTVisitor {
     }
 
     @Override
-    public boolean visit(Block node) {
-        this.aligner.handleAlign(node);
-        return true;
-    }
-
-    @Override
     public boolean visit(MethodInvocation node) {
-        int lParen = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
-        int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_invocation);
 
-        handleArguments(node.arguments(), this.options.alignment_for_arguments_in_method_invocation);
+        handleArguments(node.arguments(), 16);
         handleTypeArguments(node.typeArguments());
 
         boolean isInvocationChainRoot = !(node.getParent() instanceof MethodInvocation)
@@ -508,44 +351,30 @@ public class WrapPreparator extends ASTVisitor {
             if (expression == null)
                 expression = invocation;
             this.wrapParentIndex = this.tm.lastIndexIn(expression, TerminalToken.TokenNameInvalid);
-            if (this.options.align_selector_in_method_invocation_on_expression_first_line
-                && (this.options.alignment_for_selector_in_method_invocation & 2) == 0) {
-                this.wrapParentIndex = this.tm.firstIndexIn(expression, TerminalToken.TokenNameInvalid);
-            }
+            this.wrapParentIndex = this.tm.firstIndexIn(expression, TerminalToken.TokenNameInvalid);
             this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_selector_in_method_invocation);
+            handleWrap(80);
         }
         return true;
     }
 
     @Override
     public boolean visit(SuperMethodInvocation node) {
-        int lParen = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
-        int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_invocation);
 
-        handleArguments(node.arguments(), this.options.alignment_for_arguments_in_method_invocation);
+        handleArguments(node.arguments(), 16);
         handleTypeArguments(node.typeArguments());
         return true;
     }
 
     @Override
     public boolean visit(ClassInstanceCreation node) {
-        int lParen = this.tm.firstIndexAfter(node.getType(), TokenNameLPAREN);
-        int rParen = node.getAnonymousClassDeclaration() == null
-            ? this.tm.lastIndexIn(node, TokenNameRPAREN)
-            : this.tm.firstIndexBefore(node.getAnonymousClassDeclaration(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_invocation);
 
         AnonymousClassDeclaration anonymousClass = node.getAnonymousClassDeclaration();
         if (anonymousClass != null) {
             forceContinuousWrapping(anonymousClass, this.tm.firstIndexIn(node, TokenNamenew));
         }
 
-        int wrappingOption = node.getExpression() != null
-            ? this.options.alignment_for_arguments_in_qualified_allocation_expression
-            : this.options.alignment_for_arguments_in_allocation_expression;
-        handleArguments(node.arguments(), wrappingOption);
+        handleArguments(node.arguments(), 16);
 
         handleTypeArguments(node.typeArguments());
         return true;
@@ -553,26 +382,16 @@ public class WrapPreparator extends ASTVisitor {
 
     @Override
     public boolean visit(ConstructorInvocation node) {
-        int lParen = node.arguments().isEmpty()
-            ? this.tm.lastIndexIn(node, TokenNameLPAREN)
-            : this.tm.firstIndexBefore((ASTNode) node.arguments().get(0), TokenNameLPAREN);
-        int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_invocation);
 
-        handleArguments(node.arguments(), this.options.alignment_for_arguments_in_explicit_constructor_call);
+        handleArguments(node.arguments(), 16);
         handleTypeArguments(node.typeArguments());
         return true;
     }
 
     @Override
     public boolean visit(SuperConstructorInvocation node) {
-        int lParen = node.arguments().isEmpty()
-            ? this.tm.lastIndexIn(node, TokenNameLPAREN)
-            : this.tm.firstIndexBefore((ASTNode) node.arguments().get(0), TokenNameLPAREN);
-        int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_invocation);
 
-        handleArguments(node.arguments(), this.options.alignment_for_arguments_in_explicit_constructor_call);
+        handleArguments(node.arguments(), 16);
         handleTypeArguments(node.typeArguments());
         return true;
     }
@@ -637,32 +456,23 @@ public class WrapPreparator extends ASTVisitor {
 
     @Override
     public boolean visit(InfixExpression node) {
-        Integer operatorPrecedence = OPERATOR_PRECEDENCE.get(node.getOperator());
-        if (operatorPrecedence == null)
-            return true;
         ASTNode parent = node.getParent();
         if ((parent instanceof InfixExpression) && samePrecedence(node, (InfixExpression) parent))
             return true; // this node has been handled higher in the AST
 
-        int wrappingOption = OPERATOR_WRAPPING_OPTION.get(node.getOperator()).applyAsInt(this.options);
-        boolean wrapBeforeOperator = OPERATOR_WRAP_BEFORE_OPTION.get(node.getOperator()).test(this.options);
-        if (this.tm.isStringConcatenation(node)) {
-            wrappingOption = this.options.alignment_for_string_concatenation;
-            wrapBeforeOperator = this.options.wrap_before_string_concatenation;
-        }
+        Operator operator = node.getOperator();
+        int wrappingOption = operator == Operator.CONDITIONAL_AND || operator == Operator.CONDITIONAL_OR ? 48 : 16;
 
-        findTokensToWrap(node, wrapBeforeOperator, 0);
+        findTokensToWrap(node, true, 0);
         this.wrapParentIndex = this.wrapIndexes.remove(0);
         this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
-        if ((wrappingOption & 2) != 0 && this.wrapParentIndex > 0)
-            this.wrapParentIndex--;
         for (int i = this.wrapParentIndex; i >= 0; i--) {
             if (!this.tm.get(i).isComment()) {
                 this.wrapParentIndex = i;
                 break;
             }
         }
-        handleWrap(wrappingOption, !wrapBeforeOperator, node);
+        handleWrap(wrappingOption, false, node);
         return true;
     }
 
@@ -690,73 +500,25 @@ public class WrapPreparator extends ASTVisitor {
             this.wrapIndexes.add(wrapBeforeOperator ? indexBefore : indexAfter);
             this.secondaryWrapIndexes.add(wrapBeforeOperator ? indexAfter : indexBefore);
 
-            if (!this.options.join_wrapped_lines) {
-                // TODO there should be an option for never joining wraps on opposite side of the operator
-                if (wrapBeforeOperator) {
-                    if (this.tm.countLineBreaksBetween(this.tm.get(indexAfter - 1), this.tm.get(indexAfter)) > 0)
-                        this.wrapIndexes.add(indexAfter);
-                } else {
-                    if (this.tm.countLineBreaksBetween(this.tm.get(indexBefore), this.tm.get(indexBefore - 1)) > 0)
-                        this.wrapIndexes.add(indexBefore);
-                }
-            }
         }
     }
 
     private boolean samePrecedence(InfixExpression expression1, InfixExpression expression2) {
-        Integer precedence1 = OPERATOR_PRECEDENCE.get(expression1.getOperator());
-        Integer precedence2 = OPERATOR_PRECEDENCE.get(expression2.getOperator());
-        if (precedence1 == null || precedence2 == null)
-            return false;
-        return precedence1.equals(precedence2);
+        return expression1.getOperator().precedence == expression2.getOperator().precedence;
     }
 
     @Override
     public boolean visit(ConditionalExpression node) {
-        boolean chainsMatter = (this.options.alignment_for_conditional_expression_chain & 112) != 0;
-        boolean isNextInChain = node.getParent() instanceof ConditionalExpression
-            && node == ((ConditionalExpression) node.getParent()).getElseExpression();
-        boolean isFirstInChain = node.getElseExpression() instanceof ConditionalExpression && !isNextInChain;
-        boolean wrapBefore = this.options.wrap_before_conditional_operator;
-        List<Integer> before = wrapBefore ? this.wrapIndexes : this.secondaryWrapIndexes;
-        List<Integer> after = wrapBefore ? this.secondaryWrapIndexes : this.wrapIndexes;
-        if (!chainsMatter || (!isFirstInChain && !isNextInChain)) {
-            before.add(this.tm.firstIndexAfter(node.getExpression(), TokenNameQUESTION));
-            before.add(this.tm.firstIndexAfter(node.getThenExpression(), TokenNameCOLON));
-            after.add(this.tm.firstIndexIn(node.getThenExpression(), TerminalToken.TokenNameInvalid));
-            after.add(this.tm.firstIndexIn(node.getElseExpression(), TerminalToken.TokenNameInvalid));
-            this.wrapParentIndex = this.tm.lastIndexIn(node.getExpression(), TerminalToken.TokenNameInvalid);
-            this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_conditional_expression);
-        } else if (isFirstInChain) {
-            List<ConditionalExpression> chain = new ArrayList<>();
-            chain.add(node);
-            ConditionalExpression next = node;
-            while (next.getElseExpression() instanceof ConditionalExpression) {
-                next = (ConditionalExpression) next.getElseExpression();
-                chain.add(next);
-            }
 
-            for (ConditionalExpression conditional : chain) {
-                before.add(this.tm.firstIndexAfter(conditional.getThenExpression(), TokenNameCOLON));
-                after.add(this.tm.firstIndexIn(conditional.getElseExpression(), TerminalToken.TokenNameInvalid));
-            }
-            this.wrapParentIndex = this.tm.firstIndexIn(node.getExpression(), TerminalToken.TokenNameInvalid);
-            this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_conditional_expression_chain);
-
-            this.currentDepth++;
-            for (ConditionalExpression conditional : chain) {
-                before.add(this.tm.firstIndexAfter(conditional.getExpression(), TokenNameQUESTION));
-                after.add(this.tm.firstIndexIn(conditional.getThenExpression(), TerminalToken.TokenNameInvalid));
-                this.wrapParentIndex
-                    = this.tm.firstIndexIn(conditional.getExpression(), TerminalToken.TokenNameInvalid);
-                this.wrapGroupEnd
-                    = this.tm.lastIndexIn(conditional.getThenExpression(), TerminalToken.TokenNameInvalid);
-                handleWrap(this.options.alignment_for_conditional_expression);
-            }
-            this.currentDepth--;
-        }
+        List<Integer> before = this.wrapIndexes;
+        List<Integer> after = this.secondaryWrapIndexes;
+        before.add(this.tm.firstIndexAfter(node.getExpression(), TokenNameQUESTION));
+        before.add(this.tm.firstIndexAfter(node.getThenExpression(), TokenNameCOLON));
+        after.add(this.tm.firstIndexIn(node.getThenExpression(), TerminalToken.TokenNameInvalid));
+        after.add(this.tm.firstIndexIn(node.getElseExpression(), TerminalToken.TokenNameInvalid));
+        this.wrapParentIndex = this.tm.lastIndexIn(node.getExpression(), TerminalToken.TokenNameInvalid);
+        this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
+        handleWrap(48);
         return true;
     }
 
@@ -765,7 +527,7 @@ public class WrapPreparator extends ASTVisitor {
         List<Expression> expressions = node.expressions();
         if (!expressions.isEmpty()) {
             prepareElementsList(expressions, TokenNameCOMMA, TokenNameLBRACE);
-            handleWrap(this.options.alignment_for_expressions_in_array_initializer, node);
+            handleWrap(48, node);
         }
         int openingBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
         Token openingBrace = this.tm.get(openingBraceIndex);
@@ -773,23 +535,7 @@ public class WrapPreparator extends ASTVisitor {
             // add fake wrap policy to make sure the brace indentation is right
             openingBrace.setWrapPolicy(new WrapPolicy(WrapMode.DISABLED, openingBraceIndex - 1, 0));
         }
-        if (!this.options.join_wrapped_lines
-            && !this.options.insert_new_line_before_closing_brace_in_array_initializer) {
-            // if there is a line break before the closing brace, formatter should treat it as a valid wrap to preserve
-            int closingBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-            Token closingBrace = this.tm.get(closingBraceIndex);
-            if (this.tm.countLineBreaksBetween(this.tm.get(closingBraceIndex - 1), closingBrace) == 1) {
-                closingBrace.setWrapPolicy(new WrapPolicy(WrapMode.WHERE_NECESSARY, openingBraceIndex,
-                    closingBraceIndex, 0, this.currentDepth, 1, true, false));
-            }
-        }
-        if (this.options.brace_position_for_array_initializer.equals("next_line_shifted")
-            && openingBrace.getWrapPolicy() == null
-            && (node.getParent() instanceof SingleMemberAnnotation || node.getParent() instanceof MemberValuePair)) {
-            int parentIndex = this.tm.firstIndexIn(node.getParent(), TerminalToken.TokenNameInvalid);
-            int indent = this.options.indentation_size;
-            openingBrace.setWrapPolicy(new WrapPolicy(WrapMode.BLOCK_INDENT, parentIndex, indent));
-        }
+
         return true;
     }
 
@@ -804,11 +550,11 @@ public class WrapPreparator extends ASTVisitor {
             operatorIndex--;
         assert node.getOperator().toString().equals(this.tm.toString(operatorIndex));
 
-        this.wrapIndexes.add(this.options.wrap_before_assignment_operator ? operatorIndex : rightSideIndex);
-        this.secondaryWrapIndexes.add(this.options.wrap_before_assignment_operator ? rightSideIndex : operatorIndex);
+        this.wrapIndexes.add(operatorIndex);
+        this.secondaryWrapIndexes.add(rightSideIndex);
         this.wrapParentIndex = operatorIndex - 1;
         this.wrapGroupEnd = this.tm.lastIndexIn(node.getRightHandSide(), TerminalToken.TokenNameInvalid);
-        handleWrap(this.options.alignment_for_assignment);
+        handleWrap(16);
         return true;
     }
 
@@ -821,28 +567,11 @@ public class WrapPreparator extends ASTVisitor {
             return true; // must be an array initializer in new line because of brace_position_for_array_initializer
         int equalIndex = this.tm.firstIndexBefore(node.getInitializer(), TokenNameEQUAL);
 
-        this.wrapIndexes.add(this.options.wrap_before_assignment_operator ? equalIndex : rightSideIndex);
-        this.secondaryWrapIndexes.add(this.options.wrap_before_assignment_operator ? rightSideIndex : equalIndex);
+        this.wrapIndexes.add(equalIndex);
+        this.secondaryWrapIndexes.add(rightSideIndex);
         this.wrapParentIndex = equalIndex - 1;
         this.wrapGroupEnd = this.tm.lastIndexIn(node.getInitializer(), TerminalToken.TokenNameInvalid);
-        handleWrap(this.options.alignment_for_assignment);
-        return true;
-    }
-
-    @Override
-    public boolean visit(IfStatement node) {
-        int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-        int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_if_while_statement);
-
-        Statement elseStatement = node.getElseStatement();
-        boolean keepThenOnSameLine = this.options.keep_then_statement_on_same_line
-            || (this.options.keep_simple_if_on_one_line && elseStatement == null);
-        if (keepThenOnSameLine)
-            handleSimpleLoop(node.getThenStatement(), this.options.alignment_for_compact_if);
-
-        if (this.options.keep_else_statement_on_same_line && elseStatement != null)
-            handleSimpleLoop(elseStatement, this.options.alignment_for_compact_if);
+        handleWrap(16);
         return true;
     }
 
@@ -850,7 +579,6 @@ public class WrapPreparator extends ASTVisitor {
     public boolean visit(ForStatement node) {
         int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
         int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_for_statement);
 
         List<Expression> initializers = node.initializers();
         if (!initializers.isEmpty())
@@ -863,80 +591,16 @@ public class WrapPreparator extends ASTVisitor {
         if (!this.wrapIndexes.isEmpty()) {
             this.wrapParentIndex = lParen;
             this.wrapGroupEnd = rParen;
-            handleWrap(this.options.alignment_for_expressions_in_for_loop_header);
+            handleWrap(16);
         }
-        if (this.options.keep_simple_for_body_on_same_line)
-            handleSimpleLoop(node.getBody(), this.options.alignment_for_compact_loop);
+
         return true;
-    }
-
-    @Override
-    public boolean visit(EnhancedForStatement node) {
-        int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-        int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_for_statement);
-
-        if (this.options.keep_simple_for_body_on_same_line)
-            handleSimpleLoop(node.getBody(), this.options.alignment_for_compact_loop);
-        return true;
-    }
-
-    @Override
-    public boolean visit(WhileStatement node) {
-        int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-        int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_if_while_statement);
-
-        if (this.options.keep_simple_while_body_on_same_line)
-            handleSimpleLoop(node.getBody(), this.options.alignment_for_compact_loop);
-        return true;
-    }
-
-    private void handleSimpleLoop(Statement body, int wrappingOption) {
-        if (!(body instanceof Block)) {
-            this.wrapIndexes.add(this.tm.firstIndexIn(body, TerminalToken.TokenNameInvalid));
-            this.wrapParentIndex = this.tm.firstIndexBefore(body, TokenNameRPAREN);
-            this.wrapGroupEnd = this.tm.lastIndexIn(body, TerminalToken.TokenNameInvalid);
-            handleWrap(wrappingOption, body.getParent());
-
-            body.accept(new ASTVisitor() {
-                @Override
-                public boolean visit(Block node) {
-                    forceContinuousWrapping(node,
-                        WrapPreparator.this.tm.firstIndexIn(node, TerminalToken.TokenNameInvalid));
-                    return false;
-                }
-            });
-        }
-    }
-
-    @Override
-    public void endVisit(DoStatement node) {
-        if (this.options.keep_simple_do_while_body_on_same_line && !(node.getBody() instanceof Block)) {
-            int whileIndex = this.tm.firstIndexAfter(node.getBody(), TokenNamewhile);
-            this.wrapIndexes.add(whileIndex);
-            this.wrapParentIndex = this.tm.lastIndexIn(node.getBody(), TerminalToken.TokenNameInvalid);
-            this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
-
-            int alignment = this.options.alignment_for_compact_loop;
-            for (int i = this.tm.firstIndexIn(node, TerminalToken.TokenNameInvalid) + 1; i < whileIndex; i++) {
-                Token token = this.tm.get(i);
-                if (token.getLineBreaksBefore() > 0 || token.getLineBreaksAfter() > 0)
-                    alignment |= 1;
-            }
-            handleWrap(alignment, node);
-        }
     }
 
     @Override
     public boolean visit(TryStatement node) {
-        if (!node.resources().isEmpty()) {
-            int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-            int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-            handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_try_clause);
-        }
         prepareElementsList(node.resources(), TokenNameSEMICOLON, TokenNameLPAREN);
-        handleWrap(this.options.alignment_for_resources_in_try);
+        handleWrap(80);
         return true;
     }
 
@@ -945,34 +609,24 @@ public class WrapPreparator extends ASTVisitor {
         List<Type> types = node.types();
         if (types.isEmpty())
             return true;
-        if (this.options.wrap_before_or_operator_multicatch) {
-            for (Type type : types) {
-                if (this.wrapIndexes.isEmpty()) {
-                    this.wrapIndexes.add(this.tm.firstIndexIn(type, TerminalToken.TokenNameInvalid));
-                } else {
-                    this.wrapIndexes.add(this.tm.firstIndexBefore(type, TokenNameOR));
-                    this.secondaryWrapIndexes.add(this.tm.firstIndexIn(type, TerminalToken.TokenNameInvalid));
-                }
+        for (Type type : types) {
+            if (this.wrapIndexes.isEmpty()) {
+                this.wrapIndexes.add(this.tm.firstIndexIn(type, TerminalToken.TokenNameInvalid));
+            } else {
+                this.wrapIndexes.add(this.tm.firstIndexBefore(type, TokenNameOR));
+                this.secondaryWrapIndexes.add(this.tm.firstIndexIn(type, TerminalToken.TokenNameInvalid));
             }
-            this.wrapParentIndex = this.tm.firstIndexBefore(node, TerminalToken.TokenNameInvalid);
-            while (this.tm.get(this.wrapParentIndex).isComment())
-                this.wrapParentIndex--;
-            this.wrapGroupEnd = this.tm.lastIndexIn(types.get(types.size() - 1), TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_union_type_in_multicatch);
-        } else {
-            prepareElementsList(types, TokenNameOR, TokenNameLPAREN);
-            handleWrap(this.options.alignment_for_union_type_in_multicatch);
         }
+        this.wrapParentIndex = this.tm.firstIndexBefore(node, TerminalToken.TokenNameInvalid);
+        while (this.tm.get(this.wrapParentIndex).isComment())
+            this.wrapParentIndex--;
+        this.wrapGroupEnd = this.tm.lastIndexIn(types.get(types.size() - 1), TerminalToken.TokenNameInvalid);
+        handleWrap(16);
         return true;
     }
 
     @Override
     public boolean visit(LambdaExpression node) {
-        int lParen = this.tm.firstIndexIn(node, TerminalToken.TokenNameInvalid);
-        if (this.tm.get(lParen).tokenType == TokenNameLPAREN) {
-            int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-            handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_lambda_declaration);
-        }
         if (node.getBody() instanceof Block) {
             forceContinuousWrapping(node.getBody(), this.tm.firstIndexIn(node, TerminalToken.TokenNameInvalid));
             handleOneLineEnforced(node, ((Block) node.getBody()).statements());
@@ -981,7 +635,7 @@ public class WrapPreparator extends ASTVisitor {
             List<VariableDeclaration> parameters = node.parameters();
             // the legacy formatter didn't like wrapping lambda parameters, so neither do we
             this.currentDepth++;
-            handleArguments(parameters, this.options.alignment_for_parameters_in_method_declaration);
+            handleArguments(parameters, 16);
             this.currentDepth--;
         }
         return true;
@@ -1015,38 +669,35 @@ public class WrapPreparator extends ASTVisitor {
 
     @Override
     public boolean visit(FieldDeclaration node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_field);
+        handleAnnotations(node.modifiers(), 49);
         handleVariableDeclarations(node.fragments());
         return true;
     }
 
     @Override
     public boolean visit(VariableDeclarationStatement node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_local_variable);
+        handleAnnotations(node.modifiers(), 49);
         handleVariableDeclarations(node.fragments());
         return true;
     }
 
     @Override
     public boolean visit(VariableDeclarationExpression node) {
-        handleAnnotations(node.modifiers(), this.options.alignment_for_annotations_on_local_variable);
+        handleAnnotations(node.modifiers(), 49);
         handleVariableDeclarations(node.fragments());
         return true;
     }
 
     @Override
     public boolean visit(SingleVariableDeclaration node) {
-        handleAnnotations(node.modifiers(),
-            node.getParent() instanceof EnhancedForStatement
-                ? this.options.alignment_for_annotations_on_local_variable
-                : this.options.alignment_for_annotations_on_parameter);
+        handleAnnotations(node.modifiers(), node.getParent() instanceof EnhancedForStatement ? 49 : 0);
         return true;
     }
 
     @Override
     public boolean visit(ParameterizedType node) {
         prepareElementsList(node.typeArguments(), TokenNameCOMMA, TokenNameLESS);
-        handleWrap(this.options.alignment_for_parameterized_type_references);
+        handleWrap(0);
         return true;
     }
 
@@ -1078,7 +729,7 @@ public class WrapPreparator extends ASTVisitor {
         if (typeArguments.isEmpty())
             return;
         prepareElementsList(typeArguments, TokenNameCOMMA, TokenNameLESS);
-        handleWrap(this.options.alignment_for_type_arguments);
+        handleWrap(0);
     }
 
     @Override
@@ -1099,89 +750,21 @@ public class WrapPreparator extends ASTVisitor {
         return true;
     }
 
-    private void handleModuleStatement(List<Name> names, TerminalToken joiningTokenType) {
+    private void handleModuleStatement(List<Name> names, int joiningTokenType) {
         if (names.isEmpty())
             return;
         int joiningTokenIndex = this.tm.firstIndexBefore(names.get(0), joiningTokenType);
         this.wrapParentIndex = this.tm.firstIndexBefore(names.get(0), TokenNameIdentifier);
         this.wrapIndexes.add(joiningTokenIndex);
         prepareElementsList(names, TokenNameCOMMA, TerminalToken.TokenNameInvalid);
-        handleWrap(this.options.alignment_for_module_statements, 0.875f);
-    }
-
-    @Override
-    public boolean visit(CatchClause node) {
-        int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-        int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_catch_clause);
-        return true;
-    }
-
-    @Override
-    public boolean visit(SwitchStatement node) {
-        int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-        int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
-        handleOneLineEnforcedSwitchCases(node.statements());
-        return true;
-    }
-
-    @Override
-    public boolean visit(SwitchExpression node) {
-        int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
-        int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
-        forceContinuousWrapping(node, this.tm.firstIndexIn(node, TokenNameLPAREN));
-        List<Statement> statements = node.statements();
-        List<Statement> caseStatements = statements.stream().filter(SwitchCase.class::isInstance).collect(toList());
-        handleOneLineEnforced(node, caseStatements);
-        handleOneLineEnforcedSwitchCases(statements);
-        return true;
-    }
-
-    private void handleOneLineEnforcedSwitchCases(List<Statement> statements) {
-        if (statements.isEmpty() || !((SwitchCase) statements.get(0)).isSwitchLabeledRule())
-            return;
-        for (Statement statement : statements) {
-            if (statement instanceof Block) {
-                handleOneLineEnforced(statement, ((Block) statement).statements());
-            }
-        }
+        handleWrap(0.875f);
     }
 
     @Override
     public boolean visit(SwitchCase node) {
-        if (node.isSwitchLabeledRule()) {
-            List<Statement> siblings = node.getParent() instanceof SwitchStatement
-                ? ((SwitchStatement) node.getParent()).statements()
-                : ((SwitchExpression) node.getParent()).statements();
-            Statement nextStatement = siblings.get(siblings.indexOf(node) + 1);
-            if (!(nextStatement instanceof Block)
-                || areKeptOnOneLine(this.tm.firstIndexIn(nextStatement, TerminalToken.TokenNameInvalid),
-                    this.tm.lastIndexIn(nextStatement, TerminalToken.TokenNameInvalid))) {
-                int atArrow = this.tm.lastIndexIn(node, TokenNameARROW);
-                int afterArrow = this.tm.firstIndexIn(nextStatement, TerminalToken.TokenNameInvalid);
-                boolean wrapBefore = this.options.wrap_before_switch_case_arrow_operator;
-                this.wrapIndexes.add(wrapBefore ? atArrow : afterArrow);
-                this.secondaryWrapIndexes.add(wrapBefore ? afterArrow : atArrow);
-                this.wrapParentIndex = this.tm.firstIndexIn(node, TerminalToken.TokenNameInvalid);
-                this.wrapGroupEnd = this.tm.lastIndexIn(nextStatement, TerminalToken.TokenNameInvalid);
-                handleWrap(this.options.alignment_for_switch_case_with_arrow);
-            }
-        }
-
-        prepareElementsList(node.expressions(), TokenNameCOMMA, TokenNamecase);
-        handleWrap(node.isSwitchLabeledRule()
-            ? this.options.alignment_for_expressions_in_switch_case_with_arrow
-            : this.options.alignment_for_expressions_in_switch_case_with_colon);
-        return true;
-    }
-
-    @Override
-    public boolean visit(DoStatement node) {
-        int lParen = this.tm.firstIndexBefore(node.getExpression(), TokenNameLPAREN);
-        int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-        handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_if_while_statement);
+        Expression expression = node.getExpression();
+        prepareElementsList(expression == null ? List.of() : List.of(expression), TokenNameCOMMA, TokenNamecase);
+        handleWrap(16);
         return true;
     }
 
@@ -1191,12 +774,12 @@ public class WrapPreparator extends ASTVisitor {
         if (message != null) {
             int atColon = this.tm.firstIndexBefore(message, TokenNameCOLON);
             int afterColon = this.tm.firstIndexIn(message, TerminalToken.TokenNameInvalid);
-            boolean wrapBefore = this.options.wrap_before_assertion_message_operator;
-            this.wrapIndexes.add(wrapBefore ? atColon : afterColon);
-            this.secondaryWrapIndexes.add(wrapBefore ? afterColon : atColon);
+
+            this.wrapIndexes.add(atColon);
+            this.secondaryWrapIndexes.add(afterColon);
             this.wrapParentIndex = this.tm.firstIndexIn(node, TerminalToken.TokenNameInvalid);
             this.wrapGroupEnd = this.tm.lastIndexIn(node, TerminalToken.TokenNameInvalid);
-            handleWrap(this.options.alignment_for_assertion_message);
+            handleWrap(16);
         }
         return true;
     }
@@ -1237,7 +820,7 @@ public class WrapPreparator extends ASTVisitor {
             this.wrapParentIndex = this.tm.firstIndexIn(fragments.get(0), TerminalToken.TokenNameInvalid);
             prepareElementsList(fragments, TokenNameCOMMA, TerminalToken.TokenNameInvalid);
             this.wrapIndexes.remove(0);
-            handleWrap(this.options.alignment_for_multiple_fields);
+            handleWrap(16);
         }
     }
 
@@ -1266,12 +849,11 @@ public class WrapPreparator extends ASTVisitor {
 
         if (i < modifiers.size()) {
             // any annotations following other modifiers will be associated with declaration type
-            handleAnnotations(modifiers.subList(i + 1, modifiers.size()), this.options.alignment_for_type_annotations);
+            handleAnnotations(modifiers.subList(i + 1, modifiers.size()), 32);
         }
     }
 
-    private void prepareElementsList(List<? extends ASTNode> elements, TerminalToken separatorType,
-        TerminalToken wrapParentType) {
+    private void prepareElementsList(List<? extends ASTNode> elements, int separatorType, int wrapParentType) {
         for (int i = 0; i < elements.size(); i++) {
             ASTNode element = elements.get(i);
             this.wrapIndexes.add(this.tm.firstIndexIn(element, TerminalToken.TokenNameInvalid));
@@ -1293,9 +875,9 @@ public class WrapPreparator extends ASTVisitor {
         handleWrap(wrappingOption, null);
     }
 
-    private void handleWrap(int wrappingOption, float firstPenaltyMultiplier) {
+    private void handleWrap(float firstPenaltyMultiplier) {
         this.wrapPenalties.add(firstPenaltyMultiplier);
-        handleWrap(wrappingOption, null);
+        handleWrap(16, null);
     }
 
     private void handleWrap(int wrappingOption, ASTNode parentNode) {
@@ -1374,7 +956,7 @@ public class WrapPreparator extends ASTVisitor {
         token.setWrapPolicy(policy);
         if (policy.wrapMode() == WrapMode.FORCE) {
             token.breakBefore();
-        } else if (this.options.join_wrapped_lines && token.tokenType == TokenNameCOMMENT_BLOCK) {
+        } else if (token.tokenType == TokenNameCOMMENT_BLOCK) {
             // allow wrap preparator to decide if this comment should be wrapped
             token.clearLineBreaksBefore();
         }
@@ -1382,7 +964,7 @@ public class WrapPreparator extends ASTVisitor {
 
     private WrapPolicy getWrapPolicy(int wrappingOption, float penaltyMultiplier, boolean isFirst, ASTNode parentNode) {
         assert this.wrapParentIndex >= 0 && this.wrapGroupEnd >= 0;
-        int extraIndent = this.options.continuation_indentation;
+        int extraIndent = 1;
         boolean indentOnColumn = (wrappingOption & 2) != 0;
         boolean isForceWrap = (wrappingOption & 1) != 0;
         boolean isAlreadyWrapped = false;
@@ -1393,27 +975,18 @@ public class WrapPreparator extends ASTVisitor {
         } else if (parentNode instanceof EnumDeclaration) {
             // special behavior for compatibility with legacy formatter
             extraIndent = ((wrappingOption & 4) != 0) ? 2 : 1;
-            if (!this.options.indent_body_declarations_compare_to_enum_declaration_header)
-                extraIndent--;
+
             isAlreadyWrapped = isFirst;
         } else if (parentNode instanceof IfStatement
             || parentNode instanceof ForStatement
             || parentNode instanceof EnhancedForStatement
             || parentNode instanceof WhileStatement) {
-            extraIndent = 1;
             this.wrapParentIndex = this.tm.firstIndexIn(parentNode, TerminalToken.TokenNameInvalid); // only if
             // !indoentOnColumn
         } else if (parentNode instanceof DoStatement) {
             extraIndent = 0;
             this.wrapParentIndex = this.tm.firstIndexIn(parentNode, TerminalToken.TokenNameInvalid); // only if
             // !indoentOnColumn
-        } else if (parentNode instanceof LambdaExpression) {
-            extraIndent = 1;
-        } else if ((wrappingOption & 4) != 0) {
-            extraIndent = 1;
-        } else if (parentNode instanceof ArrayInitializer) {
-            extraIndent = this.options.continuation_indentation_for_array_initializer;
-            isAlreadyWrapped = isFirst && this.options.insert_new_line_after_opening_brace_in_array_initializer;
         }
 
         WrapMode wrapMode = WrapMode.WHERE_NECESSARY;
@@ -1452,18 +1025,17 @@ public class WrapPreparator extends ASTVisitor {
         } else if (isTopPriority) {
             wrapMode = WrapMode.TOP_PRIORITY;
         }
-        extraIndent *= this.options.indentation_size;
+        extraIndent *= 4;
         return new WrapPolicy(wrapMode, this.wrapParentIndex, this.wrapGroupEnd, extraIndent, this.currentDepth,
             penaltyMultiplier, isFirst, indentOnColumn);
     }
 
-    public void finishUp(ASTNode astRoot, List<Region> regions) {
+    public void finishUp(List<Region> regions) {
         preserveExistingLineBreaks();
         applyBreaksOutsideRegions(regions);
         new WrapExecutor(this.tm, this.options, regions).executeWraps();
-        this.aligner.alignComments();
         wrapComments();
-        fixEnumConstantIndents(astRoot);
+
     }
 
     private void preserveExistingLineBreaks() {
@@ -1474,12 +1046,11 @@ public class WrapPreparator extends ASTVisitor {
         first.putLineBreaksBefore(startingBreaks - 1);
 
         this.tm.traverse(0, new TokenTraverser() {
-            final boolean join_wrapped_lines = WrapPreparator.this.options.join_wrapped_lines;
 
             @Override
             protected boolean token(Token token, int index) {
                 int lineBreaks = getLineBreaksToPreserve(getPrevious(), token);
-                if (lineBreaks > 1 || (!this.join_wrapped_lines && token.isWrappable()) || index == 0)
+                if (lineBreaks > 1 || index == 0)
                     token.putLineBreaksBefore(lineBreaks);
                 return true;
             }
@@ -1490,7 +1061,7 @@ public class WrapPreparator extends ASTVisitor {
         int endingBreaks = getLineBreaksToPreserve(last, null);
         if (endingBreaks > 0) {
             last.putLineBreaksAfter(endingBreaks);
-        } else if ((this.kind & (8 | 128)) != 0 && this.options.insert_new_line_at_end_of_file_if_missing) {
+        } else if ((this.kind & (8 | 128)) != 0) {
             last.breakAfter();
         }
     }
@@ -1501,7 +1072,7 @@ public class WrapPreparator extends ASTVisitor {
             return 0;
         }
         int lineBreaks = WrapPreparator.this.tm.countLineBreaksBetween(token1, token2);
-        int toPreserve = this.options.number_of_empty_lines_to_preserve;
+        int toPreserve = 1;
         if (token1 != null && token2 != null)
             toPreserve++; // n empty lines = n+1 line breaks, except for file start and end
         return Math.min(lineBreaks, toPreserve);
@@ -1539,7 +1110,7 @@ public class WrapPreparator extends ASTVisitor {
             if (token.getLineBreaksBefore() > 0 || token.getLineBreaksAfter() > 0)
                 isNLSTagInLine = false;
             if (token.hasNLSTag()) {
-                assert token.tokenType == TokenNameStringLiteral || token.tokenType == TokenNameTextBlock;
+                assert token.tokenType == TokenNameStringLiteral;
                 isNLSTagInLine = true;
             }
             List<Token> structure = token.getInternalStructure();
@@ -1555,60 +1126,4 @@ public class WrapPreparator extends ASTVisitor {
         }
     }
 
-    private void fixEnumConstantIndents(ASTNode astRoot) {
-        if (this.options.use_tabs_only_for_leading_indentations) {
-            // enum constants should be indented like other declarations, not like wrapped elements
-            astRoot.accept(new ASTVisitor() {
-
-                @Override
-                public boolean visit(EnumConstantDeclaration node) {
-                    WrapPreparator.this.tm.firstTokenIn(node, TerminalToken.TokenNameInvalid).setWrapPolicy(null);
-                    return true;
-                }
-            });
-        }
-    }
-
-    private void handleParenthesesPositions(int openingParenIndex, int closingParenIndex, String positionsSetting) {
-        boolean isEmpty = openingParenIndex + 1 == closingParenIndex;
-        switch (positionsSetting) {
-            case "common_lines":
-                // nothing to do
-                break;
-
-            case "separate_lines_if_wrapped":
-                if (isEmpty)
-                    break;
-                this.tm.get(openingParenIndex + 1)
-                    .setWrapPolicy(new WrapPolicy(WrapMode.TOP_PRIORITY, openingParenIndex, closingParenIndex,
-                        this.options.indentation_size, this.currentDepth, 1, true, false));
-                this.tm.get(closingParenIndex)
-                    .setWrapPolicy(new WrapPolicy(WrapMode.TOP_PRIORITY, openingParenIndex, closingParenIndex, 0,
-                        this.currentDepth, 1, false, false));
-                break;
-
-            case "separate_lines_if_not_empty":
-                if (isEmpty)
-                    break;
-                //$FALL-THROUGH$
-            case "separate_lines":
-            case "preserve_positions":
-                boolean always = !positionsSetting.equals("preserve_positions");
-                Token afterOpening = this.tm.get(openingParenIndex + 1);
-                if (always || this.tm.countLineBreaksBetween(this.tm.get(openingParenIndex), afterOpening) > 0) {
-                    afterOpening.setWrapPolicy(
-                        new WrapPolicy(WrapMode.WHERE_NECESSARY, openingParenIndex, this.options.indentation_size));
-                    afterOpening.breakBefore();
-                }
-                Token closingParen = this.tm.get(closingParenIndex);
-                if (always || this.tm.countLineBreaksBetween(this.tm.get(closingParenIndex - 1), closingParen) > 0) {
-                    closingParen.setWrapPolicy(new WrapPolicy(WrapMode.WHERE_NECESSARY, openingParenIndex, 0));
-                    closingParen.breakBefore();
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unrecognized parentheses positions setting: " + positionsSetting); //$NON-NLS-1$
-        }
-    }
 }

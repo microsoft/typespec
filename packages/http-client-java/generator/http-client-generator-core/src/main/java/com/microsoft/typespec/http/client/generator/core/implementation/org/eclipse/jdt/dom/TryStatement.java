@@ -34,10 +34,8 @@ import java.util.List;
  * <p>A resource is either a {@link VariableDeclarationExpression} or (since JLS9) a {@link Name}.</p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class TryStatement extends Statement {
 
     /**
@@ -77,7 +75,7 @@ public class TryStatement extends Statement {
      *
      * @since 3.7
      */
-    private ASTNode.NodeList resources = null;
+    private final ASTNode.NodeList<Expression> resources;
 
     /**
      * The body; lazily initialized; defaults to an empty block.
@@ -87,7 +85,7 @@ public class TryStatement extends Statement {
     /**
      * The catch clauses (element type: {@link CatchClause}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList catchClauses = new ASTNode.NodeList(CATCH_CLAUSES_PROPERTY);
+    private final ASTNode.NodeList<CatchClause> catchClauses = new ASTNode.NodeList<>(CATCH_CLAUSES_PROPERTY);
 
     /**
      * The finally block, or <code>null</code> if none. Defaults to none.
@@ -103,7 +101,7 @@ public class TryStatement extends Statement {
      */
     TryStatement(AST ast) {
         super(ast);
-        this.resources = new ASTNode.NodeList(RESOURCES2_PROPERTY);
+        this.resources = new ASTNode.NodeList<>(RESOURCES2_PROPERTY);
     }
 
     @Override
@@ -156,7 +154,7 @@ public class TryStatement extends Statement {
      *
      * @return the live list of catch clauses (element type: {@link CatchClause})
      */
-    public List catchClauses() {
+    public List<CatchClause> catchClauses() {
         return this.catchClauses;
     }
 
@@ -194,9 +192,7 @@ public class TryStatement extends Statement {
      * used to be (element type: {@link VariableDeclarationExpression}).
      * @since 3.7.1
      */
-    public List resources() {
-        // more efficient than just calling unsupportedIn2_3() to check
-
+    public List<Expression> resources() {
         return this.resources;
     }
 }

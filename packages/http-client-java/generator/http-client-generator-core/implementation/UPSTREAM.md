@@ -14,8 +14,8 @@ by the build.
 ## Retained code
 
 The only production entry point is the generator's `CodeFormatterUtil`. It
-creates a `CodeFormatter` from the generator's formatter profile and calls
-`CodeFormatter.format(kind, source)`, which returns the formatted source.
+creates a `CodeFormatter`, which applies the generator's formatter profile, and
+calls `CodeFormatter.format(kind, source)`, which returns the formatted source.
 Everything kept in the vendored tree is reachable from that use.
 
 Nothing else consumes this code, so Eclipse's split between public API and
@@ -26,9 +26,9 @@ packages beneath `implementation.org.eclipse.jdt`:
 | --- | --- | --- |
 | `formatter` | The formatter, its options, and line wrapping | `org.eclipse.jdt.core.formatter`, `org.eclipse.jdt.internal.formatter`, `org.eclipse.jdt.internal.formatter.linewrap`, and `Region` from `org.eclipse.jface.text` |
 | `dom` | The DOM, its parse entry point `ASTParser`, and the conversion from the compiler AST | `org.eclipse.jdt.core.dom` |
-| `compiler` | Problems and their messages, compiler options and constants, and shared utilities | `org.eclipse.jdt.core.compiler`, `org.eclipse.jdt.internal.core`, and `org.eclipse.jdt.internal.compiler` with its `classfmt`, `impl`, `lookup`, `problem`, and `util` subpackages |
+| `compiler` | Problems, compiler constants, and shared utilities | `org.eclipse.jdt.core.compiler`, `org.eclipse.jdt.internal.core`, and `org.eclipse.jdt.internal.compiler` with its `classfmt`, `impl`, `lookup`, `problem`, and `util` subpackages |
 | `compiler.ast` | The compiler AST | `org.eclipse.jdt.internal.compiler.ast` |
-| `compiler.parser` | The scanner and parser with recovery, syntax error diagnosis, comment recording, and Javadoc parsing, and the parser and Unicode tables they read | `org.eclipse.jdt.internal.compiler.parser`, `org.eclipse.jdt.internal.compiler.parser.diagnose`, and `org.eclipse.jdt.internal.core.util` |
+| `compiler.parser` | The scanner and parser with recovery, syntax error diagnosis, comment recording, and Javadoc parsing, and the parser tables they read | `org.eclipse.jdt.internal.compiler.parser`, `org.eclipse.jdt.internal.compiler.parser.diagnose`, and `org.eclipse.jdt.internal.core.util` |
 
 Upstream facades that only adapted the public API are folded into their
 callers. `ToolFactory` becomes the `CodeFormatter` constructor, and
@@ -64,8 +64,8 @@ The surviving code is then specialized until no pass makes further changes:
   that no implementation reads are removed when every argument is free of side
   effects.
 - Named compile-time constants are inlined at every use, except the few
-  formatter constants that generator code references. Aliases of constant
-  array lengths are inlined as well.
+  formatter constants that generator code references and the token types in
+  `TerminalToken`. Aliases of constant array lengths are inlined as well.
 - Fields that always hold the same value are folded into that value. Fields that
   are never read are removed with their writes, while side effects of the
   written values are kept. Collections that are only ever filled are removed.
@@ -81,7 +81,11 @@ The surviving code is then specialized until no pass makes further changes:
 - Unobserved bookkeeping is removed, including the DOM's modification count,
   event notification, lazy-initialization event suppression, the structural
   property lists that nothing reads, and the DOM's original, protected, and
-  recovered node flags; the formatter reads only the malformed flag.
+  recovered node flags, along with the checks that rejected changes to
+  protected nodes; the formatter reads only the malformed flag.
+  Modifier and module modifier nodes record only their source range, not their
+  keyword, because the formatter only checks whether a declaration has any
+  keyword modifier.
 - The formatter builds and visits each DOM tree on a single thread, so child
   nodes are created lazily without synchronization, DOM fields are not
   `volatile`, and node lists track their visit cursors without locking.
@@ -89,13 +93,17 @@ The surviving code is then specialized until no pass makes further changes:
   scanner, the token repairs it records, the parser tables that only recovery
   reads, and the DOM recovery propagator that applied those repairs are
   removed.
+- The parser that builds the DOM never merges adjacent string literals into a
+  single literal; upstream does that only when compiling. That literal type and
+  the compile-time constant values that the compiler AST computed for literals
+  are removed.
 
 Type hierarchies are compacted where only one implementation remains. Single
 implementations are folded into their interface or base class, keeping that
-name and both upstream notices (for example `ProblemHandler`,
-`IProblemFactory`, and `AbstractCommentParser`), or
+name and the upstream notices of the merged files (for example
+`ProblemHandler`, `IProblem`, and `AbstractCommentParser`), or
 into the concrete class when the base type only served it (`TagElement`,
-`TextElement`, `NullPattern`, and `BasicCompilationUnit`). Because sources are
+`TextElement`, and `BasicCompilationUnit`). Because sources are
 always supplied in memory, the compiler's batch `CompilationUnit` behaved like
 `BasicCompilationUnit` and is merged into it. Implementations whose methods are
 all constants or no-ops are inlined at their call sites.
@@ -115,36 +123,130 @@ members are removed or reworded, commented-out code is deleted, and
 `javac -Xdoclint:reference` reports no broken references in the vendored
 sources.
 
+Upstream's raw collection types are replaced with generic ones. `NodeList<E>`
+and each DOM list accessor use the element type of their property descriptor,
+for example `List<Statement>` for `Block.statements()`. The exception is
+`TagElement.fragments()`, which is a `List<ASTNode>`; its descriptor still
+limits elements to `IDocElement` at run time. The vendored sources compile
+without raw-type or unchecked warnings and carry no `@SuppressWarnings`
+annotations.
+
+Token types are `int` constants in `TerminalToken`, as in older upstream
+releases, instead of an enum, so switches on token types compile without
+synthetic switch-map classes. The constants keep their names; javac inlines
+their values. The DOM's infix, prefix, and assignment operators are enums
+instead of upstream's typesafe-enumeration classes; nothing switches on them.
+Each infix operator carries the binding precedence that line wrapping uses to
+group operands, which replaces the formatter's precedence map.
+
 ## Language level and options
 
-Generated code never uses language features beyond Java 11, so the formatter
-always parses Java 11 source and ignores the
-`org.eclipse.jdt.core.compiler.source` option. Code that only handles newer
-syntax is removed: records, sealed types, `yield`, pattern matching, the `\s`
-escape, Javadoc snippets, and Markdown documentation comments. Only the Unicode
-identifier tables for Java 8 and Java 11 are shipped.
+The formatter always parses source with the Java 8 language rules plus module
+declarations (`module-info.java`) and ignores the
+`org.eclipse.jdt.core.compiler.source` option, so neither the compiler options
+nor the scanner store a source or compliance level. The compiler AST, DOM, and
+formatter only support Java 8 constructs and module declarations. Java 9 to 11
+syntax follows the Java 8 rules:
+
+- A private interface method with a body reports an error (problem 113).
+- A `try` statement whose resource is an existing variable reports an error
+  (problem 1351), and the DOM marks the statement malformed instead of
+  converting the variable, as upstream's JLS8 DOM API does.
+- `_` used as a name is a warning instead of an error, except as a lambda
+  parameter.
+- `var` is an ordinary type name, so `var` arrays and `var` with type arguments
+  are not errors, and lambda parameters typed `var` are explicitly typed.
+
+Except for the variable resource, these errors are not syntax errors and do not
+change how a compilation unit is formatted; they only decide whether a code
+snippet in a Javadoc comment is formatted. Module declarations keep their full
+support, and syntax error diagnosis allows the Java 9 grammar rules that
+describe them. No grammar rule is specific to Java 10 or 11, so diagnosis uses
+the same rules as at Java 11.
+
+Identifier characters follow the JDK that runs the generator. The scanner uses
+`Character.isJavaIdentifierStart` and `Character.isJavaIdentifierPart` instead
+of upstream's Unicode tables for the source level (Unicode 6.2 for Java 8), so
+no Unicode tables are shipped. On Java 17 this matches, for every assigned
+character, the Unicode 13 tables that the generator used before the formatter
+was vendored; newer JDKs add letters from later Unicode versions. The
+generator's `CodeNamer` checks name characters with the same JDK, so the
+letters and digits that it keeps in names are identifier characters to the
+formatter as well.
+
+The parser's grammar still covers newer syntax, which only has to keep
+producing an error. `CodeFormatterUtil` rejects any file that JavaParser cannot
+parse at its default Java 11 level, and a code snippet in a Javadoc comment is
+formatted only when one of the parse kinds reports no errors.
+
+- Records, sealed types, `permits` clauses, `yield` statements, switch case
+  patterns, `when` guards, arrow-form switch labels (`case 1 ->`), module
+  imports (`import module ...;`), and text blocks are not recognized by the
+  scanner, so they are syntax errors. A text block's opening delimiter scans as
+  an empty string followed by an unclosed one. Their grammar actions, the
+  implicit `yield` statements of switch rules, and the scanner's case pattern
+  lookahead are removed.
+- Switch expressions, multi-constant case labels, `instanceof` and record
+  patterns, `default` as a case label element, compact constructors, and
+  implicitly declared classes are still parsed so that the parser reports that
+  they are not supported. A case label keeps only its first constant, and a
+  compact constructor stays a constructor without parameters. The other
+  constructs are represented by placeholders, such as a null literal or the
+  pattern's type, instead of their own compiler AST, DOM, and formatter support.
+  Only that error is kept, so secondary diagnostics for these constructs can
+  differ from upstream.
+
+JavaParser accepts arrow-form switch statements and variable resources at Java
+11, so a file that uses them is still formatted, but as code with errors.
+Generated code uses neither.
+
+Code that only handles newer syntax is removed: `var`, switch rules and
+expressions, multi-constant case labels, records, compact constructors, sealed
+types, `yield`, pattern matching, module imports, text blocks, the `\s` escape,
+Javadoc snippets, and Markdown documentation comments. As upstream does before
+Java 18, the comment parsers reject an inline `{@snippet}` tag, so its body is
+formatted as Javadoc text. Upstream formats the arguments of snippet markup
+tags, such as `@highlight substring="x"`, in every line comment, so that
+handling is kept.
 
 The DOM API level is separate from the language level: it selects the shape of
-the DOM tree, not the syntax that is accepted. The formatter calls DOM methods
-that require newer API levels, such as `SwitchCase.isSwitchLabeledRule()` and
-`MethodDeclaration.isCompactConstructor()`, so the DOM is always built at the
-JLS23 level, as upstream builds it at the latest level. That level is folded
-into the code, removing the compatibility paths for older API levels.
+the DOM tree, not the syntax that is accepted. Upstream builds the DOM at the
+latest API level, JLS23, and that level is folded into the code, removing the
+compatibility paths for older API levels. Nodes keep that shape where the
+formatter relies on it, such as module declarations and the `static` modifier
+node of a static import, but nodes for newer syntax have the JLS8 shape: a
+switch case has at most one expression and no arrow form, and a try statement
+only holds resource declarations.
 
-The parser always runs with the same compiler options
-(`CompilerOptions.forFormatterInput()`), so checks for problems those options
-ignore, such as non-externalized strings, are folded away. Problem severities
+The parser always runs with the same compiler settings, so the compiler
+options class is removed and checks for problems those settings ignore, such as
+non-externalized strings, are folded away. Problem severities
 are fixed per problem ID in `ProblemHandler.computeSeverity` instead of being
-looked up in configurable irritant tables. Javadoc problems are always ignored,
-so the compiler-side Javadoc parser no longer reports them or builds Javadoc
-reference nodes. It still parses each doc comment, because an `@deprecated` tag
-sets a modifier bit on the declaration, and it keeps the scanning that upstream
-does while preparing problem reports, since that scanning can change which tags
-are recognized.
-The `CodeFormatter` constructor uses the generator's profile unchanged. The
-first-column comment settings that upstream's `ToolFactory.createCodeFormatter`
-forced are hard-coded where the formatter consumes them: comments that start in
-the first column are formatted and indented like other comments.
+looked up in configurable irritant tables. No fixed severity requests an
+abort, so the exceptions that aborted a method, type, or compilation unit are
+removed. Javadoc problems are always ignored, so the compiler-side Javadoc
+parser no longer reports them or builds Javadoc reference nodes. It still
+parses each doc comment, because an `@deprecated` tag sets a modifier bit on
+the declaration, and it keeps the scanning that upstream does while preparing
+problem reports, since that scanning can change which tags are recognized.
+Task tags such as `TODO` are not scanned, because the recorded tasks were
+never read. Statement and method-body recovery are never activated, so the
+flags that requested them and the recovered-content preservation they enabled
+are removed.
+
+The formatter applies the generator's profile,
+`generator\eclipse-format-azure-sdk-for-java.xml`, with its option values
+written directly into the code. Branches for other values, option keys and
+defaults, and the parsing of a settings map are removed. The
+profile is not shipped or read at run time; Spotless still uses the file to
+format the generator's own sources. When the profile changes, the vendored code
+must be changed to match. `DefaultCodeFormatterOptions` keeps only `page_width`
+and `comment_line_length`, which the formatters for code nested in comments
+adjust. Every keep-on-one-line setting is `one_line_never`, so `OneLineEnforcer`
+is removed. The first-column comment settings that upstream's
+`ToolFactory.createCodeFormatter` forced are hard-coded where the formatter
+consumes them: comments that start in the first column are formatted and
+indented like other comments.
 
 The generator always formats a whole compilation unit or module description,
 comments included, so `CodeFormatter.format` takes only the kind and the
@@ -154,33 +256,14 @@ removed. Comments are formatted as the profile's Javadoc, block, and line
 comment settings specify. Formatting starts at indentation level 0 and writes
 `\n` line separators.
 
-Options that none of the generator's profiles set keep their defaults, so they
-are folded into the code and setting them in a profile has no effect. Listed
-without the `org.eclipse.jdt.core.formatter.` prefix, they are deprecated
-aliases that newer keys replace (`comment.clear_blank_lines`,
-`insert_new_line_after_annotation`, `insert_new_line_after_annotation_on_member`,
-the `insert_new_line_in_empty_*` keys, `alignment_for_binary_expression`,
-`insert_space_before_binary_operator`, `insert_space_after_binary_operator`, and
-`wrap_before_binary_operator`) and options for syntax that Java 11 code cannot
-contain (`comment.format_markdown_comments`,
-`insert_new_line_after_annotation_on_record_parameter`,
-`put_text_block_quotes_on_new_line`, `align_arrows_in_switch_on_columns`, and
-`brace_position_for_block_in_case_after_arrow`). `join_line_comments` is not set
-by the profiles either, but it remains configurable. Options that the
-formatter never reads, such as the record and `permits` layout options, are
-not parsed. The formatters for code nested in comments copy the options object
-and adjust its line lengths instead of rebuilding options from a settings map.
+## Problem messages
 
-## English-only messages
-
-Diagnostic templates are returned by a `switch` in `IProblemFactory`. They
-cover only the problems that the retained parser can report and that the
-formatter's fixed options do not ignore. Javadoc problems are always ignored,
-so their templates and the `Javadoc: ` message prefix are not shipped.
-Templates hold the final text, using plain apostrophes instead of
-`MessageFormat`'s doubled ones, and arguments are substituted directly. No
-message property files, resource bundles, `MessageFormat` calls, or locale
-lookups remain, and the runtime does not read or change the JVM default locale.
+Problems record only their ID, severity, source range, and line, because the
+formatter checks them but never displays them. No message text is built, so no
+message templates, readable grammar symbol names, property files, resource
+bundles, `MessageFormat` calls, or locale lookups remain, and the runtime does
+not read or change the JVM default locale. Syntax-error diagnosis still decides
+which problems are reported and where.
 
 ## Verification
 
@@ -199,8 +282,7 @@ declaration modifiers, including the deprecated bit set from Javadoc. Moving
 code between packages is checked by comparing the bytecode compiled before and
 after the move with package names mapped, by confirming that no package-private
 method starts overriding another because its class now shares a package with
-the superclass, and by loading the parser and Unicode tables from their new
-locations.
+the superclass, and by loading the parser tables from their new location.
 
 ## Building and runtime compatibility
 
@@ -212,8 +294,6 @@ From the emitter package directory, build through the generator reactor:
 ```powershell
 mvn --no-transfer-progress --define spotless.skip=true -f generator\pom.xml install
 ```
-
-Formatter option keys retain their standard Eclipse values.
 
 ## Provenance and licenses
 

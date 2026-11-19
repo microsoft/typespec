@@ -26,13 +26,11 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class InfixExpression extends Expression {
 
     /**
-     * Infix operators (typesafe enumeration).
+     * Infix operators, with their binding precedence.
      *
      * <pre>
      * InfixOperator:<code>
@@ -57,21 +55,57 @@ public class InfixExpression extends Expression {
      *    <b>||</b>  CONDITIONAL_OR</code>
      * </pre>
      */
-    public static class Operator {
+    public enum Operator {
+        /** Multiplication "*" operator. */
+        TIMES("*", 1),
+        /** Division "/" operator. */
+        DIVIDE("/", 1),
+        /** Remainder "%" operator. */
+        REMAINDER("%", 1),
+        /** Addition (or string concatenation) "+" operator. */
+        PLUS("+", 2),
+        /** Subtraction "-" operator. */
+        MINUS("-", 2),
+        /** Left shift "&lt;&lt;" operator. */
+        LEFT_SHIFT("<<", 3),
+        /** Signed right shift "&gt;&gt;" operator. */
+        RIGHT_SHIFT_SIGNED(">>", 3),
+        /** Unsigned right shift "&gt;&gt;&gt;" operator. */
+        RIGHT_SHIFT_UNSIGNED(">>>", 3),
+        /** Less than "&lt;" operator. */
+        LESS("<", 4),
+        /** Greater than "&gt;" operator. */
+        GREATER(">", 4),
+        /** Less than or equals "&lt;=" operator. */
+        LESS_EQUALS("<=", 4),
+        /** Greater than or equals "&gt;=" operator. */
+        GREATER_EQUALS(">=", 4),
+        /** Equals "==" operator. */
+        EQUALS("==", 5),
+        /** Not equals "!=" operator. */
+        NOT_EQUALS("!=", 5),
+        /** Exclusive OR "^" operator. */
+        XOR("^", 7),
+        /** Inclusive OR "|" operator. */
+        OR("|", 8),
+        /** AND "&amp;" operator. */
+        AND("&", 6),
+        /** Conditional OR "||" operator. */
+        CONDITIONAL_OR("||", 10),
+        /** Conditional AND "&amp;&amp;" operator. */
+        CONDITIONAL_AND("&&", 9);
 
-        /**
-         * The token for the operator.
-         */
         private final String token;
 
         /**
-         * Creates a new infix operator with the given token. <p> Note: this constructor is private. The only instances
-         * ever created are the ones for the standard operators. </p>
-         *
-         * @param token the character sequence for the operator
+         * The binding precedence, from 1 for multiplicative operators to 10 for conditional OR. Operators with
+         * the same precedence are wrapped as one group.
          */
-        private Operator(String token) {
+        public final int precedence;
+
+        Operator(String token, int precedence) {
             this.token = token;
+            this.precedence = precedence;
         }
 
         /**
@@ -83,45 +117,6 @@ public class InfixExpression extends Expression {
         public String toString() {
             return this.token;
         }
-
-        /** Multiplication "*" operator. */
-        public static final Operator TIMES = new Operator("*");//$NON-NLS-1$
-        /** Division "/" operator. */
-        public static final Operator DIVIDE = new Operator("/");//$NON-NLS-1$
-        /** Remainder "%" operator. */
-        public static final Operator REMAINDER = new Operator("%");//$NON-NLS-1$
-        /** Addition (or string concatenation) "+" operator. */
-        public static final Operator PLUS = new Operator("+");//$NON-NLS-1$
-        /** Subtraction "-" operator. */
-        public static final Operator MINUS = new Operator("-");//$NON-NLS-1$
-        /** Left shift "&lt;&lt;" operator. */
-        public static final Operator LEFT_SHIFT = new Operator("<<");//$NON-NLS-1$
-        /** Signed right shift "&gt;&gt;" operator. */
-        public static final Operator RIGHT_SHIFT_SIGNED = new Operator(">>");//$NON-NLS-1$
-        /** Unsigned right shift "&gt;&gt;&gt;" operator. */
-        public static final Operator RIGHT_SHIFT_UNSIGNED = new Operator(">>>");//$NON-NLS-1$
-        /** Less than "&lt;" operator. */
-        public static final Operator LESS = new Operator("<");//$NON-NLS-1$
-        /** Greater than "&gt;" operator. */
-        public static final Operator GREATER = new Operator(">");//$NON-NLS-1$
-        /** Less than or equals "&lt;=" operator. */
-        public static final Operator LESS_EQUALS = new Operator("<=");//$NON-NLS-1$
-        /** Greater than or equals "&gt;=" operator. */
-        public static final Operator GREATER_EQUALS = new Operator(">=");//$NON-NLS-1$
-        /** Equals "==" operator. */
-        public static final Operator EQUALS = new Operator("==");//$NON-NLS-1$
-        /** Not equals "!=" operator. */
-        public static final Operator NOT_EQUALS = new Operator("!=");//$NON-NLS-1$
-        /** Exclusive OR "^" operator. */
-        public static final Operator XOR = new Operator("^");//$NON-NLS-1$
-        /** Inclusive OR "|" operator. */
-        public static final Operator OR = new Operator("|");//$NON-NLS-1$
-        /** AND "&amp;" operator. */
-        public static final Operator AND = new Operator("&");//$NON-NLS-1$
-        /** Conditional OR "||" operator. */
-        public static final Operator CONDITIONAL_OR = new Operator("||");//$NON-NLS-1$
-        /** Conditional AND "&amp;&amp;" operator. */
-        public static final Operator CONDITIONAL_AND = new Operator("&&");//$NON-NLS-1$
     }
 
     /**
@@ -167,7 +162,7 @@ public class InfixExpression extends Expression {
      * The list of extended operand expressions (element type: {@link Expression}). Lazily initialized; defaults to an
      * empty list.
      */
-    private ASTNode.NodeList extendedOperands = null;
+    private ASTNode.NodeList<Expression> extendedOperands = null;
 
     /**
      * Creates a new AST node for an infix expression owned by the given AST. By default, the node has unspecified (but
@@ -216,7 +211,6 @@ public class InfixExpression extends Expression {
      */
     public void setOperator(InfixExpression.Operator operator) {
 
-        preValueChange();
         this.operator = operator;
 
     }
@@ -289,10 +283,10 @@ public class InfixExpression extends Expression {
      *
      * @return the live list of extended operands (element type: {@link Expression})
      */
-    public List extendedOperands() {
+    public List<Expression> extendedOperands() {
         if (this.extendedOperands == null) {
             // lazily initialize
-            this.extendedOperands = new ASTNode.NodeList(EXTENDED_OPERANDS_PROPERTY);
+            this.extendedOperands = new ASTNode.NodeList<>(EXTENDED_OPERANDS_PROPERTY);
         }
         return this.extendedOperands;
     }

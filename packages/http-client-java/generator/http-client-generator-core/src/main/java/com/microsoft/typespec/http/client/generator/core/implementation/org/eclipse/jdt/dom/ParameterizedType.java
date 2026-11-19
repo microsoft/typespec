@@ -26,12 +26,11 @@ import java.util.List;
  *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * </pre>
  *
+ * <p>
  * The first type may be a simple type or a qualified type; other kinds of types are meaningless.
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class ParameterizedType extends Type {
 
     /**
@@ -53,7 +52,7 @@ public class ParameterizedType extends Type {
     /**
      * The type arguments (element type: {@link Type}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList typeArguments = new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
+    private final ASTNode.NodeList<Type> typeArguments = new ASTNode.NodeList<>(TYPE_ARGUMENTS_PROPERTY);
 
     /**
      * Creates a new unparented node for a parameterized type owned by the given AST. By default, an unspecified, but
@@ -116,7 +115,7 @@ public class ParameterizedType extends Type {
      *
      * @return the live list of type arguments (element type: {@link Type})
      */
-    public List typeArguments() {
+    public List<Type> typeArguments() {
         return this.typeArguments;
     }
 }

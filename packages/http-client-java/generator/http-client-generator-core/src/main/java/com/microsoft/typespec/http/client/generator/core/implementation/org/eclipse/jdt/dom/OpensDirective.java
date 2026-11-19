@@ -24,9 +24,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * @since 3.14
  *
  * @noextend This class is not intended to be subclassed by clients.
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class OpensDirective extends ModulePackageAccess {
 
     /**

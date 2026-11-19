@@ -59,8 +59,6 @@ public abstract class ASTNode implements TypeConstants {
 
     public static final Argument[] NO_ARGUMENTS = new Argument[0];
 
-    public static final TypePattern[] NO_TYPE_PATTERNS = new TypePattern[0];
-
     public ASTNode() {
         super();
     }

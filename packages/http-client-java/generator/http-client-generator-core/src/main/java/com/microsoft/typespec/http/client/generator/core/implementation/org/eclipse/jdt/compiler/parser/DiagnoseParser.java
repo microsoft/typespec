@@ -15,15 +15,10 @@
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilerOptions;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ProblemHandler;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.Util;
 
 public class DiagnoseParser implements ConflictedParser {
-
-    private final CompilerOptions options;
 
     private final LexStream lexStream;
     private int errorToken;
@@ -57,10 +52,6 @@ public class DiagnoseParser implements ConflictedParser {
     StateInfo[] statePool;
 
     private final Parser parser;
-
-    private boolean reportProblem;
-    private int deferredErrorStart;
-    private int deferredErrorEnd;
 
     private static class RepairCandidate {
         public int symbol;
@@ -119,14 +110,13 @@ public class DiagnoseParser implements ConflictedParser {
         }
     }
 
-    public DiagnoseParser(Parser parser, TerminalToken firstToken, int start, int end, CompilerOptions options) {
-        this(parser, firstToken, start, end, Util.EMPTY_INT_ARRAY, Util.EMPTY_INT_ARRAY, options);
+    public DiagnoseParser(Parser parser, int firstToken, int start, int end) {
+        this(parser, firstToken, start, end, Util.EMPTY_INT_ARRAY, Util.EMPTY_INT_ARRAY);
     }
 
-    public DiagnoseParser(Parser parser, TerminalToken firstToken, int start, int end, int[] intervalStartToSkip,
-        int[] intervalEndToSkip, CompilerOptions options) {
+    public DiagnoseParser(Parser parser, int firstToken, int start, int end, int[] intervalStartToSkip,
+        int[] intervalEndToSkip) {
         this.parser = parser;
-        this.options = options;
         this.lexStream = new LexStream(parser.scanner, intervalStartToSkip, intervalEndToSkip, firstToken, start, end);
 
     }
@@ -166,27 +156,13 @@ public class DiagnoseParser implements ConflictedParser {
 
     public void diagnoseParse() {
         try {
-            this.deferredErrorStart = this.deferredErrorEnd = -1;
             diagnoseParse0();
         } finally {
-            ProblemHandler problemReporter = this.problemReporter();
-            try {
-                ReferenceContext referenceContext = problemReporter.referenceContext;
-                CompilationResult compilationResult
-                    = referenceContext != null ? referenceContext.compilationResult() : null;
-                if (compilationResult != null && !compilationResult.hasSyntaxError) {
-                    reportMisplacedConstruct(this.deferredErrorStart, this.deferredErrorEnd);
-                }
-                this.deferredErrorStart = this.deferredErrorEnd = -1;
-            } finally {
-                problemReporter.close();
-            }
+            this.problemReporter().close();
         }
     }
 
     private void diagnoseParse0() {
-        this.reportProblem = true;
-
         this.parser.scanner.setActiveParser(this);
         try {
             this.lexStream.reset();
@@ -206,7 +182,7 @@ public class DiagnoseParser implements ConflictedParser {
             this.stateStackTop = 0;
             this.stack[this.stateStackTop] = act;
 
-            TerminalToken tok = this.lexStream.kind(currentToken);
+            int tok = this.lexStream.kind(currentToken);
             this.locationStack[this.stateStackTop] = currentToken;
             this.locationStartStack[this.stateStackTop] = this.lexStream.start(currentToken);
 
@@ -228,7 +204,7 @@ public class DiagnoseParser implements ConflictedParser {
                 if (this.stateStackTop + 1 >= 0)
                     System.arraycopy(this.stack, 0, this.tempStack, 0, this.stateStackTop + 1);
 
-                act = Parser.tAction(act, tok.tokenNumber());
+                act = Parser.tAction(act, tok);
                 //
                 // When a reduce action is encountered, we compute all REDUCE
                 // and associated goto actions induced by the current token.
@@ -249,7 +225,7 @@ public class DiagnoseParser implements ConflictedParser {
                         reallocateStacks();
                     pos = Math.min(pos, this.tempStackTop);
                     this.tempStack[this.tempStackTop + 1] = act;
-                    act = Parser.tAction(act, tok.tokenNumber());
+                    act = Parser.tAction(act, tok);
                 }
 
                 //
@@ -298,7 +274,7 @@ public class DiagnoseParser implements ConflictedParser {
                     //
                     currentToken = this.lexStream.getToken();
                     tok = this.lexStream.kind(currentToken);
-                    act = Parser.tAction(act, tok.tokenNumber());
+                    act = Parser.tAction(act, tok);
                     while (act <= 936) {
                         //
                         // ... Process all goto-reduce actions following
@@ -323,7 +299,7 @@ public class DiagnoseParser implements ConflictedParser {
 
                         next_pos = Math.min(next_pos, this.tempStackTop);
                         this.tempStack[this.tempStackTop + 1] = act;
-                        act = Parser.tAction(act, tok.tokenNumber());
+                        act = Parser.tAction(act, tok);
                     }
 
                     //
@@ -388,7 +364,7 @@ public class DiagnoseParser implements ConflictedParser {
                         this.locationStack[this.stateStackTop] = currentToken;
                         this.locationStartStack[this.stateStackTop] = this.lexStream.start(currentToken);
                     } else {
-                        tok = TerminalToken.of(candidate.symbol);
+                        tok = candidate.symbol;
                         this.locationStack[this.stateStackTop] = candidate.location;
                         this.locationStartStack[this.stateStackTop] = this.lexStream.start(candidate.location);
                     }
@@ -398,22 +374,6 @@ public class DiagnoseParser implements ConflictedParser {
 
             this.parser.scanner.setActiveParser(null);
         }
-    }
-
-    private static char[] displayEscapeCharacters(char[] tokenSource, int end) {
-        StringBuilder tokenSourceBuffer = new StringBuilder();
-        for (int i = 0; i < 1; i++) {
-            tokenSourceBuffer.append(tokenSource[i]);
-        }
-        for (int i = 1; i < end; i++) {
-            char c = tokenSource[i];
-
-            Util.appendEscapedChar(tokenSourceBuffer, c);
-        }
-        for (int i = end; i < tokenSource.length; i++) {
-            tokenSourceBuffer.append(tokenSource[i]);
-        }
-        return tokenSourceBuffer.toString().toCharArray();
     }
 
     //
@@ -437,7 +397,7 @@ public class DiagnoseParser implements ConflictedParser {
         this.errorTokenStart = this.lexStream.start(error_token);
 
         int prevtok = this.lexStream.previous(error_token);
-        TerminalToken prevtokKind = this.lexStream.kind(prevtok);
+        int prevtokKind = this.lexStream.kind(prevtok);
 
         //
         // Try primary phase recoveries. If not successful, try secondary
@@ -454,7 +414,7 @@ public class DiagnoseParser implements ConflictedParser {
             return candidate;
         }
 
-        if (this.lexStream.kind(error_token).tokenNumber() == 68) {
+        if (this.lexStream.kind(error_token) == 68) {
             reportError(11, Parser.terminal_index[68], prevtok, prevtok);
             candidate.symbol = 0;
             candidate.location = error_token;
@@ -468,7 +428,7 @@ public class DiagnoseParser implements ConflictedParser {
         // a successful recovery or have consumed the remaining input
         // tokens.
         //
-        while (this.lexStream.kind(this.buffer[31]).tokenNumber() != 68) {
+        while (this.lexStream.kind(this.buffer[31]) != 68) {
             candidate = secondaryPhase(this.buffer[30 - 3 + 2]);
             if (candidate.symbol != 0) {
                 return candidate;
@@ -480,10 +440,10 @@ public class DiagnoseParser implements ConflictedParser {
         // remaining tokens in the input.
         //
         int i;
-        for (i = 31; this.lexStream.kind(this.buffer[i]).tokenNumber() == 68; i--) {
+        for (i = 31; this.lexStream.kind(this.buffer[i]) == 68; i--) {
             /* empty */}
 
-        reportError(6, Parser.terminal_index[prevtokKind.tokenNumber()],// Parser.terminal_index[lexStream.kind(prevtok)],
+        reportError(6, Parser.terminal_index[prevtokKind],// Parser.terminal_index[lexStream.kind(prevtok)],
             error_token, this.buffer[i]);
 
         candidate.symbol = 0;
@@ -671,7 +631,7 @@ public class DiagnoseParser implements ConflictedParser {
 //
     private PrimaryRepairInfo checkPrimaryDistance(int[] stck, int stack_top, PrimaryRepairInfo repair) {
         int i, j, k, next_state, max_pos, act, root, symbol;
-        TerminalToken tok;
+        int tok;
 
         //
         // First, try scope and manual recovery.
@@ -700,9 +660,9 @@ public class DiagnoseParser implements ConflictedParser {
         //
         // Next, try deletion of the error token.
         //
-        j = parseCheck(stck, stack_top, this.lexStream.kind(this.buffer[repair.bufferPosition + 1]).tokenNumber(),
+        j = parseCheck(stck, stack_top, this.lexStream.kind(this.buffer[repair.bufferPosition + 1]),
             repair.bufferPosition + 2);
-        if (this.lexStream.kind(this.buffer[repair.bufferPosition]).tokenNumber() == 68
+        if (this.lexStream.kind(this.buffer[repair.bufferPosition]) == 68
             && this.lexStream.afterEol(this.buffer[repair.bufferPosition + 1])) {
             k = 10;
         } else {
@@ -725,7 +685,7 @@ public class DiagnoseParser implements ConflictedParser {
 
         tok = this.lexStream.kind(this.buffer[repair.bufferPosition]);
         this.lexStream.reset(this.buffer[repair.bufferPosition + 1]);
-        act = Parser.tAction(next_state, tok.tokenNumber());
+        act = Parser.tAction(next_state, tok);
         while (act <= 936) {
             do {
                 this.tempStackTop -= (Parser.rhs[act] - 1);
@@ -736,7 +696,7 @@ public class DiagnoseParser implements ConflictedParser {
             max_pos = Math.min(max_pos, this.tempStackTop);
             this.tempStack[this.tempStackTop + 1] = act;
             next_state = act;
-            act = Parser.tAction(next_state, tok.tokenNumber());
+            act = Parser.tAction(next_state, tok);
         }
 
         //
@@ -961,7 +921,7 @@ public class DiagnoseParser implements ConflictedParser {
 
             default: {// deletion
                 candidate.location = this.buffer[repair.bufferPosition + 1];
-                candidate.symbol = this.lexStream.kind(this.buffer[repair.bufferPosition + 1]).tokenNumber();
+                candidate.symbol = this.lexStream.kind(this.buffer[repair.bufferPosition + 1]);
                 this.lexStream.reset(this.buffer[repair.bufferPosition + 2]);
                 break;
             }
@@ -1036,7 +996,7 @@ public class DiagnoseParser implements ConflictedParser {
                              // next move is shift or shift-reduce.
         int threshold = this.tempStackTop;
 
-        tok = this.lexStream.kind(this.buffer[buffer_position]).tokenNumber();
+        tok = this.lexStream.kind(this.buffer[buffer_position]);
         this.lexStream.reset(this.buffer[buffer_position + 1]);
 
         if (act > 17981) {  // shift-reduce on candidate?
@@ -1087,7 +1047,7 @@ public class DiagnoseParser implements ConflictedParser {
 //	   C =>+rm B, it cannot be the case that B =>+rm C)
 //
     private int getNtermIndex(int start, int sym, int buffer_position) {
-        int highest_symbol = sym - 137, tok = this.lexStream.kind(this.buffer[buffer_position]).tokenNumber();
+        int highest_symbol = sym - 137, tok = this.lexStream.kind(this.buffer[buffer_position]);
         this.lexStream.reset(this.buffer[buffer_position + 1]);
 
         //
@@ -1368,7 +1328,7 @@ public class DiagnoseParser implements ConflictedParser {
                             int top = stack_position;
                             act = Parser.ntAction(stck[top], Parser.scope_lhs[i]);
                             while (act <= 936) {
-                                if (Parser.rules_compliance[act] > this.options.sourceLevel) {
+                                if (Parser.rules_compliance[act] > 3473408L /* Java 9, for module declarations */) {
                                     continue next;
                                 }
                                 top -= (Parser.rhs[act] - 1);
@@ -1386,7 +1346,7 @@ public class DiagnoseParser implements ConflictedParser {
                             repair.distance = distance;
                         }
 
-                        if (this.lexStream.kind(this.buffer[repair.bufferPosition]).tokenNumber() == 68
+                        if (this.lexStream.kind(this.buffer[repair.bufferPosition]) == 68
                             && repair.distance == previous_distance) {
                             this.scopeStackTop = indx;
                             repair.distance = 30;
@@ -1425,8 +1385,7 @@ public class DiagnoseParser implements ConflictedParser {
         int top, j;
 
         for (top = stack_top - 1; top >= 0; top--) {
-            j = parseCheck(stck, top, this.lexStream.kind(this.buffer[buffer_position]).tokenNumber(),
-                buffer_position + 1);
+            j = parseCheck(stck, top, this.lexStream.kind(this.buffer[buffer_position]), buffer_position + 1);
             if (((j - buffer_position + 1) > 3) && (j > distance))
                 return true;
         }
@@ -1489,8 +1448,7 @@ public class DiagnoseParser implements ConflictedParser {
             // index).
             //
             for (next_last_index = 30 - 1;
-                next_last_index >= 1 && this.lexStream.kind(this.buffer[next_last_index]).tokenNumber() == 68;
-                next_last_index--) {
+                next_last_index >= 1 && this.lexStream.kind(this.buffer[next_last_index]) == 68; next_last_index--) {
                 /* empty */}
             next_last_index = next_last_index + 1;
 
@@ -1527,8 +1485,7 @@ public class DiagnoseParser implements ConflictedParser {
         for (k = 4; k < 32; k++)
             this.buffer[k] = this.lexStream.next(this.buffer[k - 1]);
 
-        for (last_index = 30 - 1; last_index >= 1 && this.lexStream.kind(this.buffer[last_index]).tokenNumber() == 68;
-            last_index--) {
+        for (last_index = 30 - 1; last_index >= 1 && this.lexStream.kind(this.buffer[last_index]) == 68; last_index--) {
             /* empty */}
         last_index++;
 
@@ -1607,7 +1564,7 @@ public class DiagnoseParser implements ConflictedParser {
         // applicable at the end of the file after discarding some
         // states.
         //
-        if (repair.code == 0 && this.lexStream.kind(this.buffer[last_index]).tokenNumber() == 68) {
+        if (repair.code == 0 && this.lexStream.kind(this.buffer[last_index]) == 68) {
             PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
 
             scope_repair.bufferPosition = last_index;
@@ -1639,14 +1596,14 @@ public class DiagnoseParser implements ConflictedParser {
         switch (repair.code) {
             case 8:
                 candidate.location = this.buffer[2];
-                candidate.symbol = this.lexStream.kind(this.buffer[2]).tokenNumber();
+                candidate.symbol = this.lexStream.kind(this.buffer[2]);
                 this.lexStream.reset(this.lexStream.next(this.buffer[2]));
 
                 break;
 
             case 6:
                 candidate.location = this.buffer[repair.bufferPosition];
-                candidate.symbol = this.lexStream.kind(this.buffer[repair.bufferPosition]).tokenNumber();
+                candidate.symbol = this.lexStream.kind(this.buffer[repair.bufferPosition]);
                 this.lexStream.reset(this.lexStream.next(this.buffer[repair.bufferPosition]));
 
                 break;
@@ -1678,7 +1635,7 @@ public class DiagnoseParser implements ConflictedParser {
             }
             previous_loc = this.locationStack[top];
 
-            int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[2]).tokenNumber(), 3);
+            int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[2]), 3);
             if (j == 30) {
                 j = last_index;
             }
@@ -1711,7 +1668,7 @@ public class DiagnoseParser implements ConflictedParser {
             previous_loc = this.locationStack[top];
 
             for (int i = 2; i <= (last_index - 3 + 1) && (repair.numDeletions >= (stack_deletions + i - 1)); i++) {
-                int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[i]).tokenNumber(), i + 1);
+                int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[i]), i + 1);
 
                 if (j == 30) {
                     j = last_index;
@@ -1794,7 +1751,7 @@ public class DiagnoseParser implements ConflictedParser {
     private int parseCheck(int[] stck, int stack_top, int first_token, int buffer_position) {
         int max_pos;
         int indx;
-        TerminalToken ct;
+        int ct;
         int act;
 
         //
@@ -1815,7 +1772,7 @@ public class DiagnoseParser implements ConflictedParser {
                 do {
                     this.tempStackTop -= (Parser.rhs[act] - 1);
 
-                    if (Parser.rules_compliance[act] > this.options.sourceLevel) {
+                    if (Parser.rules_compliance[act] > 3473408L /* Java 9, for module declarations */) {
                         return 0;
                     }
                     lhs_symbol = Parser.lhs[act];
@@ -1830,7 +1787,7 @@ public class DiagnoseParser implements ConflictedParser {
 
             max_pos = this.tempStackTop;
             indx = buffer_position - 1;
-            ct = TerminalToken.of(first_token);
+            ct = first_token;
             this.lexStream.reset(this.buffer[buffer_position]);
         }
 
@@ -1839,7 +1796,7 @@ public class DiagnoseParser implements ConflictedParser {
                 return indx;
             this.tempStack[this.tempStackTop] = act;
 
-            act = Parser.tAction(act, ct.tokenNumber());
+            act = Parser.tAction(act, ct);
 
             if (act <= 936) {               // reduce action
                 this.tempStackTop--;
@@ -1867,7 +1824,7 @@ public class DiagnoseParser implements ConflictedParser {
                 this.tempStackTop -= (Parser.rhs[act] - 1);
 
                 if (act <= 936) {
-                    if (Parser.rules_compliance[act] > this.options.sourceLevel) {
+                    if (Parser.rules_compliance[act] > 3473408L /* Java 9, for module declarations */) {
                         return 0;
                     }
                 }
@@ -1895,158 +1852,89 @@ public class DiagnoseParser implements ConflictedParser {
     }
 
     private void reportPrimaryError(int msgCode, int nameIndex, int token, int scopeNameIndex) {
-        String name;
-        if (nameIndex >= 0) {
-            name = Parser.readableName[nameIndex];
-        } else {
-            name = Util.EMPTY_STRING;
-        }
+        // symbol 52 is the only one without a readable name
+        boolean emptyName = nameIndex < 0 || nameIndex == 52;
+        // expecting '@' (symbol 47) at an '@' can mean either annotation token, so that error is not reported
+        boolean ambiguousAt = nameIndex == 47 && this.lexStream.kind(token) == TerminalToken.TokenNameAT;
 
         int errorStart = this.lexStream.start(token);
         int errorEnd = this.lexStream.end(token);
-        int currentKind = this.lexStream.kind(token).tokenNumber();
-        String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token).tokenNumber()]];
-        char[] errorTokenSource = this.lexStream.name(token);
-        if (currentKind == TerminalToken.TokenNameStringLiteral.tokenNumber()) {
-            errorTokenSource = displayEscapeCharacters(errorTokenSource, errorTokenSource.length - 1);
-        }
 
         switch (msgCode) {
             case 2:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorInsertBeforeToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                        errorTokenSource, errorTokenName, name);
+                if (!ambiguousAt)
+                    problemReporter().parseErrorInsertBeforeToken(errorStart, errorEnd);
                 break;
 
             case 3:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorInsertAfterToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                        errorTokenSource, errorTokenName, name);
+                if (!ambiguousAt)
+                    problemReporter().parseErrorInsertAfterToken(errorStart, errorEnd);
                 break;
 
             case 6:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorDeleteToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                        errorTokenSource, errorTokenName);
+                problemReporter().parseErrorDeleteToken(errorStart, errorEnd);
                 break;
 
             case 4:
-                if (name.isEmpty()) {
+                if (emptyName) {
 
-                    if (this.reportProblem)
-                        problemReporter().parseErrorReplaceToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                            errorTokenSource, errorTokenName, name);
+                    problemReporter().parseErrorReplaceToken(errorStart, errorEnd);
                 } else {
 
-                    if (this.reportProblem)
-                        problemReporter().parseErrorInvalidToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                            errorTokenSource, errorTokenName, name);
+                    if (!ambiguousAt)
+                        problemReporter().parseErrorInvalidToken(errorStart, errorEnd);
                 }
                 break;
 
             case 5:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorReplaceToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                        errorTokenSource, errorTokenName, name);
+                if (!ambiguousAt)
+                    problemReporter().parseErrorReplaceToken(errorStart, errorEnd);
                 break;
 
             case 9:
-                StringBuilder buf = new StringBuilder();
-
-                for (int i = Parser.scope_suffix[-nameIndex]; Parser.scope_rhs[i] != 0; i++) {
-                    buf.append(Parser.readableName[Parser.scope_rhs[i]]);
-                    if (Parser.scope_rhs[i + 1] != 0) // any more symbols to print?
-                        buf.append(' ');
-                }
 
                 if (scopeNameIndex != 0) {
-                    if (this.reportProblem)
-                        problemReporter().parseErrorInsertToComplete(errorStart, errorEnd, buf.toString(),
-                            Parser.readableName[scopeNameIndex]);
+                    problemReporter().parseErrorInsertToComplete(errorStart, errorEnd);
                 } else {
-                    if (this.reportProblem)
-                        problemReporter().parseErrorInsertToCompleteScope(errorStart, errorEnd, buf.toString());
+                    problemReporter().parseErrorInsertToCompleteScope(errorStart, errorEnd);
                 }
 
                 break;
 
             case 11:
-                if (this.reportProblem)
-                    problemReporter().parseErrorUnexpectedEnd(errorStart, errorEnd);
+                problemReporter().parseErrorUnexpectedEnd(errorStart, errorEnd);
                 break;
 
             case 7:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorMergeTokens(errorStart, errorEnd, name);
+                problemReporter().parseErrorMergeTokens(errorStart, errorEnd);
                 break;
 
             case 8:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorMisplacedConstruct(errorStart, errorEnd);
+                problemReporter().parseErrorMisplacedConstruct(errorStart, errorEnd);
                 break;
 
             default:
-                if (name.isEmpty()) {
+                if (emptyName) {
 
-                    if (this.reportProblem)
-                        problemReporter().parseErrorNoSuggestion(errorStart, errorEnd, TerminalToken.of(currentKind),
-                            errorTokenSource, errorTokenName);
+                    problemReporter().parseErrorNoSuggestion(errorStart, errorEnd);
                 } else {
 
-                    if (this.reportProblem)
-                        problemReporter().parseErrorReplaceToken(errorStart, errorEnd, TerminalToken.of(currentKind),
-                            errorTokenSource, errorTokenName, name);
+                    if (!ambiguousAt)
+                        problemReporter().parseErrorReplaceToken(errorStart, errorEnd);
                 }
                 break;
         }
     }
 
-    private void reportMisplacedConstruct(int errorStart, int errorEnd) {
-
-        /*
-         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, we should be very careful about ever reporting the
-         * diagnostic, "Syntax error, insert ElidedSemicolonAndRightBrace to complete LambdaBody" as it is a synthetic
-         * token. Such a diagnostic is wasteful and confusing as it is not actionable by the programmer.
-         *
-         * More importantly, the insertion of this synthetic token is also "normal" part of the business of parsing
-         * lambdas. See how the regular Parser behaves at Parser.consumeElidedLeftBraceAndReturn and
-         * Parser.consumeExpression. See also: point (4) in https://bugs.eclipse.org/bugs/show_bug.cgi?id=380194#c15
-         *
-         * However, not surfacing ANY error may be invitation for trouble - sometimes the DiagnoseParser can skip over
-         * several tokens in the "broken" part of input and eagerly reach for a cleaner state of affairs - this may
-         * result in NO other diagnostics showing up whatsoever.
-         *
-         * See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/367 and for a really egregious case, see
-         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=553601#c0.
-         *
-         * The present fix attempts a low-tech solution to the problem. Rather than teach DiagnoseParser the sleight of
-         * hand that the normal parser performs in Parser.consumeElidedLeftBraceAndReturn and Parser.consumeExpression
-         * (and thereby make the insertion of ElidedSemicolonAndRightBrace a normal part of parsing rather than of
-         * recovery), we do three things now:
-         *
-         * (a) Defer reporting this error message till the very end. (b) Surface this error ONLY if there are no other
-         * syntax errors (so there is no false positive) (c) Opt for a general/bland message without speaking of
-         * synthetics. (Cf javac's ubiquitous "Syntax error: Illegal start of expression")
-         */
-        if (!this.reportProblem || errorStart < 0 || errorEnd < 0)
-            return;
-
-        problemReporter().parseErrorMisplacedConstruct(errorStart, errorEnd);
-    }
-
     private void reportSecondaryError(int msgCode, int nameIndex, int leftToken, int rightToken, int scopeNameIndex) {
-        String name;
-        if (nameIndex >= 0) {
-            name = Parser.readableName[nameIndex];
-        } else {
-            name = Util.EMPTY_STRING;
-        }
+        // symbol 52 is the only one without a readable name
+        boolean emptyName = nameIndex < 0 || nameIndex == 52;
 
         int errorStart = -1;
         if (this.lexStream.isInsideStream(leftToken)) {
@@ -2074,58 +1962,42 @@ public class DiagnoseParser implements ConflictedParser {
         switch (msgCode) {
             case 8:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorMisplacedConstruct(errorStart, errorEnd);
+                problemReporter().parseErrorMisplacedConstruct(errorStart, errorEnd);
                 break;
 
             case 9:
                 // error start is on the last token start
                 errorStart = this.lexStream.start(rightToken);
-
-                StringBuilder buf = new StringBuilder();
-
-                for (int i = Parser.scope_suffix[-nameIndex]; Parser.scope_rhs[i] != 0; i++) {
-                    buf.append(Parser.readableName[Parser.scope_rhs[i]]);
-                    if (Parser.scope_rhs[i + 1] != 0)
-                        buf.append(' ');
-                }
                 if (scopeNameIndex != 0) {
-                    if (this.reportProblem)
-                        problemReporter().parseErrorInsertToComplete(errorStart, errorEnd, buf.toString(),
-                            Parser.readableName[scopeNameIndex]);
+                    problemReporter().parseErrorInsertToComplete(errorStart, errorEnd);
                 } else {
-                    if (this.reportProblem)
-                        problemReporter().parseErrorInsertToCompletePhrase(errorStart, errorEnd, buf.toString());
+                    problemReporter().parseErrorInsertToCompletePhrase(errorStart, errorEnd);
                 }
                 break;
 
             case 7:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorMergeTokens(errorStart, errorEnd, name);
+                problemReporter().parseErrorMergeTokens(errorStart, errorEnd);
                 break;
 
             case 6:
 
-                if (this.reportProblem)
-                    problemReporter().parseErrorDeleteTokens(errorStart, errorEnd);
+                problemReporter().parseErrorDeleteTokens(errorStart, errorEnd);
                 break;
 
             default:
-                if (name.isEmpty()) {
+                if (emptyName) {
 
-                    if (this.reportProblem)
-                        problemReporter().parseErrorNoSuggestionForTokens(errorStart, errorEnd);
+                    problemReporter().parseErrorNoSuggestionForTokens(errorStart, errorEnd);
                 } else {
 
-                    if (this.reportProblem)
-                        problemReporter().parseErrorReplaceTokens(errorStart, errorEnd, name);
+                    problemReporter().parseErrorReplaceTokens(errorStart, errorEnd);
                 }
         }
     }
 
     @Override
-    public boolean atConflictScenario(TerminalToken token) {
+    public boolean atConflictScenario(int token) {
         /*
          * There is too much voodoo that goes on here in DiagnoseParser (multiple machines, lexer stream reset etc.) So
          * we take a simple minded view that we will always ask for disambiguation, except there is one scenario that
@@ -2136,11 +2008,6 @@ public class DiagnoseParser implements ConflictedParser {
         return (token == TerminalToken.TokenNameLPAREN
             || token == TerminalToken.TokenNameAT
             || (token == TerminalToken.TokenNameLESS && !this.lexStream.awaitingColonColon()));
-    }
-
-    @Override
-    public boolean automatonWillShift(TerminalToken token) {
-        return false; // Some day we will understand the world well enough, for now say no and deal with it (sigh)
     }
 
     @Override

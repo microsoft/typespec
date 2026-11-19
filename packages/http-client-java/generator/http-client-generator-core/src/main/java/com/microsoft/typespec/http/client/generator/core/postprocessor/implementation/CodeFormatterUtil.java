@@ -39,14 +39,11 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.CodeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.slf4j.Logger;
 
 /**
@@ -83,7 +80,7 @@ public final class CodeFormatterUtil {
 
         // Reuse the stateful parser and formatter only within this sequential batch, never across concurrent
         // calls or parallel stream elements. Each call owns these instances and uses the caller's parser settings.
-        CodeFormatter codeFormatter = new CodeFormatter(loadEclipseSettings());
+        CodeFormatter codeFormatter = new CodeFormatter();
         // Keep token/range storage and comment handling: import reordering relies on source positions, so disabling
         // tokens to reduce parser allocations would change behavior even though we do not print the AST.
         JavaParser javaParser = new JavaParser(StaticJavaParser.getParserConfiguration());
@@ -144,32 +141,6 @@ public final class CodeFormatterUtil {
             throw new IllegalStateException("JavaParser encountered errors:\n" + errors);
         }
         return prepared;
-    }
-
-    /**
-     * Loads the Eclipse formatter settings from the XML file.
-     *
-     * @return The Eclipse formatter settings.
-     * @throws RuntimeException If the formatter settings could not be loaded.
-     */
-    private static Map<String, String> loadEclipseSettings() {
-        try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document document = documentBuilder.parse(
-                CodeFormatterUtil.class.getClassLoader().getResourceAsStream("eclipse-format-azure-sdk-for-java.xml"));
-
-            org.w3c.dom.NodeList formatterSettingXml = document.getElementsByTagName("setting");
-            Map<String, String> formatterSettings = new LinkedHashMap<>();
-            for (int i = 0; i < formatterSettingXml.getLength(); i++) {
-                org.w3c.dom.Node node = formatterSettingXml.item(i);
-                formatterSettings.put(node.getAttributes().getNamedItem("id").getNodeValue(),
-                    node.getAttributes().getNamedItem("value").getNodeValue());
-            }
-
-            return formatterSettings;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     /**

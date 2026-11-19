@@ -21,27 +21,4 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * should only be thrown from within problem handlers.
  */
 public class AbortCompilation extends RuntimeException {
-
-    public IProblem problem;
-
-    public AbortCompilation() {
-        // empty
-    }
-
-    public AbortCompilation(IProblem problem) {
-        this();
-
-        this.problem = problem;
-    }
-
-    @Override
-    public String getMessage() {
-        String message = super.getMessage();
-        StringBuilder buffer = new StringBuilder(message == null ? Util.EMPTY_STRING : message);
-        if (this.problem != null) {
-            buffer.append(this.problem);
-        }
-        return String.valueOf(buffer);
-    }
-
 }

@@ -26,9 +26,7 @@ import java.util.List;
  * @since 3.14
  *
  * @noextend This class is not intended to be subclassed by clients.
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class ProvidesDirective extends ModuleDirective {
 
     /**
@@ -50,7 +48,7 @@ public class ProvidesDirective extends ModuleDirective {
     /**
      * The implementations names (element type: {@link Name}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList implementations = new ASTNode.NodeList(IMPLEMENTATIONS_PROPERTY);
+    private final ASTNode.NodeList<Name> implementations = new ASTNode.NodeList<>(IMPLEMENTATIONS_PROPERTY);
 
     /**
      * Creates a new AST node for an provides directive owned by the given AST. The provides directive initially is for
@@ -110,7 +108,7 @@ public class ProvidesDirective extends ModuleDirective {
      *
      * @return the live list of implementations for the interface (element type: {@link Name})
      */
-    public List implementations() {
+    public List<Name> implementations() {
         return this.implementations;
     }
 }

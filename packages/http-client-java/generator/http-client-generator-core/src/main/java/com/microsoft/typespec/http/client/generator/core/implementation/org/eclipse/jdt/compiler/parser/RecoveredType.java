@@ -17,6 +17,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser;
 
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
+
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +26,6 @@ import java.util.Set;
 /**
  * Internal type structure for parsing recovery
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class RecoveredType extends RecoveredStatement {
 
     public TypeDeclaration typeDeclaration;
@@ -42,7 +43,6 @@ public class RecoveredType extends RecoveredStatement {
     public RecoveredMethod[] methods;
     public int methodCount;
 
-    public boolean preserveContent = false;	// only used for anonymous types
     public int bodyEnd;
 
     public boolean insideEnumConstantPart = false;
@@ -68,8 +68,6 @@ public class RecoveredType extends RecoveredStatement {
         if (this.foundOpeningBrace) {
             this.bracketBalance++;
         }
-
-        this.preserveContent = parser().methodRecoveryActivated || parser().statementRecoveryActivated;
     }
 
     @Override
@@ -324,27 +322,21 @@ public class RecoveredType extends RecoveredStatement {
     }
 
     public boolean bodyStartsAtHeaderEnd() {
-        if (this.typeDeclaration.permittedTypes == null) {
-            if (this.typeDeclaration.superInterfaces == null) {
-                if (this.typeDeclaration.superclass == null) {
-                    if (this.typeDeclaration.typeParameters == null) {
-                        return this.typeDeclaration.bodyStart == this.typeDeclaration.sourceEnd + 1;
-                    } else {
-                        return this.typeDeclaration.bodyStart
-                            == this.typeDeclaration.typeParameters[this.typeDeclaration.typeParameters.length
-                                - 1].sourceEnd + 1;
-                    }
+        if (this.typeDeclaration.superInterfaces == null) {
+            if (this.typeDeclaration.superclass == null) {
+                if (this.typeDeclaration.typeParameters == null) {
+                    return this.typeDeclaration.bodyStart == this.typeDeclaration.sourceEnd + 1;
                 } else {
-                    return this.typeDeclaration.bodyStart == this.typeDeclaration.superclass.sourceEnd + 1;
+                    return this.typeDeclaration.bodyStart
+                        == this.typeDeclaration.typeParameters[this.typeDeclaration.typeParameters.length - 1].sourceEnd
+                            + 1;
                 }
             } else {
-                return this.typeDeclaration.bodyStart
-                    == this.typeDeclaration.superInterfaces[this.typeDeclaration.superInterfaces.length - 1].sourceEnd
-                        + 1;
+                return this.typeDeclaration.bodyStart == this.typeDeclaration.superclass.sourceEnd + 1;
             }
         } else {
             return this.typeDeclaration.bodyStart
-                == this.typeDeclaration.permittedTypes[this.typeDeclaration.permittedTypes.length - 1].sourceEnd + 1;
+                == this.typeDeclaration.superInterfaces[this.typeDeclaration.superInterfaces.length - 1].sourceEnd + 1;
         }
     }
 
@@ -417,11 +409,11 @@ public class RecoveredType extends RecoveredStatement {
     }
 
     @Override
-    public Statement updatedStatement(int depth, Set knownTypes) {
+    public void updatedStatement(int depth, Set<TypeDeclaration> knownTypes) {
 
         // ignore closed anonymous type
-        if ((this.typeDeclaration.bits & 512) != 0 && !this.preserveContent) {
-            return null;
+        if ((this.typeDeclaration.bits & 512) != 0) {
+            return;
         }
 
         TypeDeclaration updatedType = updatedTypeDeclaration(depth + 1, knownTypes);
@@ -432,9 +424,7 @@ public class RecoveredType extends RecoveredStatement {
             if (allocation.statementEnd == -1) {
                 allocation.statementEnd = updatedType.declarationSourceEnd;
             }
-            return allocation;
         }
-        return updatedType;
     }
 
     public TypeDeclaration updatedTypeDeclaration(int depth, Set<TypeDeclaration> knownTypes) {
@@ -572,7 +562,7 @@ public class RecoveredType extends RecoveredStatement {
                     if (methodDeclarations[j] == this.methods[i].methodDeclaration)
                         continue next;
                 }
-                AbstractMethodDeclaration updatedMethod = this.methods[i].updatedMethodDeclaration(depth, knownTypes);
+                AbstractMethodDeclaration updatedMethod = this.methods[i].updatedMethodDeclaration();
                 if (updatedMethod.isConstructor())
                     hasRecoveredConstructor = true;
                 if (updatedMethod.isAbstract())
@@ -661,25 +651,17 @@ public class RecoveredType extends RecoveredStatement {
         // anymous type and enum constant doesn't need to be updated
         if (bodyStartsAtHeaderEnd() && this.typeDeclaration.allocation == null) {
             Parser parser = parser();
-            /* might want to recover implemented interfaces or record components */
+            /* might want to recover implemented interfaces */
             // protection for bugs 15142
-            if (parser.listLength > 0 && parser.astLengthPtr > 0) { // awaiting interface type references or record
-                                                                    // components
+            if (parser.listLength > 0 && parser.astLengthPtr > 0) { // awaiting interface type references
                 int length = parser.astLengthStack[parser.astLengthPtr];
                 int astPtr = parser.astPtr - length;
                 boolean canConsume = astPtr >= 0;
                 TypeDeclaration typeDecl
                     = canConsume && parser.astStack[astPtr]instanceof TypeDeclaration td ? td : null;
-                boolean needUpdateRParenPos = parser.rParenPos < parser.lParenPos;
                 if (typeDecl != null) {
                     for (int i = 1, max = length + 1; i < max; i++) {
-                        if (typeDecl.isRecord()
-                            && parser.parsingRecordComponents
-                            && parser.astStack[astPtr + i]instanceof RecordComponent component) {
-                            if (needUpdateRParenPos)
-                                parser.rParenPos = component.sourceEnd + 1;
-                            // so far so good
-                        } else if (parser.astStack[astPtr + i] instanceof TypeReference) {
+                        if (parser.astStack[astPtr + i] instanceof TypeReference) {
                             // so far so good
                         } else {
                             canConsume = false;
@@ -687,12 +669,9 @@ public class RecoveredType extends RecoveredStatement {
                         }
                     }
                     if (canConsume) {
-                        if (typeDecl.isRecord() && parser.parsingRecordComponents)
-                            parser.consumeRecordComponentHeaderRightParen();
-                        else
-                            parser.consumeClassHeaderImplements();
+                        parser.consumeClassHeaderImplements();
                         // will reset listLength to zero; thus this check will only be performed on first errorCheck
-                        // after class X implements Y,Z, or record X(int x,)
+                        // after class X implements Y,Z,
                     }
                 }
             } else if (parser.listTypeParameterLength > 0) {
@@ -756,7 +735,6 @@ public class RecoveredType extends RecoveredStatement {
                 case TokenNameInvalid:
                 case TokenNameextends:
                 case TokenNameimplements:
-                case TokenNameRestrictedIdentifierpermits:
                 case TokenNameGREATER:
                 case TokenNameRIGHT_SHIFT:
                 case TokenNameUNSIGNED_RIGHT_SHIFT:
@@ -769,14 +747,12 @@ public class RecoveredType extends RecoveredStatement {
             }
         }
         // might be an initializer
-        NonInit: if (this.bracketBalance == 1) {
+        if (this.bracketBalance == 1) {
             Block block = new Block(0);
             Parser parser = parser();
             block.sourceStart = parser.scanner.startPosition;
             Initializer init;
             if (parser.recoveredStaticInitializerStart == 0) {
-                if (this.typeDeclaration.isRecord())
-                    break NonInit;
                 init = new Initializer(block, 0);
             } else {
                 init = new Initializer(block, 8);
@@ -790,7 +766,7 @@ public class RecoveredType extends RecoveredStatement {
 
     @Override
     public void updateParseTree() {
-        updatedTypeDeclaration(0, new HashSet());
+        updatedTypeDeclaration(0, new HashSet<>());
     }
 
     /*

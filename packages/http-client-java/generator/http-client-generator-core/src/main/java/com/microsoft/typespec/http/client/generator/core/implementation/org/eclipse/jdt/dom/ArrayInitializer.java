@@ -26,9 +26,7 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class ArrayInitializer extends Expression {
 
     /**
@@ -42,7 +40,7 @@ public class ArrayInitializer extends Expression {
     /**
      * The list of expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList expressions = new ASTNode.NodeList(EXPRESSIONS_PROPERTY);
+    private final ASTNode.NodeList<Expression> expressions = new ASTNode.NodeList<>(EXPRESSIONS_PROPERTY);
 
     /**
      * Creates a new AST node for an array initializer owned by the given AST. By default, the list of expressions is
@@ -73,7 +71,7 @@ public class ArrayInitializer extends Expression {
      *
      * @return the live list of expressions (element type: {@link Expression})
      */
-    public List expressions() {
+    public List<Expression> expressions() {
         return this.expressions;
     }
 }

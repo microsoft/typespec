@@ -39,9 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
  * @see ASTParser
  * @see ASTNode
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "unchecked" })
 public final class AST {
 
     /**
@@ -66,10 +64,7 @@ public final class AST {
      * @since 3.0
      */
     private AST() {
-        // Generated code is at most Java 11, so the scanner reads Java 11 source.
-        this.scanner = new Scanner(true /* comment */, true /* whitespace */, 3604480L /* sourceLevel */,
-            3604480L /* complianceLevel */, null/* taskTag */, null/* taskPriorities */, true/* taskCaseSensitive */,
-            false/* isPreviewEnabled */);
+        this.scanner = new Scanner(true /* comment */, true /* whitespace */);
     }
 
     /*
@@ -247,20 +242,6 @@ public final class AST {
      */
     public MethodRefParameter newMethodRefParameter() {
         return new MethodRefParameter(this);
-    }
-
-    /**
-     * Creates and returns a new unparented modifier node for the given modifier.
-     *
-     * @param keyword one of the modifier keyword constants
-     * @return a new unparented modifier node
-     * @exception IllegalArgumentException if the primitive type code is invalid
-     * @since 3.1
-     */
-    public Modifier newModifier(Modifier.ModifierKeyword keyword) {
-        Modifier result = new Modifier(this);
-        result.setKeyword(keyword);
-        return result;
     }
 
     /**

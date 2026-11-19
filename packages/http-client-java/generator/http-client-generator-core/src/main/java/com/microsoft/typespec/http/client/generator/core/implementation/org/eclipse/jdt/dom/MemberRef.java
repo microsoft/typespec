@@ -26,9 +26,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  *
  * @see Javadoc
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class MemberRef extends ASTNode implements IDocElement {
 
     /**

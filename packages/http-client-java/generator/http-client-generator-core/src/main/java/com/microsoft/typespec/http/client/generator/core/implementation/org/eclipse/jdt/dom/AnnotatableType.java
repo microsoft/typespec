@@ -25,14 +25,13 @@ import java.util.List;
  *
  * @since 3.10
  */
-@SuppressWarnings({ "rawtypes" })
 public abstract class AnnotatableType extends Type {
 
     /**
      * The annotations (element type: {@link Annotation}). Null in JLS < 8. Added in JLS8; defaults to an empty list
      * (see constructor).
      */
-    ASTNode.NodeList annotations = null;
+    ASTNode.NodeList<Annotation> annotations = null;
 
     /**
      * Creates and returns a structural property descriptor for the "annotations" property declared on the given
@@ -70,7 +69,7 @@ public abstract class AnnotatableType extends Type {
      */
     AnnotatableType(AST ast) {
         super(ast);
-        this.annotations = new ASTNode.NodeList(getAnnotationsProperty());
+        this.annotations = new ASTNode.NodeList<>(getAnnotationsProperty());
     }
 
     /**
@@ -81,9 +80,7 @@ public abstract class AnnotatableType extends Type {
      *
      * @return the live list of annotations (element type: {@link Annotation})
      */
-    public List annotations() {
-        // more efficient than just calling unsupportedIn2_3_4() to check
-
+    public List<Annotation> annotations() {
         return this.annotations;
     }
 }

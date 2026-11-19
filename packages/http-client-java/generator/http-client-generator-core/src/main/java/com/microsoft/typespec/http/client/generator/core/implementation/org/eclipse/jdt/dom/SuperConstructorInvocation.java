@@ -28,9 +28,7 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class SuperConstructorInvocation extends Statement {
 
     /**
@@ -68,12 +66,12 @@ public class SuperConstructorInvocation extends Statement {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList typeArguments = null;
+    private final ASTNode.NodeList<Type> typeArguments;
 
     /**
      * The list of argument expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList arguments = new ASTNode.NodeList(ARGUMENTS_PROPERTY);
+    private final ASTNode.NodeList<Expression> arguments = new ASTNode.NodeList<>(ARGUMENTS_PROPERTY);
 
     /**
      * Creates a new AST node for an super constructor invocation statement owned by the given AST. By default, no type
@@ -83,7 +81,7 @@ public class SuperConstructorInvocation extends Statement {
      */
     SuperConstructorInvocation(AST ast) {
         super(ast);
-        this.typeArguments = new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
+        this.typeArguments = new ASTNode.NodeList<>(TYPE_ARGUMENTS_PROPERTY);
     }
 
     @Override
@@ -132,9 +130,7 @@ public class SuperConstructorInvocation extends Statement {
      * @return the live list of type arguments (element type: {@link Type})
      * @since 3.1
      */
-    public List typeArguments() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<Type> typeArguments() {
         return this.typeArguments;
     }
 
@@ -143,7 +139,7 @@ public class SuperConstructorInvocation extends Statement {
      *
      * @return the live list of argument expressions (element type: {@link Expression})
      */
-    public List arguments() {
+    public List<Expression> arguments() {
         return this.arguments;
     }
 }

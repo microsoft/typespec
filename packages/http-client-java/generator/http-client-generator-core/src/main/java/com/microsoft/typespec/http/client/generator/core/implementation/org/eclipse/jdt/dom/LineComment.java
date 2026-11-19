@@ -21,9 +21,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * comments. </p>
  *
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public final class LineComment extends Comment {
 
     /**

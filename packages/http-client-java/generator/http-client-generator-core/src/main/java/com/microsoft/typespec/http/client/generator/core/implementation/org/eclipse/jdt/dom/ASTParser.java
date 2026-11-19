@@ -63,9 +63,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.BasicCompilationUnit;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilerOptions;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblemFactory;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ProblemHandler;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.CompilationUnitDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.ConstructorDeclaration;
@@ -73,8 +71,8 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.CommentRecorderParser;
 
 /**
- * Parses Java source into abstract syntax trees (ASTs) for the formatter. Sources are always parsed as Java 11, the
- * highest language level of generated code, using the default compiler options with Javadoc support. <p> The
+ * Parses Java source into abstract syntax trees (ASTs) for the formatter. Sources are always parsed with the Java 8
+ * language rules plus module declarations, with doc comments parsed. <p> The
  * resulting AST node is rooted under a {@link CompilationUnit}, which carries the line end table, the
  * {@linkplain CompilationUnit#getProblems() compiler messages}, and the
  * {@linkplain CompilationUnit#getCommentList() comment list}. When a snippet is parsed instead of a compilation unit,
@@ -102,25 +100,16 @@ public abstract class ASTParser {
      * declarations or an expression at all, the contrived compilation unit is returned with the compiler messages.
      */
     public static ASTNode createAST(int kind, char[] source) {
-        switch (kind) {
-            case 8:
-            case 128:
-                return parseCompilationUnit(source, kind == 128 ? "module-info.java" : "");
-
-            case 4:
-            case 2:
-            case 1:
-                return parseSnippet(kind, source);
-
-            default:
-                throw new IllegalArgumentException("Unsupported parse kind: " + kind);
-        }
+        return switch (kind) {
+            case 8, 128 -> parseCompilationUnit(source, kind == 128 ? "module-info.java" : "");
+            case 4, 2, 1 -> parseSnippet(kind, source);
+            default -> throw new IllegalArgumentException("Unsupported parse kind: " + kind);
+        };
     }
 
     private static CompilationUnit parseCompilationUnit(char[] source, String fileName) {
         BasicCompilationUnit sourceUnit = new BasicCompilationUnit(source, fileName);
-        CommentRecorderParser parser = new CommentRecorderParser(
-            new ProblemHandler(false, CompilerOptions.forFormatterInput(), new IProblemFactory()));
+        CommentRecorderParser parser = new CommentRecorderParser(new ProblemHandler());
         CompilationResult compilationResult = new CompilationResult(sourceUnit);
         CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
 
@@ -134,13 +123,10 @@ public abstract class ASTParser {
         }
 
         AST ast = AST.newAST();
-        ast.scanner.complianceLevel = 3407872L; // the default 1.8 compliance
         ASTConverter converter = new ASTConverter();
         converter.setAST(ast);
 
-        CompilationUnit compilationUnit = converter.convert(compilationUnitDeclaration, source);
-        compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
-        return compilationUnit;
+        return converter.convert(compilationUnitDeclaration, source);
     }
 
     private static ASTNode parseSnippet(int kind, char[] source) {
@@ -150,14 +136,11 @@ public abstract class ASTParser {
         converter.scanner.setSource(source);
 
         AST ast = AST.newAST();
-
-        ast.scanner.previewEnabled = true;
         converter.setAST(ast);
         CompilationUnit compilationUnit = ast.newCompilationUnit();
         int length = source.length;
 
-        CommentRecorderParser parser = new CommentRecorderParser(
-            new ProblemHandler(false, CompilerOptions.forFormatterInput(), new IProblemFactory()));
+        CommentRecorderParser parser = new CommentRecorderParser(new ProblemHandler());
         CompilationResult compilationResult = new CompilationResult(new BasicCompilationUnit(source, ""));
         CompilationUnitDeclaration compilationUnitDeclaration
             = new CompilationUnitDeclaration(compilationResult, length);
@@ -257,12 +240,10 @@ public abstract class ASTParser {
                     problemsCount);
             }
         }
-        int[] lineEnds = compilationResult.getLineSeparatorPositions();
         int[][] comments = compilationUnitDeclaration.comments;
         if (comments != null) {
             converter.buildCommentsTable(compilationUnit, comments);
         }
-        compilationUnit.setLineEndTable(lineEnds);
         return problems;
     }
 

@@ -44,39 +44,4 @@ public abstract class Name extends Expression implements IDocElement {
         super(ast);
     }
 
-    /**
-     * Returns whether this name is a simple name (<code>SimpleName</code>).
-     *
-     * @return <code>true</code> if this is a simple name, and <code>false</code> otherwise
-     */
-    public final boolean isSimpleName() {
-        return (this instanceof SimpleName);
-    }
-
-    /**
-     * Returns the standard dot-separated representation of this name. If the name is a simple name, the result is the
-     * name's identifier. If the name is a qualified name, the result is the name of the qualifier (as computed by this
-     * method) followed by "." followed by the name's identifier.
-     *
-     * @return the fully qualified name
-     * @since 3.0
-     */
-    public final String getFullyQualifiedName() {
-        if (isSimpleName()) {
-            // avoid creating garbage for common case
-            return ((SimpleName) this).getIdentifier();
-        } else {
-            StringBuilder buffer = new StringBuilder(50);
-            appendName(buffer);
-            return new String(buffer);
-        }
-    }
-
-    /**
-     * Appends the standard representation of this name to the given string buffer.
-     *
-     * @param buffer the buffer
-     * @since 3.0
-     */
-    abstract void appendName(StringBuilder buffer);
 }

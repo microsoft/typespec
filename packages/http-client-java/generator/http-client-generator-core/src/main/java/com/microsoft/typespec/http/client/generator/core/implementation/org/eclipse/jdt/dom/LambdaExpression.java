@@ -30,9 +30,7 @@ import java.util.List;
  * uses {@link SingleVariableDeclaration}.</p> <p>The Body can be either a {@link Block} or an {@link Expression}.</p>
  *
  * @since 3.10
- * @noinstantiate This class is not intended to be instantiated by clients
  */
-@SuppressWarnings({ "rawtypes" })
 public class LambdaExpression extends Expression {
 
     /**
@@ -57,7 +55,7 @@ public class LambdaExpression extends Expression {
     /**
      * The parameter declarations (element type: {@link VariableDeclaration}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList parameters = new ASTNode.NodeList(PARAMETERS_PROPERTY);
+    private final ASTNode.NodeList<VariableDeclaration> parameters = new ASTNode.NodeList<>(PARAMETERS_PROPERTY);
 
     /**
      * The method body. The method body; lazily initialized, defaults to an empty Block.
@@ -113,7 +111,6 @@ public class LambdaExpression extends Expression {
      * <code>false</code> otherwise
      */
     public void setParentheses(boolean hasParentheses) {
-        preValueChange();
         this.hasParentheses = hasParentheses;
 
     }
@@ -125,7 +122,7 @@ public class LambdaExpression extends Expression {
      *
      * @return the live list of formal parameters of this lambda expression (element type: {@link VariableDeclaration})
      */
-    public List parameters() {
+    public List<VariableDeclaration> parameters() {
         return this.parameters;
     }
 

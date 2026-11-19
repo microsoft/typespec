@@ -26,9 +26,7 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class ImportDeclaration extends ASTNode {
 
     /**
@@ -39,11 +37,10 @@ public class ImportDeclaration extends ASTNode {
     public static final ChildPropertyDescriptor NAME_PROPERTY = new ChildPropertyDescriptor(Name.class, false);
 
     /**
-     * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS23
-     * API).
+     * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}), which holds the
+     * <code>static</code> modifier of a static import.
      *
      * @since 3.40
-     * @noreference preview feature
      */
     public static final ChildListPropertyDescriptor MODIFIERS_PROPERTY
         = new ChildListPropertyDescriptor(IExtendedModifier.class, true);
@@ -54,12 +51,12 @@ public class ImportDeclaration extends ASTNode {
     private Name importName;
 
     /**
-     * The extended modifiers (element type: {@link IExtendedModifier}). Added in JLS23; defaults to an empty list (see
-     * constructor).
+     * The extended modifiers (element type: {@link IExtendedModifier}): the <code>static</code> modifier of a static
+     * import, or none. Defaults to an empty list (see constructor).
      *
      * @since 3.39
      */
-    private ASTNode.NodeList modifiers = null;
+    private final ASTNode.NodeList<IExtendedModifier> modifiers;
 
     /**
      * Creates a new AST node for an import declaration owned by the given AST. The import declaration initially is a
@@ -71,18 +68,17 @@ public class ImportDeclaration extends ASTNode {
      */
     ImportDeclaration(AST ast) {
         super(ast);
-        this.modifiers = new ASTNode.NodeList(MODIFIERS_PROPERTY);
+        this.modifiers = new ASTNode.NodeList<>(MODIFIERS_PROPERTY);
     }
 
     /**
-     * Returns the live ordered list of modifiers of this declaration (added in JLS23 API).
+     * Returns the live ordered list of modifiers of this declaration: the <code>static</code> modifier of a static
+     * import, or none.
      *
      * @return the live list of modifiers (element type: {@link IExtendedModifier})
      * @since 3.39
-     * @noreference preview feature
      */
-    public List modifiers() {
-        // $NON-NLS-1$
+    public List<IExtendedModifier> modifiers() {
         return this.modifiers;
     }
 
@@ -132,14 +128,6 @@ public class ImportDeclaration extends ASTNode {
         ASTNode oldChild = this.importName;
         preReplaceChild(oldChild, name, NAME_PROPERTY);
         this.importName = name;
-
-    }
-
-    /**
-     * Sets whether this import declaration is an on-demand or a single-type import.
-     */
-    public void setOnDemand() {
-        preValueChange();
 
     }
 

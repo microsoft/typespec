@@ -14,7 +14,7 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameNotAToken;
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.*;
 
@@ -32,7 +32,7 @@ public class RecoveredAnnotation extends RecoveredElement {
     public boolean hasPendingMemberValueName;
     public int memberValuPairEqualEnd = -1;
     public Annotation annotation;
-    public TerminalToken errorToken = TokenNameNotAToken;
+    public int errorToken = TokenNameNotAToken;
 
     public RecoveredAnnotation(int identifierPtr, int identifierLengthPtr, int sourceStart, RecoveredElement parent,
         int bracketBalance) {

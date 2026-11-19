@@ -25,13 +25,12 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  *    EnumDeclaration
  * </pre>
  *
+ * <p>
  * Although allowed at the AST, not all arrangements of AST nodes are meaningful; in particular, only class and enum
  * declarations are meaningful in the context of a block.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class TypeDeclarationStatement extends Statement {
 
     /**
@@ -66,11 +65,7 @@ public class TypeDeclarationStatement extends Statement {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
-        if (visitChildren) {
-            acceptChild(visitor, getDeclaration());
-        }
-
+        acceptChild(visitor, getDeclaration());
     }
 
     /**
@@ -95,9 +90,6 @@ public class TypeDeclarationStatement extends Statement {
      * @since 3.1
      */
     public void setDeclaration(AbstractTypeDeclaration decl) {
-        if (decl == null) {
-            throw new IllegalArgumentException();
-        }
         // a TypeDeclarationStatement may occur inside an
         // TypeDeclaration - must check cycles
         ASTNode oldChild = this.typeDecl;

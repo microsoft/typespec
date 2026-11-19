@@ -38,9 +38,7 @@ import java.util.List;
  * fragments, rather than being split up into a pair of expressions. </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class ForStatement extends Statement {
 
     /**
@@ -77,7 +75,7 @@ public class ForStatement extends Statement {
     /**
      * The list of initializer expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList initializers = new ASTNode.NodeList(INITIALIZERS_PROPERTY);
+    private final ASTNode.NodeList<Expression> initializers = new ASTNode.NodeList<>(INITIALIZERS_PROPERTY);
 
     /**
      * The condition expression; <code>null</code> for none; defaults to none.
@@ -87,7 +85,7 @@ public class ForStatement extends Statement {
     /**
      * The list of update expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList updaters = new ASTNode.NodeList(UPDATERS_PROPERTY);
+    private final ASTNode.NodeList<Expression> updaters = new ASTNode.NodeList<>(UPDATERS_PROPERTY);
 
     /**
      * The body statement; lazily initialized; defaults to an empty block statement.
@@ -130,7 +128,7 @@ public class ForStatement extends Statement {
      *
      * @return the live list of initializer expressions (element type: {@link Expression})
      */
-    public List initializers() {
+    public List<Expression> initializers() {
         return this.initializers;
     }
 
@@ -163,7 +161,7 @@ public class ForStatement extends Statement {
      *
      * @return the live list of update expressions (element type: {@link Expression})
      */
-    public List updaters() {
+    public List<Expression> updaters() {
         return this.updaters;
     }
 

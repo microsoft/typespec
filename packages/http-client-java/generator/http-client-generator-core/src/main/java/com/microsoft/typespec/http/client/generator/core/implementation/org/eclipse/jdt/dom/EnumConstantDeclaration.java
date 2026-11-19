@@ -35,9 +35,7 @@ import java.util.List;
  * body declarations, the source range extends through the last character of the identifier. </p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class EnumConstantDeclaration extends BodyDeclaration {
 
     /**
@@ -76,7 +74,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
     /**
      * The list of argument expressions (element type: {@link Expression}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList arguments = new ASTNode.NodeList(ARGUMENTS_PROPERTY);
+    private final ASTNode.NodeList<Expression> arguments = new ASTNode.NodeList<>(ARGUMENTS_PROPERTY);
 
     /**
      * The optional anonymous class declaration; <code>null</code> for none; defaults to none.
@@ -159,7 +157,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
      *
      * @return the live list of argument expressions (element type: {@link Expression})
      */
-    public List arguments() {
+    public List<Expression> arguments() {
         return this.arguments;
     }
 

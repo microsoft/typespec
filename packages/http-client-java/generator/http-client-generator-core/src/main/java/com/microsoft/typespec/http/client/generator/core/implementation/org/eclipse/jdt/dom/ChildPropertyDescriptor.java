@@ -18,9 +18,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * Descriptor for a child property of an AST node. A child property is one whose value is an {@link ASTNode}.
  *
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public final class ChildPropertyDescriptor extends StructuralPropertyDescriptor {
 
     /**
@@ -36,7 +34,7 @@ public final class ChildPropertyDescriptor extends StructuralPropertyDescriptor 
      * @param cycleRisk <code>true</code> if this property is at risk of cycles, and <code>false</code> if there is no
      * worry about cycles
      */
-    ChildPropertyDescriptor(Class childType, boolean cycleRisk) {
+    ChildPropertyDescriptor(Class<?> childType, boolean cycleRisk) {
         super();
         if (!ASTNode.class.isAssignableFrom(childType)) {
             throw new IllegalArgumentException();

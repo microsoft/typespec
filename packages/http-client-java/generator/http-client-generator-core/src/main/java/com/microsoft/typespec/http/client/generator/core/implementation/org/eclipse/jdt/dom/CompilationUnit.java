@@ -41,10 +41,8 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class CompilationUnit extends ASTNode {
 
     /**
@@ -88,14 +86,14 @@ public class CompilationUnit extends ASTNode {
      * The list of import declarations in textual order order; initially none (elementType:
      * <code>ImportDeclaration</code>).
      */
-    private final ASTNode.NodeList imports = new ASTNode.NodeList(IMPORTS_PROPERTY);
+    private final ASTNode.NodeList<ImportDeclaration> imports = new ASTNode.NodeList<>(IMPORTS_PROPERTY);
 
     /**
      * The comment list (element type: {@link Comment}, or <code>null</code> if none; initially <code>null</code>.
      *
      * @since 3.0
      */
-    private List optionalCommentList = null;
+    private List<Comment> optionalCommentList = null;
 
     /**
      * The package declaration, or <code>null</code> if none; initially <code>null</code>.
@@ -115,7 +113,7 @@ public class CompilationUnit extends ASTNode {
      * The list of type declarations in textual order order; initially none (elementType:
      * <code>AbstractTypeDeclaration</code>)
      */
-    private final ASTNode.NodeList types = new ASTNode.NodeList(TYPES_PROPERTY);
+    private final ASTNode.NodeList<AbstractTypeDeclaration> types = new ASTNode.NodeList<>(TYPES_PROPERTY);
 
     /**
      * Creates a new AST node for a compilation owned by the given AST. The compilation unit initially has no package
@@ -166,7 +164,7 @@ public class CompilationUnit extends ASTNode {
      * @see ASTParser
      * @since 3.0
      */
-    public List getCommentList() {
+    public List<Comment> getCommentList() {
         return this.optionalCommentList;
     }
 
@@ -216,7 +214,7 @@ public class CompilationUnit extends ASTNode {
      *
      * @return the live list of import declaration nodes (elementType: {@link ImportDeclaration})
      */
-    public List imports() {
+    public List<ImportDeclaration> imports() {
         return this.imports;
     }
 
@@ -250,27 +248,9 @@ public class CompilationUnit extends ASTNode {
                 nextAvailablePosition = comment.getStartPosition() + comment.getLength();
             }
 
-            List commentList = Arrays.asList(commentTable);
             // protect the list from further modification
-            this.optionalCommentList = Collections.unmodifiableList(commentList);
+            this.optionalCommentList = Collections.unmodifiableList(Arrays.asList(commentTable));
         }
-    }
-
-    /**
-     * Sets the line end table for this compilation unit. If <code>lineEndTable[i] == p</code> then line number
-     * <code>i+1</code> ends at character position <code>p</code>. Except for the last line, the positions are that of
-     * (the last character of) the line delimiter. For example, the source string <code>A\nB\nC</code> has line end
-     * table {1, 3, 4}.
-     *
-     * @param lineEndTable the line end table
-     */
-    void setLineEndTable(int[] lineEndTable) {
-        if (lineEndTable == null) {
-            throw new NullPointerException();
-        }
-        // alternate root is *not* considered a structural property
-        // but we protect them nevertheless
-        checkModifiable();
     }
 
     /**
@@ -325,7 +305,7 @@ public class CompilationUnit extends ASTNode {
      *
      * @return the live list of top-level type declaration nodes (element type: {@link AbstractTypeDeclaration})
      */
-    public List types() {
+    public List<AbstractTypeDeclaration> types() {
         return this.types;
     }
 }

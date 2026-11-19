@@ -15,13 +15,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilation;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilationUnit;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortMethod;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortType;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
 
 public class ModuleDeclaration extends ASTNode implements ReferenceContext {
@@ -59,23 +54,6 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
         this.sourcePositions = positions;
         this.sourceEnd = (int) (positions[positions.length - 1]);
         this.sourceStart = (int) (positions[0] >>> 32);
-    }
-
-    @Override
-    public void abort(int abortLevel, IProblem problem) {
-        switch (abortLevel) {
-            case 2:
-                throw new AbortCompilation(problem);
-
-            case 4:
-                throw new AbortCompilationUnit(problem);
-
-            case 16:
-                throw new AbortMethod(problem);
-
-            default:
-                throw new AbortType(problem);
-        }
     }
 
     @Override

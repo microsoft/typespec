@@ -54,7 +54,6 @@ import java.util.List;
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class ASTNode {
 
     /**
@@ -99,14 +98,14 @@ public abstract class ASTNode {
     /**
      * A specialized implementation of a list of ASTNodes. The implementation is based on an ArrayList.
      */
-    class NodeList extends AbstractList {
+    class NodeList<E> extends AbstractList<E> {
 
         /**
-         * The underlying list in which the nodes of this list are stored (element type: {@link ASTNode}). <p> Be stingy
-         * on storage - assume that list will be empty. </p> <p> This field declared default visibility (rather than
-         * private) so that accesses from <code>NodeList.Cursor</code> do not require a synthetic accessor method. </p>
+         * The underlying list in which the nodes of this list are stored. <p> Be stingy on storage - assume that list
+         * will be empty. </p> <p> This field declared default visibility (rather than private) so that accesses from
+         * <code>NodeList.Cursor</code> do not require a synthetic accessor method. </p>
          */
-        ArrayList store = new ArrayList(0);
+        ArrayList<E> store = new ArrayList<>(0);
 
         /**
          * The property descriptor for this list.
@@ -117,7 +116,7 @@ public abstract class ASTNode {
          * A cursor for iterating over the elements of the list. Does not lose its position if the list is changed
          * during the iteration.
          */
-        class Cursor implements Iterator {
+        class Cursor implements Iterator<E> {
             /**
              * The position of the cursor between elements. If the value is N, then the cursor sits between the element
              * at positions N-1 and N. Initially just before the first element of the list.
@@ -130,8 +129,8 @@ public abstract class ASTNode {
             }
 
             @Override
-            public Object next() {
-                Object result = NodeList.this.store.get(this.position);
+            public E next() {
+                E result = NodeList.this.store.get(this.position);
                 this.position++;
                 return result;
             }
@@ -156,13 +155,13 @@ public abstract class ASTNode {
         }
 
         /**
-         * A list of currently active cursors (element type: {@link Cursor}), or <code>null</code> if there are no
-         * active cursors. <p> It is important for storage considerations to maintain the null-means-empty invariant;
-         * otherwise, every NodeList instance will waste a lot of space. A cursor is needed only for the duration of a
-         * visit to the child nodes. Under normal circumstances, only a single cursor is needed; multiple cursors are
-         * only required if there are multiple visits going on at the same time. </p>
+         * A list of currently active cursors, or <code>null</code> if there are no active cursors. <p> It is important
+         * for storage considerations to maintain the null-means-empty invariant; otherwise, every NodeList instance
+         * will waste a lot of space. A cursor is needed only for the duration of a visit to the child nodes. Under
+         * normal circumstances, only a single cursor is needed; multiple cursors are only required if there are
+         * multiple visits going on at the same time. </p>
          */
-        private List cursors = null;
+        private List<Cursor> cursors = null;
 
         /**
          * Creates a new empty list of nodes owned by this node. This node will be the common parent of all nodes added
@@ -182,46 +181,34 @@ public abstract class ASTNode {
         }
 
         @Override
-        public Object get(int index) {
+        public E get(int index) {
             return this.store.get(index);
         }
 
         @Override
-        public Object set(int index, Object element) {
+        public E set(int index, E element) {
             if (element == null) {
                 throw new IllegalArgumentException();
-            }
-            if ((ASTNode.this.typeAndFlags & 4) != 0) {
-                // this node is protected => cannot gain or lose children
-                throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
             }
             // delink old child from parent, and link new child to parent
             ASTNode newChild = (ASTNode) element;
             ASTNode oldChild = (ASTNode) this.store.get(index);
             if (oldChild == newChild) {
-                return oldChild;
-            }
-            if ((oldChild.typeAndFlags & 4) != 0) {
-                // old child is protected => cannot be unparented
-                throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+                return element;
             }
             ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk,
                 this.propertyDescriptor.elementType);
 
-            Object result = this.store.set(index, newChild);
+            E result = this.store.set(index, element);
             oldChild.setParent(null, null);
             newChild.setParent(ASTNode.this, this.propertyDescriptor);
             return result;
         }
 
         @Override
-        public void add(int index, Object element) {
+        public void add(int index, E element) {
             if (element == null) {
                 throw new IllegalArgumentException();
-            }
-            if ((ASTNode.this.typeAndFlags & 4) != 0) {
-                // this node is protected => cannot gain or lose children
-                throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
             }
             // link new child to parent
             ASTNode newChild = (ASTNode) element;
@@ -234,20 +221,12 @@ public abstract class ASTNode {
         }
 
         @Override
-        public Object remove(int index) {
-            if ((ASTNode.this.typeAndFlags & 4) != 0) {
-                // this node is protected => cannot gain or lose children
-                throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
-            }
+        public E remove(int index) {
             // delink old child from parent
             ASTNode oldChild = (ASTNode) this.store.get(index);
-            if ((oldChild.typeAndFlags & 4) != 0) {
-                // old child is protected => cannot be unparented
-                throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
-            }
 
             oldChild.setParent(null, null);
-            Object result = this.store.remove(index);
+            E result = this.store.remove(index);
             updateCursors(index, -1);
             return result;
         }
@@ -260,7 +239,7 @@ public abstract class ASTNode {
         Cursor newCursor() {
             if (this.cursors == null) {
                 // convert null to empty list
-                this.cursors = new ArrayList(1);
+                this.cursors = new ArrayList<>(1);
             }
             Cursor result = new Cursor();
             this.cursors.add(result);
@@ -293,9 +272,8 @@ public abstract class ASTNode {
                 // there are no cursors to worry about
                 return;
             }
-            for (Object cursor : this.cursors) {
-                Cursor c = (Cursor) cursor;
-                c.update(index, delta);
+            for (Cursor cursor : this.cursors) {
+                cursor.update(index, delta);
             }
         }
     }
@@ -329,19 +307,6 @@ public abstract class ASTNode {
 
     /**
      * Returns the location of this node within its parent, or <code>null</code> if this is a root node.
-     *
-     * <pre>
-     * {@code
-     * ASTNode node = ...;
-     * ASTNode parent = node.getParent();
-     * StructuralPropertyDescriptor location = node.getLocationInParent();
-     * assert (parent != null) == (location != null);
-     * if ((location != null) && location.isChildProperty())
-     *    assert parent.getStructuralProperty(location) == node;
-     * if ((location != null) && location.isChildListProperty())
-     *    assert ((List) parent.getStructuralProperty(location)).contains(node);
-     * }
-     * </pre>
      *
      * <p> Note that the relationship between an AST node and its parent node may change over the lifetime of a node.
      * </p>
@@ -401,7 +366,7 @@ public abstract class ASTNode {
      * AST</li> <li>the child has the incorrect node type</li> <li>the node already has a parent</li> <li>a cycle in
      * would be created</li> </ul>
      */
-    static void checkNewChild(ASTNode node, ASTNode newChild, boolean cycleCheck, Class nodeType) {
+    static void checkNewChild(ASTNode node, ASTNode newChild, boolean cycleCheck, Class<?> nodeType) {
         if (newChild.ast != node.ast) {
             // new child is from a different AST
             throw new IllegalArgumentException();
@@ -414,14 +379,10 @@ public abstract class ASTNode {
             // inserting new child would create a cycle
             throw new IllegalArgumentException();
         }
-        Class childClass = newChild.getClass();
+        Class<?> childClass = newChild.getClass();
         if (nodeType != null && !nodeType.isAssignableFrom(childClass)) {
             // new child is not of the right type
             throw new ClassCastException(childClass + " is not an instance of " + nodeType); //$NON-NLS-1$
-        }
-        if ((newChild.typeAndFlags & 4) != 0) {
-            // new child node is protected => cannot be parented
-            throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
         }
     }
 
@@ -435,71 +396,30 @@ public abstract class ASTNode {
      * this.foo = newFoo;
      * </pre>
      *
+     * <p>
      * This method does all the precondition checks and changes parent links. The old child is delinked from its parent
      * (making it a root node), and the new child node is linked to its parent. The new child node must be a root node
-     * in the same AST as its new parent, and must not be an ancestor of this node. All three nodes must be modifiable
-     * (not PROTECTED). The replace operation must fail atomically; so it is crucial that all precondition checks be
-     * done before any linking and delinking happens.
+     * in the same AST as its new parent, and must not be an ancestor of this node. The replace operation must fail
+     * atomically; so it is crucial that all precondition checks be done before any linking and delinking happens.
      *
      * @param oldChild the old child of this node, or <code>null</code> if there was no old child to replace
      * @param newChild the new child of this node, or <code>null</code> if there is no replacement child
      * @param property the property descriptor of this node describing the relationship between node and child
      * @exception RuntimeException if: <ul> <li>the node belongs to a different AST</li> <li>the node already has a
-     * parent</li> <li>a cycle in would be created</li> <li>any of the nodes involved are unmodifiable</li> </ul>
+     * parent</li> <li>a cycle in would be created</li> </ul>
      * @since 3.0
      */
     final void preReplaceChild(ASTNode oldChild, ASTNode newChild, ChildPropertyDescriptor property) {
-        if ((this.typeAndFlags & 4) != 0) {
-            // this node is protected => cannot gain or lose children
-            throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
-        }
         if (newChild != null) {
             checkNewChild(this, newChild, property.cycleRisk, null);
         }
         // delink old child from parent
         if (oldChild != null) {
-            if ((oldChild.typeAndFlags & 4) != 0) {
-                // old child node is protected => cannot be unparented
-                throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
-            }
             oldChild.setParent(null, null);
         }
         // link new child to parent
         if (newChild != null) {
             newChild.setParent(this, property);
-        }
-    }
-
-    /**
-     * Checks that a simple property of this node can be changed. Here is the code pattern found in all AST node
-     * subclasses:
-     *
-     * <pre>
-     * preValueChange();
-     * this.foo = newFoo;
-     * </pre>
-     *
-     * This method does the precondition check to make sure the node is modifiable (not PROTECTED). The change operation
-     * must fail atomically; so it is crucial that the precondition checks are done before the field is hammered.
-     *
-     * @exception RuntimeException if: <ul> <li>this node is unmodifiable</li> </ul>
-     * @since 3.0
-     */
-    final void preValueChange() {
-        if ((this.typeAndFlags & 4) != 0) {
-            // this node is protected => cannot change value of properties
-            throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
-        }
-    }
-
-    /**
-     * Ensures that this node is modifiable (that is, not marked PROTECTED).
-     *
-     * @exception RuntimeException is not modifiable
-     */
-    final void checkModifiable() {
-        if ((this.typeAndFlags & 4) != 0) {
-            throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
         }
     }
 
@@ -633,6 +553,7 @@ public abstract class ASTNode {
      * </code>
      * </pre>
      *
+     * <p>
      * Note that the caller (<code>accept</code>) take cares of invoking <code>visitor.preVisit2(this)</code> and
      * <code>visitor.postVisit()</code>. </p>
      *
@@ -663,10 +584,10 @@ public abstract class ASTNode {
      * @param visitor the visitor object
      * @param children the child AST node to dispatch too, or <code>null</code> if none
      */
-    final void acceptChildren(ASTVisitor visitor, ASTNode.NodeList children) {
+    final <E> void acceptChildren(ASTVisitor visitor, ASTNode.NodeList<E> children) {
         // use a cursor to keep track of where we are up to
         // (the list may be changing under foot)
-        NodeList.Cursor cursor = children.newCursor();
+        NodeList<E>.Cursor cursor = children.newCursor();
         try {
             while (cursor.hasNext()) {
                 ASTNode child = (ASTNode) cursor.next();
@@ -725,7 +646,6 @@ public abstract class ASTNode {
         }
         // source positions are not considered a structural property
         // but we protect them nevertheless
-        checkModifiable();
         this.startPosition = startPosition;
         this.length = length;
     }

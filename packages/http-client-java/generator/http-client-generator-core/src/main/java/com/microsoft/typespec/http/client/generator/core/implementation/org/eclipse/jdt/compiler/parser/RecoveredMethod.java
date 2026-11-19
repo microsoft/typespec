@@ -16,16 +16,13 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameLPAREN;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameSEMICOLON;
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.TypeConstants;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.Util;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast.*;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Internal method structure for parsing recovery
@@ -256,9 +253,7 @@ public class RecoveredMethod extends RecoveredElement {
             }
             return this.parent.add(typeDeclaration, bracketBalanceValue);
         }
-        if ((typeDeclaration.bits & 256) != 0
-            || parser().methodRecoveryActivated
-            || parser().statementRecoveryActivated) {
+        if ((typeDeclaration.bits & 256) != 0) {
             if (this.methodBody == null) {
                 Block block = new Block(0);
                 block.sourceStart = this.methodDeclaration.bodyStart;
@@ -335,7 +330,7 @@ public class RecoveredMethod extends RecoveredElement {
         this.methodDeclaration.bodyStart = bodyStart;
     }
 
-    public AbstractMethodDeclaration updatedMethodDeclaration(int depth, Set<TypeDeclaration> knownTypes) {
+    public AbstractMethodDeclaration updatedMethodDeclaration() {
         /* update annotations */
         if (this.modifiers != 0) {
             this.methodDeclaration.modifiers |= this.modifiers;
@@ -363,32 +358,7 @@ public class RecoveredMethod extends RecoveredElement {
             }
         }
 
-        if (this.methodBody != null) {
-            Block block = this.methodBody.updatedBlock(depth, knownTypes);
-            if (block != null) {
-                this.methodDeclaration.statements = block.statements;
-
-                if (this.methodDeclaration.declarationSourceEnd == 0) {
-                    this.methodDeclaration.declarationSourceEnd = block.sourceEnd;
-                    this.methodDeclaration.bodyEnd = block.sourceEnd;
-                }
-
-                /* first statement might be an explict constructor call destinated to a special slot */
-                if (this.methodDeclaration.isConstructor()) {
-                    ConstructorDeclaration constructor = (ConstructorDeclaration) this.methodDeclaration;
-                    if (this.methodDeclaration.statements != null
-                        && this.methodDeclaration.statements[0] instanceof ExplicitConstructorCall) {
-                        constructor.constructorCall = (ExplicitConstructorCall) this.methodDeclaration.statements[0];
-                        int length = this.methodDeclaration.statements.length;
-                        System.arraycopy(this.methodDeclaration.statements, 1,
-                            (this.methodDeclaration.statements = new Statement[length - 1]), 0, length - 1);
-                    }
-                    if (constructor.constructorCall == null) { // add implicit constructor call
-                        constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
-                    }
-                }
-            }
-        } else {
+        if (this.methodBody == null) {
             if (this.methodDeclaration.declarationSourceEnd == 0) {
                 if (this.methodDeclaration.sourceEnd + 1 == this.methodDeclaration.bodyStart) {
                     // right brace is missing
@@ -588,7 +558,7 @@ public class RecoveredMethod extends RecoveredElement {
 
     @Override
     public void updateParseTree() {
-        updatedMethodDeclaration(0, new HashSet<>());
+        updatedMethodDeclaration();
     }
 
     /*

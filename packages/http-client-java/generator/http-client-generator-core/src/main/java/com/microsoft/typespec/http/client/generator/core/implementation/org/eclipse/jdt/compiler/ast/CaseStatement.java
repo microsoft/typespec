@@ -17,11 +17,10 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
 
 public class CaseStatement extends Statement {
 
-    public Expression[] constantExpressions; // case with multiple expressions - if you want a under-the-hood view, use
-    public boolean isSwitchRule = false;
+    public Expression constantExpression; // null for 'default'
 
-    public CaseStatement(Expression[] constantExpressions, int sourceStart, int sourceEnd) {
-        this.constantExpressions = constantExpressions;
+    public CaseStatement(Expression constantExpression, int sourceStart, int sourceEnd) {
+        this.constantExpression = constantExpression;
         this.sourceStart = sourceStart;
         this.sourceEnd = sourceEnd;
     }

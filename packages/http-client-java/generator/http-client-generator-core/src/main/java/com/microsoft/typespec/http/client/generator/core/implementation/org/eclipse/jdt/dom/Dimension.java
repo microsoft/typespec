@@ -28,9 +28,7 @@ import java.util.List;
  * </pre>
  *
  * @since 3.10
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class Dimension extends ASTNode {
 
     /**
@@ -42,7 +40,7 @@ public class Dimension extends ASTNode {
     /**
      * The list of annotations for this dimension (element type: {@link Annotation}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+    private final ASTNode.NodeList<Annotation> annotations = new ASTNode.NodeList<>(ANNOTATIONS_PROPERTY);
 
     /**
      * Creates a new dimension node (supported only in level JLS8 or above). <p> N.B. This constructor is
@@ -75,7 +73,7 @@ public class Dimension extends ASTNode {
      *
      * @return the live list of annotations (element type: {@link Annotation})
      */
-    public List annotations() {
+    public List<Annotation> annotations() {
         return this.annotations;
     }
 }

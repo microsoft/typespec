@@ -24,13 +24,11 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class Assignment extends Expression {
 
     /**
-     * Assignment operators (typesafe enumeration).
+     * Assignment operators.
      *
      * <pre>
      * AssignmentOperator:<code>
@@ -48,21 +46,36 @@ public class Assignment extends Expression {
      *    <b>&gt;&gt;&gt;=</b> RIGHT_SHIFT_UNSIGNED_ASSIGN</code>
      * </pre>
      */
-    public static class Operator {
+    public enum Operator {
+        /** = operator. */
+        ASSIGN("="),
+        /** += operator. */
+        PLUS_ASSIGN("+="),
+        /** -= operator. */
+        MINUS_ASSIGN("-="),
+        /** *= operator. */
+        TIMES_ASSIGN("*="),
+        /** /= operator. */
+        DIVIDE_ASSIGN("/="),
+        /** &amp;= operator. */
+        BIT_AND_ASSIGN("&="),
+        /** |= operator. */
+        BIT_OR_ASSIGN("|="),
+        /** ^= operator. */
+        BIT_XOR_ASSIGN("^="),
+        /** %= operator. */
+        REMAINDER_ASSIGN("%="),
+        /** &lt;&lt;= operator. */
+        LEFT_SHIFT_ASSIGN("<<="),
+        /** &gt;&gt;= operator. */
+        RIGHT_SHIFT_SIGNED_ASSIGN(">>="),
+        /** &gt;&gt;&gt;= operator. */
+        RIGHT_SHIFT_UNSIGNED_ASSIGN(">>>=");
 
-        /**
-         * The name of the operator
-         */
-        private final String op;
+        private final String token;
 
-        /**
-         * Creates a new assignment operator with the given name. <p> Note: this constructor is private. The only
-         * instances ever created are the ones for the standard operators. </p>
-         *
-         * @param op the character sequence for the operator
-         */
-        private Operator(String op) {
-            this.op = op;
+        Operator(String token) {
+            this.token = token;
         }
 
         /**
@@ -72,33 +85,8 @@ public class Assignment extends Expression {
          */
         @Override
         public String toString() {
-            return this.op;
+            return this.token;
         }
-
-        /** = operator. */
-        public static final Operator ASSIGN = new Operator("=");//$NON-NLS-1$
-        /** += operator. */
-        public static final Operator PLUS_ASSIGN = new Operator("+=");//$NON-NLS-1$
-        /** -= operator. */
-        public static final Operator MINUS_ASSIGN = new Operator("-=");//$NON-NLS-1$
-        /** *= operator. */
-        public static final Operator TIMES_ASSIGN = new Operator("*=");//$NON-NLS-1$
-        /** /= operator. */
-        public static final Operator DIVIDE_ASSIGN = new Operator("/=");//$NON-NLS-1$
-        /** &amp;= operator. */
-        public static final Operator BIT_AND_ASSIGN = new Operator("&=");//$NON-NLS-1$
-        /** |= operator. */
-        public static final Operator BIT_OR_ASSIGN = new Operator("|=");//$NON-NLS-1$
-        /** ^= operator. */
-        public static final Operator BIT_XOR_ASSIGN = new Operator("^=");//$NON-NLS-1$
-        /** %= operator. */
-        public static final Operator REMAINDER_ASSIGN = new Operator("%=");//$NON-NLS-1$
-        /** &lt;&lt;== operator. */
-        public static final Operator LEFT_SHIFT_ASSIGN = new Operator("<<=");//$NON-NLS-1$
-        /** &gt;&gt;= operator. */
-        public static final Operator RIGHT_SHIFT_SIGNED_ASSIGN = new Operator(">>=");//$NON-NLS-1$
-        /** &gt;&gt;&gt;= operator. */
-        public static final Operator RIGHT_SHIFT_UNSIGNED_ASSIGN = new Operator(">>>=");//$NON-NLS-1$
     }
 
     /**
@@ -175,7 +163,6 @@ public class Assignment extends Expression {
      */
     public void setOperator(Assignment.Operator assignmentOperator) {
 
-        preValueChange();
         this.assignmentOperator = assignmentOperator;
 
     }

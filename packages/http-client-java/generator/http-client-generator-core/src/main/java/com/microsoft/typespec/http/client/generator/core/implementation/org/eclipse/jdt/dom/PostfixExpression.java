@@ -24,52 +24,8 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class PostfixExpression extends Expression {
-
-    /**
-     * Postfix operators (typesafe enumeration).
-     *
-     * <pre>
-     * PostfixOperator:
-     *    <b><code>++</code></b>  <code>INCREMENT</code>
-     *    <b><code>--</code></b>  <code>DECREMENT</code>
-     * </pre>
-     */
-    public static class Operator {
-
-        /**
-         * The token for the operator.
-         */
-        private final String token;
-
-        /**
-         * Creates a new postfix operator with the given token. <p> Note: this constructor is private. The only
-         * instances ever created are the ones for the standard operators. </p>
-         *
-         * @param token the character sequence for the operator
-         */
-        private Operator(String token) {
-            this.token = token;
-        }
-
-        /**
-         * Returns the character sequence for the operator.
-         *
-         * @return the character sequence for the operator
-         */
-        @Override
-        public String toString() {
-            return this.token;
-        }
-
-        /** Postfix increment "++" operator. */
-        public static final Operator INCREMENT = new Operator("++");//$NON-NLS-1$
-        /** Postfix decrement "--" operator. */
-        public static final Operator DECREMENT = new Operator("--");//$NON-NLS-1$
-    }
 
     /**
      * The "operand" structural property of this node type (child type: {@link Expression}).
@@ -77,11 +33,6 @@ public class PostfixExpression extends Expression {
      * @since 3.0
      */
     public static final ChildPropertyDescriptor OPERAND_PROPERTY = new ChildPropertyDescriptor(Expression.class, true);
-
-    /**
-     * The operator; defaults to an unspecified postfix operator.
-     */
-    private PostfixExpression.Operator operator = PostfixExpression.Operator.INCREMENT;
 
     /**
      * The operand; lazily initialized; defaults to an unspecified, but legal, simple name.
@@ -105,32 +56,10 @@ public class PostfixExpression extends Expression {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
+        boolean visitChildren = visitor.visit();
         if (visitChildren) {
             acceptChild(visitor, getOperand());
         }
-
-    }
-
-    /**
-     * Returns the operator of this postfix expression.
-     *
-     * @return the operator
-     */
-    public PostfixExpression.Operator getOperator() {
-        return this.operator;
-    }
-
-    /**
-     * Sets the operator of this postfix expression.
-     *
-     * @param operator the operator
-     * @exception IllegalArgumentException if the argument is incorrect
-     */
-    public void setOperator(PostfixExpression.Operator operator) {
-
-        preValueChange();
-        this.operator = operator;
 
     }
 

@@ -29,9 +29,7 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class SimpleName extends Name {
 
     /**
@@ -57,8 +55,6 @@ public class SimpleName extends Name {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit(this);
-
     }
 
     /**
@@ -82,40 +78,23 @@ public class SimpleName extends Name {
         // update internalSetIdentifier if this is changed
 
         Scanner scanner = this.ast.scanner;
-        long sourceLevel = scanner.sourceLevel;
-        long complianceLevel = scanner.complianceLevel;
-
+        char[] source = identifier.toCharArray();
+        scanner.setSource(source);
+        final int length = source.length;
+        scanner.resetTo(0, length - 1);
         try {
-            scanner.sourceLevel = 3407872L;
-            scanner.complianceLevel = 3407872L;
-            char[] source = identifier.toCharArray();
-            scanner.setSource(source);
-            final int length = source.length;
-            scanner.resetTo(0, length - 1);
-            try {
-                TerminalToken tokenType = scanner.scanIdentifier();
-                if (tokenType != TerminalToken.TokenNameIdentifier) {
-                    throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
-                }
-                if (scanner.currentPosition != length) {
-                    // this is the case when there is only one identifier see 87849
-                    throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
-                }
-            } catch (InvalidInputException e) {
-                throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<", e); //$NON-NLS-1$//$NON-NLS-2$
+            int tokenType = scanner.scanIdentifier();
+            if (tokenType != TerminalToken.TokenNameIdentifier) {
+                throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
             }
-        } finally {
-            this.ast.scanner.sourceLevel = sourceLevel;
-            this.ast.scanner.complianceLevel = complianceLevel;
+            if (scanner.currentPosition != length) {
+                // this is the case when there is only one identifier see 87849
+                throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
+            }
+        } catch (InvalidInputException e) {
+            throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<", e); //$NON-NLS-1$//$NON-NLS-2$
         }
-        preValueChange();
         this.identifier = identifier;
-
-    }
-
-    /* package */ void setVar() {
-
-        preValueChange();
 
     }
 
@@ -123,13 +102,8 @@ public class SimpleName extends Name {
      * (omit javadoc for this method) This method is a copy of setIdentifier(String) that doesn't do any validation.
      */
     void internalSetIdentifier(String ident) {
-        preValueChange();
         this.identifier = ident;
 
     }
 
-    @Override
-    void appendName(StringBuilder buffer) {
-        buffer.append(getIdentifier());
-    }
 }

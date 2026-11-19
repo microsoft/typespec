@@ -27,9 +27,7 @@ import java.util.List;
  * </pre>
  *
  * @since 3.10
- * @noinstantiate This class is not intended to be instantiated by clients
  */
-@SuppressWarnings({ "rawtypes" })
 public class SuperMethodReference extends MethodReference {
 
     /**
@@ -120,7 +118,7 @@ public class SuperMethodReference extends MethodReference {
      * @return the live list of type arguments (element type: {@link Type})
      */
 
-    public List typeArguments() {
+    public List<Type> typeArguments() {
         return this.typeArguments;
     }
 

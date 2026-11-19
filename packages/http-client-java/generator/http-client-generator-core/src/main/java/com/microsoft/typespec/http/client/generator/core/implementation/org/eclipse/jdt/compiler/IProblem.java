@@ -263,9 +263,9 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
 
 /**
  * Description of a Java problem, as detected by the compiler or some of the underlying technology reusing the compiler.
- * A problem provides access to: <ul> <li> its location (source position, line number) </li> <li> its message
- * description </li> <li> a predicate to check whether it is an error </li> <li> its ID : a number identifying the very
- * nature of this problem </li> </ul>
+ * A problem provides access to: <ul> <li> its location (source position, line number) </li> <li> a predicate to check
+ * whether it is an error </li> <li> its ID : a number identifying the very nature of this problem </li> </ul> <p>
+ * Problems carry no message text, because the formatter never displays them. </p>
  *
  * @since 2.0
  */
@@ -277,10 +277,7 @@ public class IProblem {
     private final int line;
     public int severity;
 
-    private final String message;
-
-    public IProblem(String message, int id, int severity, int startPosition, int endPosition, int line) {
-        this.message = message;
+    public IProblem(int id, int severity, int startPosition, int endPosition, int line) {
         this.id = id;
 
         this.severity = severity;
@@ -291,7 +288,7 @@ public class IProblem {
 
     /**
      * Returns the problem id
-     *
+     * <p>
      * Answer the type of problem.
      *
      * @return the problem id
@@ -334,10 +331,5 @@ public class IProblem {
      */
     public boolean isError() {
         return (this.severity & 1) != 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Pb(" + (this.id & 2097151) + ") " + this.message;
     }
 }

@@ -83,8 +83,7 @@ public class RecoveredField extends RecoveredElement {
      */
     @Override
     public RecoveredElement add(Statement statement, int bracketBalanceValue) {
-        if (this.alreadyCompletedFieldInitialization
-            || !(statement instanceof Expression && statement.isTrulyExpression())) {
+        if (this.alreadyCompletedFieldInitialization || !(statement instanceof Expression)) {
             return super.add(statement, bracketBalanceValue);
         } else {
             if (statement.sourceEnd > 0)
@@ -196,12 +195,6 @@ public class RecoveredField extends RecoveredElement {
 
         if (this.anonymousTypes != null) {
             if (this.fieldDeclaration.initialization == null) {
-                ArrayInitializer recoveredInitializers = null;
-                int recoveredInitializersCount = 0;
-                if (this.anonymousTypeCount > 1) {
-                    recoveredInitializers = new ArrayInitializer();
-                    recoveredInitializers.expressions = new Expression[this.anonymousTypeCount];
-                }
                 for (int i = 0; i < this.anonymousTypeCount; i++) {
                     RecoveredType recoveredType = this.anonymousTypes[i];
                     TypeDeclaration typeDeclaration = recoveredType.typeDeclaration;
@@ -209,33 +202,9 @@ public class RecoveredField extends RecoveredElement {
                         typeDeclaration.declarationSourceEnd = this.fieldDeclaration.declarationSourceEnd;
                         typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
                     }
-                    if (recoveredType.preserveContent) {
-                        TypeDeclaration anonymousType = recoveredType.updatedTypeDeclaration(depth + 1, knownTypes);
-                        if (anonymousType != null) {
-                            if (this.anonymousTypeCount > 1) {
-                                if (recoveredInitializersCount == 0) {
-                                    this.fieldDeclaration.initialization = recoveredInitializers;
-                                }
-                                recoveredInitializers.expressions[recoveredInitializersCount++]
-                                    = anonymousType.allocation;
-                            } else {
-                                this.fieldDeclaration.initialization = anonymousType.allocation;
-                            }
-                            int end = anonymousType.declarationSourceEnd;
-                            if (end > this.fieldDeclaration.declarationSourceEnd) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=307337
-                                this.fieldDeclaration.declarationSourceEnd = end;
-                                this.fieldDeclaration.declarationEnd = end;
-                            }
-                        }
-                    }
                 }
                 if (this.anonymousTypeCount > 0) {
                     this.fieldDeclaration.bits |= 2;
-                    if (recoveredInitializers != null) {
-                        recoveredInitializers.sourceStart = this.anonymousTypes[0].typeDeclaration.sourceStart;
-                        recoveredInitializers.sourceEnd
-                            = this.anonymousTypes[this.anonymousTypeCount - 1].typeDeclaration.sourceEnd;
-                    }
                 }
             } else if (this.fieldDeclaration.getKind() == 3) {
                 // fieldDeclaration is an enum constant

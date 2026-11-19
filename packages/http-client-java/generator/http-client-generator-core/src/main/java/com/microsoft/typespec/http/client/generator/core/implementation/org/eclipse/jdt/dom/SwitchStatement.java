@@ -29,12 +29,11 @@ import java.util.List;
  *		<b>default</b> <b>:</b>
  * </pre>
  *
+ * <p>
  * <code>SwitchCase</code> nodes are treated as a kind of <code>Statement</code>.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class SwitchStatement extends Statement {
 
     /**
@@ -61,7 +60,7 @@ public class SwitchStatement extends Statement {
     /**
      * The statements and SwitchCase nodes (element type: {@link Statement}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList statements = new ASTNode.NodeList(STATEMENTS_PROPERTY);
+    private final ASTNode.NodeList<Statement> statements = new ASTNode.NodeList<>(STATEMENTS_PROPERTY);
 
     /**
      * Creates a new unparented switch statement node owned by the given AST. By default, the swicth statement has an
@@ -87,7 +86,7 @@ public class SwitchStatement extends Statement {
             acceptChild(visitor, getExpression());
             acceptChildren(visitor, this.statements);
         }
-        visitor.endVisit(this);
+
     }
 
     /**
@@ -125,7 +124,7 @@ public class SwitchStatement extends Statement {
      *
      * @return the live list of statement nodes (element type: {@link Statement})
      */
-    public List statements() {
+    public List<Statement> statements() {
         return this.statements;
     }
 }

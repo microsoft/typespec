@@ -28,9 +28,7 @@ import java.util.List;
  * <p> This kind of node is used inside a catch clause's formal parameter type. </p>
  *
  * @since 3.7.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class UnionType extends Type {
 
     /**
@@ -41,11 +39,11 @@ public class UnionType extends Type {
     /**
      * The list of types (element type: {@link Type}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList types = new ASTNode.NodeList(TYPES_PROPERTY);
+    private final ASTNode.NodeList<Type> types = new ASTNode.NodeList<>(TYPES_PROPERTY);
 
     /**
-     * Creates a new unparented node for an union type owned by the given AST. By default, it has no types.<p>
-     *
+     * Creates a new unparented node for an union type owned by the given AST. By default, it has no types.
+     * <p>
      * N.B. This constructor is package-private. </p>
      *
      * @param ast the AST that is to own this node
@@ -77,7 +75,7 @@ public class UnionType extends Type {
      *
      * @return the live list of types in this union type (element type: {@link Type})
      */
-    public List types() {
+    public List<Type> types() {
         return this.types;
     }
 }

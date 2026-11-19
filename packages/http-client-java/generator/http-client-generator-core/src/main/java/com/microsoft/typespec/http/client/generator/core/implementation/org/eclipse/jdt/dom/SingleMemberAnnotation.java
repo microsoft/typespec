@@ -26,9 +26,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * <p> Within annotations, only certain kinds of expressions are meaningful, including other annotations. </p>
  *
  * @since 3.1
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public final class SingleMemberAnnotation extends Annotation {
 
     /**

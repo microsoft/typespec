@@ -26,9 +26,7 @@ import java.util.List;
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class Block extends Statement {
 
     /**
@@ -42,7 +40,7 @@ public class Block extends Statement {
     /**
      * The list of statements (element type: {@link Statement}). Defaults to an empty list.
      */
-    private final ASTNode.NodeList statements = new ASTNode.NodeList(STATEMENTS_PROPERTY);
+    private final ASTNode.NodeList<Statement> statements = new ASTNode.NodeList<>(STATEMENTS_PROPERTY);
 
     /**
      * Creates a new unparented block node owned by the given AST. By default, the block is empty. <p> N.B. This
@@ -65,7 +63,7 @@ public class Block extends Statement {
         if (visitChildren) {
             acceptChildren(visitor, this.statements);
         }
-        visitor.endVisit(this);
+
     }
 
     /**
@@ -75,7 +73,7 @@ public class Block extends Statement {
      *
      * @return the live list of statements in this block (element type: {@link Statement})
      */
-    public List statements() {
+    public List<Statement> statements() {
         return this.statements;
     }
 }

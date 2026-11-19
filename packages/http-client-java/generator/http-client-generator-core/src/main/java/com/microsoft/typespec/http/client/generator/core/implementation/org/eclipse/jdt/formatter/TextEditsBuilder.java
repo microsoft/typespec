@@ -15,17 +15,9 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameNotAToken;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameStringLiteral;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameTextBlock;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameWHITESPACE;
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.ScannerHelper;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.Token.WrapMode;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter.Token.WrapPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -40,17 +32,10 @@ public class TextEditsBuilder extends TokenTraverser {
     /**
      * Replacement of <code>length</code> source characters at <code>offset</code> with <code>text</code>.
      */
-    private static final class Edit {
-        final int offset;
-        final int length;
-        final String text;
-
-        Edit(int offset, int length, String text) {
+    private record Edit(int offset, int length, String text) {
+        private Edit {
             if (offset < 0 || length < 0)
                 throw new IllegalStateException("Invalid edit range: offset " + offset + ", length " + length); //$NON-NLS-1$ //$NON-NLS-2$
-            this.offset = offset;
-            this.length = length;
-            this.text = text;
         }
     }
 
@@ -67,7 +52,7 @@ public class TextEditsBuilder extends TokenTraverser {
 
     private TextEditsBuilder childBuilder;
     private final TextEditsBuilder parent;
-    private final int alignChar;
+
     private int sourceLimit;
     private int parentTokenIndex;
 
@@ -78,7 +63,6 @@ public class TextEditsBuilder extends TokenTraverser {
         this.options = options;
         this.regions = adaptRegions(regions);
 
-        this.alignChar = this.options.align_with_spaces ? 2 : this.options.tab_char;
         this.sourceLimit = source.length();
         this.parent = null;
 
@@ -91,7 +75,7 @@ public class TextEditsBuilder extends TokenTraverser {
         this.source = parent.source;
         this.options = parent.options;
         this.regions = parent.regions;
-        this.alignChar = 2;
+
     }
 
     private List<Region> adaptRegions(List<Region> givenRegions) {
@@ -155,7 +139,7 @@ public class TextEditsBuilder extends TokenTraverser {
             }
         }
 
-        if (token.tokenType == TokenNameStringLiteral || token.tokenType == TokenNameTextBlock)
+        if (token.tokenType == TokenNameStringLiteral)
             this.stringLiteralsInLine.add(token);
 
         if (getNext() == null) {
@@ -173,28 +157,17 @@ public class TextEditsBuilder extends TokenTraverser {
         if (getLineBreaksBefore() > 0) {
             this.stringLiteralsInLine.clear();
             if (getLineBreaksBefore() > 1) {
-                Token indentToken = null;
-                if (this.options.indent_empty_lines && token.tokenType != TokenNameNotAToken) {
-                    if (index == 0) {
-                        indentToken = token;
-                    } else {
-                        boolean isBlockIndent = token.getWrapPolicy() != null
-                            && token.getWrapPolicy().wrapMode() == WrapMode.BLOCK_INDENT;
-                        Token previous = this.tm.get(this.tm.findFirstTokenInLine(index - 1, true, !isBlockIndent));
-                        indentToken = (token.getIndent() > previous.getIndent()) ? token : previous;
-                    }
-                }
+
                 for (int i = 1; i < getLineBreaksBefore(); i++) {
                     bufferLineSeparator(token, true);
-                    if (indentToken != null)
-                        bufferIndent(indentToken, index);
+
                 }
             }
             bufferLineSeparator(token, false);
             bufferAlign(token, index);
-            bufferIndent(token, index);
+            bufferIndent(token);
         } else if (index == 0 && this.parent == null) {
-            bufferIndent(token, index);
+            bufferIndent(token);
         } else {
             if (!bufferAlign(token, index) && isSpaceBefore())
                 this.buffer.append(' ');
@@ -207,17 +180,11 @@ public class TextEditsBuilder extends TokenTraverser {
             return;
         }
 
-        Token parentToken = this.parent.tm.get(this.parentTokenIndex);
-        boolean isTextBlock = parentToken.tokenType == TokenNameTextBlock;
-
         this.parent.counter = this.counter;
         this.parent.bufferLineSeparator(null, false);
-        if (!(isTextBlock && emptyLine && !this.options.indent_empty_lines))
-            this.parent.bufferIndent(this.parent.tm.get(this.parentTokenIndex), this.parentTokenIndex);
+        this.parent.bufferIndent(this.parent.tm.get(this.parentTokenIndex));
         this.counter = this.parent.counter;
 
-        if (isTextBlock)
-            return;
         if (token != null && token.tokenType == TokenNameNotAToken)
             return; // this is an unformatted block comment, don't force asterisk
         if (getNext() == null && !emptyLine) {
@@ -250,78 +217,25 @@ public class TextEditsBuilder extends TokenTraverser {
         }
     }
 
-    private void bufferIndent(Token token, int index) {
+    private void bufferIndent(Token token) {
         int indent = token.getIndent();
         if (getCurrent() != null && getCurrent() != token)
             indent += getCurrent().getEmptyLineIndentAdjustment();
-        int spaces = 0;
-        if (this.options.use_tabs_only_for_leading_indentations && this.options.tab_char != 2) {
-            WrapPolicy wrapPolicy = token.getWrapPolicy();
-            boolean isWrappedBlockComment = this.childBuilder != null && this.childBuilder.parentTokenIndex == index;
-            if (isWrappedBlockComment) {
-                Token lineStart = this.tm.get(this.tm.findFirstTokenInLine(index));
-                spaces = token.getIndent() - lineStart.getIndent();
-                token = lineStart;
-                wrapPolicy = token.getWrapPolicy();
-            }
-            while (wrapPolicy != null) {
-                Token parentLineStart = this.tm.get(this.tm.findFirstTokenInLine(wrapPolicy.wrapParentIndex()));
-                if (wrapPolicy.wrapMode() != WrapMode.BLOCK_INDENT)
-                    spaces += token.getIndent() - parentLineStart.getIndent();
-                token = parentLineStart;
-                if (wrapPolicy == token.getWrapPolicy()) {
-                    assert wrapPolicy == WrapPolicy.DISABLE_WRAP;
-                    break;
-                }
-                wrapPolicy = token.getWrapPolicy();
-            }
-        }
-        appendIndentationString(this.buffer, this.options.tab_char, this.options.tab_size, indent - spaces, spaces);
+
+        appendIndentationString(this.buffer, indent);
     }
 
-    public static void appendIndentationString(StringBuilder target, int tabChar, int tabSize, int indent,
-        int additionalSpaces) {
-        int spacesCount = additionalSpaces;
-        int tabsCount = 0;
-        switch (tabChar) {
-            case 2:
-                spacesCount += indent;
-                break;
-
-            case 1:
-                if (tabSize > 0) {
-                    tabsCount += indent / tabSize;
-                    if (indent % tabSize > 0)
-                        tabsCount++;
-                }
-                break;
-
-            case 4:
-                if (tabSize > 0) {
-                    tabsCount += indent / tabSize;
-                    spacesCount += indent % tabSize;
-                } else {
-                    spacesCount += indent;
-                }
-                break;
-
-            default:
-                throw new IllegalStateException("Unrecognized tab char: " + tabChar); //$NON-NLS-1$
-        }
-
-        char[] indentChars = new char[tabsCount + spacesCount];
-        Arrays.fill(indentChars, 0, tabsCount, '\t');
-        Arrays.fill(indentChars, tabsCount, indentChars.length, ' ');
+    public static void appendIndentationString(StringBuilder target, int indent) {
+        char[] indentChars = new char[indent];
+        Arrays.fill(indentChars, ' ');
         target.append(indentChars);
     }
 
     private boolean bufferAlign(Token token, int index) {
         int align = token.getAlign();
-        int alignmentChar = this.alignChar;
         if (align == 0 && getLineBreaksBefore() == 0 && this.parent != null) {
             align = token.getIndent();
             token.setAlign(align);
-            alignmentChar = 2;
         }
         if (align == 0)
             return false;
@@ -329,7 +243,7 @@ public class TextEditsBuilder extends TokenTraverser {
         int currentPositionInLine = 0;
         if (getLineBreaksBefore() > 0) {
             if (this.parent == null)
-                currentPositionInLine = this.tm.toIndent(token.getIndent(), token.getWrapPolicy() != null);
+                currentPositionInLine = this.tm.toIndent(token.getIndent());
         } else {
             currentPositionInLine = this.tm.getPositionInLine(index - 1);
             currentPositionInLine += this.tm.getLength(this.tm.get(index - 1), currentPositionInLine);
@@ -337,33 +251,8 @@ public class TextEditsBuilder extends TokenTraverser {
         if (currentPositionInLine >= align)
             return false;
 
-        final int tabSize = this.options.tab_size;
-        switch (alignmentChar) {
-            case 2:
-                while (currentPositionInLine++ < align) {
-                    this.buffer.append(' ');
-                }
-                break;
-
-            case 1:
-                while (currentPositionInLine < align && tabSize > 0) {
-                    this.buffer.append('\t');
-                    currentPositionInLine += tabSize - currentPositionInLine % tabSize;
-                }
-                break;
-
-            case 4:
-                while (tabSize > 0 && currentPositionInLine + tabSize - currentPositionInLine % tabSize <= align) {
-                    this.buffer.append('\t');
-                    currentPositionInLine += tabSize - currentPositionInLine % tabSize;
-                }
-                while (currentPositionInLine++ < align) {
-                    this.buffer.append(' ');
-                }
-                break;
-
-            default:
-                throw new IllegalStateException("Unrecognized align char: " + alignmentChar); //$NON-NLS-1$
+        while (currentPositionInLine++ < align) {
+            this.buffer.append(' ');
         }
         return true;
     }
@@ -383,12 +272,7 @@ public class TextEditsBuilder extends TokenTraverser {
             }
             if (this.currentRegion == this.regions.size() - 1
                 || this.regions.get(this.currentRegion + 1).getOffset() > currentPosition) {
-                if (this.parent == null
-                    || this.parent.getCurrent() == null
-                    || this.parent.getCurrent().tokenType != TokenNameTextBlock
-                    || region.getOffset() <= this.parent.getCurrent().originalStart) {
-                    this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
-                }
+                this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
                 break;
             }
 
@@ -480,18 +364,17 @@ public class TextEditsBuilder extends TokenTraverser {
                 textPos -= direction;
                 sourcePos += direction;
             } else if (c1 == '\t' && c2 == ' ') {
-                for (i = 0; i < this.options.tab_size; i++) {
+                for (i = 0; i < 4; i++) {
                     sourcePos += direction;
-                    if (i < this.options.tab_size - 1
+                    if (i < 4 - 1
                         && (sourcePos < 0 || sourcePos >= this.source.length() || this.source.charAt(sourcePos) != ' '))
                         continue theLoop;
                 }
                 textPos -= direction;
             } else if (c2 == '\t' && c1 == ' ') {
-                for (i = 0; i < this.options.tab_size; i++) {
+                for (i = 0; i < 4; i++) {
                     textPos -= direction;
-                    if (i < this.options.tab_size - 1
-                        && (textPos < 0 || textPos >= text.length() || text.charAt(textPos) != ' '))
+                    if (i < 4 - 1 && (textPos < 0 || textPos >= text.length() || text.charAt(textPos) != ' '))
                         continue theLoop;
                 }
                 sourcePos += direction;
@@ -528,7 +411,7 @@ public class TextEditsBuilder extends TokenTraverser {
                 bufferLineSeparator(fragment, false);
                 if (this.parent != null)
                     bufferAlign(lineComment, index);
-                bufferIndent(fragment, index);
+                bufferIndent(fragment);
             } else if (fragment.isSpaceBefore() && i > 0) {
                 this.buffer.append(' ');
             }

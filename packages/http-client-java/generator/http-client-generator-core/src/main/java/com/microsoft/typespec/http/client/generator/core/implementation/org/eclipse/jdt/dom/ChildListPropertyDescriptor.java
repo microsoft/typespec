@@ -19,16 +19,14 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * {@link ASTNode}.
  *
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public final class ChildListPropertyDescriptor extends StructuralPropertyDescriptor {
 
     /**
      * Element type. For example, for a node type like CompilationUnit, the "imports" property is
      * ImportDeclaration.class. <p> Field is private, but marked package-visible for fast access from ASTNode. </p>
      */
-    final Class elementType;
+    final Class<?> elementType;
 
     /**
      * Indicates whether a cycle is possible. <p> Field is private, but marked package-visible for fast access from
@@ -44,7 +42,7 @@ public final class ChildListPropertyDescriptor extends StructuralPropertyDescrip
      * @param cycleRisk <code>true</code> if this property is at risk of cycles, and <code>false</code> if there is no
      * worry about cycles
      */
-    ChildListPropertyDescriptor(Class elementType, boolean cycleRisk) {
+    ChildListPropertyDescriptor(Class<?> elementType, boolean cycleRisk) {
         super();
 
         this.elementType = elementType;

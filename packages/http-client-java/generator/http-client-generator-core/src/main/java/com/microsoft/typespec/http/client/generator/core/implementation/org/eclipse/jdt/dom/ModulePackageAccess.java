@@ -27,7 +27,6 @@ import java.util.List;
  * @noextend This class is not intended to be subclassed by clients.
  * @since 3.14
  */
-@SuppressWarnings({ "rawtypes" })
 public abstract class ModulePackageAccess extends ModuleDirective {
 
     /**
@@ -38,7 +37,7 @@ public abstract class ModulePackageAccess extends ModuleDirective {
     /**
      * The target modules (element type: {@link Name}). Defaults to an empty list. (see constructor)
      */
-    protected ASTNode.NodeList modules = null;
+    protected ASTNode.NodeList<Name> modules = null;
 
     /**
      * Returns structural property descriptor for the "modules" property of this node (element type: {@link Name}).
@@ -82,7 +81,7 @@ public abstract class ModulePackageAccess extends ModuleDirective {
      */
     ModulePackageAccess(AST ast) {
         super(ast);
-        this.modules = new ASTNode.NodeList(internalModulesProperty());
+        this.modules = new ASTNode.NodeList<>(internalModulesProperty());
     }
 
     /**
@@ -119,7 +118,7 @@ public abstract class ModulePackageAccess extends ModuleDirective {
      *
      * @return the live list of target modules (element type: {@link Name})
      */
-    public List modules() {
+    public List<Name> modules() {
         return this.modules;
     }
 

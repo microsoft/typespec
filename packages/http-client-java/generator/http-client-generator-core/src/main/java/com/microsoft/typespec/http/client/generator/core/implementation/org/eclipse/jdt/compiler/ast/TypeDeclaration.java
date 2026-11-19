@@ -25,13 +25,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilation;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilationUnit;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortMethod;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortType;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.Parser;
 
@@ -52,7 +47,6 @@ public class TypeDeclaration extends Statement implements ReferenceContext {
 
     public int declarationSourceStart;
     public int declarationSourceEnd;
-    public int restrictedIdentifierStart = -1; // used only for record and permits restricted keywords.
     public int bodyStart;
     public int bodyEnd; // doesn't include the trailing comment if any.
     public CompilationResult compilationResult;
@@ -64,31 +58,8 @@ public class TypeDeclaration extends Statement implements ReferenceContext {
     // 1.5 support
     public TypeParameter[] typeParameters;
 
-    // 17 Sealed Type support
-    public TypeReference[] permittedTypes;
-
     public TypeDeclaration(CompilationResult compilationResult) {
         this.compilationResult = compilationResult;
-    }
-
-    /*
-     * We cause the compilation task to abort to a given extent.
-     */
-    @Override
-    public void abort(int abortLevel, IProblem problem) {
-        switch (abortLevel) {
-            case 2:
-                throw new AbortCompilation(problem);
-
-            case 4:
-                throw new AbortCompilationUnit(problem);
-
-            case 16:
-                throw new AbortMethod(problem);
-
-            default:
-                throw new AbortType(problem);
-        }
     }
 
     /**
@@ -212,10 +183,6 @@ public class TypeDeclaration extends Statement implements ReferenceContext {
             case 16777216 -> 5;
             default -> 1;
         };
-    }
-
-    public boolean isRecord() {
-        return (this.modifiers & 16777216) != 0;
     }
 
     /**

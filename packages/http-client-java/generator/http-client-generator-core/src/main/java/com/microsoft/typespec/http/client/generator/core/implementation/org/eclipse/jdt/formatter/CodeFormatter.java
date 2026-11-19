@@ -37,8 +37,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.formatter;
 
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameEOF;
-import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.TokenNameNotAToken;
+import static com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken.*;
 
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.InvalidInputException;
@@ -46,12 +45,11 @@ import com.microsoft.typespec.http.client.generator.core.implementation.org.ecli
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.parser.TerminalToken;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ASTNode;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.ASTParser;
+import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.AbstractTypeDeclaration;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.Comment;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.CompilationUnit;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.dom.TypeDeclaration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Formats Java compilation units and module descriptions using Eclipse JDT formatter options.
@@ -84,13 +82,12 @@ public class CodeFormatter {
     private TokenManager tokenManager;
 
     /**
-     * Creates a formatter that uses the given formatter options. The formatter always parses Java 11 source, and
-     * comments that start in the first column are formatted and indented like other comments.
-     *
-     * @param options the formatter options, keyed by the standard Eclipse JDT formatter option names
+     * Creates a formatter that uses the Azure SDK for Java formatter profile. The formatter always parses source with
+     * the Java 8 language rules plus module declarations, and comments that start in the first column are formatted
+     * and indented like other comments.
      */
-    public CodeFormatter(Map<String, String> options) {
-        this(new DefaultCodeFormatterOptions(options));
+    public CodeFormatter() {
+        this(new DefaultCodeFormatterOptions());
     }
 
     /**
@@ -158,7 +155,7 @@ public class CodeFormatter {
 
     private void findHeader() {
         if (this.astRoot instanceof CompilationUnit unit) {
-            List<TypeDeclaration> types = unit.types();
+            List<AbstractTypeDeclaration> types = unit.types();
             ASTNode firstElement
                 = !types.isEmpty() ? types.get(0) : unit.getModule() != null ? unit.getModule() : unit.getPackage();
             if (firstElement != null) {
@@ -195,13 +192,12 @@ public class CodeFormatter {
 
     private void tokenizeSource(int kind) {
         this.tokens.clear();
-        Scanner scanner = new Scanner(true /* comment */, 3604480L /* Java 11 */, null/* taskTags */,
-            null/* taskPriorities */, false/* taskCaseSensitive */, false);
+        Scanner scanner = new Scanner(true /* comment */);
         scanner.setSource(this.sourceArray);
         scanner.fakeInModule = (kind & 128) != 0;
         while (true) {
             try {
-                TerminalToken tokenType = scanner.getNextToken();
+                int tokenType = scanner.getNextToken();
                 if (tokenType == TokenNameEOF)
                     break;
                 Token token = Token.fromCurrent(scanner, tokenType);
@@ -214,16 +210,15 @@ public class CodeFormatter {
     }
 
     private void prepareSpaces() {
-        SpacePreparator spacePreparator = new SpacePreparator(this.tokenManager, this.options);
+        SpacePreparator spacePreparator = new SpacePreparator(this.tokenManager);
         this.astRoot.accept(spacePreparator);
         spacePreparator.finishUp();
     }
 
     private void prepareLineBreaks() {
-        LineBreaksPreparator breaksPreparator = new LineBreaksPreparator(this.tokenManager, this.options);
+        LineBreaksPreparator breaksPreparator = new LineBreaksPreparator(this.tokenManager);
         this.astRoot.accept(breaksPreparator);
         breaksPreparator.finishUp();
-        this.astRoot.accept(new OneLineEnforcer(this.tokenManager, this.options));
     }
 
     private void prepareComments() {
@@ -239,7 +234,7 @@ public class CodeFormatter {
         WrapPreparator wrapPreparator = new WrapPreparator(this.tokenManager, this.options, kind);
         this.astRoot.accept(wrapPreparator);
         applyFormatOff();
-        wrapPreparator.finishUp(this.astRoot, this.formatRegions);
+        wrapPreparator.finishUp(this.formatRegions);
     }
 
     private void applyFormatOff() {

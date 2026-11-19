@@ -14,13 +14,11 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.LongConstant;
-
 public class LongLiteralMinValue extends LongLiteral {
 
     public LongLiteralMinValue(char[] token, char[] reducedForm, int start, int end) {
         super(token, reducedForm, start, end);
-        this.constant = LongConstant.fromValue();
+
     }
 
 }

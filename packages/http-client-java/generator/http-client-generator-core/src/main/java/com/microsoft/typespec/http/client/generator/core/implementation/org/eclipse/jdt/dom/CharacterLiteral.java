@@ -19,9 +19,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * Character literal nodes.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class CharacterLiteral extends Expression {
 
     /**
@@ -41,14 +39,5 @@ public class CharacterLiteral extends Expression {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit(this);
-
-    }
-
-    /*
-     * (omit javadoc for this method) This method is a copy of setEscapedValue(String) that doesn't do any validation.
-     */
-    void internalSetEscapedValue() {
-        preValueChange();
     }
 }

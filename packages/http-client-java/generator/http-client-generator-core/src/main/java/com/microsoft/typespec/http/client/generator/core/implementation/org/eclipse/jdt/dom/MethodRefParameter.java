@@ -30,9 +30,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  *
  * @see Javadoc
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class MethodRefParameter extends ASTNode {
 
     /**
@@ -77,13 +75,9 @@ public class MethodRefParameter extends ASTNode {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
-        if (visitChildren) {
-            // visit children in normal left to right reading order
-            acceptChild(visitor, getType());
-            acceptChild(visitor, getName());
-        }
-
+        // visit children in normal left to right reading order
+        acceptChild(visitor, getType());
+        acceptChild(visitor, getName());
     }
 
     /**
@@ -112,18 +106,6 @@ public class MethodRefParameter extends ASTNode {
         ASTNode oldChild = this.type;
         preReplaceChild(oldChild, type, TYPE_PROPERTY);
         this.type = type;
-
-    }
-
-    /**
-     * Sets whether this method reference parameter is for the last parameter of a variable arity method (added in JLS3
-     * API).
-     *
-     * @since 3.1
-     */
-    public void setVarargs() {
-
-        preValueChange();
 
     }
 

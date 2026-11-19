@@ -21,15 +21,10 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * <pre>
  * BreakStatement:
  *    <b>break</b> [ Identifier ] <b>;</b>
- *
- *    Break statement allows expression as part of Java 12 preview feature (JEP 325)
- *		<b>break</b> <b>{ Identifier | Expression }</b>
  * </pre>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class BreakStatement extends Statement {
 
     /**
@@ -65,11 +60,7 @@ public class BreakStatement extends Statement {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
-        if (visitChildren) {
-            acceptChild(visitor, getLabel());
-        }
-
+        acceptChild(visitor, getLabel());
     }
 
     /**

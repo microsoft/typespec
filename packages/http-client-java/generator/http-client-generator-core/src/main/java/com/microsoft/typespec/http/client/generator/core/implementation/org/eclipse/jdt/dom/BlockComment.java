@@ -22,9 +22,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * recording the source range where a comment was found in a source string. It is not useful for creating comments. </p>
  *
  * @since 3.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public final class BlockComment extends Comment {
 
     /**

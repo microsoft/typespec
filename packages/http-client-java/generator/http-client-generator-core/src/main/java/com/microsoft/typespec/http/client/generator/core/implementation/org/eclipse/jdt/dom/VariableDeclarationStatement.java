@@ -32,9 +32,7 @@ import java.util.List;
  * <code>VariableDeclarationExpression</code> wrapped in an <code>ExpressionStatement</code>. </p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes" })
 public class VariableDeclarationStatement extends Statement {
 
     /**
@@ -67,7 +65,7 @@ public class VariableDeclarationStatement extends Statement {
      *
      * @since 3.1
      */
-    private ASTNode.NodeList modifiers = null;
+    private final ASTNode.NodeList<IExtendedModifier> modifiers;
 
     /**
      * The base type; lazily initialized; defaults to an unspecified, legal type.
@@ -78,7 +76,8 @@ public class VariableDeclarationStatement extends Statement {
      * The list of variable variable declaration fragments (element type: {@link VariableDeclarationFragment}). Defaults
      * to an empty list.
      */
-    private final ASTNode.NodeList variableDeclarationFragments = new ASTNode.NodeList(FRAGMENTS_PROPERTY);
+    private final ASTNode.NodeList<VariableDeclarationFragment> variableDeclarationFragments
+        = new ASTNode.NodeList<>(FRAGMENTS_PROPERTY);
 
     /**
      * Creates a new unparented local variable declaration statement node owned by the given AST. By default, the
@@ -89,7 +88,7 @@ public class VariableDeclarationStatement extends Statement {
      */
     VariableDeclarationStatement(AST ast) {
         super(ast);
-        this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
+        this.modifiers = new ASTNode.NodeList<>(MODIFIERS2_PROPERTY);
     }
 
     @Override
@@ -116,9 +115,7 @@ public class VariableDeclarationStatement extends Statement {
      * @return the live list of modifiers and annotations (element type: {@link IExtendedModifier})
      * @since 3.1
      */
-    public List modifiers() {
-        // more efficient than just calling unsupportedIn2() to check
-
+    public List<IExtendedModifier> modifiers() {
         return this.modifiers;
     }
 
@@ -161,7 +158,7 @@ public class VariableDeclarationStatement extends Statement {
      * @return the live list of variable declaration fragments in this statement (element type:
      * {@link VariableDeclarationFragment})
      */
-    public List fragments() {
+    public List<VariableDeclarationFragment> fragments() {
         return this.variableDeclarationFragments;
     }
 }

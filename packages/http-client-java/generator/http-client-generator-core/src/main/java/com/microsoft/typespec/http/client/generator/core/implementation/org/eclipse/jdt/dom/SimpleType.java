@@ -24,7 +24,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * </pre>
  *
  * <p> This kind of node is used to convert a name ({@link Name}) into a type ({@link Type}) by wrapping it. </p>
- *
+ * <p>
  * In JLS8 and later, the SimpleType may have optional annotations. If annotations are present, then the name must be a
  * {@link SimpleName}. Annotated qualified names are represented as {@link QualifiedType} or {@link NameQualifiedType}.
  *
@@ -32,9 +32,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * @see NameQualifiedType
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class SimpleType extends AnnotatableType {
 
     /**
@@ -83,13 +81,9 @@ public class SimpleType extends AnnotatableType {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        boolean visitChildren = visitor.visit(this);
-        if (visitChildren) {
-            // visit children in normal left to right reading order
-            acceptChildren(visitor, this.annotations);
-            acceptChild(visitor, getName());
-        }
-
+        // visit children in normal left to right reading order
+        acceptChildren(visitor, this.annotations);
+        acceptChild(visitor, getName());
     }
 
     /**
@@ -119,20 +113,6 @@ public class SimpleType extends AnnotatableType {
         preReplaceChild(oldChild, typeName, NAME_PROPERTY);
         this.typeName = typeName;
 
-    }
-
-    /**
-     * @since 3.14
-     */
-    @Override
-    public boolean isVar() {
-
-        if (this.ast.scanner.complianceLevel < 3538944L)
-            return false;
-        if (this.typeName == null)
-            getName();
-        String qName = this.typeName.getFullyQualifiedName();
-        return qName != null && qName.equals("var"); //$NON-NLS-1$
     }
 
 }

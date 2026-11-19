@@ -28,7 +28,6 @@ import java.util.List;
  *
  * @since 3.0
  */
-@SuppressWarnings("rawtypes")
 public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 
     /**
@@ -43,7 +42,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
      *
      * @since 2.0 (originally declared on {@link TypeDeclaration})
      */
-    ASTNode.NodeList bodyDeclarations;
+    ASTNode.NodeList<BodyDeclaration> bodyDeclarations;
 
     /**
      * Returns structural property descriptor for the "bodyDeclarations" property of this node (element type:
@@ -89,7 +88,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
      */
     AbstractTypeDeclaration(AST ast) {
         super(ast);
-        this.bodyDeclarations = new ASTNode.NodeList(internalBodyDeclarationsProperty());
+        this.bodyDeclarations = new ASTNode.NodeList<>(internalBodyDeclarationsProperty());
     }
 
     /**
@@ -128,7 +127,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
      * @return the live list of body declarations (element type: {@link BodyDeclaration})
      * @since 2.0 (originally declared on {@link TypeDeclaration})
      */
-    public List bodyDeclarations() {
+    public List<BodyDeclaration> bodyDeclarations() {
         return this.bodyDeclarations;
     }
 

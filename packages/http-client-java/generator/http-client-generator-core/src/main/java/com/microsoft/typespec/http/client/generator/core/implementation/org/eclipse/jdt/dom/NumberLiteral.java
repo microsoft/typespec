@@ -19,9 +19,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * Number literal nodes.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class NumberLiteral extends Expression {
 
     /**
@@ -41,14 +39,5 @@ public class NumberLiteral extends Expression {
 
     @Override
     void accept0(ASTVisitor visitor) {
-        visitor.visit(this);
-
-    }
-
-    /*
-     * (omit javadoc for this method) This method is a copy of setToken(String) that doesn't do any validation.
-     */
-    void internalSetToken() {
-        preValueChange();
     }
 }

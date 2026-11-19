@@ -46,13 +46,4 @@ public abstract class Comment extends ASTNode {
     public final boolean isDocComment() {
         return (this instanceof Javadoc);
     }
-
-    /**
-     * Returns the root AST node that this comment occurs within, or <code>null</code> if none (or not recorded).
-     */
-    public final void setAlternateRoot() {
-        // alternate root is *not* considered a structural property
-        // but we protect them nevertheless
-        checkModifiable();
-    }
 }

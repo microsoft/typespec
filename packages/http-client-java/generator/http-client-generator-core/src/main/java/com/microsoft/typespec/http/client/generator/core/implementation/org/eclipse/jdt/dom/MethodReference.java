@@ -35,13 +35,12 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * @see TypeMethodReference
  * @since 3.10
  */
-@SuppressWarnings({ "rawtypes" })
 public abstract class MethodReference extends Expression {
 
     /**
      * The type arguments (element type: {@link Type}). Defaults to an empty list (see constructor).
      */
-    ASTNode.NodeList typeArguments;
+    ASTNode.NodeList<Type> typeArguments;
 
     /**
      * Creates and returns a structural property descriptor for the "typeArguments" property declared on the given
@@ -79,7 +78,7 @@ public abstract class MethodReference extends Expression {
      */
     MethodReference(AST ast) {
         super(ast);
-        this.typeArguments = new ASTNode.NodeList(getTypeArgumentsProperty());
+        this.typeArguments = new ASTNode.NodeList<>(getTypeArgumentsProperty());
     }
 
 }

@@ -26,9 +26,7 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * <p>The FormalParameter is represented by a {@link SingleVariableDeclaration}.</p>
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings("rawtypes")
 public class CatchClause extends ASTNode {
 
     /**

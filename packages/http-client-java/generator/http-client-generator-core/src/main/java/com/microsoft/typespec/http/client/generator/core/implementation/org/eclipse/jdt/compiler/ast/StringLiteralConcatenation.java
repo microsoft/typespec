@@ -23,7 +23,7 @@ public class StringLiteralConcatenation extends StringLiteral {
      * Build a two-strings literal
      */
     public StringLiteralConcatenation(StringLiteral str1, StringLiteral lit) {
-        super(str1, lit, str1.sourceStart, lit.sourceEnd, str1.getLineNumber());
+        super(str1, lit, str1.sourceStart, lit.sourceEnd);
     }
 
     public StringLiteral[] getLiterals() {
@@ -49,15 +49,5 @@ public class StringLiteralConcatenation extends StringLiteral {
             o = o.optionalHead;
         } while (o != null);
         return length;
-    }
-
-    @Override
-    protected void flatten(char[] result) {
-        // don't store flattened representation: getLiterals() still needs the linked list
-    }
-
-    @Override
-    public void setSource(char[] source) {
-        throw new UnsupportedOperationException();
     }
 }

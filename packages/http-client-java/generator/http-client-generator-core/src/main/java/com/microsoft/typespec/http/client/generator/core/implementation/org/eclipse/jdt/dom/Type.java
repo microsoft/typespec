@@ -86,14 +86,4 @@ public abstract class Type extends ASTNode {
         return (this instanceof ArrayType);
     }
 
-    /**
-     * Returns whether this type is a var. The convenience method checks whether the type is so named.
-     *
-     * @return <code>true</code> if this is a var, and <code>false</code> otherwise
-     * @since 3.14
-     */
-    public boolean isVar() {
-        return false;
-    }
-
 }

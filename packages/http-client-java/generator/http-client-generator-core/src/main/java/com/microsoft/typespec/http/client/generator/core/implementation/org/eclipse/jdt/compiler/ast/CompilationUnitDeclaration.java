@@ -20,12 +20,8 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortCompilationUnit;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortMethod;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.AbortType;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblem;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ReferenceContext;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.TypeConstants;
 
@@ -49,23 +45,6 @@ public class CompilationUnitDeclaration extends ASTNode implements ReferenceCont
         // by definition of a compilation unit....
         this.sourceStart = 0;
         this.sourceEnd = sourceLength - 1;
-    }
-
-    /*
-     * We cause the compilation task to abort to a given extent.
-     */
-    @Override
-    public void abort(int abortLevel, IProblem problem) {
-        switch (abortLevel) {
-            case 8:
-                throw new AbortType(problem);
-
-            case 16:
-                throw new AbortMethod(problem);
-
-            default:
-                throw new AbortCompilationUnit(problem);
-        }
     }
 
     @Override

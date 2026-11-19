@@ -21,16 +21,11 @@
  *******************************************************************************/
 package com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ast;
 
-public class SwitchStatement extends Expression {
+public class SwitchStatement extends Statement {
 
     public Expression expression;
     public Statement[] statements;
 
     public int blockStart;
-
-    @Override
-    public boolean isTrulyExpression() {
-        return false;
-    }
 
 }

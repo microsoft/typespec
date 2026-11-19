@@ -24,37 +24,24 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A compilation result consists of all information returned by the compiler for a single compiled compilation source
- * unit. This includes: <ul> <li> the compilation unit that was compiled <li> for each type produced by compiling the
- * compilation unit, its binary and optionally its principal structure <li> any problems (errors or warnings) produced
- * <li> dependency info </ul>
- *
- * The principle structure and binary may be null if the compiler could not produce them. If neither could be produced,
- * there is no corresponding entry for the type.
- *
- * The dependency info includes type references such as supertypes, field types, method parameter and return types,
- * local variable types, types of intermediate expressions, etc. It also includes the namespaces (packages) in which
- * names were looked up. It does <em>not</em> include finer grained dependencies such as information about specific
- * fields and methods which were referenced, but does contain their declaring types and any other types used to locate
- * such fields or methods.
+ * The result of parsing a single compilation unit: the unit that was parsed, its line separator positions, and the
+ * problems (errors or warnings) reported for it.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationResult {
 
     public IProblem[] problems;
-    public IProblem[] tasks;
+
     public int problemCount;
-    public int taskCount;
+
     public BasicCompilationUnit compilationUnit;
     private Map<IProblem, ReferenceContext> problemsMap;
-    private Set firstErrors;
+    private Set<IProblem> firstErrors;
 
     public int[] lineSeparatorPositions;
 
     public char[] fileName;
-    public boolean hasSyntaxError = false;
 
-    private static final Comparator PROBLEM_COMPARATOR = Comparator.comparingInt(o -> ((IProblem) o).getSourceStart());
+    private static final Comparator<IProblem> PROBLEM_COMPARATOR = Comparator.comparingInt(IProblem::getSourceStart);
 
     public CompilationResult(BasicCompilationUnit compilationUnit) {
         this.fileName = compilationUnit.getFileName();
@@ -100,7 +87,8 @@ public class CompilationResult {
     }
 
     /**
-     * Same as getProblems() but don't answer problems that actually concern the enclosing package.
+     * Answers the recorded problems sorted by source start, at most the 100 with the highest priority, without the
+     * problems that concern the enclosing package unless this is a {@code package-info} unit.
      */
     public IProblem[] getCUProblems() {
         // Re-adjust the size of the problems if necessary and filter package problems
@@ -162,10 +150,6 @@ public class CompilationResult {
     }
 
     public void record(IProblem newProblem, ReferenceContext referenceContext) {
-        if (newProblem.getID() == 536871362) {
-            recordTask(newProblem);
-            return;
-        }
         if (this.problemCount == 0) {
             this.problems = new IProblem[5];
         } else if (this.problemCount == this.problems.length) {
@@ -175,27 +159,18 @@ public class CompilationResult {
         this.problems[this.problemCount++] = newProblem;
         if (referenceContext != null) {
             if (this.problemsMap == null)
-                this.problemsMap = new HashMap(5);
+                this.problemsMap = new HashMap<>(5);
             if (this.firstErrors == null)
-                this.firstErrors = new HashSet(5);
+                this.firstErrors = new HashSet<>(5);
             if (newProblem.isError() && !referenceContext.hasErrors())
                 this.firstErrors.add(newProblem);
             this.problemsMap.put(newProblem, referenceContext);
         }
         if (newProblem.isError()) {
             if ((newProblem.getID() & 1073741824) != 0) {
-                this.hasSyntaxError = true;
+
             }
         }
-    }
-
-    private void recordTask(IProblem newProblem) {
-        if (this.taskCount == 0) {
-            this.tasks = new IProblem[5];
-        } else if (this.taskCount == this.tasks.length) {
-            System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount * 2]), 0, this.taskCount);
-        }
-        this.tasks[this.taskCount++] = newProblem;
     }
 
 }

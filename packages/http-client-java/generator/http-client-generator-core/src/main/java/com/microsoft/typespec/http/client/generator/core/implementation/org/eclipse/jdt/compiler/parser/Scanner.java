@@ -21,13 +21,9 @@ import static com.microsoft.typespec.http.client.generator.core.implementation.o
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharDeduplication;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CharOperation;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilationResult;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.CompilerOptions;
-import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.IProblemFactory;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.InvalidInputException;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.ProblemHandler;
 import com.microsoft.typespec.http.client.generator.core.implementation.org.eclipse.jdt.compiler.Util;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * IMPORTANT NOTE: Internal Scanner implementation. It uses TerminalToken which constant values reflect the latest
@@ -35,23 +31,8 @@ import java.util.List;
  */
 public class Scanner {
 
-    /*
-     * APIs ares - getNextToken() which return the current type of the token (this value is not memorized by the
-     * scanner) - getCurrentTokenSource() which provides with the token "REAL" source (aka all unicode have been
-     * transformed into a correct char) - sourceStart gives the position into the stream - currentPosition-1 gives the
-     * sourceEnd position into the stream
-     */
-    public long sourceLevel;
-    public long complianceLevel;
-
-    // 1.4 feature
-    public boolean useAssertAsAnIndentifier = false;
     // flag indicating if processed source contains occurrences of keyword assert
     public boolean containsAssertKeyword = false;
-    public boolean previewEnabled;
-
-    // 1.5 feature
-    public boolean useEnumAsAnIndentifier = false;
 
     public boolean recordLineSeparator = false;
     public char currentCharacter;
@@ -78,16 +59,6 @@ public class Scanner {
     public int commentPtr = -1; // no comment test with commentPtr value -1
     public int lastCommentLinePosition = -1;
 
-    // task tag support
-    public char[][] foundTaskTags = null;
-    public char[][] foundTaskMessages;
-    public char[][] foundTaskPriorities = null;
-    public int[][] foundTaskPositions;
-    public int foundTaskCount = 0;
-    public char[][] taskTags = null;
-    public char[][] taskPriorities = null;
-    public boolean isTaskCaseSensitive = true;
-
     // diet parsing support - jump over some method body when requested
     public boolean diet = false;
 
@@ -103,7 +74,7 @@ public class Scanner {
      * The current context of the scanner w.r.t restricted keywords
      */
     public enum ScanContext {
-        EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, AFTER_IMPORT, INACTIVE
+        EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, INACTIVE
     }
 
     protected ScanContext scanContext = null;
@@ -118,70 +89,28 @@ public class Scanner {
      * intended for resolving ambiguities and conflicts, it ignores whitespace and comments.
      *
      * @see #resetLookBack() Reset the look back and clear all stored tokens
-     * @see #addTokenToLookBack(TerminalToken) Add a token to the look back, removing the oldest entry
+     * @see #addTokenToLookBack(int) Add a token to the look back, removing the oldest entry
      */
-    TerminalToken[] lookBack = new TerminalToken[2]; // fall back to spring forward.
-    protected TerminalToken nextToken = TerminalToken.TokenNameNotAToken; // allows for one token push back, only the
+    int[] lookBack = new int[2]; // fall back to spring forward.
+    protected int nextToken = TerminalToken.TokenNameNotAToken; // allows for one token push back, only the
     private VanguardScanner vanguardScanner;
     private VanguardParser vanguardParser;
     ConflictedParser activeParser = null;
     private boolean consumingEllipsisAnnotations = false;
-    public boolean scanningSwitchLabel = false;
-
-    // Text block support - Java 15
-    private final StringBuilder normalizedTextBlock = new StringBuilder();
 
     private final CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
 
-    public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, long sourceLevel, long complianceLevel,
-        char[][] taskTags, char[][] taskPriorities, boolean isTaskCaseSensitive, boolean isPreviewEnabled) {
+    public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace) {
         this.eofPosition = Integer.MAX_VALUE;
         this.tokenizeComments = tokenizeComments;
         this.tokenizeWhiteSpace = tokenizeWhiteSpace;
-        this.sourceLevel = sourceLevel;
         this.resetLookBack();
         this.nextToken = TokenNameNotAToken;
         this.consumingEllipsisAnnotations = false;
-        this.complianceLevel = complianceLevel;
-        this.previewEnabled = isPreviewEnabled;
-        this.scanningSwitchLabel = false;
-        if (taskTags != null) {
-            int taskTagsLength = taskTags.length;
-            int length = taskTagsLength;
-            if (taskPriorities != null) {
-                int taskPrioritiesLength = taskPriorities.length;
-                if (taskPrioritiesLength != taskTagsLength) {
-                    if (taskPrioritiesLength > taskTagsLength) {
-                        System.arraycopy(taskPriorities, 0, (taskPriorities = new char[taskTagsLength][]), 0,
-                            taskTagsLength);
-                    } else {
-                        System.arraycopy(taskTags, 0, (taskTags = new char[taskPrioritiesLength][]), 0,
-                            taskPrioritiesLength);
-                        length = taskPrioritiesLength;
-                    }
-                }
-                int[] initialIndexes = new int[length];
-                for (int i = 0; i < length; i++) {
-                    initialIndexes[i] = i;
-                }
-                Util.reverseQuickSort(taskTags, 0, length - 1, initialIndexes);
-                char[][] temp = new char[length][];
-                for (int i = 0; i < length; i++) {
-                    temp[i] = taskPriorities[initialIndexes[i]];
-                }
-                this.taskPriorities = temp;
-            } else {
-                Util.reverseQuickSort(taskTags, 0, length - 1);
-            }
-            this.taskTags = taskTags;
-            this.isTaskCaseSensitive = isTaskCaseSensitive;
-        }
     }
 
-    public Scanner(boolean tokenizeComments, long sourceLevel, char[][] taskTags, char[][] taskPriorities,
-        boolean isTaskCaseSensitive, boolean isPreviewEnabled) {
-        this(tokenizeComments, false, sourceLevel, sourceLevel, taskTags, taskPriorities, isTaskCaseSensitive,
-            isPreviewEnabled);
+    public Scanner(boolean tokenizeComments) {
+        this(tokenizeComments, false);
     }
 
     public final boolean atEnd() {
@@ -189,146 +118,6 @@ public class Scanner {
         // Only a part of the real stream input
 
         return this.eofPosition <= this.currentPosition;
-    }
-
-// chech presence of task: tags
-// TODO (frederic) see if we need to take unicode characters into account...
-    public void checkTaskTag(int commentStart, int commentEnd) {
-        char[] src = this.source;
-
-        // only look for newer task: tags
-        if (this.foundTaskCount > 0 && this.foundTaskPositions[this.foundTaskCount - 1][0] >= commentStart) {
-            return;
-        }
-        int foundTaskIndex = this.foundTaskCount;
-        char previous = src[commentStart + 1]; // should be '*' or '/'
-        for (int i = commentStart + 2; i < commentEnd && i < this.eofPosition; i++) {
-            char[] tag;
-            char[] priority;
-            // check for tag occurrence only if not ambiguous with javadoc tag
-            if (previous != '@') {
-                nextTag: for (int itag = 0; itag < this.taskTags.length; itag++) {
-                    tag = this.taskTags[itag];
-                    int tagLength = tag.length;
-                    if (tagLength == 0)
-                        continue;
-
-                    // ensure tag is not leaded with letter if tag starts with a letter
-                    if (ScannerHelper.isJavaIdentifierStart(this.complianceLevel, tag[0])) {
-                        if (ScannerHelper.isJavaIdentifierPart(this.complianceLevel, previous)) {
-                            continue;
-                        }
-                    }
-
-                    for (int t = 0; t < tagLength; t++) {
-                        char sc, tc;
-                        int x = i + t;
-                        if (x >= this.eofPosition || x >= commentEnd)
-                            continue nextTag;
-                        // case sensitive check
-                        if ((sc = src[i + t]) != (tc = tag[t])) {
-                            // case insensitive check
-                            if (this.isTaskCaseSensitive
-                                || (ScannerHelper.toLowerCase(sc) != ScannerHelper.toLowerCase(tc))) {
-                                continue nextTag;
-                            }
-                        }
-                    }
-                    // ensure tag is not followed with letter if tag finishes with a letter
-                    if (i + tagLength < commentEnd
-                        && ScannerHelper.isJavaIdentifierPart(this.complianceLevel, src[i + tagLength - 1])) {
-                        if (ScannerHelper.isJavaIdentifierPart(this.complianceLevel, src[i + tagLength]))
-                            continue;
-                    }
-                    if (this.foundTaskTags == null) {
-                        this.foundTaskTags = new char[5][];
-                        this.foundTaskMessages = new char[5][];
-                        this.foundTaskPriorities = new char[5][];
-                        this.foundTaskPositions = new int[5][];
-                    } else if (this.foundTaskCount == this.foundTaskTags.length) {
-                        System.arraycopy(this.foundTaskTags, 0,
-                            this.foundTaskTags = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
-                        System.arraycopy(this.foundTaskMessages, 0,
-                            this.foundTaskMessages = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
-                        System.arraycopy(this.foundTaskPriorities, 0,
-                            this.foundTaskPriorities = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
-                        System.arraycopy(this.foundTaskPositions, 0,
-                            this.foundTaskPositions = new int[this.foundTaskCount * 2][], 0, this.foundTaskCount);
-                    }
-
-                    priority = this.taskPriorities != null && itag < this.taskPriorities.length
-                        ? this.taskPriorities[itag]
-                        : null;
-
-                    this.foundTaskTags[this.foundTaskCount] = tag;
-                    this.foundTaskPriorities[this.foundTaskCount] = priority;
-                    this.foundTaskPositions[this.foundTaskCount] = new int[] { i, i + tagLength - 1 };
-                    this.foundTaskMessages[this.foundTaskCount] = CharOperation.NO_CHAR;
-                    this.foundTaskCount++;
-                    i += tagLength - 1; // will be incremented when looping
-                    break;
-                }
-            }
-            previous = src[i];
-        }
-        boolean containsEmptyTask = false;
-        for (int i = foundTaskIndex; i < this.foundTaskCount; i++) {
-            // retrieve message start and end positions
-            int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
-            int max_value = i + 1 < this.foundTaskCount ? this.foundTaskPositions[i + 1][0] - 1 : commentEnd - 1;
-            // at most beginning of next task
-            if (max_value < msgStart) {
-                max_value = msgStart; // would only occur if tag is before EOF.
-            }
-            int end = -1;
-            char c;
-            for (int j = msgStart; j < max_value; j++) {
-                if ((c = src[j]) == '\n' || c == '\r') {
-                    end = j - 1;
-                    break;
-                }
-            }
-            if (end == -1) {
-                for (int j = max_value; j > msgStart; j--) {
-                    if (src[j] == '*') {
-                        end = j - 1;
-                        break;
-                    }
-                }
-                if (end == -1)
-                    end = max_value;
-            }
-            if (msgStart == end) {
-                // if the description is empty, we might want to see if two tags are not sharing the same message
-                // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
-                containsEmptyTask = true;
-                continue;
-            }
-            // trim the message
-            // we don't trim the beginning of the message to be able to show it after the task tag
-            while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
-                end--;
-            // update the end position of the task
-            this.foundTaskPositions[i][1] = end;
-            // get the message source
-            final int messageLength = end - msgStart + 1;
-            char[] message = new char[messageLength];
-            System.arraycopy(src, msgStart, message, 0, messageLength);
-            this.foundTaskMessages[i] = message;
-        }
-        if (containsEmptyTask) {
-            for (int i = foundTaskIndex, max = this.foundTaskCount; i < max; i++) {
-                if (this.foundTaskMessages[i].length == 0) {
-                    for (int j = i + 1; j < max; j++) {
-                        if (this.foundTaskMessages[j].length != 0) {
-                            this.foundTaskMessages[i] = this.foundTaskMessages[j];
-                            this.foundTaskPositions[i][1] = this.foundTaskPositions[j][1];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public char[] getCurrentIdentifierSource() {
@@ -384,9 +173,6 @@ public class Scanner {
     public char[] getCurrentTokenSource() {
         // Return the token REAL source (aka unicodes are precomputed)
 
-        if (this.lookBack[1] == TokenNameTextBlock)
-            return getCurrentTextBlock();
-
         char[] result;
         if (this.withoutUnicodePtr != 0)
             // 0 is used as a fast test flag so the real first char is in position 1
@@ -404,9 +190,6 @@ public class Scanner {
         // return the token REAL source (aka unicodes are precomputed).
         // REMOVE the two " that are at the beginning and the end.
 
-        if (this.lookBack[1] == TokenNameTextBlock)
-            return getCurrentTextBlock();
-
         char[] result;
         if (this.withoutUnicodePtr != 0)
             // 0 is used as a fast test flag so the real first char is in position 1
@@ -419,53 +202,6 @@ public class Scanner {
                 result = new char[length = this.currentPosition - this.startPosition - 2], 0, length);
         }
         return result;
-    }
-
-    protected boolean atTextBlockDelimiter(boolean checkingEnd) {
-        int savedCurrentPosition = this.currentPosition;
-        int savedWithoutUnicodePtr = this.withoutUnicodePtr;
-        boolean validDelimiter = false;
-        try {
-            if (getNextChar() == '\"' && getNextChar() == '\"') {
-                if (checkingEnd) {
-                    validDelimiter = true;
-                } else {
-                    int c;
-                    while (ScannerHelper.isWhitespace((char) (c = getNextChar()))) {
-                        if (c == '\n') {
-                            validDelimiter = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (IndexOutOfBoundsException ignored) {
-        } finally {
-            if (!validDelimiter) { // roll back all side effects.
-                this.currentPosition = savedCurrentPosition;
-                this.unicodeAsBackSlash = false;
-                this.withoutUnicodePtr = savedWithoutUnicodePtr;
-                this.currentCharacter = '"';
-            }
-        }
-        return validDelimiter;
-    }
-
-    private boolean atTextBlockStart() {
-        return atTextBlockDelimiter(false);
-    }
-
-    private boolean atTextBlockEnd() {
-        return atTextBlockDelimiter(true);
-    }
-
-    public char[] getCurrentTextBlock() {
-        String normalizedBlock = this.normalizedTextBlock.toString();
-        try {
-            return normalizedBlock.stripIndent().translateEscapes().toCharArray();
-        } catch (Exception e) {
-            return normalizedBlock.toCharArray(); // errors are reported already, just return original.
-        }
     }
 
     public int getCurrentTokenStartPosition() {
@@ -499,32 +235,6 @@ public class Scanner {
         int[] copy;
         System.arraycopy(this.lineEnds, 0, copy = new int[this.linePtr + 1], 0, this.linePtr + 1);
         return copy;
-    }
-
-    /**
-     * Search the source position corresponding to the beginning of a given line number
-     *
-     * Line numbers are 1-based, and relative to the scanner initialPosition. Character positions are 0-based.
-     *
-     * e.g. getLineStart(1) --> 0 indicates that the first line starts at character 0.
-     *
-     * In case the given line number is inconsistent, answers -1.
-     *
-     * @param lineNumber int
-     * @return int
-     */
-    public final int getLineStart(int lineNumber) {
-        if (this.lineEnds == null || this.linePtr == -1)
-            return -1;
-        if (lineNumber > this.lineEnds.length + 1)
-            return -1;
-        if (lineNumber <= 0)
-            return -1;
-
-        if (lineNumber == 1)
-            return this.initialPosition;
-        return this.lineEnds[lineNumber - 2] + 1; // next line start one character behind the lineEnd of the previous
-                                                  // line
     }
 
     public final int getNextChar() {
@@ -827,13 +537,13 @@ public class Scanner {
                     this.withoutUnicodePtr = temp2;
                     return false;
                 }
-                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c, low);
+                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c, low);
             } else if (c >= 56320 && c <= 57343) {
                 this.currentPosition = pos;
                 this.withoutUnicodePtr = temp2;
                 return false;
             } else {
-                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c);
+                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c);
             }
             if (unicode) {
                 if (!isJavaIdentifierPart) {
@@ -891,13 +601,13 @@ public class Scanner {
                     this.withoutUnicodePtr = temp2;
                     return false;
                 }
-                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c, low);
+                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c, low);
             } else if (c >= 56320 && c <= 57343) {
                 this.currentPosition = pos;
                 this.withoutUnicodePtr = temp2;
                 return false;
             } else {
-                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c);
+                isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c);
             }
             if (unicode) {
                 if (!isJavaIdentifierPart) {
@@ -926,7 +636,7 @@ public class Scanner {
      * This is used to optimize the case where the scanner is used to scan a single
      * identifier. In this case, the AIOOBE is slower to handle than a bound check
      */
-    public TerminalToken scanIdentifier() throws InvalidInputException {
+    public int scanIdentifier() throws InvalidInputException {
         int whiteStart;
         while (true) { // loop for jumping over comments
             this.withoutUnicodePtr = 0;
@@ -1004,12 +714,12 @@ public class Scanner {
                     // illegal low surrogate
                     throw invalidLowSurrogate();
                 }
-                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
+                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
             } else if (c >= 56320 && c <= 57343) {
                 throw invalidHighSurrogate();
             } else {
                 // optimized case already checked
-                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c);
+                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c);
             }
             if (isJavaIdStart)
                 return scanIdentifierOrKeywordWithBoundCheck();
@@ -1017,8 +727,8 @@ public class Scanner {
         }
     }
 
-    public TerminalToken getNextToken() throws InvalidInputException {
-        TerminalToken token;
+    public int getNextToken() throws InvalidInputException {
+        int token;
         if (this.nextToken != TerminalToken.TokenNameNotAToken) {
             token = this.nextToken;
             this.nextToken = TokenNameNotAToken;
@@ -1040,12 +750,10 @@ public class Scanner {
             }
             return token;
         }
-        if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT || token == TokenNameARROW) {
+        if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT) {
             token = disambiguatedToken(token, this);
         } else if (token == TokenNameELLIPSIS) {
             this.consumingEllipsisAnnotations = false;
-        } else if (mayBeAtCasePattern(token)) {
-            token = disambiguateCasePattern(token);
         }
         addTokenToLookBack(token);
         return token;
@@ -1056,7 +764,7 @@ public class Scanner {
         return getNextChar('/', '*');
     }
 
-    protected TerminalToken getNextToken0() throws InvalidInputException {
+    protected int getNextToken0() throws InvalidInputException {
         this.wasAcr = false;
         if (this.diet) {
             jumpOverMethodBody();
@@ -1365,8 +1073,6 @@ public class Scanner {
                                         }
                                     }
                                     recordComment(TokenNameCOMMENT_LINE);
-                                    if (this.taskTags != null)
-                                        checkTaskTag(this.startPosition, this.currentPosition);
                                     if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 
                                         if (this.recordLineSeparator) {
@@ -1383,8 +1089,6 @@ public class Scanner {
                                 } catch (IndexOutOfBoundsException e) {
                                     this.currentPosition--;
                                     recordComment(TokenNameCOMMENT_LINE);
-                                    if (this.taskTags != null)
-                                        checkTaskTag(this.startPosition, this.currentPosition);
 
                                     if (this.tokenizeComments) {
                                         return TokenNameCOMMENT_LINE;
@@ -1486,11 +1190,9 @@ public class Scanner {
                                                 this.currentPosition++;
                                         } // jump over the \\
                                     }
-                                    TerminalToken token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
+                                    int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
                                     recordComment(token);
                                     this.commentTagStarts[this.commentPtr] = firstTag;
-                                    if (this.taskTags != null)
-                                        checkTaskTag(this.startPosition, this.currentPosition);
                                     if (this.tokenizeComments) {
                                         /*
                                          * if (isJavadoc) return TokenNameCOMMENT_JAVADOC; return
@@ -1535,12 +1237,12 @@ public class Scanner {
                                 // illegal low surrogate
                                 throw invalidLowSurrogate();
                             }
-                            isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
+                            isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
                         } else if (c >= 56320 && c <= 57343) {
                             throw invalidHighSurrogate();
                         } else {
                             // optimized case already checked
-                            isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c);
+                            isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c);
                         }
                         if (isJavaIdStart)
                             return scanIdentifierOrKeyword();
@@ -1562,7 +1264,7 @@ public class Scanner {
         return TokenNameEOF;
     }
 
-    protected TerminalToken processSingleQuotes() throws InvalidInputException {
+    protected int processSingleQuotes() throws InvalidInputException {
         int test;
         if ((test = getNextChar('\n', '\r')) == 0) {
             throw invalidCharacter();
@@ -1645,197 +1347,113 @@ public class Scanner {
         throw invalidCharacter();
     }
 
-    protected TerminalToken scanForStringLiteral() throws InvalidInputException {
-        boolean isTextBlock;
-
-        // consume next character
-        this.unicodeAsBackSlash = false;
+    protected int scanForStringLiteral() throws InvalidInputException {
+        // A text block's opening delimiter scans as an empty string and an unterminated string, so it is an error.
         boolean isUnicode;
-        isTextBlock = atTextBlockStart();
-        if (isTextBlock) {
-            return scanForTextBlock();
-        } else {
-            try {
+        try {
+            // consume next character
+            this.unicodeAsBackSlash = false;
+            isUnicode = false;
+            if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+                && (this.source[this.currentPosition] == 'u')) {
+                getNextUnicodeChar();
+                isUnicode = true;
+            } else {
+                if (this.withoutUnicodePtr != 0) {
+                    unicodeStore();
+                }
+            }
+
+            while (this.currentCharacter != '"') {
+                if (this.currentPosition >= this.eofPosition) {
+                    throw unterminatedString();
+                }
+                /**** \r and \n are not valid in string literals ****/
+                if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
+                    // relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+                    if (isUnicode) {
+                        int start = this.currentPosition;
+                        for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+                            if (this.currentPosition >= this.eofPosition) {
+                                this.currentPosition = start;
+                                break;
+                            }
+                            if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+                                && (this.source[this.currentPosition] == 'u')) {
+                                isUnicode = true;
+                                getNextUnicodeChar();
+                            } else {
+                                isUnicode = false;
+                            }
+                            if (!isUnicode && this.currentCharacter == '\n') {
+                                this.currentPosition--; // set current position on new line character
+                                break;
+                            }
+                            if (this.currentCharacter == '\"') {
+                                throw invalidCharInString();
+                            }
+                        }
+                    } else {
+                        this.currentPosition--; // set current position on new line character
+                    }
+                    throw invalidCharInString();
+                }
+                if (this.currentCharacter == '\\') {
+                    if (this.unicodeAsBackSlash) {
+                        this.withoutUnicodePtr--;
+                        // consume next character
+                        this.unicodeAsBackSlash = false;
+                        if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+                            && (this.source[this.currentPosition] == 'u')) {
+                            getNextUnicodeChar();
+                            this.withoutUnicodePtr--;
+                        }
+                    } else {
+                        if (this.withoutUnicodePtr == 0) {
+                            unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+                        }
+                        this.withoutUnicodePtr--;
+                        this.currentCharacter = this.source[this.currentPosition++];
+                    }
+                    // we need to compute the escape character in a separate buffer
+                    scanEscapeCharacter();
+                    if (this.withoutUnicodePtr != 0) {
+                        unicodeStore();
+                    }
+                }
                 // consume next character
                 this.unicodeAsBackSlash = false;
-                isUnicode = false;
                 if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
                     && (this.source[this.currentPosition] == 'u')) {
                     getNextUnicodeChar();
                     isUnicode = true;
                 } else {
+                    isUnicode = false;
                     if (this.withoutUnicodePtr != 0) {
                         unicodeStore();
                     }
                 }
-
-                while (this.currentCharacter != '"') {
-                    if (this.currentPosition >= this.eofPosition) {
-                        throw unterminatedString();
-                    }
-                    /**** \r and \n are not valid in string literals ****/
-                    if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
-                        // relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-                        if (isUnicode) {
-                            int start = this.currentPosition;
-                            for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-                                if (this.currentPosition >= this.eofPosition) {
-                                    this.currentPosition = start;
-                                    break;
-                                }
-                                if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-                                    && (this.source[this.currentPosition] == 'u')) {
-                                    isUnicode = true;
-                                    getNextUnicodeChar();
-                                } else {
-                                    isUnicode = false;
-                                }
-                                if (!isUnicode && this.currentCharacter == '\n') {
-                                    this.currentPosition--; // set current position on new line character
-                                    break;
-                                }
-                                if (this.currentCharacter == '\"') {
-                                    throw invalidCharInString();
-                                }
-                            }
-                        } else {
-                            this.currentPosition--; // set current position on new line character
-                        }
-                        throw invalidCharInString();
-                    }
-                    if (this.currentCharacter == '\\') {
-                        if (this.unicodeAsBackSlash) {
-                            this.withoutUnicodePtr--;
-                            // consume next character
-                            this.unicodeAsBackSlash = false;
-                            if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-                                && (this.source[this.currentPosition] == 'u')) {
-                                getNextUnicodeChar();
-                                this.withoutUnicodePtr--;
-                            }
-                        } else {
-                            if (this.withoutUnicodePtr == 0) {
-                                unicodeInitializeBuffer(this.currentPosition - this.startPosition);
-                            }
-                            this.withoutUnicodePtr--;
-                            this.currentCharacter = this.source[this.currentPosition++];
-                        }
-                        // we need to compute the escape character in a separate buffer
-                        scanEscapeCharacter();
-                        if (this.withoutUnicodePtr != 0) {
-                            unicodeStore();
-                        }
-                    }
-                    // consume next character
-                    this.unicodeAsBackSlash = false;
-                    if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-                        && (this.source[this.currentPosition] == 'u')) {
-                        getNextUnicodeChar();
-                        isUnicode = true;
-                    } else {
-                        isUnicode = false;
-                        if (this.withoutUnicodePtr != 0) {
-                            unicodeStore();
-                        }
-                    }
-                }
-            } catch (IndexOutOfBoundsException e) {
-                this.currentPosition--;
-                throw unterminatedString();
-            } catch (InvalidInputException e) {
-                if (e.getMessage().equals("Invalid_Escape")) {
-                    // relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-                    for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-                        if (this.currentPosition + lookAhead == this.eofPosition)
-                            break;
-                        if (this.source[this.currentPosition + lookAhead] == '\n')
-                            break;
-                        if (this.source[this.currentPosition + lookAhead] == '\"') {
-                            this.currentPosition += lookAhead + 1;
-                            break;
-                        }
-                    }
-                }
-                throw e; // rethrow
-            }
-            return TokenNameStringLiteral;
-        }
-    }
-
-    protected TerminalToken scanForTextBlock() throws InvalidInputException {
-        int doubleQuotes = 0;
-        int lastQuotePos = 0;
-        boolean sawCR = false;
-
-        this.normalizedTextBlock.setLength(0); // normalized, unicode processed, escape sequences validated but
-                                               // unprocessed contents
-        if (this.recordLineSeparator)
-            pushLineSeparator(); // we are at the \n post the opening """
-        int rawStart = this.currentPosition - this.startPosition;
-        try {
-            while (true) {
-                // consume next character
-                this.unicodeAsBackSlash = false;
-                if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-                    && (this.source[this.currentPosition] == 'u')) {
-                    getNextUnicodeChar();
-                }
-                switch (this.currentCharacter) {
-                    case '\r':
-                        if (this.recordLineSeparator)
-                            pushLineSeparator();
-                        this.normalizedTextBlock.append('\n');
-                        sawCR = true;
-                        doubleQuotes = 0;
-                        break;
-
-                    case '\n':
-                        if (this.recordLineSeparator)
-                            pushLineSeparator();
-                        if (!sawCR) {
-                            this.normalizedTextBlock.append('\n');
-                        }
-                        sawCR = false;
-                        doubleQuotes = 0;
-                        break;
-
-                    case '"':
-                        this.normalizedTextBlock.append(this.currentCharacter);
-                        lastQuotePos = this.currentPosition;
-                        if (++doubleQuotes == 3) {
-                            this.normalizedTextBlock.setLength(this.normalizedTextBlock.length() - 3);
-                            return TerminalToken.TokenNameTextBlock;
-                        }
-                        sawCR = false;
-                        break;
-
-                    case '\\':
-                        this.normalizedTextBlock.append(this.currentCharacter);
-                        int thenPosition = this.currentPosition;
-                        this.currentCharacter = this.source[this.currentPosition++];
-                        if (this.currentCharacter == '\r' || this.currentCharacter == '\n') {
-                            if (this.recordLineSeparator)
-                                pushLineSeparator();
-                        } else {
-                            scanEscapeCharacter();
-                        }
-                        for (int i = thenPosition; i < this.currentPosition; i++)
-                            this.normalizedTextBlock.append(this.source[i]);
-                        sawCR = false;
-                        doubleQuotes = 0;
-                        break;
-
-                    default:
-                        this.normalizedTextBlock.append(this.currentCharacter);
-                        sawCR = false;
-                        doubleQuotes = 0;
-                        break;
-                }
             }
         } catch (IndexOutOfBoundsException e) {
-            this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + rawStart;
-            throw unterminatedTextBlock();
+            this.currentPosition--;
+            throw unterminatedString();
+        } catch (InvalidInputException e) {
+            if (e.getMessage().equals("Invalid_Escape")) {
+                // relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+                for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+                    if (this.currentPosition + lookAhead == this.eofPosition)
+                        break;
+                    if (this.source[this.currentPosition + lookAhead] == '\n')
+                        break;
+                    if (this.source[this.currentPosition + lookAhead] == '\"') {
+                        this.currentPosition += lookAhead + 1;
+                        break;
+                    }
+                }
+            }
+            throw e; // rethrow
         }
+        return TokenNameStringLiteral;
     }
 
     public void getNextUnicodeChar() throws InvalidInputException {
@@ -1968,59 +1586,23 @@ public class Scanner {
                     }
 
                     case '"':
-                        boolean isTextBlock = false;
-                        int firstClosingBrace = 0;
                         try {
                             try { // consume next character
-                                isTextBlock = atTextBlockStart();
-                                if (!isTextBlock) {
-                                    this.unicodeAsBackSlash = false;
-                                    if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-                                        && (this.source[this.currentPosition] == 'u')) {
-                                        getNextUnicodeChar();
-                                    } else {
-                                        if (this.withoutUnicodePtr != 0) {
-                                            unicodeStore();
-                                        }
+                                this.unicodeAsBackSlash = false;
+                                if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+                                    && (this.source[this.currentPosition] == 'u')) {
+                                    getNextUnicodeChar();
+                                } else {
+                                    if (this.withoutUnicodePtr != 0) {
+                                        unicodeStore();
                                     }
                                 }
                             } catch (InvalidInputException ex) {
                                 // ignore
                             }
 
-                            Inner: while (this.currentPosition <= this.eofPosition) {
-                                if (isTextBlock) {
-                                    switch (this.currentCharacter) {
-                                        case '"':
-                                            // look for text block delimiter
-                                            if (atTextBlockEnd()) {
-                                                this.currentCharacter = this.source[this.currentPosition];
-                                                isTextBlock = false;
-                                                break Inner;
-                                            }
-                                            break;
-
-                                        case '}':
-                                            if (firstClosingBrace == 0)
-                                                firstClosingBrace = this.currentPosition;
-                                            break;
-
-                                        case '\r':
-                                            if (this.source[this.currentPosition] == '\n')
-                                                this.currentPosition++;
-                                            //$FALL-THROUGH$
-                                        case '\n':
-                                            pushLineSeparator();
-                                            //$FALL-THROUGH$
-                                        default:
-                                            if (this.currentCharacter == '\\'
-                                                && this.source[this.currentPosition] == '"') {
-                                                this.currentPosition++;
-                                            }
-                                            this.currentCharacter = this.source[this.currentPosition++];
-                                            continue;
-                                    }
-                                } else if (this.currentCharacter == '"') {
+                            while (this.currentPosition <= this.eofPosition) {
+                                if (this.currentCharacter == '"') {
                                     break;
                                 }
                                 if (this.currentCharacter == '\r') {
@@ -2067,13 +1649,7 @@ public class Scanner {
                                 }
                             }
                         } catch (IndexOutOfBoundsException e) {
-                            if (isTextBlock) {
-                                // Pull it back to the first closing brace after the beginning
-                                // of the unclosed text block and let recovery take over.
-                                if (firstClosingBrace > 0) {
-                                    this.currentPosition = firstClosingBrace - 1;
-                                }
-                            }
+                            // ignore
                         }
                         break;
 
@@ -2271,12 +1847,12 @@ public class Scanner {
                                     // illegal low surrogate
                                     break;
                                 }
-                                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
+                                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
                             } else if (c >= 56320 && c <= 57343) {
                                 break;
                             } else {
                                 // optimized case already checked
-                                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c);
+                                isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c);
                             }
                             if (isJavaIdStart) {
                                 scanIdentifierOrKeyword();
@@ -2313,12 +1889,7 @@ public class Scanner {
         return this.scanContext != null && this.scanContext != ScanContext.INACTIVE;
     }
 
-    void updateScanContext(TerminalToken token) {
-        if (this.scanContext == ScanContext.AFTER_IMPORT && !isInModuleDeclaration()) {
-            this.scanContext = ScanContext.INACTIVE; // end temporary use of scanContext to disambiguate module imports
-            return;
-        }
-
+    void updateScanContext(int token) {
         switch (token) {
             case TokenNameSEMICOLON:	// next could be a KEYWORD
             case TokenNameRBRACE:
@@ -2343,14 +1914,11 @@ public class Scanner {
             case TokenNamewith:
             case TokenNametransitive:
             case TokenNameDOT:
+            case TokenNameimport:
             case TokenNameAT:
             case TokenNameAT308:
             case TokenNameCOMMA:
                 this.scanContext = ScanContext.EXPECTING_IDENTIFIER;
-                break;
-
-            case TokenNameimport:
-                this.scanContext = ScanContext.AFTER_IMPORT;
                 break;
 
             case TokenNameIdentifier:
@@ -2367,8 +1935,6 @@ public class Scanner {
     }
 
     public final void pushLineSeparator() {
-        // see comment on isLineDelimiter(char) for the use of '\n' and '\r'
-
         // currentCharacter is at position currentPosition-1
         // cr 000D
         if (this.currentCharacter == '\r') {
@@ -2422,7 +1988,7 @@ public class Scanner {
         }
     }
 
-    public void recordComment(TerminalToken token) {
+    public void recordComment(int token) {
         // compute position
         int commentStart = this.startPosition;
         int stopPosition = this.currentPosition;
@@ -2488,13 +2054,11 @@ public class Scanner {
             this.eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
         }
         this.commentPtr = -1; // reset comment stack
-        this.foundTaskCount = 0;
         resetLookBack();
         this.nextToken = TokenNameNotAToken;
         this.consumingEllipsisAnnotations = false;
         this.insideModuleInfo = isModuleInfo;
         this.scanContext = context == null ? getScanContext(begin) : context;
-        this.scanningSwitchLabel = false;
     }
 
     /**
@@ -2507,7 +2071,7 @@ public class Scanner {
     /**
      * @see #lookBack
      */
-    final void addTokenToLookBack(TerminalToken newToken) {
+    final void addTokenToLookBack(int newToken) {
         switch (newToken) {
             case TokenNameWHITESPACE:
             case TokenNameCOMMENT_LINE:
@@ -2518,14 +2082,6 @@ public class Scanner {
             default:
                 break;
         }
-        if (newToken == TokenNamecase)
-            this.scanningSwitchLabel = true;
-        else if (newToken == TokenNameCaseArrow)
-            this.scanningSwitchLabel = false;
-        else if (this.scanningSwitchLabel && this.lookBack[1] == TokenNameCOLON) {
-            if (this.activeParser == null || this.activeParser.automatonWillShift(TokenNamecase))
-                this.scanningSwitchLabel = false;
-        }
         this.lookBack[0] = this.lookBack[1];
         this.lookBack[1] = newToken;
     }
@@ -2535,10 +2091,7 @@ public class Scanner {
             return ScanContext.INACTIVE;
         if (begin == 0)
             return ScanContext.EXPECTING_KEYWORD;
-        CompilerOptions options = new CompilerOptions();
-        options.complianceLevel = this.complianceLevel;
-        options.sourceLevel = this.sourceLevel;
-        ModuleScanContextDetector parser = new ModuleScanContextDetector(options);
+        ModuleScanContextDetector parser = new ModuleScanContextDetector();
         return parser.getScanContext(this.source, begin - 1);
     }
 
@@ -2613,15 +2166,8 @@ public class Scanner {
         }
     }
 
-    public TerminalToken scanIdentifierOrKeywordWithBoundCheck() {
+    public int scanIdentifierOrKeywordWithBoundCheck() {
         // test keywords
-
-        // first dispatch on the first char.
-        // then the length. If there are several
-        // keywors with the same length AND the same first char, then do another
-        // dispatch on the second char
-        this.useAssertAsAnIndentifier = false;
-        this.useEnumAsAnIndentifier = false;
 
         char[] src = this.source;
         identLoop: {
@@ -2675,15 +2221,8 @@ public class Scanner {
         return internalScanIdentifierOrKeyword(index, length, data);
     }
 
-    public TerminalToken scanIdentifierOrKeyword() {
+    public int scanIdentifierOrKeyword() {
         // test keywords
-
-        // first dispatch on the first char.
-        // then the length. If there are several
-        // keywords with the same length AND the same first char, then do another
-        // dispatch on the second char
-        this.useAssertAsAnIndentifier = false;
-        this.useEnumAsAnIndentifier = false;
 
         char[] src = this.source;
         identLoop: {
@@ -2738,7 +2277,7 @@ public class Scanner {
         return internalScanIdentifierOrKeyword(index, length, data);
     }
 
-    private TerminalToken internalScanIdentifierOrKeyword(int index, int length, char[] data) {
+    private int internalScanIdentifierOrKeyword(int index, int length, char[] data) {
         switch (data[index]) {
             case 'a':
                 switch (length) {
@@ -2973,9 +2512,6 @@ public class Scanner {
                             && (data[++index] == 'o')
                             && (data[++index] == 'r')
                             && (data[++index] == 't')) {
-                            // initialize scanContext, because we need disambiguation when the next token is 'module':
-                            if (this.scanContext == null || this.scanContext == ScanContext.INACTIVE)
-                                this.scanContext = ScanContext.EXPECTING_IDENTIFIER;
                             return TokenNameimport;
                         } else {
                             return TokenNameIdentifier;
@@ -3032,7 +2568,7 @@ public class Scanner {
 
             case 'm': // module
                 if (length == 6) {
-                    if ((areRestrictedModuleKeywordsActive()) // JEP 467: import module
+                    if (areRestrictedModuleKeywordsActive()
                         && (data[++index] == 'o')
                         && (data[++index] == 'd')
                         && (data[++index] == 'u')
@@ -3049,21 +2585,7 @@ public class Scanner {
                     case 3:
                         if ((data[++index] == 'e') && (data[++index] == 'w'))
                             return TokenNamenew;
-                        else if (data == this.source
-                            && (data.length >= index + 10) // "non-sealed".length(); not handling unicode as of now in
-                                                           // non-sealed
-                            && (data[index] == 'o')
-                            && (data[++index] == 'n')
-                            && (data[++index] == '-')
-                            && (data[++index] == 's')
-                            && (data[++index] == 'e')
-                            && (data[++index] == 'a')
-                            && (data[++index] == 'l')
-                            && (data[++index] == 'e')
-                            && (data[++index] == 'd')
-                            && !ScannerHelper.isJavaIdentifierPart(data[++index])) {
-                            return TokenNameIdentifier;
-                        } else
+                        else
                             return TokenNameIdentifier;
                     case 4:
                         if ((data[++index] == 'u') && (data[++index] == 'l') && (data[++index] == 'l'))
@@ -3385,8 +2907,6 @@ public class Scanner {
                             && (data[++index] == 't')
                             && (data[++index] == 'h'))
                             return TokenNamewith;
-                        else if ((data[++index] == 'h') && (data[++index] == 'e') && (data[++index] == 'n'))
-                            return disambiguateWhen();
                         else
                             return TokenNameIdentifier;
                     case 5:
@@ -3417,7 +2937,7 @@ public class Scanner {
         }
     }
 
-    public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException {
+    public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 
         // when entering this method the currentCharacter is the first
         // digit of the number. It may be preceeded by a '.' when
@@ -3743,33 +3263,16 @@ public class Scanner {
         this.withoutUnicodeBuffer[pos] = this.currentCharacter;
     }
 
-    public static boolean isLiteral(TerminalToken token) {
-        return switch (token) {
-            case TokenNameIntegerLiteral, TokenNameLongLiteral, TokenNameFloatingPointLiteral, TokenNameDoubleLiteral, TokenNameStringLiteral, TokenNameTextBlock, TokenNameCharacterLiteral -> true;
-            default -> false;
-        };
-    }
-
-    public static boolean isKeyword(TerminalToken token) {
-        return switch (token) {
-            case TokenNameabstract, TokenNameassert, TokenNamebyte, TokenNamebreak, TokenNameboolean, TokenNamecase, TokenNamechar, TokenNamecatch, TokenNameclass, TokenNamecontinue, TokenNamedo, TokenNamedouble, TokenNamedefault, TokenNameelse, TokenNameextends, TokenNamefor, TokenNamefinal, TokenNamefloat, TokenNamefalse, TokenNamefinally, TokenNameif, TokenNameint, TokenNameimport, TokenNameinterface, TokenNameimplements, TokenNameinstanceof, TokenNamelong, TokenNamenew, TokenNamenull, TokenNamenative, TokenNamepublic, TokenNamepackage, TokenNameprivate, TokenNameprotected, TokenNamereturn, TokenNameshort, TokenNamesuper, TokenNamestatic, TokenNameswitch, TokenNamestrictfp, TokenNamesynchronized, TokenNametry, TokenNamethis, TokenNametrue, TokenNamethrow, TokenNamethrows, TokenNametransient, TokenNamevoid, TokenNamevolatile, TokenNamewhile -> true;
-            // making explicit - not a (restricted) keyword but restricted identifier.
-            // $FALL-THROUGH$
-            default -> false;
-        };
-    }
-
 // Vanguard Scanner - A Private utility helper class for the scanner.
     private static final class VanguardScanner extends Scanner {
 
-        public VanguardScanner(long sourceLevel, long complianceLevel, boolean previewEnabled) {
-            super(false /* comment */, false /* whitespace */, sourceLevel, complianceLevel, null/* taskTag */,
-                null/* taskPriorities */, false /* taskCaseSensitive */, previewEnabled);
+        public VanguardScanner() {
+            super(false /* comment */, false /* whitespace */);
         }
 
         @Override
-        public TerminalToken getNextToken() throws InvalidInputException {
-            TerminalToken token;
+        public int getNextToken() throws InvalidInputException {
+            int token;
             if (this.nextToken != TokenNameNotAToken) {
                 token = this.nextToken;
                 this.nextToken = TokenNameNotAToken;
@@ -3783,10 +3286,6 @@ public class Scanner {
                 if (isRestrictedKeyword(token))
                     token = disambiguatedRestrictedKeyword(token);
                 updateScanContext(token);
-            } else if (mayBeAtCasePattern(token)) {
-                token = disambiguateCasePattern(token);
-            } else if (token == TokenNameARROW) {
-                token = disambiguatedToken(token, this);
             } else if (token == TokenNameAT && atTypeAnnotation()) {
                 if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
                     token = disambiguatedToken(token, this);
@@ -3801,35 +3300,21 @@ public class Scanner {
 
     private static class Goal {
 
-        final TerminalToken first;      // steer the parser towards a single minded pursuit.
-        final TerminalToken[] follow;  // the definite terminal symbols that signal the successful reduction to goal.
+        final int first;      // steer the parser towards a single minded pursuit.
+        final int[] follow;  // the definite terminal symbols that signal the successful reduction to goal.
         final int[] rules;
 
         static int LambdaParameterListRule = 0;
         static int IntersectionCastRule = 0;
         static int ReferenceExpressionRule = 0;
         static int VarargTypeAnnotationsRule = 0;
-        static int BlockStatementoptRule = 0;
-        static int[] ModifiersoptRules;
-        static int PermittedTypesRule;
-        static int[] PatternRules;
 
         static Goal LambdaParameterListGoal;
         static Goal IntersectionCastGoal;
         static Goal VarargTypeAnnotationGoal;
         static Goal ReferenceExpressionGoal;
 
-        static Goal PatternGoal;
-
-        static TerminalToken[] SealedModifierFollow
-            = { TokenNameclass, TokenNameinterface, TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note:
-        static TerminalToken[] PermittedTypesFollow = { TokenNameLBRACE };
-        static TerminalToken[] PatternCaseLabelFollow
-            = { TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameCaseArrow, TokenNameRestrictedIdentifierWhen };
-
         static {
-            List<Integer> modifiersOptStates = new ArrayList<>(2);
-            List<Integer> patternStates = new ArrayList<>();
             for (int i = 1; i <= 936; i++) {  // 0 == $acc
                 // TODO: Change to switch
                 if ("ParenthesizedLambdaParameterList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
@@ -3841,49 +3326,22 @@ public class Scanner {
                     ReferenceExpressionRule = i;
                 else if ("TypeAnnotations".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
                     VarargTypeAnnotationsRule = i;
-                else if ("BlockStatementopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-                    BlockStatementoptRule = i;
-                else if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-                    modifiersOptStates.add(i);
-                else if ("PermittedTypes".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-                    PermittedTypesRule = i;
-                else if ("TypePattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-                    patternStates.add(i);
-                else if ("Pattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-                    patternStates.add(i);
-                else if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-                    patternStates.add(i);
             }
-            ModifiersoptRules = modifiersOptStates.stream().mapToInt(Integer::intValue).toArray(); // overkill but
-                                                                                                   // future-proof
-            PatternRules = patternStates.stream().mapToInt(Integer::intValue).toArray();
-
-            LambdaParameterListGoal
-                = new Goal(TokenNameARROW, new TerminalToken[] { TokenNameARROW }, LambdaParameterListRule);
+            LambdaParameterListGoal = new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
             IntersectionCastGoal = new Goal(TokenNameLPAREN, followSetOfCast(), IntersectionCastRule);
             VarargTypeAnnotationGoal
-                = new Goal(TokenNameAT, new TerminalToken[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
+                = new Goal(TokenNameAT, new int[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
             ReferenceExpressionGoal
-                = new Goal(TokenNameLESS, new TerminalToken[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
-            new Goal(TokenNameLBRACE, new TerminalToken[0], BlockStatementoptRule);
-            new Goal(TokenNameRestrictedIdentifiersealed, SealedModifierFollow, ModifiersoptRules);
-            new Goal(TokenNameRestrictedIdentifierpermits, PermittedTypesFollow, PermittedTypesRule);
-            PatternGoal = new Goal(TokenNameBeginCasePattern, PatternCaseLabelFollow, PatternRules);
+                = new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
         }
 
-        Goal(TerminalToken first, TerminalToken[] follow, int rule) {
+        Goal(int first, int[] follow, int rule) {
             this.first = first;
             this.follow = follow;
             this.rules = new int[] { rule };
         }
 
-        Goal(TerminalToken first, TerminalToken[] follow, int[] rules) {
-            this.first = first;
-            this.follow = follow;
-            this.rules = rules;
-        }
-
-        boolean hasBeenReached(int act, TerminalToken token) {
+        boolean hasBeenReached(int act, int token) {
             boolean foundRule = false;
             for (int i : this.rules) {
                 if (act == i) {
@@ -3895,15 +3353,15 @@ public class Scanner {
                 final int length = this.follow.length;
                 if (length == 0)
                     return true;
-                for (TerminalToken terminalToken : this.follow)
+                for (int terminalToken : this.follow)
                     if (terminalToken == token)
                         return true;
             }
             return false;
         }
 
-        private static TerminalToken[] followSetOfCast() {
-            return new TerminalToken[] {
+        private static int[] followSetOfCast() {
+            return new int[] {
                 TokenNameIdentifier,
                 TokenNamenew,
                 TokenNamesuper,
@@ -3917,7 +3375,6 @@ public class Scanner {
                 TokenNameDoubleLiteral,
                 TokenNameCharacterLiteral,
                 TokenNameStringLiteral,
-                TokenNameTextBlock,
                 TokenNameNOT,
                 TokenNameTWIDDLE,
                 TokenNameLPAREN };
@@ -3952,7 +3409,7 @@ public class Scanner {
                     }
                     this.stack[this.stateStackTop] = act;
 
-                    act = Parser.tAction(act, this.currentToken.tokenNumber());
+                    act = Parser.tAction(act, this.currentToken);
                     if (act == 17981) {
                         return false;
                     }
@@ -3984,12 +3441,6 @@ public class Scanner {
                     do { /* reduce */
                         if (goal.hasBeenReached(act, this.currentToken))
                             return true;
-                        if (this.currentToken == TokenNameIdentifier) {
-                            TerminalToken reskw
-                                = TerminalToken.getRestrictedKeyword(this.scanner.getCurrentIdentifierSource());
-                            if (reskw != TokenNameNotAToken && goal.hasBeenReached(act, reskw))
-                                return true;
-                        }
                         this.stateStackTop -= (Parser.rhs[act] - 1);
                         act = Parser.ntAction(this.stack[this.stateStackTop], Parser.lhs[act]);
                     } while (act <= 936);
@@ -4002,27 +3453,21 @@ public class Scanner {
     }
 
     private static class ModuleScanContextDetector extends VanguardParser {
-        ModuleScanContextDetector(CompilerOptions options) {
-            super(new ProblemHandler(true, options, new IProblemFactory()));
-            this.reportSyntaxErrorIsRequired = false;
-
+        ModuleScanContextDetector() {
+            super(new ProblemHandler());
         }
 
         @Override
         public void initializeScanner() {
-            this.scanner = new Scanner(false /* comment */, false /* whitespace */,
-                this.options.sourceLevel /* sourceLevel */, this.options.complianceLevel /* complianceLevel */,
-                this.options.taskTags/* taskTags */, this.options.taskPriorities/* taskPriorities */,
-                true/* taskCaseSensitive */, false/* isPreviewEnabled */) {
+            this.scanner = new Scanner(false /* comment */, false /* whitespace */) {
                 @Override
-                void updateScanContext(TerminalToken token) {
+                void updateScanContext(int token) {
                     if (token != TokenNameEOF)
                         super.updateScanContext(token);
                 }
             };
             this.scanner.recordLineSeparator = false;
             this.scanner.setActiveParser(this);
-            this.scanner.previewEnabled = false;
         }
 
         @Override
@@ -4036,7 +3481,7 @@ public class Scanner {
             goForCompilationUnit();
             Goal goal = new Goal(TokenNamePLUS_PLUS, null, 0) {
                 @Override
-                boolean hasBeenReached(int act, TerminalToken token) {
+                boolean hasBeenReached(int act, int token) {
                     return token == TokenNameEOF;
                 }
             };
@@ -4047,7 +3492,7 @@ public class Scanner {
 
     private VanguardParser getVanguardParser() {
         if (this.vanguardParser == null) {
-            this.vanguardScanner = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
+            this.vanguardScanner = new VanguardScanner();
             this.vanguardParser = new VanguardParser(this.vanguardScanner);
             this.vanguardScanner.setActiveParser(this.vanguardParser);
         }
@@ -4055,20 +3500,6 @@ public class Scanner {
         this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(),
             this.scanContext);
         return this.vanguardParser;
-    }
-
-    private VanguardParser getNewVanguardParser() {
-        VanguardScanner vs = getNewVanguardScanner();
-        VanguardParser vp = new VanguardParser(vs);
-        vs.setActiveParser(vp);
-        return vp;
-    }
-
-    private VanguardScanner getNewVanguardScanner() {
-        VanguardScanner vs = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
-        vs.setSource(this.source);
-        vs.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
-        return vs;
     }
 
     protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a
@@ -4108,8 +3539,6 @@ public class Scanner {
                     case TokenNameGREATER:    // public <T> List<T> foo() { /* */ }
                     case TokenNameRIGHT_SHIFT:// static <T extends SelfType<T>> List<T> makeSingletonList(T t) { /* */ }
                     case TokenNamenew:        // new ArrayList<String>();
-                    case TokenNamenon_sealed: // non-sealed X<T>
-                    case TokenNameRestrictedIdentifiersealed: // sealed X<T>
                     case TokenNamepublic:     // public List<String> foo() {}
                     case TokenNameabstract:   // abstract List<String> foo() {}
                     case TokenNameprivate:    // private List<String> foo() {}
@@ -4119,7 +3548,6 @@ public class Scanner {
                     case TokenNamesuper:      // ? super Context<N>
                     case TokenNameAND:        // T extends Object & Comparable<? super T>
                     case TokenNameimplements: // class A implements I<Z>
-                    case TokenNameRestrictedIdentifierpermits: // class A permits I<Z>
                     case TokenNamethrows:     // throws Y<Z>
                     case TokenNameAT:         // @Deprecated <T> void foo() {}
                     case TokenNameinstanceof: // if (o instanceof List<E>[])
@@ -4145,7 +3573,7 @@ public class Scanner {
         if (this.consumingEllipsisAnnotations)
             return false;
         return switch (this.lookBack[1]) {
-            case TokenNamenew, TokenNameCOMMA, TokenNameextends, TokenNamesuper, TokenNameimplements, TokenNameRestrictedIdentifierpermits, TokenNameDOT, TokenNameLBRACE, TokenNameinstanceof, TokenNameLESS, TokenNameAND, TokenNamethrows -> false;
+            case TokenNamenew, TokenNameCOMMA, TokenNameextends, TokenNamesuper, TokenNameimplements, TokenNameDOT, TokenNameLBRACE, TokenNameinstanceof, TokenNameLESS, TokenNameAND, TokenNamethrows -> false;
             default -> true;
         };
     }
@@ -4161,24 +3589,17 @@ public class Scanner {
         if (parser != null) {
             this.insideModuleInfo = parser.isParsingModuleDeclaration();
         }
-        this.scanningSwitchLabel = false;
     }
 
-    public static boolean isRestrictedKeyword(TerminalToken token) {
+    public static boolean isRestrictedKeyword(int token) {
         return switch (token) {
             case TokenNameopen, TokenNamemodule, TokenNamerequires, TokenNametransitive, TokenNameexports, TokenNameto, TokenNameopens, TokenNameuses, TokenNameprovides, TokenNamewith -> true;
             default -> false;
         };
     }
 
-    TerminalToken disambiguateWhen() {
-        return this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameRestrictedIdentifierWhen)
-            ? TokenNameIdentifier
-            : TokenNameRestrictedIdentifierWhen;
-    }
-
-    TerminalToken disambiguatedRestrictedKeyword(TerminalToken restrictedKeywordToken) {
-        TerminalToken token = restrictedKeywordToken;
+    int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
+        int token = restrictedKeywordToken;
         if (this.scanContext == ScanContext.EXPECTING_IDENTIFIER)
             return TokenNameIdentifier;
 
@@ -4193,20 +3614,6 @@ public class Scanner {
                 break;
 
             case TokenNamemodule:
-                switch (this.scanContext) {
-                    case EXPECTING_KEYWORD:
-                        break;
-
-                    case AFTER_IMPORT:
-                        if (lookAhead() == TokenNameDOT)
-                            token = TokenNameIdentifier;
-                        break;
-
-                    default:
-                        token = TokenNameIdentifier;
-                }
-                break;
-
             case TokenNameopen:
             case TokenNameexports:
             case TokenNameopens:
@@ -4226,7 +3633,7 @@ public class Scanner {
         return token;
     }
 
-    TerminalToken lookAhead() {
+    int lookAhead() {
 
         getVanguardParser();
         this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1, true,
@@ -4238,15 +3645,9 @@ public class Scanner {
         }
     }
 
-    TerminalToken disambiguatedToken(TerminalToken token, Scanner scanner) {
+    int disambiguatedToken(int token, Scanner scanner) {
         final VanguardParser parser = getVanguardParser();
-        if (token == TokenNameARROW) {
-            if (this.lookBack[1] == TokenNamedefault)
-                return TokenNameCaseArrow;
-            if (this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameCaseArrow))
-                return TokenNameARROW;
-            return TokenNameCaseArrow;
-        } else if (token == TokenNameLPAREN && maybeAtLambdaOrCast()) {
+        if (token == TokenNameLPAREN && maybeAtLambdaOrCast()) {
             if (parser.parse(Goal.LambdaParameterListGoal)) {
                 scanner.nextToken = TokenNameLPAREN;
                 return TokenNameBeginLambda;
@@ -4269,31 +3670,6 @@ public class Scanner {
                     scanner.nextToken = TokenNameAT308;
                     return TokenNameAT308DOTDOTDOT;
                 }
-            }
-        }
-        return token;
-    }
-
-    public boolean atMultiCaseComma() {
-        return this.scanningSwitchLabel
-            && this.lookBack[1] == TokenNameCOMMA
-            && (this.activeParser == null || this.activeParser.automatonWillShift(TokenNameBeginCasePattern));
-    }
-
-    protected final boolean mayBeAtCasePattern(TerminalToken token) {
-        return token == TokenNamecase || atMultiCaseComma();
-    }
-
-    TerminalToken disambiguateCasePattern(TerminalToken token) {
-        int delta = token == TokenNamecase ? 4 : 0; // 4 for case.
-        final VanguardParser parser = getNewVanguardParser();
-        parser.scanner.resetTo(parser.scanner.currentPosition + delta, parser.scanner.eofPosition);
-        if (parser.parse(Goal.PatternGoal)) {
-            if (token == TokenNamecase) {
-                this.nextToken = TokenNameBeginCasePattern;
-            } else {
-                this.nextToken = token;
-                token = TokenNameBeginCasePattern;
             }
         }
         return token;
@@ -4325,10 +3701,6 @@ public class Scanner {
 
     protected static InvalidInputException unterminatedComment() {
         return new InvalidInputException("Unterminated_Comment");
-    }
-
-    protected static InvalidInputException unterminatedTextBlock() {
-        return new InvalidInputException("Unterminated_Text_Block");
     }
 
     protected static InvalidInputException invalidEof() {

@@ -24,7 +24,6 @@ package com.microsoft.typespec.http.client.generator.core.implementation.org.ecl
  * @since 3.0
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings("rawtypes")
 public abstract class StructuralPropertyDescriptor {
 
     /**

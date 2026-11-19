@@ -26,6 +26,7 @@ import java.util.List;
  *    Type Dimension <b>{</b> Dimension <b>}</b>
  * </pre>
  *
+ * <p>
  * In JLS4 and before, array types were expressed in a recursive manner, one dimension at a time:
  *
  * <pre>
@@ -33,6 +34,7 @@ import java.util.List;
  *    Type <b>[</b> <b>]</b>
  * </pre>
  *
+ * <p>
  * This structure became untenable with the advent of type-use annotations, because in the language model, the base type
  * binds with array dimensions from right to left, whereas a recursive structure binds from left to right (inside out).
  * <p> Example:<br> <code><u>int @A[] @B[] @C[]</u></code> is an <u><code>@A</code></u>-array of<br> <code><u>int
@@ -40,9 +42,7 @@ import java.util.List;
  * <code>ArrayType</code>s with contiguous source ranges.
  *
  * @since 2.0
- * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ArrayType extends Type {
 
     /**
@@ -73,7 +73,7 @@ public class ArrayType extends Type {
      *
      * @since 3.10
      */
-    private ASTNode.NodeList dimensions = null;
+    private final ASTNode.NodeList<Dimension> dimensions;
 
     /**
      * Creates a new unparented node for an array type owned by the given AST. By default, a 1-dimensional array of an
@@ -83,7 +83,7 @@ public class ArrayType extends Type {
      */
     ArrayType(AST ast) {
         super(ast);
-        this.dimensions = new ASTNode.NodeList(DIMENSIONS_PROPERTY);
+        this.dimensions = new ASTNode.NodeList<>(DIMENSIONS_PROPERTY);
         // single dimension array is the default
         this.dimensions().add(this.ast.newDimension());
     }
@@ -100,7 +100,7 @@ public class ArrayType extends Type {
     ArrayType(AST ast, int dimensions) {
         super(ast);
 
-        this.dimensions = new ASTNode.NodeList(DIMENSIONS_PROPERTY);
+        this.dimensions = new ASTNode.NodeList<>(DIMENSIONS_PROPERTY);
         for (int i = 0; i < dimensions; ++i) {
             this.dimensions().add(this.ast.newDimension());
         }
@@ -181,9 +181,7 @@ public class ArrayType extends Type {
      * @return the live list of dimensions with optional annotations (element type: {@link Dimension})
      * @since 3.10
      */
-    public List dimensions() {
-        // more efficient than just calling unsupportedIn2_3_4() to check
-
+    public List<Dimension> dimensions() {
         return this.dimensions;
     }
 }
