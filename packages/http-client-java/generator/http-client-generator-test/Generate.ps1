@@ -58,6 +58,10 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
     $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
+    if ($tspFile -match "azure[\\/]resource-manager[\\/]example[\\/]main\.tsp$") {
+      # Use the scenario's unified YAML example instead of the shared JSON examples directory.
+      $tspOptions += " --option ""@typespec/http-client-java.examples-dir="""
+    }
   } elseif ($tspFile -match "tsp[\\/]versioning.tsp") {
     # test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
@@ -204,6 +208,8 @@ try {
   # generate for http-specs/azure-http-specs test sources
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
+  Get-ChildItem ./specs -Filter tspconfig.yaml -File -Recurse | Remove-Item -Force
+  Copy-Item ./specs/azure/resource-manager/example/examples.yaml ./examples.yaml
 
   $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
   # ensure multi-service client specs are processed even though they do not match the default filter
@@ -215,6 +221,7 @@ try {
   $job | Wait-Job -Timeout 1200
   $job | Receive-Job
 
+  Remove-Item ./examples.yaml -Force
   Remove-Item ./specs -Recurse -Force
 
   Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("ReadmeSamples.java", "module-info.java")

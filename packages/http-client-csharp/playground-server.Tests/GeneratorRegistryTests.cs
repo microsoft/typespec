@@ -132,6 +132,43 @@ public class GeneratorRegistryTests
         Assert.Throws<FileNotFoundException>(() => new GeneratorRegistry("unbranded.dll", _root));
     }
 
+    [TestCase("AzureClientGenerator", "http-client-csharp")]
+    [TestCase("ManagementClientGenerator", "http-client-csharp-mgmt")]
+    [TestCase("ProvisioningGenerator", "http-client-csharp-provisioning")]
+    public void UninstalledGeneratorsAreUnavailable(string generatorName, string package)
+    {
+        Directory.Delete(Path.Combine(_root, package), recursive: true);
+
+        var registry = new GeneratorRegistry("unbranded.dll", _root);
+
+        Assert.That(registry.GetPath(generatorName), Is.Null);
+        Assert.That(registry.GetPackageVersion(generatorName), Is.Null);
+        Assert.That(registry.Catalog.Generators.Select(x => x.GeneratorName), Does.Not.Contain(generatorName));
+        Assert.That(registry.Catalog.Generators.Count, Is.EqualTo(2));
+        Assert.That(registry.Paths.Count(), Is.EqualTo(3));
+        Assert.That(registry.GetPath(GeneratorRegistry.DefaultGeneratorName), Is.EqualTo("unbranded.dll"));
+    }
+
+    [Test]
+    public void EmptyAzureRootSupportsOnlyUnbrandedGenerator()
+    {
+        foreach (var package in Directory.GetDirectories(_root))
+        {
+            Directory.Delete(package, recursive: true);
+        }
+
+        var registry = new GeneratorRegistry("unbranded.dll", _root);
+
+        Assert.That(registry.Catalog.Generators, Is.Empty);
+        Assert.That(registry.Paths, Is.EqualTo(new[] { "unbranded.dll" }));
+    }
+
+    [Test]
+    public void MissingConfiguredRootFailsAtStartup()
+    {
+        Assert.Throws<DirectoryNotFoundException>(() => new GeneratorRegistry("unbranded.dll", Path.Combine(_root, "missing")));
+    }
+
     [Test]
     public void WrongPackageIdentityFailsAtStartup()
     {

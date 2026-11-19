@@ -17,6 +17,10 @@ internal sealed class GeneratorRegistry
         var packages = new List<GeneratorPackage>();
         if (!string.IsNullOrEmpty(azureRoot))
         {
+            if (!Directory.Exists(azureRoot))
+            {
+                throw new DirectoryNotFoundException($"Azure generator root does not exist: {azureRoot}");
+            }
             (string GeneratorName, string Package)[] definitions =
             [
                 ("AzureClientGenerator", "http-client-csharp"),
@@ -27,6 +31,11 @@ internal sealed class GeneratorRegistry
             {
                 var packageRoot = Path.Combine(azureRoot, package);
                 var packageName = $"@azure-typespec/{package}";
+                if (!Directory.Exists(packageRoot))
+                {
+                    Console.Error.WriteLine($"WARNING: {packageName} is not installed at {packageRoot}; {generatorName} is unavailable.");
+                    continue;
+                }
                 using var metadata = JsonDocument.Parse(File.ReadAllText(Path.Combine(packageRoot, "package.json")));
                 if (!metadata.RootElement.TryGetProperty("name", out var name) || name.GetString() != packageName
                     || !metadata.RootElement.TryGetProperty("version", out var version)

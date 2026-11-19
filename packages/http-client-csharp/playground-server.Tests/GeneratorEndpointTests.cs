@@ -10,13 +10,20 @@ using NUnit.Framework;
 
 namespace PlaygroundServer.Tests;
 
-[TestFixture]
+[TestFixture(true)]
+[TestFixture(false)]
 public class GeneratorEndpointTests
 {
+    private readonly bool _includeProvisioning;
     private string _root = null!;
     private string _temporaryRoot = null!;
     private Process _server = null!;
     private HttpClient _client = null!;
+
+    public GeneratorEndpointTests(bool includeProvisioning)
+    {
+        _includeProvisioning = includeProvisioning;
+    }
 
     [OneTimeSetUp]
     public async Task StartServer()
@@ -27,6 +34,7 @@ public class GeneratorEndpointTests
         WriteRuntime(Path.Combine(_root, "unbranded"));
         foreach (var package in new[] { "http-client-csharp", "http-client-csharp-mgmt", "http-client-csharp-provisioning" })
         {
+            if (!_includeProvisioning && package == "http-client-csharp-provisioning") continue;
             var packageRoot = Path.Combine(_root, "azure", package);
             WriteRuntime(Path.Combine(packageRoot, "dist", "generator"));
             File.WriteAllText(Path.Combine(packageRoot, "package.json"),
@@ -99,8 +107,17 @@ public class GeneratorEndpointTests
     {
         var body = new Dictionary<string, string> { ["codeModel"] = "{}", ["configuration"] = "{}" };
         if (generatorName is not null) body["generatorName"] = generatorName;
+        var before = Directory.GetDirectories(_temporaryRoot, "*", SearchOption.AllDirectories);
         using var response = await _client.PostAsJsonAsync("/generate", body);
         using var result = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        if (!_includeProvisioning && generatorName == "ProvisioningGenerator")
+        {
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.RootElement.GetProperty("error").GetString(), Is.EqualTo("Unsupported generator: ProvisioningGenerator"));
+            Assert.That(Directory.GetDirectories(_temporaryRoot, "*", SearchOption.AllDirectories), Is.EquivalentTo(before));
+            return;
+        }
 
         // Each fixture intentionally has invalid runtime configuration. The dotnet
         // host's error identifies the actual selected runtime, not just registry lookup.
@@ -127,7 +144,9 @@ public class GeneratorEndpointTests
         using var result = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.RootElement.GetProperty("generators").GetArrayLength(), Is.EqualTo(3));
+        var generators = result.RootElement.GetProperty("generators").EnumerateArray().ToArray();
+        Assert.That(generators.Length, Is.EqualTo(_includeProvisioning ? 3 : 2));
+        Assert.That(generators.Any(x => x.GetProperty("generatorName").GetString() == "ProvisioningGenerator"), Is.EqualTo(_includeProvisioning));
     }
 
     private string GetRuntimePath(string package) => Path.Combine(

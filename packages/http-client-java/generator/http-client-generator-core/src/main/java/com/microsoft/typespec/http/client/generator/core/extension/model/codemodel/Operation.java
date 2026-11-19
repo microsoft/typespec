@@ -34,6 +34,8 @@ public class Operation extends Metadata {
     private ConvenienceApi convenienceApi;
     private Boolean generateProtocolApi;
     private Boolean internalApi;
+    private SseMetadata sseMetadata;
+
     // internal
     private OperationGroup operationGroup;
 
@@ -392,6 +394,24 @@ public class Operation extends Metadata {
      */
     public Boolean getInternalApi() {
         return internalApi;
+    }
+
+    /**
+     * Gets server-sent event metadata.
+     *
+     * @return Server-sent event metadata.
+     */
+    public SseMetadata getSseMetadata() {
+        return sseMetadata;
+    }
+
+    /**
+     * Sets server-sent event metadata.
+     *
+     * @param sseMetadata Server-sent event metadata.
+     */
+    public void setSseMetadata(SseMetadata sseMetadata) {
+        this.sseMetadata = sseMetadata;
     }
 
     /**

@@ -6,6 +6,8 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -14,8 +16,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
@@ -27,6 +32,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +52,8 @@ public class ConvenienceMethodTemplateBaseTests {
     public void restoreSettings() {
         new MockUnitJavagen();
         JavaSettings.clear();
+        Mappers.setFactory(new DefaultMapperFactory());
+        Templates.setFactory(new DefaultTemplateFactory());
     }
 
     @Test
@@ -292,6 +300,56 @@ public class ConvenienceMethodTemplateBaseTests {
     }
 
     @Test
+    public void optionalByteHeadersAndQueriesUseBase64() {
+        useFlavor("azure");
+        for (boolean async : List.of(false, true)) {
+            for (RequestParameterLocation location : List.of(RequestParameterLocation.HEADER,
+                RequestParameterLocation.QUERY)) {
+                String output = renderByteParameter(async, location, ArrayType.BYTE_ARRAY, false, null, null);
+                Assertions.assertTrue(output.contains("if (data != null)"), output);
+                Assertions.assertTrue(output.contains("Base64Util.encodeToString(data)"), output);
+            }
+        }
+    }
+
+    @Test
+    public void optionalBase64UrlHeadersAndQueriesKeepUrlEncoding() {
+        useFlavor("azure");
+        for (RequestParameterLocation location : List.of(RequestParameterLocation.HEADER,
+            RequestParameterLocation.QUERY)) {
+            String output = renderByteParameter(false, location, ClassType.BASE_64_URL, false, null, null);
+            Assertions.assertTrue(output.contains(ClassType.BASE_64_URL.getName() + ".encode(data)"), output);
+        }
+    }
+
+    @Test
+    public void byteHeaderCollectionsAndExplodedQueriesImportBase64() {
+        useFlavor("azure");
+        Set<String> imports = new HashSet<>();
+        String header = renderByteParameter(false, RequestParameterLocation.HEADER, new MapType(ArrayType.BYTE_ARRAY),
+            false, "x-ms-meta-", imports);
+        Assertions.assertTrue(header.contains("Base64Util.encodeToString(value)"), header);
+        Assertions.assertTrue(imports.contains("com.azure.core.util.Base64Util"), imports.toString());
+
+        imports.clear();
+        String query = renderByteParameter(false, RequestParameterLocation.QUERY, new ListType(ArrayType.BYTE_ARRAY),
+            true, null, imports);
+        Assertions.assertTrue(query.contains("Base64Util.encodeToString(paramItemValue)"), query);
+        Assertions.assertTrue(imports.contains("com.azure.core.util.Base64Util"), imports.toString());
+    }
+
+    @Test
+    public void clientCoreByteParametersUseJdkBase64() {
+        useFlavor("unbranded");
+        Set<String> imports = new HashSet<>();
+        String output
+            = renderByteParameter(false, RequestParameterLocation.QUERY, ArrayType.BYTE_ARRAY, false, null, imports);
+        Assertions.assertTrue(output.contains("requestContext = requestContext.toBuilder().addQueryParam(\"data\", "
+            + "data == null ? null : Base64.getEncoder().encodeToString(data), false).build();"), output);
+        Assertions.assertTrue(imports.contains("java.util.Base64"), imports.toString());
+    }
+
+    @Test
     public void optionalMultipartTextFieldsPreserveNull() {
         for (IType type : List.of(ClassType.BOOLEAN, ClassType.INTEGER, ClassType.LONG, ClassType.DOUBLE)) {
             String getter = type == ClassType.BOOLEAN ? "isValue" : "getValue";
@@ -322,6 +380,75 @@ public class ConvenienceMethodTemplateBaseTests {
     public void multipartStringsKeepDirectSerialization() {
         Assertions.assertTrue(renderMultipartConversion(ClassType.STRING, false)
             .contains(".serializeTextField(\"value\", body.getValue())"));
+    }
+
+    private static void useFlavor(String flavor) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("flavor".equals(key)) {
+                    return (T) flavor;
+                }
+                if ("data-plane".equals(key) || "enable-sync-stack".equals(key)) {
+                    return (T) Boolean.TRUE;
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+    }
+
+    private static String renderByteParameter(boolean async, RequestParameterLocation location, IType wireType,
+        boolean explode, String headerPrefix, Set<String> imports) {
+        JavaSettings settings = JavaSettings.getInstance();
+        ProxyMethodParameter proxyParameter = new ProxyMethodParameter.Builder().name("data")
+            .requestParameterName(location == RequestParameterLocation.HEADER ? "Content-MD5" : "data")
+            .requestParameterLocation(location)
+            .rawType(wireType)
+            .wireType(wireType)
+            .clientType(wireType.getClientType())
+            .headerCollectionPrefix(headerPrefix)
+            .explode(explode)
+            .build();
+        ProxyMethod proxyMethod = new ProxyMethod.Builder().name("send")
+            .httpMethod(HttpMethod.GET)
+            .returnType(ClassType.VOID)
+            .parameters(List.of())
+            .allParameters(List.of(proxyParameter))
+            .responseBodyType(ClassType.BINARY_DATA)
+            .rawResponseBodyType(ClassType.VOID)
+            .responseContentTypes(Set.of("application/json"))
+            .build();
+        ClientMethodParameter parameter = new ClientMethodParameter.Builder().name("data")
+            .annotations(List.of())
+            .requestParameterLocation(location)
+            .wireType(wireType)
+            .build();
+        IType protocolReturnType = GenericType.response(ClassType.BINARY_DATA);
+        ClientMethod protocolMethod = new ClientMethod.Builder().name("sendWithResponse")
+            .parameters(List.of(settings.isAzureV1()
+                ? ClientMethodParameter.REQUEST_OPTIONS_PARAMETER
+                : ClientMethodParameter.REQUEST_CONTEXT_PARAMETER))
+            .proxyMethod(proxyMethod)
+            .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
+            .returnValue(new ReturnValue("response", async ? GenericType.mono(protocolReturnType) : protocolReturnType))
+            .build();
+        ClientMethod convenienceMethod = new ClientMethod.Builder().name("send")
+            .parameters(List.of(parameter))
+            .parameterTransformations(new ParameterTransformations(List.of()))
+            .proxyMethod(proxyMethod)
+            .type(async ? ClientMethodType.SimpleAsync : ClientMethodType.SimpleSync)
+            .returnValue(new ReturnValue("response", async ? GenericType.mono(ClassType.VOID) : ClassType.VOID))
+            .build();
+        JavaFileContents contents = new JavaFileContents();
+        ConvenienceMethodTemplateBase template
+            = async ? Templates.getConvenienceAsyncMethodTemplate() : Templates.getConvenienceSyncMethodTemplate();
+        template.writeMethodImplementation(protocolMethod, convenienceMethod, new JavaBlock(contents), new HashSet<>());
+        if (imports != null) {
+            template.addImports(imports, List.of(new ConvenienceMethod(protocolMethod, List.of(convenienceMethod))));
+        }
+        return contents.toString();
     }
 
     private static String renderMultipartConversion(IType type, boolean required) {

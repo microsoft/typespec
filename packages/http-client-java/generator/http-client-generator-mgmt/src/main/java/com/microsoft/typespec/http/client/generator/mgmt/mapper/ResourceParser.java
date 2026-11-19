@@ -151,11 +151,7 @@ public class ResourceParser {
         // resourceGroupName() from class variable
         if ((model.getCategory() == ModelCategory.RESOURCE_GROUP_AS_PARENT
             || model.getCategory() == ModelCategory.NESTED_CHILD) && model.getResourceCreate() != null
-        // here we use class variable "resourceGroupName", and hence we need the FluentConstructorByInner that parses
-        // the resource ID to resourceGroupName
-        // for a create-only resource, "resourceGroupName" variable would be null, if the resource is retrieved via Get
-        // or List from collection
-        // alternatively, we can parse resourceGroupName from resource ID in method implementation
+        // Create-only resources also initialize this field, but keep the update requirement to preserve the public API.
             && model.getResourceUpdate() != null
             && !model.hasProperty("resourceGroupName")) {
             UrlPathSegments urlPathSegments = model.getResourceCreate().getUrlPathSegments();

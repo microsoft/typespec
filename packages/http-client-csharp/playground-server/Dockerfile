@@ -6,6 +6,7 @@ WORKDIR /azure-generators
 
 # Consume the exact artifacts published with each browser bundle, without waiting
 # for npm propagation. Keep each emitter's dependency closure and metadata separate.
+# Unpublished emitters (latest.json returns 404) are omitted from the server catalog.
 COPY playground-server/install-azure-generators.mjs /install-azure-generators.mjs
 RUN node /install-azure-generators.mjs /azure-generators
 

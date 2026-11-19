@@ -11,6 +11,7 @@ export const DIAGNOSTIC_DOCS_BASE_URL =
 export const DIAGNOSTIC_DOCS_EXCLUDED = new Set([
   "dpg-protocol-api-not-generated",
   "dpg-convenience-api-not-generated",
+  "sse-unsupported",
 ]);
 
 export interface DevOptions {

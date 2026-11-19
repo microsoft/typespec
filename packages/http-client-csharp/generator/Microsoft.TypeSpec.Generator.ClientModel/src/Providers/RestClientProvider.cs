@@ -1238,7 +1238,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
-            ClientProvider client)
+            ClientProvider client,
+            bool includeContinuationToken = true)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1270,6 +1271,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
+                // Request builders and retained overloads must still accept the wire token.
+                if (!includeContinuationToken && ScmMethodProviderCollection.ShouldOmitContinuationTokenParameter(serviceMethod, inputParam))
+                {
+                    continue;
+                }
+
                 if (inputParam.IsReadOnly)
                 {
                     continue;
@@ -1336,6 +1343,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (parameter is null)
                 {
                     continue;
+                }
+
+                if (methodType is ScmMethodKind.Convenience && parameter.Location == ParameterLocation.Body &&
+                    DiscriminatedUnionSerialization.RequiresEnvelope(inputParam.Type) &&
+                    !DiscriminatedUnionSerialization.UsesJsonRequest(operation))
+                {
+                    parameter.Type = new CSharpType(typeof(BinaryData), isNullable: parameter.Type.IsNullable);
                 }
 
                 if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)

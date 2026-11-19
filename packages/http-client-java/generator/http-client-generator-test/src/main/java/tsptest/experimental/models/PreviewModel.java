@@ -260,7 +260,7 @@ public final class PreviewModel implements JsonSerializable<PreviewModel> {
 
     /**
      * Get the customized property: The customized property.
-     *
+     * 
      * @return the customized value.
      */
     @Generated
@@ -270,7 +270,7 @@ public final class PreviewModel implements JsonSerializable<PreviewModel> {
 
     /**
      * Set the customized property: The customized property.
-     *
+     * 
      * @param customized the customized value to set.
      * @return the PreviewModel object itself.
      */
