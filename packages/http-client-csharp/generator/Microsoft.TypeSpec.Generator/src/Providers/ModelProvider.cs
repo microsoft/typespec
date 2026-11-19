@@ -25,7 +25,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string RequestSuffix = "Request";
         private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
-        private readonly Lazy<string?> _lastContractUnknownDiscriminatorModelName;
         internal InputModelType InputModel => _inputModel;
 
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
@@ -89,7 +88,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            _lastContractUnknownDiscriminatorModelName = new(BuildLastContractUnknownDiscriminatorModelName);
             _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
@@ -444,82 +442,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
-            if (IsUnknownDiscriminatorModel && _lastContractUnknownDiscriminatorModelName.Value is { } historicalName)
-            {
-                return historicalName;
-            }
-
             return CodeModelGenerator.Instance.TypeFactory.ModelNames.TryGetValue(_inputModel, out var name)
                 ? name
                 : BuildNameWithoutCollisionCheck();
-        }
-
-        private string? BuildLastContractUnknownDiscriminatorModelName()
-        {
-            if (_inputModel.BaseModel is not { } baseModel ||
-                CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.LastContractView is not { } lastContractBase)
-            {
-                return null;
-            }
-
-            AttributeData? proxyAttribute = null;
-            foreach (var attribute in lastContractBase.Attributes)
-            {
-                if (attribute.Data?.AttributeClass?.ToDisplayString() !=
-                    "System.ClientModel.Primitives.PersistableModelProxyAttribute")
-                {
-                    continue;
-                }
-
-                if (proxyAttribute is not null)
-                {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat unknown discriminator model name for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; expected exactly one PersistableModelProxyAttribute.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                    return null;
-                }
-
-                proxyAttribute = attribute.Data;
-            }
-
-            if (proxyAttribute is null)
-            {
-                return null;
-            }
-
-            if (proxyAttribute.ConstructorArguments is not
-                [{ Kind: TypedConstantKind.Type, Value: INamedTypeSymbol { TypeKind: not TypeKind.Error } proxyType }])
-            {
-                CodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; expected exactly one PersistableModelProxyAttribute with a resolvable type argument.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            if (proxyType.ContainingNamespace.ToDisplayString() != BuildNamespace())
-            {
-                CodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{proxyType.ToDisplayString()}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the proxy type is in a different namespace.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            if (CodeModelGenerator.Instance.SourceInputModel.ApiCompatBaseline.IsTypeSuppressed(proxyType.ToDisplayString()))
-            {
-                CodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{proxyType.ToDisplayString()}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the proxy type is an accepted removal in the ApiCompat baseline.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            if (proxyType.Name != BuildNameWithoutCollisionCheck())
-            {
-                CodeModelGenerator.Instance.Emitter.Info(
-                    $"Changed unknown discriminator model name from '{BuildNameWithoutCollisionCheck()}' to '{proxyType.Name}' to match the last contract.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNamePreserved);
-            }
-
-            return proxyType.Name;
         }
 
         internal (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping) GetNameForCollisionCheck()

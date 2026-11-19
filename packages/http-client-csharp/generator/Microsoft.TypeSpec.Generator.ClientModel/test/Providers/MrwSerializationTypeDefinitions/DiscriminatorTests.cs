@@ -204,6 +204,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task HistoricalUnknownNameRestoredPerHierarchyLevel()
+        {
+            var root = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var child = InputFactory.Model("CopyActivitySource", baseModel: root, discriminatedKind: "copy", properties:
+                [InputFactory.Property("sourceKind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [child, root],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var rootUnknown = factory.CreateModel(root.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            var childUnknown = factory.CreateModel(child.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownActivity", rootUnknown.Name);
+            Assert.AreEqual("UnknownCopySource", childUnknown.Name);
+        }
+
+        [Test]
         public async Task HistoricalUnknownNameDoesNotCollideWithClient()
         {
             var input = InputFactory.Model("PipelineActivity", properties:
