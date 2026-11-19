@@ -200,7 +200,8 @@ final class ClientCoreHttpOperationTemplate {
         String response = localName(names, "networkResponse");
         String responseDeclaration = "Response<BinaryData> " + response + " = this.httpPipeline.send(" + request + ")";
         IType entity = entityType(method);
-        // Match the processor's close behavior. Raw BinaryData and InputStream results must remain usable by the caller.
+        // Match the processor's close behavior. Raw BinaryData and InputStream results must remain usable by the
+        // caller.
         boolean closeResponse = isVoid(entity)
             || isBooleanHead(method)
             || ArrayType.BYTE_ARRAY.equals(entity)
@@ -391,7 +392,8 @@ final class ClientCoreHttpOperationTemplate {
             block.line("%s.setBody(BinaryData.fromObject(%s, this.xmlSerializer.supportsFormat(%s)"
                 + " ? this.xmlSerializer : this.jsonSerializer));", request, value, format);
         } else if (ClassType.BINARY_DATA.equals(type)) {
-            // The processor did not attach raw bodies of unknown length. For known lengths, setBody sets Content-Length.
+            // The processor did not attach raw bodies of unknown length. For known lengths, setBody sets
+            // Content-Length.
             block.ifBlock(value + ".getLength() != null", known -> known.line("%s.setBody(%s);", request, value));
         } else if (ClassType.STRING.equals(type)) {
             block.line("%s.setBody(BinaryData.fromString(%s));", request, value);
