@@ -74,6 +74,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
 \tMore information on getting started:
 \thttps://aka.ms/tsp/hscs/start
          `,
+        gitignorePatterns: ["bin/", "obj/"],
       },
       "@typespec/http-server-js": {
         label: "JavaScript server stubs",

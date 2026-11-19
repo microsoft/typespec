@@ -235,7 +235,13 @@ async function writeGitignore(host: SystemHost, config: ScaffoldingConfig) {
     return;
   }
 
-  return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitignore);
+  const extraLines = new Set<string>(
+    Object.values(config.emitters).flatMap((emitter) => emitter?.gitignorePatterns ?? []),
+  );
+  const content = extraLines.size
+    ? [defaultGitignore, "", ...extraLines].join("\n")
+    : defaultGitignore;
+  return host.writeFile(joinPaths(config.directory, ".gitignore"), content);
 }
 
 async function writeFiles(host: SystemHost, config: ScaffoldingConfig) {
