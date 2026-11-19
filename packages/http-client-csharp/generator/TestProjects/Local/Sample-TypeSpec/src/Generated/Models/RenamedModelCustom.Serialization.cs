@@ -99,12 +99,8 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
-#pragma warning disable CS0612 // This generated code references obsolete functionality.
-#pragma warning disable CS0618 // This generated code references obsolete functionality.
             writer.WritePropertyName("otherName"u8);
             writer.WriteStringValue(OtherName);
-#pragma warning restore CS0618 // This generated code references obsolete functionality.
-#pragma warning restore CS0612 // This generated code references obsolete functionality.
         }
 
         /// <param name="reader"> The JSON reader. </param>

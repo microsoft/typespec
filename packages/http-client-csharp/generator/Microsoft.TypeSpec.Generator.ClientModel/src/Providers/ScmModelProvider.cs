@@ -116,6 +116,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     InputNullableType nullable => UsesBase(nullable.Type),
                     InputArrayType array => UsesBase(array.ValueType),
                     InputDictionaryType dictionary => UsesBase(dictionary.ValueType),
+                    // Unknown SSE events are read as the events union's base, which must stay concrete.
+                    InputStreamingType { ValueType: InputUnionType { DiscriminatorPropertyName: null, DiscriminatedSubtypes: not null } events }
+                        when ReferenceEquals(events.BaseModel, _inputModel) => true,
                     InputStreamingType streaming => UsesBase(streaming.ValueType),
                     InputUnionType union when !DiscriminatedUnionSerialization.RequiresEnvelope(union) =>
                         union.VariantTypes.Any(UsesBase),
@@ -262,8 +265,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _nullablePropertyPresence[property] = basePresence;
                         property.Update(body: new MethodPropertyBody(
                             Return(Base.Property(baseProperty.Name)),
-                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null),
-                            declarationSuppressions: ExperimentalApiHelpers.GetMemberSuppressions(baseProperty));
+                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null));
                     }
                     continue;
                 }
@@ -692,8 +694,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             ? FileBinaryContentSnippets.New(sourceParam, contentTypeExpr)
                             : FileBinaryContentSnippets.New(sourceParam);
 
-                    assignments.Add(ExperimentalApiHelpers.Suppress(prop.Assign(newExpr).Terminate(),
-                        ExperimentalApiHelpers.GetMemberSuppressions(prop)));
+                    assignments.Add(prop.Assign(newExpr).Terminate());
                 }
                 else
                 {
@@ -703,8 +704,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ValueExpression assignmentValue = CSharpType.RequiresToList(p.Type, p.Property.Type)
                             ? p.ToList()
                             : p;
-                        assignments.Add(ExperimentalApiHelpers.Suppress(p.Property.Assign(assignmentValue).Terminate(),
-                            ExperimentalApiHelpers.GetMemberSuppressions(p.Property)));
+                        assignments.Add(p.Property.Assign(assignmentValue).Terminate());
                     }
                 }
             }
