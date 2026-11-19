@@ -69,6 +69,9 @@ export interface TypeSpecBundle {
    */
   files: TypeSpecBundleFile[];
 
+  /** Binary assets imported by the browser modules, served alongside {@link files}. */
+  assets?: TypeSpecBundleAsset[];
+
   /**
    * Package identity and relative import paths derived from {@link definition}.
    * Not included as a file in {@link files}.
@@ -89,6 +92,14 @@ export interface TypeSpecBundleFile {
   content: string;
   /** Gzipped content, only present if gzip option is enabled */
   gzipContent?: Buffer;
+}
+
+/** A binary dependency emitted alongside a browser bundle. */
+export interface TypeSpecBundleAsset {
+  /** Output path relative to the bundle directory. */
+  filename: string;
+  content: Uint8Array;
+  contentType: string;
 }
 
 /** Source package metadata exposed through {@link TypeSpecBundleDefinition.packageJson}. */
@@ -195,6 +206,11 @@ export async function bundleTypeSpecLibrary(
     if (file.gzipContent) {
       await writeFile(joinPaths(outputDir, file.filename + ".gz"), file.gzipContent);
     }
+  }
+  for (const asset of bundle.assets ?? []) {
+    const path = joinPaths(outputDir, asset.filename);
+    await mkdir(dirname(path), { recursive: true });
+    await writeFile(path, asset.content);
   }
   const manifest = createManifest(bundle.definition);
   await writeFile(joinPaths(outputDir, "manifest.json"), JSON.stringify(manifest, null, 2));
@@ -355,6 +371,9 @@ async function createEsBuildContext(
     outdir: "out",
     platform: "browser",
     format: "esm",
+    // Wheel installers require the original filename; put content hashes in directories.
+    assetNames: "assets/[hash]/[name]",
+    loader: { ".whl": "file" },
     target: "es2024",
     minify,
     keepNames: minify,
@@ -373,27 +392,37 @@ async function resolveTypeSpecBundle(
   const shouldGzip = options?.gzip ?? false;
 
   const files: TypeSpecBundleFile[] = await Promise.all(
-    result.outputFiles!.map(async (file) => {
-      const entry = definition.exports[basename(file.path)];
-      const content = file.text;
-      const bundleFile: TypeSpecBundleFile = {
-        filename: file.path.replaceAll("\\", "/").split("/out/")[1],
-        content,
-        export: entry ? getExportEntryPoint(entry) : undefined,
-      };
+    result
+      .outputFiles!.filter((file) => !file.path.endsWith(".whl"))
+      .map(async (file) => {
+        const entry = definition.exports[basename(file.path)];
+        const content = file.text;
+        const bundleFile: TypeSpecBundleFile = {
+          filename: file.path.replaceAll("\\", "/").split("/out/")[1],
+          content,
+          export: entry ? getExportEntryPoint(entry) : undefined,
+        };
 
-      if (shouldGzip) {
-        bundleFile.gzipContent = await gzipAsync(Buffer.from(content, "utf-8"));
-      }
+        if (shouldGzip) {
+          bundleFile.gzipContent = await gzipAsync(Buffer.from(content, "utf-8"));
+        }
 
-      return bundleFile;
-    }),
+        return bundleFile;
+      }),
   );
+  const assets: TypeSpecBundleAsset[] = result
+    .outputFiles!.filter((file) => file.path.endsWith(".whl"))
+    .map((file) => ({
+      filename: file.path.replaceAll("\\", "/").split("/out/")[1],
+      content: file.contents,
+      contentType: "application/zip",
+    }));
 
   return {
     definition,
     manifest: createManifest(definition),
     files,
+    assets,
   };
 }
 

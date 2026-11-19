@@ -1,8 +1,9 @@
-import { mkdir, mkdtemp, rm, writeFile } from "fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "fs/promises";
 import { tmpdir } from "os";
-import { join } from "path";
+import { basename, join } from "path";
+import { fileURLToPath, pathToFileURL } from "url";
 import { expect, it } from "vitest";
-import { createTypeSpecBundle } from "../src/bundler.js";
+import { bundleTypeSpecLibrary, createTypeSpecBundle } from "../src/bundler.js";
 
 /**
  * Regression test: TypeSpec decorator functions are identified by their `.name` property
@@ -100,6 +101,58 @@ it("includes typespec source files from sub-exports", async () => {
     // The sub-export JS entry should also be bundled
     const subFile = bundle.files.find((f) => f.filename === "sub.js");
     expect(subFile, "sub.js should be in bundle output").toBeDefined();
+  } finally {
+    await rm(tmpDir, { recursive: true });
+  }
+});
+
+it("keeps a dependency's binary asset next to its bundle with a relative URL", async () => {
+  const tmpDir = await mkdtemp(join(tmpdir(), "typespec-bundler-test-"));
+  try {
+    const dependency = join(tmpDir, "node_modules", "test-generator");
+    await mkdir(dependency, { recursive: true });
+    await writeFile(
+      join(tmpDir, "package.json"),
+      JSON.stringify({
+        name: "test-wrapper",
+        version: "1.0.0",
+        type: "module",
+        main: "index.js",
+        tspMain: "main.tsp",
+        peerDependencies: {},
+        dependencies: { "test-generator": "1.0.0" },
+      }),
+    );
+    await writeFile(join(tmpDir, "main.tsp"), 'import "./index.js"; namespace TestWrapper;');
+    await writeFile(join(tmpDir, "index.js"), 'export { wheelUrl } from "test-generator";');
+    await writeFile(
+      join(dependency, "package.json"),
+      JSON.stringify({
+        name: "test-generator",
+        version: "1.0.0",
+        type: "module",
+        main: "index.js",
+        browser: { "./index.js": "./browser.js" },
+      }),
+    );
+    await writeFile(join(dependency, "index.js"), 'export const wheelUrl = "native";');
+    await writeFile(
+      join(dependency, "browser.js"),
+      'import wheel from "./pygen-0.1.0-py3-none-any.whl"; export const wheelUrl = new URL(wheel, import.meta.url).href;',
+    );
+    const bytes = new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x00, 0xff, 0xfe, 0x80]);
+    await writeFile(join(dependency, "pygen-0.1.0-py3-none-any.whl"), bytes);
+
+    const output = join(tmpDir, "previews", "123", "libs", "test-wrapper");
+    await bundleTypeSpecLibrary(tmpDir, output);
+    const wheel = (await readdir(output, { recursive: true })).find((name) =>
+      name.endsWith(".whl"),
+    );
+    expect(wheel).toBeDefined();
+    expect(basename(wheel!)).toBe("pygen-0.1.0-py3-none-any.whl");
+    expect(new Uint8Array(await readFile(join(output, wheel!)))).toEqual(bytes);
+    const emitted = await import(pathToFileURL(join(output, "index.js")).href);
+    expect(fileURLToPath(emitted.wheelUrl)).toBe(join(output, wheel!));
   } finally {
     await rm(tmpDir, { recursive: true });
   }

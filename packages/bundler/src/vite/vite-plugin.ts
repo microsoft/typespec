@@ -62,32 +62,25 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
     },
     async configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const id = req.url;
+        const id = req.url?.split("?")[0];
         if (id === undefined) {
           next();
           return;
         }
         const start = `/${options.folderName}/`;
 
-        const resolveFilename = (path: string) => {
-          if (path === "") {
-            return "index.js";
-          } else {
-            return `${path}.js`;
-          }
-        };
         const findPkgName = (id: string): [string, string] | undefined => {
-          const segments = id.slice(start.length, -".js".length).split("/");
+          const segments = id.slice(start.length).split("/");
           if (bundles[segments[0]]) {
-            return [segments[0], resolveFilename(segments.slice(1).join("/"))];
+            return [segments[0], segments.slice(1).join("/") || "index.js"];
           }
           const inFolder = segments[0] + "/" + segments[1];
           if (bundles[inFolder]) {
-            return [inFolder, resolveFilename(segments.slice(2).join("/"))];
+            return [inFolder, segments.slice(2).join("/") || "index.js"];
           }
           return undefined;
         };
-        if (id.startsWith(start) && id.endsWith(".js")) {
+        if (id.startsWith(start)) {
           const found = findPkgName(id);
           if (found) {
             const [pkgId, path] = found;
@@ -96,6 +89,12 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
               res.writeHead(200, "Ok", { "Content-Type": "application/javascript" });
               res.write(file.content);
               res.end();
+              return;
+            }
+            const asset = bundles[pkgId].assets?.find((x) => x.filename === path);
+            if (asset) {
+              res.writeHead(200, "Ok", { "Content-Type": asset.contentType });
+              res.end(asset.content);
               return;
             }
           }
@@ -125,6 +124,13 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
             type: "asset",
             fileName: `${options.folderName}/${name}/${file.filename}`,
             source: file.content,
+          });
+        }
+        for (const asset of bundles[name].assets ?? []) {
+          this.emitFile({
+            type: "asset",
+            fileName: `${options.folderName}/${name}/${asset.filename}`,
+            source: asset.content,
           });
         }
       }
