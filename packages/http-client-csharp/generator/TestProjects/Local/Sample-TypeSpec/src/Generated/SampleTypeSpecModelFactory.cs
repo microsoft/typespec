@@ -446,6 +446,32 @@ namespace SampleTypeSpec
             return new StreamingItem(message, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The ResponseStreamCreated. </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ResponseStreamCreated"/> instance for mocking. </returns>
+        public static ResponseStreamCreated ResponseStreamCreated(int sequenceNumber = default, string id = default)
+        {
+            return new ResponseStreamCreated(sequenceNumber, additionalBinaryDataProperties: null, id);
+        }
+
+        /// <summary> The ResponseStreamEvent. </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ResponseStreamEvent"/> instance for mocking. </returns>
+        public static ResponseStreamEvent ResponseStreamEvent(int sequenceNumber = default)
+        {
+            return new ResponseStreamEvent(sequenceNumber, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ResponseStreamTextDelta. </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <param name="delta"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ResponseStreamTextDelta"/> instance for mocking. </returns>
+        public static ResponseStreamTextDelta ResponseStreamTextDelta(int sequenceNumber = default, string delta = default)
+        {
+            return new ResponseStreamTextDelta(sequenceNumber, additionalBinaryDataProperties: null, delta);
+        }
+
         /// <summary> The PreviewDetails. </summary>
         /// <param name="choice"></param>
         /// <returns> A new <see cref="SampleTypeSpec.PreviewDetails"/> instance for mocking. </returns>
@@ -552,38 +578,6 @@ namespace SampleTypeSpec
         {
             return new GetNotebookResult(name, content, additionalBinaryDataProperties: null);
         }
-
-        /// <summary> The LegacyDetails. </summary>
-        /// <param name="choice"></param>
-        /// <param name="extensibleChoice"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.LegacyDetails"/> instance for mocking. </returns>
-#pragma warning disable CS0612 // This generated code references obsolete functionality.
-#pragma warning disable CS0618 // This generated code references obsolete functionality.
-        [Experimental("SAMPLE0011")]
-        public static LegacyDetails LegacyDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default)
-        {
-            return new LegacyDetails(choice, extensibleChoice, additionalBinaryDataProperties: null);
-        }
-#pragma warning restore CS0612 // This generated code references obsolete functionality.
-#pragma warning restore CS0618 // This generated code references obsolete functionality.
-
-        /// <summary> The CurrentDetails. </summary>
-        /// <param name="choice"></param>
-        /// <param name="extensibleChoice"></param>
-        /// <param name="previous"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.CurrentDetails"/> instance for mocking. </returns>
-#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
-#pragma warning disable CS0612 // This generated code references obsolete functionality.
-#pragma warning disable CS0618 // This generated code references obsolete functionality.
-        public static CurrentDetails CurrentDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default, IEnumerable<LegacyDetails> previous = default)
-        {
-            previous ??= new ChangeTrackingList<LegacyDetails>();
-
-            return new CurrentDetails(choice, extensibleChoice, additionalBinaryDataProperties: null, previous.ToList());
-        }
-#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
-#pragma warning restore CS0612 // This generated code references obsolete functionality.
-#pragma warning restore CS0618 // This generated code references obsolete functionality.
 
         /// <summary> The UnionCat. </summary>
         /// <param name="name"></param>

@@ -22,6 +22,12 @@ public final class ConfigurationImpl implements Configuration, Configuration.Def
         azure.resourcemanager.operationtemplates.OperationTemplatesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/configurations/{configurationName}",
+            "resourceGroupName");
+        this.configurationName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/configurations/{configurationName}",
+            "configurationName");
     }
 
     public String id() {
