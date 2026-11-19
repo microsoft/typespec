@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -35,34 +34,14 @@ namespace Microsoft.TypeSpec.Generator
             => InputTypeToModelProvider.Values.OfType<ModelProvider>();
 
         private IReadOnlyDictionary<InputModelType, string>? _modelNames;
-        private bool _isBuildingModelNames;
-        internal IReadOnlyDictionary<InputModelType, string> ModelNames
-        {
-            get
-            {
-                if (_modelNames is null)
-                {
-                    _isBuildingModelNames = true;
-                    try
-                    {
-                        _modelNames = BuildModelNames();
-                    }
-                    finally
-                    {
-                        _isBuildingModelNames = false;
-                    }
-                }
-
-                return _modelNames;
-            }
-        }
+        internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
 
         private IReadOnlyDictionary<InputModelType, string> BuildModelNames()
         {
             var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping, bool IsRestoredUnknownName, string DefaultName)>();
+            var candidates = new Dictionary<InputModelType, (string Name, string FinalName, string OriginalName, string Namespace, string FinalNamespace, bool CanRename, bool HasTypeMapping)>();
             var nameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             var reservedNames = GetReservedModelTypeNames().ToArray();
             var originalNames = reservedNames.Select(type => type.OriginalName).ToHashSet(StringComparer.Ordinal);
@@ -102,9 +81,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (inputEnum.External is null && !inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                 {
-                    var enumProvider = EnumProvider.Create(inputEnum);
-                    ReserveName(enumProvider.Name);
-                    reservedTypes.Add((enumProvider.Name, enumProvider.Type.Namespace));
+                    ReserveName(EnumProvider.Create(inputEnum).Name);
                     originalNames.Add(inputEnum.IsExactName ? inputEnum.Name : inputEnum.Name.ToIdentifierName().NormalizeCSharpAcronyms());
                 }
             }
@@ -112,23 +89,6 @@ namespace Microsoft.TypeSpec.Generator
             var result = new Dictionary<InputModelType, string>();
             foreach (var (model, candidate) in candidates)
             {
-                if (candidate.IsRestoredUnknownName &&
-                    (nameCounts[candidate.FinalName] > 1 || reservedTypes.Contains((candidate.FinalName, candidate.FinalNamespace))))
-                {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat unknown discriminator model name '{candidate.FinalName}' for '{candidate.Namespace}.{candidate.DefaultName}'; the name is already used by another generated type.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                    result.Add(model, candidate.DefaultName);
-                    continue;
-                }
-
-                if (candidate.IsRestoredUnknownName)
-                {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed unknown discriminator model name from '{candidate.DefaultName}' to '{candidate.Name}' to match the last contract.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNamePreserved);
-                }
-
                 // A direct input takes precedence over an implicit suffix match for the same mapping.
                 var mappingBelongsToModel = candidate.HasTypeMapping &&
                     !originalNames.Contains(candidate.Name);
@@ -150,24 +110,8 @@ namespace Microsoft.TypeSpec.Generator
                 ReserveName(name);
                 result.Add(model, name);
             }
+
             return result;
-        }
-
-        internal bool TryGetModelName(InputModelType model, out string name)
-        {
-            if (!_isBuildingModelNames && _modelNames is null)
-            {
-                _ = ModelNames;
-            }
-
-            if (_modelNames is not null && _modelNames.TryGetValue(model, out var modelName))
-            {
-                name = modelName;
-                return true;
-            }
-
-            name = string.Empty;
-            return false;
         }
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);

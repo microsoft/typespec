@@ -423,68 +423,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("PipelineActivity", rootUnknown.BaseModelProvider!.Name);
         }
 
-        [TestCase("Model", false)]
-        [TestCase("Model", true)]
-        [TestCase("Enum", false)]
-        [TestCase("Custom", false)]
-        [TestCase("MappedModel", false)]
-        [TestCase("UnrelatedMapping", false)]
-        public async Task UnknownDiscriminatorNameCollisionSkipped(string collision, bool reverseOrder)
-        {
-            var input = InputFactory.Model("PipelineActivity", properties:
-                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            var other = InputFactory.Model(collision == "MappedModel" ? "OtherModel" : "UnknownActivity");
-            InputModelType[] models = collision is "Model" or "MappedModel"
-                ? (reverseOrder ? [other, input] : [input, other]) : [input];
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: models,
-                inputEnumTypes: collision == "Enum" ? [InputFactory.StringEnum("UnknownActivity", [("One", "one")])] : [],
-                compilation: collision is "Custom" or "MappedModel" or "UnrelatedMapping"
-                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(collision) : null,
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    "LastContract", method: nameof(UnknownDiscriminatorNameRestored)));
-            var unknown = CodeModelGenerator.Instance.TypeFactory.CreateModel(
-                input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
-
-            Assert.AreEqual("UnknownPipelineActivity", unknown.Name);
-            Assert.IsNull(unknown.CustomCodeView);
-        }
-
-        [TestCase("NoProxy", true, false, null)]
-        [TestCase("PipelineActivity", false, false, null)]
-        [TestCase("WrongNamespace", true, false, "different namespace")]
-        [TestCase("DuplicateProxy", true, false, "exactly one PersistableModelProxyAttribute")]
-        [TestCase("UnresolvedProxy", true, false, "resolvable type argument")]
-        [TestCase("PipelineActivity", true, true, "accepted removal")]
-        public async Task UnknownDiscriminatorNameGuards(string modelName, bool lastContract, bool acceptedRemoval, string? reason)
+        [TestCase("NoProxy", true)]
+        [TestCase("PipelineActivity", false)]
+        public async Task UnknownDiscriminatorNameUnchangedWithoutProxy(string modelName, bool lastContract)
         {
             var input = InputFactory.Model(modelName, properties:
                 [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+            await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [input],
                 lastContractCompilation: lastContract
                     ? async () => await Helpers.GetCompilationFromDirectoryAsync(
-                        "LastContract", method: nameof(UnknownDiscriminatorNameRestored)) : null,
-                apiCompatBaseline: acceptedRemoval
-                    ? ApiCompatBaseline.Parse(["TypesMustExist : Type 'Sample.Models.UnknownActivity' does not exist in the implementation."])
-                    : null);
-            using var emitterStream = new MemoryStream();
-            using var emitter = new Emitter(emitterStream);
-            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+                        "LastContract", method: nameof(UnknownDiscriminatorNameRestored)) : null);
             var unknown = CodeModelGenerator.Instance.TypeFactory.CreateModel(
                 input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
 
             Assert.AreEqual($"Unknown{modelName}", unknown.Name);
-            emitter.WriteBufferedMessages();
-            var messages = Encoding.UTF8.GetString(emitterStream.ToArray());
-            if (reason is null)
-            {
-                Assert.IsEmpty(messages);
-            }
-            else
-            {
-                StringAssert.Contains(reason, messages);
-            }
         }
 
         [TestCase(false)]
