@@ -117,7 +117,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
             if self.nullable:
                 return f"Optional[{types_type_annotation}]"
             return types_type_annotation
-        if (self.optional and self.client_default_value is None) or self.readonly:
+        if self.nullable or (self.optional and self.client_default_value is None) or self.readonly:
             return f"Optional[{types_type_annotation}]"
         return types_type_annotation
 
@@ -164,7 +164,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
             # In TypedDict types.py, Optional means nullable
             if self.nullable:
                 file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
-        elif (self.optional and self.client_default_value is None) or self.readonly:
+        elif self.nullable or (self.optional and self.client_default_value is None) or self.readonly:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models-mode"] == "dpg":
             if serialize_namespace_type != NamespaceType.TYPES_FILE:

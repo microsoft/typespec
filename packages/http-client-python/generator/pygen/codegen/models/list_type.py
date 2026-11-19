@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from typing import Any, Optional, Union, TYPE_CHECKING
 from .base import BaseType
-from .imports import FileImport
+from .imports import FileImport, ImportType
 from .utils import NamespaceType
 
 if TYPE_CHECKING:
@@ -22,6 +22,7 @@ class ListType(BaseType):
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.element_type = element_type
+        self.element_nullable: bool = yaml_data.get("elementNullable", False)
         self.max_items: Optional[int] = yaml_data.get("maxItems")
         self.min_items: Optional[int] = yaml_data.get("minItems")
         self.unique_items: bool = yaml_data.get("uniqueItems", False)
@@ -54,7 +55,10 @@ class ListType(BaseType):
             list_type = "List"
         else:
             list_type = "list"
-        return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
+        element_annotation = self.element_type.type_annotation(**kwargs)
+        if self.element_nullable:
+            element_annotation = f"Optional[{element_annotation}]"
+        return f"{list_type}[{element_annotation}]"
 
     def description(self, *, is_operation_file: bool) -> str:
         return "" if is_operation_file else self.yaml_data.get("description", "")
@@ -85,13 +89,19 @@ class ListType(BaseType):
         if self.code_model.options["version-tolerant"] and self.element_type.xml_metadata:
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.docstring_type(**kwargs)
-        return f"list[{self.element_type.docstring_type(**kwargs)}]"
+        element_docstring = self.element_type.docstring_type(**kwargs)
+        if self.element_nullable:
+            element_docstring = f"Optional[{element_docstring}]"
+        return f"list[{element_docstring}]"
 
     def docstring_text(self, **kwargs: Any) -> str:
         if self.code_model.options["version-tolerant"] and self.element_type.xml_metadata:
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.docstring_text(**kwargs)
-        return f"list of {self.element_type.docstring_text(**kwargs)}"
+        element_text = self.element_type.docstring_text(**kwargs)
+        if self.element_nullable:
+            element_text = f"({element_text} or None)"
+        return f"list of {element_text}"
 
     @property
     def validation(self) -> Optional[dict[str, Union[bool, int, str]]]:
@@ -143,6 +153,8 @@ class ListType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.element_type.imports(**kwargs))
+        if self.element_nullable:
+            file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         return file_import
 
     @property
