@@ -71,10 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if ((!IsPublicApi(provider)
-                        && (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                            || provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private)
-                            || !lroMetadataTypes.Contains(provider.Type)))
+                if (!(IsPublicApi(provider) || IsInternalLroMetadataType(provider, lroMetadataTypes))
                     || !ShouldWriteProvider(provider)
                     || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
@@ -94,6 +91,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
+
+        // LRO pollers read internal polling and selected models through this context at runtime.
+        private static bool IsInternalLroMetadataType(TypeProvider provider, HashSet<CSharpType> lroMetadataTypes)
+            => provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
+                && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private)
+                && lroMetadataTypes.Contains(provider.Type);
 
         private static HashSet<CSharpType> CollectLroMetadataTypes()
         {

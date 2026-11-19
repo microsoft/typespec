@@ -81,23 +81,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         public PropertyProvider(InputProperty inputProperty, TypeProvider enclosingType)
-            : this(inputProperty, enclosingType, false)
-        {
-        }
-
-        /// <summary>
-        /// Creates a property, optionally treating the input as output-only even when it has no owning input model.
-        /// </summary>
-        public PropertyProvider(InputProperty inputProperty, TypeProvider enclosingType, bool isOutputOnly)
         : this(
             inputProperty,
             CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"),
-            enclosingType,
-            isOutputOnly)
+            enclosingType)
         {
         }
 
-        private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType, bool isOutputOnly = false)
+        private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
             InputProperty = inputProperty;
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
@@ -108,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnclosingType = enclosingType;
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
-            var propHasSetter = !isOutputOnly && PropertyHasSetter(propertyType, inputProperty);
+            var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = !propHasSetter ? MethodSignatureModifiers.None
                 : inputProperty.IsReadOnly && !IsDiscriminatorProperty(inputProperty)
                     ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
@@ -116,10 +107,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
-            var hasOutputUsage = isOutputOnly || (inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false);
-            Modifiers = IsDiscriminator || (isOutputOnly && (inputProperty.Access == "internal" || !propertyType.IsPublic)) || (!hasOutputUsage && _isRequiredNonNullableConstant)
-                ? MethodSignatureModifiers.Internal
-                : MethodSignatureModifiers.Public;
+            var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
+            Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
             if (!inputProperty.IsExactName)
             {

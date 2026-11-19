@@ -125,6 +125,10 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     typesBeforeClients,
     sdkContext.__typeCache.clients.values(),
   );
+  // Name normalization copies the owning model's usage; LRO metadata enums are always deserialized.
+  for (const type of sdkContext.__typeCache.lroMetadataEnums) {
+    type.usage |= UsageFlags.Output | UsageFlags.Json;
+  }
 
   // Resolve the root namespace. When this cannot be determined the generated code model
   // has no name, which the .NET generator rejects with an opaque root-level deserialization
@@ -209,9 +213,6 @@ function fixNamingConflicts(
       } else if (type.kind === "enum" && type.crossLanguageDefinitionId === "") {
         // Fix enum names for enums created from constants
         normalizeLiteralTypeForProperty(type, model, property.name);
-        if (lroMetadataEnums.has(type)) {
-          type.usage |= UsageFlags.Output | UsageFlags.Json;
-        }
       }
     }
   }
@@ -245,7 +246,8 @@ function fixNamingConflicts(
     }
   }
 
-  // Metadata enums must have distinct C# type and output file names without renaming existing types.
+  // LRO metadata enums are synthesized by this emitter from TCGC constants, so TCGC does not reserve their names.
+  // They must have distinct C# type and output file names without renaming existing types.
   const usedTypeNames = new Set([...clients].map(csharpTypeNameKey));
   for (const model of models) {
     const name = csharpTypeNameKey(model);

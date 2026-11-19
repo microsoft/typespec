@@ -27,14 +27,13 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var parsedLocation = location switch
+            if (location is null)
             {
-                nameof(InputOperationLinkLocation.ResponseHeader) => InputOperationLinkLocation.ResponseHeader,
-                nameof(InputOperationLinkLocation.ResponseBody) => InputOperationLinkLocation.ResponseBody,
-                nameof(InputOperationLinkLocation.Self) => InputOperationLinkLocation.Self,
-                null => throw new JsonException("Operation link must have a location."),
-                _ => InputOperationLinkLocation.Unknown
-            };
+                throw new JsonException("Operation link must have a location.");
+            }
+            var parsedLocation = Enum.TryParse<InputOperationLinkLocation>(location, ignoreCase: true, out var value) && Enum.IsDefined(value)
+                ? value
+                : InputOperationLinkLocation.Unknown;
 
             return new InputOperationLink(parsedLocation,
                 property ?? throw new JsonException("Operation link must have a property."));

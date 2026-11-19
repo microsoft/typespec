@@ -117,15 +117,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.Explode = explode;
-            parameter.Style = style switch
-            {
-                "simple" => InputPathParameterStyle.Simple,
-                "label" => InputPathParameterStyle.Label,
-                "matrix" => InputPathParameterStyle.Matrix,
-                "path" => InputPathParameterStyle.Path,
-                "fragment" => InputPathParameterStyle.Fragment,
-                _ => InputPathParameterStyle.Unknown,
-            };
+            parameter.Style = Enum.TryParse<InputPathParameterStyle>(style, ignoreCase: true, out var parsedStyle) && Enum.IsDefined(parsedStyle)
+                ? parsedStyle
+                : InputPathParameterStyle.Unknown;
             parameter.SkipUrlEncoding = skipUrlEncoding;
             parameter.MethodParameterSegments = methodParameterSegments;
             parameter.IsExactName = isExactName;
