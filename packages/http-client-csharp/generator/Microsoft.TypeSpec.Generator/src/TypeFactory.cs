@@ -226,7 +226,11 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
-                    if (unionType.BaseModel is { } baseModel && HasCompatibleUnionBase(unionType))
+                    // Unions without a discriminator property (SSE events unions) are only selected by the
+                    // out-of-band event type, so they map to their base on the SSE convenience path alone.
+                    if (unionType.BaseModel is { } baseModel &&
+                        unionType.DiscriminatorPropertyName is not null &&
+                        HasCompatibleUnionBase(unionType))
                     {
                         type = CreateCSharpType(baseModel);
                         break;
