@@ -159,13 +159,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var normalizedName = name.NormalizeCSharpAcronyms();
+                var normalizedName = NormalizeValueName(inputValues[i].Name, name);
                 normalizedNames[i] = lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
                     ? name
                     : normalizedName;
             }
             return normalizedNames;
         }
+
+        private protected virtual string NormalizeValueName(string inputName, string generatedName) =>
+            generatedName.NormalizeCSharpAcronyms();
 
         private protected virtual bool IsCustomizedValueName(string name) =>
             GetMemberSuppressionAttributes().Any(a => a.ConstructorArguments.Length > 0 &&
