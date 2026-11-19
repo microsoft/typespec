@@ -32,7 +32,7 @@ namespace Sample
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public virtual global::System.ClientModel.ClientResult Upload(global::Sample.Models.BinaryArrayPartsRequest body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual global::System.ClientModel.ClientResult Upload(global::Sample.Models.BinaryArrayPartsContent body, global::System.Threading.CancellationToken cancellationToken = default)
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
@@ -41,7 +41,7 @@ namespace Sample
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::Sample.Models.BinaryArrayPartsRequest body, global::System.Threading.CancellationToken cancellationToken = default)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::Sample.Models.BinaryArrayPartsContent body, global::System.Threading.CancellationToken cancellationToken = default)
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 

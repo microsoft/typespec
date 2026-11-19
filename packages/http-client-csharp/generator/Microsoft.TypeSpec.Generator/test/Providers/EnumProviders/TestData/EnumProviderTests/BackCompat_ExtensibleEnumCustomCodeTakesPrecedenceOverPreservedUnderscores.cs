@@ -31,7 +31,7 @@ namespace Sample.Models
 
         public static implicit operator global::Sample.Models.MockInputEnum(string value) => new global::Sample.Models.MockInputEnum(value);
 
-        public static implicit operator global::Sample.Models.MockInputEnum?(string value) => (value == null) ? null : new global::Sample.Models.MockInputEnum(value);
+        public static implicit operator global::Sample.Models.MockInputEnum?(string value) => (value == null) ? ((global::Sample.Models.MockInputEnum?)null) : new global::Sample.Models.MockInputEnum(value);
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public override bool Equals(object obj) => ((obj is global::Sample.Models.MockInputEnum other) && this.Equals(other));

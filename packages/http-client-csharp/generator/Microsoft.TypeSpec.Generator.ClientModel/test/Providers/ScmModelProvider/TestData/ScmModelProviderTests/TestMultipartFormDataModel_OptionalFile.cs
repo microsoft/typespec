@@ -8,9 +8,9 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class OptionalFileRequest
+    public partial class OptionalFileContent
     {
-        public OptionalFileRequest(string id)
+        public OptionalFileContent(string id)
         {
             global::Sample.Argument.AssertNotNull(id, nameof(id));
 
@@ -18,7 +18,7 @@ namespace Sample.Models
         }
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal OptionalFileRequest(string id, global::System.ClientModel.FileBinaryContent optionalFile)
+        internal OptionalFileContent(string id, global::System.ClientModel.FileBinaryContent optionalFile)
         {
             Id = id;
             OptionalFile = optionalFile;

@@ -24,9 +24,9 @@ namespace Payload.MultiPart._FormData.HttpParts.NonString
         public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
         [Experimental("SCME0004")]
-        public virtual ClientResult Float(FloatRequest body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Float(FloatContent body, CancellationToken cancellationToken = default) => throw null;
 
         [Experimental("SCME0004")]
-        public virtual Task<ClientResult> FloatAsync(FloatRequest body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FloatAsync(FloatContent body, CancellationToken cancellationToken = default) => throw null;
     }
 }
