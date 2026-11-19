@@ -3,10 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.microsoft.typespec.http.client.generator.core.Javagen;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningOperationIdMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.PolymorphicDiscriminatorHandler;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
@@ -30,6 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfB
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.util.LroOperationIdModelHelper;
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
@@ -55,7 +53,6 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.slf4j.Logger;
 
 /**
  * Writes a ClientModel to a JavaFile.
@@ -64,10 +61,6 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
     private static final String MISSING_SCHEMA = "MISSING·SCHEMA";
     private static final ModelTemplate INSTANCE = new ModelTemplate();
-    private static final Logger LOGGER = new PluginLogger(Javagen.getPluginInstance(), ModelTemplate.class);
-    private static final String LRO_OPERATION_ID_FIELD_NAME = "lroOperationId";
-    private static final String LRO_OPERATION_ID_GETTER_NAME = "getOperationId";
-    private static final String LRO_OPERATION_ID_PROPERTY_VALUE_NAME = "propertyValue";
 
     protected ModelTemplate() {
     }
@@ -90,9 +83,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         JavaSettings settings = JavaSettings.getInstance();
         ClientModelPropertiesManager propertiesManager = new ClientModelPropertiesManager(model, settings);
+        LroOperationIdModelHelper lroOperationId = new LroOperationIdModelHelper(model, this::addGeneratedAnnotation);
         Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new LinkedHashSet<>();
 
         addImports(imports, model, settings);
+        lroOperationId.addImports(imports, settings);
 
         List<ClientModelPropertyReference> propertyReferences = this.getClientModelPropertyReferences(model);
         propertyReferences.forEach(p -> p.addImportsTo(imports, false));
@@ -162,7 +157,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
             // properties
             addProperties(propertiesManager, classBlock);
-            addLroOperationIdField(classBlock, model);
+            lroOperationId.addField(classBlock);
 
             // add jsonMergePatch related properties and accessors
             if (ClientModelUtil.isJsonMergePatchModel(model, settings)) {
@@ -185,21 +180,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
                 if (!property.isPolymorphicDiscriminator()
                     || PolymorphicDiscriminatorHandler.generateGetter(model, property, settings)) {
-                    LongRunningOperationIdMetadata metadata = getLroOperationId(model);
-                    boolean usesOperationIdFallback = metadata != null
-                        && metadata.hasPathSource()
-                        && property == getLroOperationIdProperty(model, metadata)
-                        && LRO_OPERATION_ID_GETTER_NAME.equals(property.getGetterName())
-                        && ClassType.STRING.equals(propertyWireType);
-                    if (usesOperationIdFallback) {
-                        classBlock.javadocComment(comment -> {
-                            comment
-                                .description("Get the operation ID from the status response, or from the polling URL "
-                                    + "if the property is absent.");
-                            comment.methodReturns("the operation ID, or null until a status response with a body has "
-                                + "been received.");
-                        });
-                    } else {
+                    if (!lroOperationId.writeGetterJavadoc(classBlock, property)) {
                         generateGetterJavadoc(classBlock, property);
                     }
                     addGeneratedAnnotation(classBlock);
@@ -217,10 +198,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     ExperimentalAnnotationUtil.write(classBlock, property.getApiMetadata());
                     classBlock.method(methodVisibility, null,
                         propertyClientType + " " + getGetterName(model, property) + "()", methodBlock -> {
-                            if (usesOperationIdFallback) {
-                                methodBlock.methodReturn("this." + property.getName() + " != null ? this."
-                                    + property.getName() + " : this." + LRO_OPERATION_ID_FIELD_NAME);
-                            } else {
+                            if (!lroOperationId.writeGetterBody(methodBlock, property)) {
                                 addGetterMethod(propertyWireType, propertyClientType, property, treatAsXml, methodBlock,
                                     settings);
                             }
@@ -291,7 +269,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 }
             }
 
-            addLroOperationIdAccessors(classBlock, model);
+            lroOperationId.addAccessors(classBlock);
 
             if (settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
                 // reference to properties from flattened client model
@@ -521,12 +499,6 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         model.addImportsTo(imports, settings);
-
-        // add long-running operation ID related imports
-        if (getLroOperationId(model) != null && getLroOperationId(model).hasPathSource()) {
-            imports.add(settings.getPackage(settings.getImplementationSubpackage()) + "."
-                + ClientModelUtil.OPERATION_ID_POLLING_STRATEGY);
-        }
 
         // add Json merge patch related imports
         if (ClientModelUtil.isJsonMergePatchModel(model, settings)) {
@@ -1563,115 +1535,5 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
             staticBlock.line("});");
         });
-    }
-
-    /**
-     * Gets the sources of the long-running operation ID, if the model can generate the accessor.
-     *
-     * @param model the model.
-     * @return the sources of the long-running operation ID, or null.
-     */
-    private static LongRunningOperationIdMetadata getLroOperationId(ClientModel model) {
-        final LongRunningOperationIdMetadata lroOperationId = model.getLroOperationId();
-        if (lroOperationId == null) {
-            return null;
-        }
-        final boolean conflict
-            = Stream.concat(model.getProperties().stream(), ClientModelUtil.getParentProperties(model).stream())
-                .anyMatch(p -> (lroOperationId.hasPathSource() && LRO_OPERATION_ID_FIELD_NAME.equals(p.getName()))
-                    || (LRO_OPERATION_ID_GETTER_NAME.equals(p.getGetterName())
-                        && (!Objects.equals(lroOperationId.getPropertySerializedName(), p.getSerializedName())
-                            || !ClassType.STRING.equals(p.getClientType())
-                            || !ClassType.STRING.equals(p.getWireType()))));
-        return conflict ? null : lroOperationId;
-    }
-
-    private static ClientModelProperty getLroOperationIdProperty(ClientModel model,
-        LongRunningOperationIdMetadata lroOperationId) {
-        if (lroOperationId.getPropertySerializedName() == null) {
-            return null;
-        }
-        return Stream.concat(model.getProperties().stream(), ClientModelUtil.getParentProperties(model).stream())
-            .filter(p -> lroOperationId.getPropertySerializedName().equals(p.getSerializedName())
-                && ClassType.STRING.equals(p.getClientType()))
-            .findFirst()
-            .orElse(null);
-    }
-
-    /**
-     * Adds the "getOperationId" method, and the accessor for OperationIdPollingStrategy to set the operation ID from
-     * the polling URL.
-     *
-     * @param classBlock the class block.
-     * @param model the model.
-     */
-    private void addLroOperationIdAccessors(JavaClass classBlock, ClientModel model) {
-        final LongRunningOperationIdMetadata lroOperationId = getLroOperationId(model);
-        if (lroOperationId == null) {
-            if (model.getLroOperationId() != null) {
-                LOGGER.warn("Cannot expose the long-running operation ID on model '{}': a property conflicts with "
-                    + "the generated accessor or field.", model.getName());
-            }
-            return;
-        }
-        final ClientModelProperty property = getLroOperationIdProperty(model, lroOperationId);
-        final boolean hasPathSource = lroOperationId.hasPathSource();
-        if (lroOperationId.getPropertySerializedName() != null && property == null) {
-            LOGGER.warn(
-                "Cannot expose the selected long-running operation ID property '{}' on model '{}': "
-                    + "the property is missing or is not a String.",
-                lroOperationId.getPropertySerializedName(), model.getName());
-        }
-        if (property == null && !hasPathSource) {
-            return;
-        }
-
-        boolean usesExistingGetter = property != null && LRO_OPERATION_ID_GETTER_NAME.equals(property.getGetterName());
-        if (usesExistingGetter && (!hasPathSource || model.getProperties().contains(property))) {
-            return;
-        }
-
-        final String description;
-        if (property != null && hasPathSource) {
-            description = "Get the ID of the long-running operation, from the {@code " + property.getSerializedName()
-                + "} property, or from the polling URL if the property is absent.";
-        } else if (property != null) {
-            description = "Get the ID of the long-running operation, from the {@code " + property.getSerializedName()
-                + "} property.";
-        } else {
-            description = "Get the ID of the long-running operation, from the polling URL.";
-        }
-        classBlock.javadocComment(comment -> {
-            comment.description(description);
-            comment.methodReturns("the ID of the long-running operation, or null if unavailable. The poll result is "
-                + "available when a status response with a body has been received.");
-        });
-        addGeneratedAnnotation(classBlock);
-        classBlock.publicMethod("String " + LRO_OPERATION_ID_GETTER_NAME + "()", methodBlock -> {
-            if (property != null && hasPathSource) {
-                methodBlock.line("String " + LRO_OPERATION_ID_PROPERTY_VALUE_NAME + " = "
-                    + (usesExistingGetter ? "super." : "this.") + property.getGetterName() + "();");
-                methodBlock.methodReturn(LRO_OPERATION_ID_PROPERTY_VALUE_NAME + " != null ? "
-                    + LRO_OPERATION_ID_PROPERTY_VALUE_NAME + " : this." + LRO_OPERATION_ID_FIELD_NAME);
-            } else if (property != null) {
-                methodBlock.methodReturn("this." + property.getGetterName() + "()");
-            } else {
-                methodBlock.methodReturn("this." + LRO_OPERATION_ID_FIELD_NAME);
-            }
-        });
-    }
-
-    private void addLroOperationIdField(JavaClass classBlock, ClientModel model) {
-        LongRunningOperationIdMetadata metadata = getLroOperationId(model);
-        if (metadata == null || !metadata.hasPathSource()) {
-            return;
-        }
-        classBlock.javadocComment(comment -> comment
-            .description("The operation ID from the polling URL, set by the polling strategy after deserialization."));
-        addGeneratedAnnotation(classBlock);
-        classBlock.privateMemberVariable("String " + LRO_OPERATION_ID_FIELD_NAME);
-        classBlock.staticBlock(staticBlock -> staticBlock
-            .line(ClientModelUtil.OPERATION_ID_POLLING_STRATEGY + ".setOperationIdAccessor(" + model.getName()
-                + ".class, (model, operationId) -> model." + LRO_OPERATION_ID_FIELD_NAME + " = operationId);"));
     }
 }
