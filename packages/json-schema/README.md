@@ -74,7 +74,7 @@ Serialize the schema as either yaml or json.
 
 File name template for each schema. Supports `{name}` for the declaration name
 and `{ext}` for the extension selected by `file-type`.
-Directory separators are not allowed; use `emitter-output-dir` for the output directory.
+Directory separators and `#` are not allowed; use `emitter-output-dir` for the output directory.
 Also determines implicit schema ids and references. Does not change the bundle
 file name, which is controlled by `bundleId`.
 

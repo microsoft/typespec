@@ -39,7 +39,7 @@ export interface JSONSchemaEmitterOptions {
   /**
    * File name template for each schema. Supports `{name}` for the declaration name
    * and `{ext}` for the extension selected by `file-type`.
-   * Directory separators are not allowed; use `emitter-output-dir` for the output directory.
+   * Directory separators and `#` are not allowed; use `emitter-output-dir` for the output directory.
    * Also determines implicit schema ids and references. Does not change the bundle
    * file name, which is controlled by `bundleId`.
    * @defaultValue `{name}.{ext}`
@@ -111,7 +111,7 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
       description: [
         "File name template for each schema. Supports `{name}` for the declaration name",
         "and `{ext}` for the extension selected by `file-type`.",
-        "Directory separators are not allowed; use `emitter-output-dir` for the output directory.",
+        "Directory separators and `#` are not allowed; use `emitter-output-dir` for the output directory.",
         "Also determines implicit schema ids and references. Does not change the bundle",
         "file name, which is controlled by `bundleId`.",
       ].join("\n"),
@@ -184,6 +184,7 @@ export const $lib = createTypeSpecLibrary({
           "The 'file-name' option must not contain directory separators. Use 'emitter-output-dir' to configure the output directory.",
         empty:
           "The 'file-name' option must resolve to a non-empty file name other than '.' or '..'. Use '{name}' and '{ext}' as placeholders.",
+        fragment: "The 'file-name' option must not contain '#', which is a URI fragment delimiter.",
       },
     },
     "duplicate-output-file": {

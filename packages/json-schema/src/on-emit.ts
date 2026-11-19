@@ -28,6 +28,15 @@ export async function $onEmit(context: EmitContext<JSONSchemaEmitterOptions>) {
     return;
   }
 
+  if (context.options["file-name"]?.includes("#")) {
+    reportDiagnostic(context.program, {
+      code: "invalid-file-name",
+      messageId: "fragment",
+      target: NoTarget,
+    });
+    return;
+  }
+
   const fileName = interpolatePath(context.options["file-name"] ?? "{name}.{ext}", {
     name: "{name}",
     ext: context.options["file-type"] === "json" ? "json" : "yaml",

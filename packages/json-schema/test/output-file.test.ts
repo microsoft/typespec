@@ -86,6 +86,18 @@ describe("json-schema: output file", () => {
     },
   );
 
+  it("reject fragment delimiters in the filename template", async () => {
+    const [schemas, diagnostics] = await emitSchemaWithDiagnostics("model Foo {}", {
+      "file-name": "{name}#schema.{ext}",
+    });
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/json-schema/invalid-file-name",
+      message: "The 'file-name' option must not contain '#', which is a URI fragment delimiter.",
+    });
+    expect(schemas).toEqual({});
+  });
+
   it("sanitize path separators and traversal in declaration names", async () => {
     const schemas = await emitSchema("model `../../escaped` {}");
     expect(Object.keys(schemas)).toContain(".._.._escaped.json");
