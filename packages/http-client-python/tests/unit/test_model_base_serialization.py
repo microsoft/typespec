@@ -7,6 +7,8 @@ import copy
 import decimal
 import json
 import datetime
+import time
+import uuid
 from pathlib import Path
 from typing import (
     Any,
@@ -4226,6 +4228,98 @@ def test_multi_layer_discriminator():
 
     assert AnotherPet(name="Buddy", trained=True) == model_pet
     assert AnotherDog(name="Rex", trained=True, breed="German Shepherd") == model_dog
+
+
+def test_complex_model_deserialization(request):
+    """Exercise and time repeated deserialization of a complex model graph.
+
+    The recorded warm per-operation duration can be compared when this test is run
+    against different generated runtimes. It is intentionally not a CI threshold.
+    """
+
+    class Address(Model):
+        street: str = rest_field()
+        city: str = rest_field()
+        zip_code: Optional[str] = rest_field(name="zipCode")
+
+    class Tag(Model):
+        key: str = rest_field()
+        value: str = rest_field()
+
+    class Animal(Model):
+        __mapping__: dict[str, Model] = {}
+        kind: str = rest_discriminator(name="kind")
+        name: str = rest_field()
+        age: Optional[int] = rest_field()
+        tags: list[Tag] = rest_field()
+
+    class Dog(Animal, discriminator="dog"):
+        kind: Literal["dog"] = rest_discriminator(name="kind")
+        barks: bool = rest_field()
+
+    class Cat(Animal, discriminator="cat"):
+        __mapping__: dict[str, Model] = {}
+        kind: Literal["cat"] = rest_discriminator(name="kind")
+        breed: str = rest_discriminator(name="breed")
+        lives: int = rest_field()
+
+    class HouseCat(Cat, discriminator="house"):
+        breed: Literal["house"] = rest_discriminator(name="breed")
+        indoor: bool = rest_field()
+
+    class Owner(Model):
+        id: str = rest_field()
+        name: str = rest_field()
+        created: datetime.datetime = rest_field(format="rfc3339")
+        home: Address = rest_field()
+        addresses: dict[str, Address] = rest_field()
+        pets: list[Animal] = rest_field()
+        favorite: Optional[Animal] = rest_field()
+        scores: list[float] = rest_field()
+
+    suffix = uuid.uuid4().hex
+    for model_class in (Address, Tag, Animal, Dog, Cat, HouseCat, Owner):
+        model_class.__qualname__ = f"{model_class.__qualname__}_{suffix}"
+
+    tags = [{"key": f"k{i}", "value": f"v{i}"} for i in range(3)]
+    dog = {"kind": "dog", "name": "Rex", "age": 4, "tags": tags, "barks": True}
+    cat = {
+        "kind": "cat",
+        "breed": "house",
+        "name": "Milo",
+        "age": 3,
+        "tags": tags,
+        "lives": 9,
+        "indoor": True,
+    }
+    data = {
+        "id": "owner-1",
+        "name": "Ada",
+        "created": "2026-11-12T09:30:00Z",
+        "home": {"street": "1 Main", "city": "Seattle", "zipCode": "98101"},
+        "addresses": {f"a{i}": {"street": f"{i} Pine", "city": "Seattle", "zipCode": None} for i in range(5)},
+        "pets": [dict(cat if i % 2 else dog) for i in range(20)],
+        "favorite": cat,
+        "scores": [1.5, 2.5, 3.5],
+    }
+
+    # Initialize lazy model metadata before timing warm deserialization.
+    result = _deserialize(Owner, data)
+    iterations = 100
+    start = time.perf_counter()
+    for _ in range(iterations):
+        result = _deserialize(Owner, data)
+    elapsed = time.perf_counter() - start
+
+    request.node.user_properties.append(
+        ("complex_model_deserialize_us_per_operation", elapsed / iterations * 1_000_000)
+    )
+    assert result.created == datetime.datetime(2026, 11, 12, 9, 30, tzinfo=datetime.timezone.utc)
+    assert isinstance(result.home, Address)
+    assert all(isinstance(address, Address) for address in result.addresses.values())
+    assert all(isinstance(pet, Dog if i % 2 == 0 else HouseCat) for i, pet in enumerate(result.pets))
+    assert isinstance(result.favorite, HouseCat)
+    assert result.pets[0].tags[0].value == "v0"
 
 
 def test_array_encode_comma_delimited():

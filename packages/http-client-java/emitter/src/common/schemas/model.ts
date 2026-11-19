@@ -585,6 +585,13 @@ export function createDiscriminator(property: Property): Discriminator {
   return { property, immediate: {}, all: {} };
 }
 
+/** Source rendering information for a synthetic SSE envelope. */
+export interface SseSchemaMetadata {
+  streamName: string;
+  eventName?: string;
+  terminal?: boolean;
+}
+
 /** a schema that represents a type with child properties. */
 export interface ObjectSchema extends BaseSchema {
   /** the schema type  */
@@ -600,6 +607,7 @@ export interface ObjectSchema extends BaseSchema {
   parents?: Relations;
   children?: Relations;
   discriminatorValue?: string;
+  sseMetadata?: SseSchemaMetadata;
 }
 export function createObjectSchema(
   name: string,

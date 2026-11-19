@@ -99,6 +99,7 @@ try {
 
   # generate for http-specs/azure-http-specs test sources
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
+  Get-ChildItem ./specs -Filter tspconfig.yaml -File -Recurse | Remove-Item -Force
 
   Write-Host "Copied http-specs to current directory"
 
