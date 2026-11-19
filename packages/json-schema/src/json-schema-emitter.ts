@@ -51,6 +51,7 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
+  interpolatePath,
   isStringType,
   isType,
   isTypeRefType,
@@ -1180,7 +1181,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #newFileScope(type: JsonSchemaDeclaration) {
     const sourceFile = this.emitter.createSourceFile(
-      `${sanitizePathSegment(this.declarationName(type)!)}.${this.#fileExtension()}`,
+      interpolatePath(this.emitter.getOptions()["file-name"] ?? "{name}.{ext}", {
+        name: sanitizePathSegment(this.declarationName(type)!),
+        ext: this.#fileExtension(),
+      }),
     );
 
     sourceFile.meta.shouldEmit = true;

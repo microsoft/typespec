@@ -66,6 +66,18 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 Serialize the schema as either yaml or json.
 
+### `file-name`
+
+**Type:** `string`
+
+**Default:** `"{name}.{ext}"`
+
+File name template for each schema. Supports `{name}` for the declaration name
+and `{ext}` for the extension selected by `file-type`.
+Directory separators are not allowed; use `emitter-output-dir` for the output directory.
+Also determines implicit schema ids and references. Does not change the bundle
+file name, which is controlled by `bundleId`.
+
 ### `int64-strategy`
 
 **Type:** `"string" | "number"`

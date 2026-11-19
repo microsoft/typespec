@@ -26,6 +26,27 @@ If you want to treat all TypeSpec types as JSON Schema types (even if they don't
 
 If you want to treat all TypeSpec types referenced from JSON Schema types as JSON Schema types (even if they don't have the `@jsonSchema` decorator), you can set the `emitAllRefs` option to true. With this set, data types which are referenced from JSON Schema types will get their own schema file, and all references to them will be relative URIs.
 
+## Configuring file names
+
+Use the `file-name` option to customize the name of each schema file. The default is `"{name}.{ext}"`, where `{name}` is the declaration name and `{ext}` is `yaml` or `json`, selected by `file-type` (defaults to `yaml`).
+
+For example, this configuration emits `Widget.schema.json` for a model named `Widget`:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    file-type: json
+    file-name: "{name}.schema.{ext}"
+```
+
+Set `file-type: yaml` to emit `Widget.schema.yaml` instead. The file name template does not change the serialization format.
+
+The template must be a file name, not a path: `/` and `\` are rejected. Use `emitter-output-dir` to configure the output directory.
+
+Implicit `$id` values and references between schemas use the configured file names. Explicit ids set with `@id` are preserved. When bundling, `bundleId` still determines the bundle file name; `file-name` only affects the implicit ids and references of the bundled schemas.
+
 ## Bundling behavior
 
 By default, this emitter will produce separate schema files for each JSON Schema type in your program. However, if you prefer to bundle all of your schemas into a single file, you can set the `bundleId` option to the id you want to use for your bundle. You will now get a single file containing all of your schemas.

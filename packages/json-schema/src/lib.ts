@@ -32,9 +32,19 @@ export type PolymorphicModelsStrategy = "ignore" | "oneOf" | "anyOf";
 export interface JSONSchemaEmitterOptions {
   /**
    * Serialize the schema as either yaml or json.
-   * @defaultValue yaml it not specified infer from the `output-file` extension
+   * @defaultValue yaml
    */
   "file-type"?: FileType;
+
+  /**
+   * File name template for each schema. Supports `{name}` for the declaration name
+   * and `{ext}` for the extension selected by `file-type`.
+   * Directory separators are not allowed; use `emitter-output-dir` for the output directory.
+   * Also determines implicit schema ids and references. Does not change the bundle
+   * file name, which is controlled by `bundleId`.
+   * @defaultValue `{name}.{ext}`
+   */
+  "file-name"?: string;
 
   /**
    * How to handle 64-bit integers on the wire. Options are:
@@ -93,6 +103,18 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
       enum: ["yaml", "json"],
       nullable: true,
       description: "Serialize the schema as either yaml or json.",
+    },
+    "file-name": {
+      type: "string",
+      nullable: true,
+      default: "{name}.{ext}",
+      description: [
+        "File name template for each schema. Supports `{name}` for the declaration name",
+        "and `{ext}` for the extension selected by `file-type`.",
+        "Directory separators are not allowed; use `emitter-output-dir` for the output directory.",
+        "Also determines implicit schema ids and references. Does not change the bundle",
+        "file name, which is controlled by `bundleId`.",
+      ].join("\n"),
     },
     "int64-strategy": {
       type: "string",
@@ -155,6 +177,13 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
   diagnostics: {
+    "invalid-file-name": {
+      severity: "error",
+      messages: {
+        default:
+          "The 'file-name' option must not contain directory separators. Use 'emitter-output-dir' to configure the output directory.",
+      },
+    },
     "invalid-prefix-items": {
       severity: "error",
       messages: {
