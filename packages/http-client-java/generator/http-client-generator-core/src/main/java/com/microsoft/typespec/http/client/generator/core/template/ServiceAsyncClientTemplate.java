@@ -281,7 +281,6 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
 
     private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {
         Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
-
         convenienceMethods.forEach(
             m -> Templates.getConvenienceAsyncMethodTemplate().write(m, classBlock, typeReferenceStaticClasses));
 

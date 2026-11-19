@@ -255,6 +255,8 @@ public class ClassType implements IType, ConvertToJsonTypeTrait, ConvertFromJson
                     + TemplateUtil.getContextNone())
             .build();
     public static final ClassType CLIENT_OPTIONS = new ClassType("com.azure.core.util", "ClientOptions");
+    public static final ClassType CLOSEABLE_ITERABLE_STREAM
+        = new ClassType("com.azure.core.util", "CloseableIterableStream");
     public static final ClassType BASE_64_UTIL = new ClassType("com.azure.core.util", "Base64Util");
     public static final ClassType CONFIGURATION = withClientCoreReplacement("com.azure.core.util.Configuration",
         "io.clientcore.core.utils.configuration.Configuration");

@@ -19,6 +19,26 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class CodeFormatterUtilTests {
     @ParameterizedTest
+    @ValueSource(strings = { "TestStreamEventSerializer.java", "ServerSentEventStreamHelper.java" })
+    public void sortsSseHelperImports(String helperFileName) {
+        String fileName = "src/main/java/com/azure/mock/implementation/" + helperFileName;
+        String initial = String.join("\n", "package com.azure.mock.implementation;", "",
+            "import com.azure.mock.models.TestReferencesCompletedStreamEvent;",
+            "import com.azure.mock.models.TestReference;", "", "public final class TestStreamEventSerializer {",
+            "private TestReferencesCompletedStreamEvent referencesCompleted;", "private TestReference reference;", "}",
+            "");
+
+        List<String> formattingResult = CodeFormatterUtil.formatCode(Map.of(fileName, initial));
+
+        assertEquals(1, formattingResult.size());
+        String formatted = formattingResult.get(0);
+        int wrapperImport = formatted.indexOf("import com.azure.mock.models.TestReferencesCompletedStreamEvent;");
+        int payloadImport = formatted.indexOf("import com.azure.mock.models.TestReference;");
+        org.junit.jupiter.api.Assertions.assertTrue(payloadImport >= 0);
+        org.junit.jupiter.api.Assertions.assertTrue(wrapperImport > payloadImport);
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = { "module-info.java", "src/main/module-info.java" })
     public void moduleInfoFormatting(String fileName) {
         String initial = String.join("\n", "// Copyright (c) Microsoft Corporation. All rights reserved.",

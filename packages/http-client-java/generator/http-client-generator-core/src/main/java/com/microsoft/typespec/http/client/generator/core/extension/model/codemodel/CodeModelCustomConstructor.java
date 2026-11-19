@@ -214,6 +214,17 @@ public class CodeModelCustomConstructor extends Constructor {
                 }
 
                 switch (key.getValue()) {
+                    case "sseMetadata": {
+                        if (tuple.getValueNode() instanceof MappingNode) {
+                            if (object instanceof Operation) {
+                                tuple.getValueNode().setType(SseMetadata.class);
+                            } else if (object instanceof ObjectSchema) {
+                                tuple.getValueNode().setType(SseSchemaMetadata.class);
+                            }
+                        }
+                        break;
+                    }
+
                     case "properties": {
                         if (object instanceof ObjectSchema) {
                             SequenceNode value = (SequenceNode) tuple.getValueNode();
@@ -269,14 +280,15 @@ public class CodeModelCustomConstructor extends Constructor {
                     case "elementType":
                     case "valueType":
                     case "schema": {
-                        if (("choiceType".equals(key.getValue()) && object instanceof ChoiceSchema)
-                            || ("elementType".equals(key.getValue())
-                                && (object instanceof ArraySchema || object instanceof DictionarySchema))
-                            || ("valueType".equals(key.getValue()) && object instanceof ConstantSchema)
-                            || ("schema".equals(key.getValue())
-                                && (object instanceof Value
-                                    || object instanceof Header
-                                    || object instanceof Response))) {
+                        if (tuple.getValueNode() instanceof MappingNode
+                            && (("choiceType".equals(key.getValue()) && object instanceof ChoiceSchema)
+                                || ("elementType".equals(key.getValue())
+                                    && (object instanceof ArraySchema || object instanceof DictionarySchema))
+                                || ("valueType".equals(key.getValue()) && object instanceof ConstantSchema)
+                                || ("schema".equals(key.getValue())
+                                    && (object instanceof Value
+                                        || object instanceof Header
+                                        || object instanceof Response)))) {
                             MappingNode value = (MappingNode) tuple.getValueNode();
                             value.setType(getSchemaTypeFromMappingNode(value));
                         }
