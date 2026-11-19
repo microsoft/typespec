@@ -146,6 +146,10 @@ export interface InputUnionType extends InputTypeBase {
   name: string;
   variantTypes: InputType[];
   namespace: string;
+  baseModel?: InputModelType;
+  discriminatorPropertyName?: string;
+  envelopePropertyName?: string;
+  discriminatedSubtypes?: Record<string, InputModelType>;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
 }
@@ -200,6 +204,7 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  deprecation?: string;
   /** The declaration name before client-side renaming, when different from name. */
   originalName?: string;
   /** Overrides constructor requiredness without changing the wire contract. */

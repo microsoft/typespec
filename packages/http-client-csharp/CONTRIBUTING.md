@@ -76,6 +76,8 @@ The C# HTTP client package consists of two main components:
 - **Emitter** (`/emitter`): TypeScript code that processes TypeSpec definitions and produces input for the generator
 - **Generator** (`/generator`): .NET code that generates C# client libraries from the emitter output
 
+For guidance on implementing generation behavior, see [Choosing between visitors and emitter options](./generator/docs/architecture.md#choosing-between-visitors-and-emitter-options).
+
 ### Making Changes
 
 1. **Create a feature branch** for your changes:

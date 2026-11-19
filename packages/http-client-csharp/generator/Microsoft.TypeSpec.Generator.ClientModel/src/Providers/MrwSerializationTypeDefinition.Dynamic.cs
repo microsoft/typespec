@@ -28,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string serializedName,
             List<ValueExpression>? parentIndices = null,
             ValueExpression? parentHasPatch = null,
-            bool suppressPatchLogic = false)
+            bool suppressPatchLogic = false,
+            InputType? inputType = null)
         {
             parentIndices ??= [];
 
@@ -49,7 +50,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         serializedName,
                         itemChildIndices,
                         itemParentHasPatch,
-                        itemSuppressPatchLogic)
+                        itemSuppressPatchLogic,
+                        GetCollectionItemInputType(inputType))
                 };
             }
 
@@ -165,7 +167,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string serializedName,
             List<ValueExpression>? parentIndices = null,
             ValueExpression? parentHasPatch = null,
-            bool suppressPatchLogic = false)
+            bool suppressPatchLogic = false,
+            InputType? inputType = null)
         {
             parentIndices ??= [];
             var indexDeclaration = Declare<int>("i", out var indexVar);
@@ -212,7 +215,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     serializedName,
                     allIndices,
                     parentHasPatch,
-                    suppressPatchLogic: true));
+                    suppressPatchLogic: true,
+                    inputType: GetCollectionItemInputType(inputType)));
 
                 return new MethodBodyStatement[]
                 {
@@ -266,7 +270,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         serializationFormat,
                         serializedName,
                         allIndices,
-                        hasPatch)
+                        hasPatch,
+                        inputType: GetCollectionItemInputType(inputType))
                 }
             };
 
@@ -301,7 +306,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string serializedName,
             List<ValueExpression> currentIndices,
             ValueExpression? parentHasPatch = null,
-            bool suppressPatchLogic = false)
+            bool suppressPatchLogic = false,
+            InputType? inputType = null)
         {
             var nestedSerialization = elementType switch
             {
@@ -314,7 +320,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     serializedName,
                     currentIndices,
                     parentHasPatch,
-                    suppressPatchLogic),
+                    suppressPatchLogic,
+                    inputType),
                 { IsDictionary: true } => CreateDictionarySerializationWithPatch(
                     new DictionaryExpression(elementType, element),
                     serializationFormat,
@@ -322,7 +329,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     serializedName,
                     currentIndices,
                     parentHasPatch,
-                    suppressPatchLogic),
+                    suppressPatchLogic,
+                    inputType),
                 _ => null
             };
 
@@ -337,11 +345,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : nestedSerialization;
             }
 
+            if (DiscriminatedUnionSerialization.RequiresEnvelope(inputType, elementType))
+            {
+                return DiscriminatedUnionSerialization.SerializeValue(
+                    inputType!, elementType, element, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet);
+            }
+
             return CreateNullCheckAndSerializationStatement(
                 elementType,
                 element,
                 serializationFormat,
                 serializedName);
+        }
+
+        private static InputType? GetCollectionItemInputType(InputType? inputType) => inputType switch
+        {
+            InputNullableType nullable => GetCollectionItemInputType(nullable.Type),
+            InputArrayType array => array.ValueType,
+            InputDictionaryType dictionary => dictionary.ValueType,
+            _ => null
+        };
+
+        private MethodBodyStatement CreateEnvelopeSerializationStatement(
+            InputType inputType, CSharpType type, ValueExpression value, string serializedName)
+        {
+            if (_jsonPatchProperty is not null)
+            {
+                if (type.IsList)
+                {
+                    return CreateListSerializationWithPatch(value, type.ElementType, false,
+                        _jsonPatchProperty.As<JsonPatch>(), SerializationFormat.Default, serializedName, inputType: inputType);
+                }
+                if (type.IsDictionary)
+                {
+                    return CreateDictionarySerializationWithPatch(new DictionaryExpression(type, value),
+                        SerializationFormat.Default, _jsonPatchProperty.As<JsonPatch>(), serializedName, inputType: inputType);
+                }
+            }
+            return DiscriminatedUnionSerialization.SerializeValue(inputType, type, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet);
         }
 
         private IfElseStatement CreateConditionalPatchSerializationStatement(
