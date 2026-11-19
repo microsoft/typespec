@@ -1018,7 +1018,7 @@ disable:
     expectDiagnostics(await linter.extendRuleSet({ extends: ["@typespec/test-linter/custom"] }), {
       code: "ruleset-file-in-library",
       message:
-        'Ruleset "@typespec/test-linter/custom" is defined in a library and cannot extend the ruleset file "file:./rules.yaml". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.',
+        'Ruleset "@typespec/test-linter/custom" is defined in a library and cannot extend the ruleset file "file:./rules.yaml". "file:" references can only be used in "tspconfig.yaml", in another ruleset file, or with "--linter-ruleset".',
     });
     expectDiagnosticEmpty((await linter.lint()).diagnostics);
   });
