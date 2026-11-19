@@ -1,5 +1,16 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.46
+
+No changes, version bump only.
+
+## 0.1.0-alpha.45
+
+### Features
+
+- [#12288](https://github.com/microsoft/typespec/pull/12288) Add Spector scenarios for discriminated unions with model constraints, covering explicit and injected discriminators, custom wire tags, enum discriminators, transitive inheritance, and recursive containers.
+
+
 ## 0.1.0-alpha.44
 
 ### Features

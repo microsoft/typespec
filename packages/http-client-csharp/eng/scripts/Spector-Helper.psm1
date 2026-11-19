@@ -10,6 +10,8 @@ $failingSpecs = @(
 )
 
 $azureAllowSpecs = @(
+  Join-Path 'http' 'azure' 'client-generator-core' 'response-as-bool'
+  Join-Path 'http' 'azure' 'client-generator-core' 'response-replacement'
   Join-Path 'http' 'client' 'structure' 'client-operation-group'
   Join-Path 'http' 'client' 'structure' 'default'
   Join-Path 'http' 'client' 'structure' 'multi-client'

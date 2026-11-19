@@ -10,6 +10,7 @@ const outputFileName = "schema.graphql";
 
 export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/graphql"],
+  features: ["typeref"],
 })
   .importLibraries()
   .using("TypeSpec.GraphQL");

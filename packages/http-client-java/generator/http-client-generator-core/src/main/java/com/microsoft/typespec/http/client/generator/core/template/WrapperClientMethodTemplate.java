@@ -16,6 +16,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -58,6 +59,7 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
         }
 
         addGeneratedAnnotation(typeBlock);
+        ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
         TemplateUtil.writeClientMethodServiceMethodAnnotation(clientMethod, typeBlock);
 
         String methodName = clientMethod.getName();

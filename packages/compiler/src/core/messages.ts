@@ -900,7 +900,7 @@ const diagnostics = {
   "ruleset-file-in-library": {
     severity: "error",
     messages: {
-      default: paramMessage`Ruleset "${"ruleSetName"}" is defined in a library and cannot extend the ruleset file "${"ref"}". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.`,
+      default: paramMessage`Ruleset "${"ruleSetName"}" is defined in a library and cannot extend the ruleset file "${"ref"}". "file:" references can only be used in "tspconfig.yaml", in another ruleset file, or with "--linter-ruleset".`,
     },
   },
 
@@ -1215,6 +1215,18 @@ const diagnostics = {
       default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
     },
   },
+  "invalid-linter-rule-flag": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The --linter-rule parameter value "${"value"}" must be in the format <library-name>/<rule-name>=<value>, where value is true, false, or a JSON options object.`,
+    },
+  },
+  "conflicting-linter-flags": {
+    severity: "error",
+    messages: {
+      default: "--no-linter cannot be combined with --linter-ruleset or --linter-rule.",
+    },
+  },
   "cli-command-deprecated": {
     severity: "warning",
     messages: {
@@ -1222,6 +1234,13 @@ const diagnostics = {
     },
   },
   // #endregion CLI
+  "typeref-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "The typeref function requires the 'typeref' feature to be enabled. Add 'typeref' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

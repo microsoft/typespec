@@ -16,6 +16,7 @@ export const collections = {
     loader: docsLoader(),
     schema: docsSchema({
       extend: z.object({
+        jsApi: z.boolean().default(false),
         version: z.string().optional(),
         releaseDate: z.coerce
           .date()

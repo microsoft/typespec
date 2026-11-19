@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import java.util.LinkedHashSet;
@@ -35,6 +36,7 @@ public class FluentResourceModelInterfaceTemplate implements IJavaTemplate<Fluen
         });
 
         // javaFile.annotation("Immutable");
+        ExperimentalAnnotationUtil.write(javaFile, model.getInnerModel().getApiMetadata());
         javaFile.publicInterface(model.getInterfaceType().getName(), interfaceBlock -> {
             // method for properties
             model.getProperties().forEach(property -> {
@@ -43,6 +45,7 @@ public class FluentResourceModelInterfaceTemplate implements IJavaTemplate<Fluen
                         String.format("Gets the %1$s property: %2$s", property.getName(), property.getDescription()));
                     comment.methodReturns(String.format("the %1$s value", property.getName()));
                 });
+                ExperimentalAnnotationUtil.write(interfaceBlock, property.getModelProperty().getApiMetadata());
                 interfaceBlock.publicMethod(property.getMethodSignature());
             });
 
@@ -70,12 +73,14 @@ public class FluentResourceModelInterfaceTemplate implements IJavaTemplate<Fluen
                 if (model.getResourceRefresh() != null) {
                     model.getResourceRefresh().getFluentMethods().forEach(refreshMethod -> {
                         interfaceBlock.javadocComment(refreshMethod::writeJavadoc);
+                        ExperimentalAnnotationUtil.write(interfaceBlock, refreshMethod.getApiMetadata());
                         interfaceBlock.publicMethod(refreshMethod.getInterfaceMethodSignature());
                     });
                 }
                 if (model.getResourceActions() != null) {
                     model.getResourceActions().getFluentMethods().forEach(refreshMethod -> {
                         interfaceBlock.javadocComment(refreshMethod::writeJavadoc);
+                        ExperimentalAnnotationUtil.write(interfaceBlock, refreshMethod.getApiMetadata());
                         interfaceBlock.publicMethod(refreshMethod.getInterfaceMethodSignature());
                     });
                 }

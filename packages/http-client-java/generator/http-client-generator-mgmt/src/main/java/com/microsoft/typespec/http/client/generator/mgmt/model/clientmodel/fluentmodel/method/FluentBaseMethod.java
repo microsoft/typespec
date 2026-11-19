@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentManagerProperty;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
@@ -51,6 +52,7 @@ abstract public class FluentBaseMethod extends FluentMethod {
 
         this.parameters = parameters;
         this.collectionMethod = collectionMethod;
+        this.apiMetadata = collectionMethod.getInnerClientMethod().getApiMetadata();
 
         IType returnType = collectionMethod.getInnerClientMethod().getReturnValue().getType();
         final boolean returnIsResponseType = FluentUtils.isResponseType(returnType);
@@ -96,9 +98,8 @@ abstract public class FluentBaseMethod extends FluentMethod {
 
     @Override
     protected String getBaseMethodSignature() {
-        String parameterText = parameters.stream()
-            .map(p -> String.format("%1$s %2$s", p.getClientType().toString(), p.getName()))
-            .collect(Collectors.joining(", "));
+        String parameterText
+            = parameters.stream().map(ClientMethodParameter::getDeclaration).collect(Collectors.joining(", "));
         return String.format("%1$s(%2$s)", this.name, parameterText);
     }
 
@@ -112,6 +113,7 @@ abstract public class FluentBaseMethod extends FluentMethod {
     @Override
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports) {
         interfaceReturnValue.addImportsTo(imports, false);
+        ExperimentalAnnotationUtil.addImportsTo(imports, apiMetadata);
         parameters.forEach(p -> p.addImportsTo(imports, false));
         if (includeImplementationImports) {
             collectionMethod.addImportsTo(imports, false);

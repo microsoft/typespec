@@ -1,5 +1,24 @@
 # Changelog - @typespec/tspd
 
+## 0.78.0
+
+### Features
+
+- [#12461](https://github.com/microsoft/typespec/pull/12461) Add `typeref(Type)` for referencing types from metadata values. Enable the `typeref` compiler feature in the calling project or library's `tspconfig.yaml`. Its result has type `TypeRef<T>`, where `T` is the referenced type. Use `TypeRef` to accept any type reference, or `TypeRef<T>` to constrain its target. JavaScript implementations and generated signatures use `TypeRefValue` from `@typespec/compiler`, whose `target` is the referenced compiler type. Type references are compilation metadata and cannot be represented as JSON values.
+  
+  ```typespec
+  model Item { id: string; }
+  model Registration { name: string; type: TypeRef; }
+  const entry: Registration = #{ name: "item", type: typeref(Item) };
+  ```
+
+### Bug Fixes
+
+- [#12225](https://github.com/microsoft/typespec/pull/12225) Preserve source model and property documentation in generated extern signatures.
+- [#12435](https://github.com/microsoft/typespec/pull/12435) Mark generated Typekit reference pages as JavaScript APIs so scoped website search includes them in `api:` searches instead of default documentation searches.
+- [#12169](https://github.com/microsoft/typespec/pull/12169) Render line breaks in wrapped typekit documentation as whitespace instead of leaking TSDoc node names.
+
+
 ## 0.77.1
 
 ### Bug Fixes

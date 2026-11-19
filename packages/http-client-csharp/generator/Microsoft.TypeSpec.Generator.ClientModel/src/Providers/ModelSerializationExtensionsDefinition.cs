@@ -6,6 +6,7 @@ using System.Buffers;
 using System.Buffers.Text;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -752,12 +753,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         },
                         writer.WriteEndObject(), Break
                     }),
-                // IEnumerable<object> case
-                BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable",
+                // IEnumerable case
+                BuildWriteObjectValueSwitchCase(typeof(IEnumerable), "objectEnumerable",
                     objectEnumerable => new MethodBodyStatement[]
                     {
                         writer.WriteStartArray(),
-                        new ForEachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
+                        new ForEachStatement("item", objectEnumerable.As<IEnumerable>(), out var item)
                         {
                             writer.WriteObjectValue(item.As<object>(), options)
                         },
@@ -982,14 +983,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 },
                 MethodBodyStatement.EmptyLine, Declare("indexEnd", typeof(int),
                     ReadOnlySpanSnippets.Slice(indexable, Int(1)).Invoke("IndexOf", Literal(']').CastTo(typeof(byte))), out var indexEnd),
-                new IfStatement(indexEnd.LessThan(Int(0))) { Return(False) }, MethodBodyStatement.EmptyLine, Return(
-                    Static(typeof(Utf8Parser)).Invoke(
+                new IfStatement(indexEnd.LessThan(Int(0))) { Return(False) }, MethodBodyStatement.EmptyLine,
+                new IfStatement(Not(Static(typeof(Utf8Parser)).Invoke(
                         "TryParse",
                         [
                             ReadOnlySpanSnippets.Slice(indexable, Int(0), indexEnd.As<int>().Add(Int(1))),
                             indexParameter.AsArgument(),
                             bytesConsumedParameter.AsArgument()
-                        ]))
+                        ])))
+                {
+                    Return(False)
+                },
+                MethodBodyStatement.EmptyLine,
+                bytesConsumedParameter.AsVariable().AddAndAssign(Int(2)),
+                Return(True)
             };
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);

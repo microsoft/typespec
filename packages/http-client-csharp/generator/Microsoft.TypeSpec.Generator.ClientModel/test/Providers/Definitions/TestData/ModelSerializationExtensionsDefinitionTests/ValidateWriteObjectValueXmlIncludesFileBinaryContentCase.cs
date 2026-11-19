@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -24,7 +25,7 @@ namespace Sample
                 case global::System.ClientModel.Primitives.IJsonModel<T> jsonModel:
                     jsonModel.Write(writer, (options ?? global::Sample.ModelSerializationExtensions.WireOptions));
                     break;
-                case global::System.Byte[] bytes:
+                case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);
                     break;
                 case global::System.BinaryData bytes0:
@@ -91,7 +92,7 @@ namespace Sample
                     }
                     writer.WriteEndObject();
                     break;
-                case global::System.Collections.Generic.IEnumerable<object> objectEnumerable:
+                case global::System.Collections.IEnumerable objectEnumerable:
                     writer.WriteStartArray();
                     foreach (var item in objectEnumerable)
                     {

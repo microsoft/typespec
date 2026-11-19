@@ -25,6 +25,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private Dictionary<InputClient, ClientProvider?>? _clientCache;
         private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 
+        protected override IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames()
+            => ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Select(ClientProvider.GetNameForCollisionCheck);
+
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
@@ -58,6 +61,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal bool HasDynamicModels
             => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
         private bool? _hasDynamicModels;
+
+        internal bool HasCompatibleDiscriminatedUnionBase(InputUnionType union) => HasCompatibleUnionBase(union);
 
         private HashSet<InputModelType>? _rootInputModels;
 
@@ -276,6 +281,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         protected override CSharpType? CreateCSharpTypeCore(InputType inputType) => inputType switch
         {
+            InputStreamingType streaming when streaming.StreamKind != InputStreamingType.SseStreamKind &&
+                DiscriminatedUnionSerialization.RequiresEnvelope(streaming.ValueType) =>
+                new CSharpType(typeof(IAsyncEnumerable<>), typeof(BinaryData)),
 #pragma warning disable SCME0004
             InputModelType { IsFileType: true } => typeof(FileBinaryContent),
             InputPrimitiveType { IsFileType: true } => typeof(FileBinaryContent),

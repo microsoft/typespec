@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
@@ -41,6 +42,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         {
             var result = DocHelpers.GetDescription(null, "This has **bold**, *italic*, and ***bold italic*** text.");
             Assert.AreEqual("This has <b>bold</b>, <i>italic</i>, and <b><i>bold italic</i></b> text.", result);
+        }
+
+        [Test]
+        public void TestCodeSpansWithWildcards()
+        {
+            const string markdown = "The Redis ACL permissions string applied to this assignment, for example `+@read ~cache:*`. Defaults to `+@all ~*` if not specified.";
+
+            Assert.AreEqual(markdown, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [TestCase("`*literal*` and `**literal**` and `***literal***`", "`*literal*` and `**literal**` and `***literal***`")]
+        [TestCase("*Before* `cache:*` and *between* `~*` and *after*.", "<i>Before</i> `cache:*` and <i>between</i> `~*` and <i>after</i>.")]
+        [TestCase("*Use `cache:*` here*", "<i>Use `cache:*` here</i>")]
+        [TestCase("**Use `cache:**` here**", "<b>Use `cache:**` here</b>")]
+        [TestCase("***Use `cache:***` here***", "<b><i>Use `cache:***` here</i></b>")]
+        [TestCase("``literal `*` and **bold**`` with *italic*", "``literal `*` and **bold**`` with <i>italic</i>")]
+        [TestCase(@"\`not code *italic*; use `*literal*`.", @"\`not code <i>italic</i>; use `*literal*`.")]
+        [TestCase(@"\``*literal*`", @"\``*literal*`")]
+        [TestCase(@"\```*literal*`` and *italic*", @"\```*literal*`` and <i>italic</i>")]
+        [TestCase(@"\\\``*literal*`", @"\\\``*literal*`")]
+        [TestCase(@"\``*italic*``", @"\``<i>italic</i>``")]
+        [TestCase(@"\``*italic*", @"\``<i>italic</i>")]
+        [TestCase(@"\\`*literal*`", @"\\`*literal*`")]
+        [TestCase(@"\\``*italic*`", @"\\``<i>italic</i>`")]
+        [TestCase(@"`literal\` and *italic*", @"`literal\` and <i>italic</i>")]
+        [TestCase("\0 `*literal*` and *italic*", "\0 `*literal*` and <i>italic</i>")]
+        [TestCase("`\0*` and *italic*", "`\0*` and <i>italic</i>")]
+        [TestCase("`\0_*` and *italic*", "`\0_*` and <i>italic</i>")]
+        [TestCase("`unclosed *italic*", "`unclosed <i>italic</i>")]
+        [TestCase("``mismatched *italic*`", "``mismatched <i>italic</i>`")]
+        [TestCase("- `cache:*` and `~*` with *italic*", "<list type=\"bullet\"><item><description>`cache:*` and `~*` with <i>italic</i></description></item></list>")]
+        [TestCase("1. `cache:*` and `~*` with **bold**", "<list type=\"number\"><item><description>`cache:*` and `~*` with <b>bold</b></description></item></list>")]
+        public void TestCodeSpansWithFormatting(string markdown, string expected)
+        {
+            Assert.AreEqual(expected, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [TestCase("\n")]
+        [TestCase("\r\n")]
+        [TestCase("\r")]
+        public void TestMultilineCodeSpansWithWildcards(string newline)
+        {
+            var markdown = $"Use `+@read{newline}~cache:* ~other:*` with *italic*.";
+            var expected = $"Use `+@read{Environment.NewLine}~cache:* ~other:*` with <i>italic</i>.";
+
+            Assert.AreEqual(expected, DocHelpers.GetDescription(null, markdown));
+        }
+
+        [TestCase("`*literal*\n**literal** ***literal***` and *italic*", "`*literal*\n**literal** ***literal***` and <i>italic</i>")]
+        [TestCase("``literal `*\n*` and **bold**`` with *italic*", "``literal `*\n*` and **bold**`` with <i>italic</i>")]
+        [TestCase("\\``+@read\n~cache:* ~other:*` and *italic*", "\\``+@read\n~cache:* ~other:*` and <i>italic</i>")]
+        [TestCase("`+@read\\\n~cache:* ~other:*`", "`+@read\\\n~cache:* ~other:*`")]
+        [TestCase("`\0_*` and `+@read\n~cache:* ~other:*`", "`\0_*` and `+@read\n~cache:* ~other:*`")]
+        [TestCase("`unclosed\n*italic* and **bold**", "`unclosed\n<i>italic</i> and <b>bold</b>")]
+        [TestCase("``mismatched\n*italic*`", "``mismatched\n<i>italic</i>`")]
+        [TestCase("`*literal*`\n*italic*", "`*literal*`\n<i>italic</i>")]
+        [TestCase("`unclosed\n\n*italic* and `cache:* ~other:*`", "`unclosed\n<i>italic</i> and `cache:* ~other:*`")]
+        [TestCase("- `unclosed\n- `cache:* ~other:*`", "<list type=\"bullet\"><item><description>`unclosed</description></item><item><description>`cache:* ~other:*`</description></item></list>")]
+        [TestCase("- Use `+@read\n~cache:* ~other:*` and *italic*", "<list type=\"bullet\"><item><description>Use `+@read</description></item></list>\n~cache:* ~other:*` and <i>italic</i>")]
+        [TestCase("1. Use `+@read\n~cache:* ~other:*` and **bold**", "<list type=\"number\"><item><description>Use `+@read</description></item></list>\n~cache:* ~other:*` and <b>bold</b>")]
+        public void TestMultilineCodeSpansWithFormatting(string markdown, string expected)
+        {
+            Assert.AreEqual(expected.Replace("\n", Environment.NewLine), DocHelpers.GetDescription(null, markdown));
         }
 
         [Test]

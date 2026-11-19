@@ -147,12 +147,20 @@ function formatSourcePreview(options: FormatLogOptions, location: SourceLocation
   if (!options.pretty || location.isSynthetic) {
     return "";
   }
-  const postion = getLineAndColumn(location);
+  const { start, end } = getLineAndColumn(location);
 
-  const result = codeFrameColumns(location.file.text, postion, {
-    linesAbove: 0,
-    linesBelow: 0,
-  });
+  // `@babel/code-frame` expects 0-based columns, unlike the 1-based ones used for the `file:line:column` header.
+  const result = codeFrameColumns(
+    location.file.text,
+    {
+      start: { line: start.line, column: start.column - 1 },
+      end: end && { line: end.line, column: end.column - 1 },
+    },
+    {
+      linesAbove: 0,
+      linesBelow: 0,
+    },
+  );
   return `\n${result}`;
 }
 

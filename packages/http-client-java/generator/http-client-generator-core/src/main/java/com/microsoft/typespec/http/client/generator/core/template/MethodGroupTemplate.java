@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.ObjectSerializer;
@@ -68,6 +69,7 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                 String.format("An instance of this class provides access to all the operations defined in %1$s.",
                     methodGroupClient.getInterfaceName()));
         });
+        ExperimentalAnnotationUtil.write(javaFile, methodGroupClient.getApiMetadata());
         javaFile.publicFinalClass(String.format("%1$s%2$s", methodGroupClient.getClassName(), parentDeclaration),
             classBlock -> {
                 final boolean hasProxy = methodGroupClient.getProxy() != null;

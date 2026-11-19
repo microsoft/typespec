@@ -470,7 +470,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             using var containment = SuppressWarnings(ExperimentalApiHelpers.GetAttributeSuppressions(field.Attributes), emitDirectives: false);
             using var warnings = SuppressWarnings(ExperimentalApiHelpers.MergeSuppressions(
-                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type)));
+                field.Suppressions, ExperimentalApiHelpers.GetReferenceSuppressions(field.Type, includeFrameworkTypes: true)));
             WriteXmlDocsNoScope(field.XmlDocs);
 
             if (field.Attributes.Count > 0)
@@ -623,10 +623,18 @@ namespace Microsoft.TypeSpec.Generator
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly, int genericDepth = 0)
         {
-            if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
+            if (type.IsArray)
             {
-                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly, genericDepth);
-                AppendRaw("[]");
+                var elementType = type.ElementType;
+                while (elementType.IsArray)
+                {
+                    elementType = elementType.ElementType;
+                }
+                AppendType(elementType, isDeclaration, writeTypeNameOnly, genericDepth + 1);
+                for (var arrayType = type; arrayType.IsArray; arrayType = arrayType.ElementType)
+                {
+                    AppendRaw("[" + new string(',', arrayType.ArrayRank - 1) + "]");
+                }
                 return;
             }
 
@@ -709,7 +717,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
-            if (span.Length == 0 )
+            if (span.Length == 0)
             {
                 return this;
             }

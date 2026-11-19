@@ -47,6 +47,7 @@ import {
   pageSizeDecorator,
   prevLinkDecorator,
 } from "./paging.js";
+import { typeref } from "./typeref.js";
 import {
   $defaultVisibility,
   $invisible,
@@ -68,6 +69,7 @@ export const $functions = {
   TypeSpec: {
     applyVisibilityFilter,
     applyLifecycleUpdate,
+    typeref,
   } satisfies TypeSpecFunctions,
 };
 

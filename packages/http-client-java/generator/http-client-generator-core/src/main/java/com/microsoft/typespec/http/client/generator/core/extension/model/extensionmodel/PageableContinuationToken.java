@@ -13,6 +13,7 @@ public class PageableContinuationToken {
     private Parameter parameter;
     private List<Property> responseProperty;
     private Header responseHeader;
+    private boolean includeContinuationTokenParameter;
 
     public Parameter getParameter() {
         return parameter;
@@ -36,5 +37,13 @@ public class PageableContinuationToken {
 
     public void setResponseHeader(Header responseHeader) {
         this.responseHeader = responseHeader;
+    }
+
+    public boolean isIncludeContinuationTokenParameter() {
+        return includeContinuationTokenParameter;
+    }
+
+    public void setIncludeContinuationTokenParameter(boolean includeContinuationTokenParameter) {
+        this.includeContinuationTokenParameter = includeContinuationTokenParameter;
     }
 }

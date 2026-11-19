@@ -1,0 +1,16 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+namespace __BASE_NAMESPACE__
+{
+    public class __BASE_NAME__
+    {
+        public __BASE_NAME__() { }
+        public __BASE_NAME__(__CONSTRUCTOR_TYPE__ value) { Value = value; }
+        public __PROPERTY_TYPE__ Value { get; set; }
+    }
+}
+namespace Sample.Models
+{
+    public class DerivedModel : __BASE_NAMESPACE__.__BASE_NAME__ { }
+}

@@ -134,10 +134,15 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
         tsptest.armresourceprovider.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.topLevelArmResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelArmResources");
-        this.childResourceName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "childResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}",
+            "resourceGroupName");
+        this.topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}",
+            "topLevelArmResourceName");
+        this.childResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}",
+            "childResourceName");
     }
 
     public ChildResource refresh() {

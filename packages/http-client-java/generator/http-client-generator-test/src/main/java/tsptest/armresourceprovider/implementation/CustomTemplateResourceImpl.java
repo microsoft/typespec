@@ -160,9 +160,12 @@ public final class CustomTemplateResourceImpl
         tsptest.armresourceprovider.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.customTemplateResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "customTemplateResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}",
+            "resourceGroupName");
+        this.customTemplateResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}",
+            "customTemplateResourceName");
     }
 
     public CustomTemplateResourceImpl withRegion(Region location) {

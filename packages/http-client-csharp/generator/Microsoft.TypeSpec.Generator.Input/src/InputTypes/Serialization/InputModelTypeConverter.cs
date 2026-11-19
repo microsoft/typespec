@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputModelTypeConverter : JsonConverter<InputModelType>
     {
-        private const string DynamicModelDecorator = "TypeSpec.HttpClient.CSharp.@dynamicModel";
+        private const string DynamicModelDecorator = "Azure.ClientGenerator.Core.@dynamicModel";
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
         public InputModelTypeConverter(TypeSpecReferenceHandler referenceHandler)

@@ -198,7 +198,9 @@ export function cloneOperationParameter(parameter: Parameter): Parameter {
         default: {
           serializedName: parameter.language.default.serializedName,
         },
+        java: parameter.language.java && { ...parameter.language.java },
       },
+      experimental: parameter.experimental,
       protocol: parameter.protocol,
       summary: parameter.summary,
       implementation: parameter.implementation,
