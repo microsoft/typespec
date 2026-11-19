@@ -38,12 +38,18 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputMethodParameter>? MethodParameterSegments { get; internal set; }
 
         /// <summary>
+        /// Gets whether this parameter is marked as the request continuation token.
+        /// </summary>
+        public bool IsContinuationToken { get; internal set; }
+
+        /// <summary>
         /// Update the instance with given parameters.
         /// </summary>
         /// <param name="scope">The scope of the <see cref="InputParameter"/></param>
         /// <param name="name">The name of the <see cref="InputParameter"/></param>
         /// <param name="methodParameterSegments">The method parameter segments for override scenarios</param>
-        public void Update(InputParameterScope? scope = null, string? name = null, IReadOnlyList<InputMethodParameter>? methodParameterSegments = null)
+        /// <param name="isContinuationToken">Whether this parameter is marked as the request continuation token.</param>
+        public void Update(InputParameterScope? scope = null, string? name = null, IReadOnlyList<InputMethodParameter>? methodParameterSegments = null, bool? isContinuationToken = null)
         {
             if (scope.HasValue)
             {
@@ -57,6 +63,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (methodParameterSegments != null)
             {
                 MethodParameterSegments = methodParameterSegments;
+            }
+            if (isContinuationToken.HasValue)
+            {
+                IsContinuationToken = isContinuationToken.Value;
             }
         }
 

@@ -1,5 +1,5 @@
 import assert from "assert";
-import { it } from "vitest";
+import { expect, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 it("works with scalars extending built-in scalars", async () => {
@@ -48,4 +48,11 @@ it("can use a scalar template", async () => {
     maximum: 255,
     minimum: 0,
   });
+});
+
+it("represents compile-time type references as having no JSON values", async () => {
+  const schemas = await emitSchema(`
+    model Registration { type: TypeRef<string>; }
+  `);
+  expect(schemas["Registration.json"].properties.type).toEqual({ not: {} });
 });

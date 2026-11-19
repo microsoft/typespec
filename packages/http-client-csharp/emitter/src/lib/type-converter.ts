@@ -23,7 +23,14 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Model } from "@typespec/compiler";
-import { compilerAssert, createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import {
+  compilerAssert,
+  createDiagnosticCollector,
+  getDeprecated,
+  NoTarget,
+} from "@typespec/compiler";
+import { isEvents } from "@typespec/events";
+import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type {
@@ -301,10 +308,15 @@ function fromSdkModelProperty(
   property = {
     kind: sdkProperty.kind,
     name: sdkProperty.name,
+    originalName:
+      sdkProperty.__raw?.name !== sdkProperty.name ? sdkProperty.__raw?.name : undefined,
     apiVersions: sdkProperty.apiVersions,
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
+    deprecation: sdkProperty.__raw
+      ? getDeprecated(sdkContext.program, sdkProperty.__raw)
+      : undefined,
     type: diagnostics.pipe(
       fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
     ),
@@ -468,20 +480,129 @@ function fromUnionType(
 ): [InputUnionType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const variantTypes: InputType[] = [];
+  const inputUnion: InputUnionType = {
+    kind: "union",
+    name: union.name,
+    variantTypes,
+    namespace: union.namespace,
+    decorators: union.decorators,
+    external: fromSdkExternalTypeInfo(union),
+    isExactName: union.isExactName,
+  };
+  sdkContext.__typeCache.updateSdkTypeReferences(union, inputUnion);
+
   for (const value of union.variantTypes) {
     const variantType = diagnostics.pipe(fromSdkType(sdkContext, value));
     variantTypes.push(variantType);
   }
 
-  return diagnostics.wrap({
-    kind: "union",
-    name: union.name,
-    variantTypes: variantTypes,
-    namespace: union.namespace,
-    decorators: union.decorators,
-    external: fromSdkExternalTypeInfo(union),
-    isExactName: union.isExactName,
-  });
+  const envelope = getDiscriminatedUnionEnvelope(sdkContext, union);
+  if (envelope) {
+    inputUnion.baseModel = diagnostics.pipe(fromSdkType(sdkContext, envelope.base));
+    inputUnion.discriminatorPropertyName = envelope.options.discriminatorPropertyName;
+    inputUnion.envelopePropertyName = envelope.options.envelopePropertyName;
+    const subtypes: Record<string, InputModelType> = Object.create(null);
+    for (const [tag, variant] of envelope.variants) {
+      subtypes[tag] = diagnostics.pipe(fromSdkType(sdkContext, variant));
+    }
+    inputUnion.discriminatedSubtypes = subtypes;
+  }
+
+  const events = getEventsUnionVariants(sdkContext, union);
+  if (events) {
+    inputUnion.baseModel = diagnostics.pipe(fromSdkType(sdkContext, events.base));
+    const subtypes: Record<string, InputModelType> = Object.create(null);
+    for (const [eventType, variant] of events.variants) {
+      subtypes[eventType] = diagnostics.pipe(fromSdkType(sdkContext, variant));
+    }
+    inputUnion.discriminatedSubtypes = subtypes;
+  }
+
+  return diagnostics.wrap(inputUnion);
+}
+
+/** SSE events without an `event:` field default to the "message" event type. */
+const DefaultSseEventType = "message";
+
+/**
+ * Maps each event type of an `@events` union to its variant when the union explicitly extends a
+ * named model that every variant nominally inherits, and each event's JSON payload is the variant itself.
+ */
+function getEventsUnionVariants(sdkContext: CSharpEmitterContext, union: SdkUnionType) {
+  const base = union.baseType;
+  const raw = union.__raw;
+  if (
+    base?.kind !== "model" ||
+    !base.name ||
+    raw?.kind !== "Union" ||
+    !isEvents(sdkContext.program, raw)
+  ) {
+    return undefined;
+  }
+
+  const [definitions, diagnostics] = unsafe_getEventDefinitions(sdkContext.program, raw);
+  if (diagnostics.length > 0 || definitions.length !== union.variantTypes.length) {
+    return undefined;
+  }
+
+  const variants = new Map<string, SdkModelType>();
+  for (const definition of definitions) {
+    const eventType = definition.eventType ?? DefaultSseEventType;
+    const variant = union.variantTypes.find(
+      (type): type is SdkModelType => type.kind === "model" && type.__raw === definition.type,
+    );
+    if (
+      !variant ||
+      variants.has(eventType) ||
+      definition.isEventEnvelope ||
+      !isJsonContentType(definition.contentType) ||
+      !inheritsFrom(variant, base)
+    ) {
+      return undefined;
+    }
+    variants.set(eventType, variant);
+  }
+  return { base, variants };
+}
+
+function isJsonContentType(contentType: string | undefined): boolean {
+  if (contentType === undefined) return false;
+  const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+  return mediaType === "application/json" || mediaType.endsWith("+json");
+}
+
+function inheritsFrom(model: SdkModelType, base: SdkModelType): boolean {
+  for (let ancestor = model.baseModel; ancestor; ancestor = ancestor.baseModel) {
+    if (ancestor === base) return true;
+  }
+  return false;
+}
+
+function getDiscriminatedUnionEnvelope(sdkContext: CSharpEmitterContext, union: SdkUnionType) {
+  const base = union.baseType;
+  const options = union.discriminatedOptions;
+  if (
+    options?.envelope !== "object" ||
+    base?.kind !== "model" ||
+    !base.name ||
+    union.variants.size === 0 ||
+    (union.__raw?.kind === "Union" && isEvents(sdkContext.program, union.__raw)) ||
+    new Set(union.variants.values()).size !== union.variants.size
+  ) {
+    return undefined;
+  }
+
+  const variants = new Map<string, SdkModelType>();
+  for (const [tag, variant] of union.variants) {
+    if (typeof tag !== "string" || variant.kind !== "model") return undefined;
+    let ancestor = variant.baseModel;
+    while (ancestor && ancestor !== base) {
+      ancestor = ancestor.baseModel;
+    }
+    if (!ancestor) return undefined;
+    variants.set(tag, variant);
+  }
+  return { base, options, variants };
 }
 
 function fromSdkConstantType(

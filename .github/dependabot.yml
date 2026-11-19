@@ -116,6 +116,9 @@ updates:
       yarnpkg:
         patterns:
           - "@yarnpkg/*"
+    ignore:
+      # Newer ecmarkup releases require Node 24, but CI still supports Node 22.
+      - dependency-name: ecmarkup
     labels: []
     package-ecosystem: npm
     schedule:

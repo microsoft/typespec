@@ -45,6 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return markdown;
             }
 
+            markdown = ProtectCodeSpanAsterisks(markdown, out var asteriskPlaceholder);
             var lines = markdown.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             var result = new StringBuilder();
             var inList = false;
@@ -119,7 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 AppendList(result, listType, listItems);
             }
 
-            return result.ToString();
+            return result.ToString().Replace(asteriskPlaceholder, "*");
         }
 
         private static void AppendList(StringBuilder result, string listType, List<string> items)
@@ -160,9 +161,141 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             text = BoldRegex.Replace(text, "<b>$1</b>");
 
             // Handle *italic* (but not already processed bold markers)
-            text = ItalicRegex.Replace(text, "<i>$1</i>");
+            return ItalicRegex.Replace(text, "<i>$1</i>");
+        }
 
-            return text;
+        private static string ProtectCodeSpanAsterisks(string text, out string asteriskPlaceholder)
+        {
+            // Protect literal asterisks even when emphasis surrounds a code span.
+            asteriskPlaceholder = "\0";
+            while (text.Contains(asteriskPlaceholder, StringComparison.Ordinal))
+            {
+                asteriskPlaceholder += "_";
+            }
+
+            var protectedAsterisks = new bool[text.Length];
+            var searchIndex = 0;
+            while (FindNextCodeSpan(text, searchIndex, out var codeSpanStart, out var codeSpanEnd))
+            {
+                for (int i = codeSpanStart; i < codeSpanEnd; i++)
+                {
+                    if (text[i] == '*')
+                    {
+                        protectedAsterisks[i] = true;
+                    }
+                }
+
+                searchIndex = codeSpanEnd;
+            }
+
+            var protectedText = new StringBuilder();
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (protectedAsterisks[i])
+                {
+                    protectedText.Append(asteriskPlaceholder);
+                }
+                else
+                {
+                    protectedText.Append(text[i]);
+                }
+            }
+            return protectedText.ToString();
+        }
+
+        private static bool FindNextCodeSpan(string text, int searchIndex, out int codeSpanStart, out int codeSpanEnd)
+        {
+            while (searchIndex < text.Length)
+            {
+                if (text[searchIndex] != '`')
+                {
+                    searchIndex++;
+                    continue;
+                }
+
+                var delimiterStart = searchIndex;
+                var delimiterEnd = GetBacktickRunEnd(text, delimiterStart);
+                var delimiterLength = delimiterEnd - delimiterStart;
+
+                var precedingBackslashes = 0;
+                for (int i = delimiterStart - 1; i >= 0 && text[i] == '\\'; i--)
+                {
+                    precedingBackslashes++;
+                }
+
+                if (precedingBackslashes % 2 != 0)
+                {
+                    searchIndex = delimiterStart + 1;
+                    continue;
+                }
+
+                var closingSearchIndex = delimiterEnd;
+                while (closingSearchIndex < text.Length)
+                {
+                    if ((text[closingSearchIndex] == '\r' || text[closingSearchIndex] == '\n') &&
+                        IsMarkdownBlockBoundary(text, closingSearchIndex))
+                    {
+                        break;
+                    }
+
+                    if (text[closingSearchIndex] != '`')
+                    {
+                        closingSearchIndex++;
+                        continue;
+                    }
+
+                    var closingDelimiterEnd = GetBacktickRunEnd(text, closingSearchIndex);
+                    if (closingDelimiterEnd - closingSearchIndex == delimiterLength)
+                    {
+                        codeSpanStart = delimiterStart;
+                        codeSpanEnd = closingDelimiterEnd;
+                        return true;
+                    }
+
+                    closingSearchIndex = closingDelimiterEnd;
+                }
+
+                searchIndex = delimiterEnd;
+            }
+
+            codeSpanStart = 0;
+            codeSpanEnd = 0;
+            return false;
+        }
+
+        private static bool IsMarkdownBlockBoundary(string text, int lineBreakIndex)
+        {
+            var nextLineStart = lineBreakIndex + 1;
+            if (text[lineBreakIndex] == '\r' && nextLineStart < text.Length && text[nextLineStart] == '\n')
+            {
+                nextLineStart++;
+            }
+
+            var nextLineEnd = nextLineStart;
+            while (nextLineEnd < text.Length && text[nextLineEnd] != '\r' && text[nextLineEnd] != '\n')
+            {
+                nextLineEnd++;
+            }
+
+            var nextLine = text.Substring(nextLineStart, nextLineEnd - nextLineStart);
+            if (string.IsNullOrWhiteSpace(nextLine))
+            {
+                return true;
+            }
+
+            var trimmedLine = nextLine.TrimStart();
+            return trimmedLine.StartsWith("- ", StringComparison.Ordinal) || NumberedListRegex.IsMatch(trimmedLine);
+        }
+
+        private static int GetBacktickRunEnd(string text, int startIndex)
+        {
+            var endIndex = startIndex;
+            while (endIndex < text.Length && text[endIndex] == '`')
+            {
+                endIndex++;
+            }
+
+            return endIndex;
         }
     }
 }

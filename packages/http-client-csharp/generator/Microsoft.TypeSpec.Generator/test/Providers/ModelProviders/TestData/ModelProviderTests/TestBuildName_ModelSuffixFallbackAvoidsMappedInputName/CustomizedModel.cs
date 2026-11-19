@@ -5,8 +5,8 @@ using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models
 {
-    [CodeGenType("WidgetContent1")]
-    public partial class CustomizedContent
+    [CodeGenType("WidgetRequest1")]
+    public partial class CustomizedRequest
     {
     }
 }

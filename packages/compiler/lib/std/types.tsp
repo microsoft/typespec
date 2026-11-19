@@ -79,3 +79,18 @@ model OmitDefaults<Source> {
 model DefaultKeyVisibility<Source, Visibility extends valueof Reflection.EnumMember> {
   ...Source;
 }
+
+/**
+ * Creates an opaque value referencing an existing type.
+ * The reference preserves the type's identity and can be stored in object and array values.
+ * The result has type `TypeRef<target>`; JavaScript implementations receive a `TypeRefValue`.
+ * Requires the `typeref` compiler feature.
+ * @param target The type to reference.
+ * @example
+ * ```tsp
+ * model Item { id: string; }
+ * const entry = #{ name: "item", type: typeref(Item) };
+ * ```
+ */
+#suppress "experimental-feature"
+extern fn typeref(target: unknown): valueof TypeRef;

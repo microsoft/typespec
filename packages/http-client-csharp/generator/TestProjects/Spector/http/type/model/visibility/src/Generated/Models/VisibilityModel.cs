@@ -8,7 +8,7 @@ namespace _Type.Model.Visibility
 {
     public partial class VisibilityModel
     {
-        public VisibilityModel(int queryProp, IEnumerable<string> createProp, IEnumerable<int> updateProp, bool deleteProp) => throw null;
+        public VisibilityModel() => throw null;
 
         public string ReadProp => throw null;
 
