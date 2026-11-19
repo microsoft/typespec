@@ -10,7 +10,12 @@ import type { Diagnostic } from "@typespec/compiler";
 import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type { CodeModel } from "../type/code-model.js";
-import type { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
+import type {
+  InputEnumType,
+  InputLiteralType,
+  InputModelType,
+  InputUnionType,
+} from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
 import { createDiagnostic } from "./lib.js";
 import { updateModelConstructorRequirements } from "./model-constructor.js";
@@ -124,6 +129,10 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     clients: inputClients,
     auth: diagnostics.pipe(processServiceAuthentication(sdkContext, sdkPackage)),
   };
+  const unions = [...sdkContext.__typeCache.types.values()].filter(
+    (type): type is InputUnionType => type.kind === "union" && type.baseModel !== undefined,
+  );
+  if (unions.length > 0) clientModel.unions = unions;
 
   return diagnostics.wrap(clientModel);
 }
