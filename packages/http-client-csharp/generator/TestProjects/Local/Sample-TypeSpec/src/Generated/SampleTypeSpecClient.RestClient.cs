@@ -505,6 +505,18 @@ namespace SampleTypeSpec
             return message;
         }
 
+        internal PipelineMessage CreateReceiveResponseEventsRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/streaming/sse/receive-response-events", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "text/event-stream");
+            message.Apply(options);
+            return message;
+        }
+
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         internal PipelineMessage CreateReceiveExperimentalJsonLinesRequest(RequestOptions options)
         {

@@ -609,67 +609,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
         }
 
-        [TestCase(false, false)]
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        [TestCase(true, true)]
-        public void OptionalNullableOverrideSuppressesDeprecatedBaseReference(bool baseDeprecated, bool derivedDeprecated)
-        {
-            var baseModel = InputFactory.Model("baseModel", properties:
-                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String),
-                    deprecation: baseDeprecated ? "Base message" : null)]);
-            var derivedModel = InputFactory.Model("derivedModel", baseModel: baseModel, properties:
-                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String),
-                    deprecation: derivedDeprecated ? "Derived message" : null)]);
-            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel]);
-
-            var provider = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel)!;
-            var property = provider.Properties.Single();
-
-            Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
-            Assert.That(property.DeclarationSuppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""),
-                Is.EqualTo(baseDeprecated));
-            Assert.That(property.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""), Is.False);
-            if (baseDeprecated && !derivedDeprecated)
-            {
-                Assert.AreEqual(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"),
-                    new TypeProviderWriter(provider).Write().Content);
-            }
-        }
-
-        [Test]
-        public void OptionalNullableOverrideSuppressesCustomBaseDiagnostic()
-        {
-            var baseModel = InputFactory.Model("baseModel", properties:
-                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String), deprecation: "Base message")]);
-            var derivedModel = InputFactory.Model("derivedModel", baseModel: baseModel, properties:
-                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
-            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel]);
-            generator.Object.AddVisitor(new CustomDeprecatedBaseVisitor());
-
-            var property = generator.Object.TypeFactory.CreateModel(derivedModel)!.Properties.Single();
-
-            Assert.That(property.DeclarationSuppressions.Select(s => s.Code.ToDisplayString()), Does.Contain("\"BASE001\""));
-            Assert.That(property.DeclarationSuppressions.Select(s => s.Code.ToDisplayString()), Does.Not.Contain("\"CS0618\""));
-            Assert.That(property.Suppressions.Select(s => s.Code.ToDisplayString()), Does.Not.Contain("\"BASE001\""));
-        }
-
-        private sealed class CustomDeprecatedBaseVisitor : LibraryVisitor
-        {
-            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
-            {
-                if (property?.EnclosingType.Name == "BaseModel" && input.Name == "text")
-                {
-                    property.Update(attributes:
-                    [
-                        new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Base message")],
-                            [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("BASE001"))])
-                    ]);
-                }
-                return property;
-            }
-        }
-
         [Test]
         public void OptionalNullableOverrideThroughIntermediateModelSharesBasePresence()
         {
@@ -1466,24 +1405,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
-        public void TestMultipartFormDataModel_DeprecatedNonFilePartSuppressesFileOverloads()
-        {
-            var filename = InputFactory.Property("filename", InputPrimitiveType.String, isRequired: true);
-            var inputModel = MultipartModel(
-                "DeprecatedPartRequest",
-                [
-                    NonFilePartProperty("id", InputPrimitiveType.String, deprecation: "Use something else."),
-                    FilePartProperty("file", filename: filename),
-                ]);
-
-            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
-            var file = new TypeProviderWriter(model).Write();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        [Test]
         public void TestMultipartFormDataModel_MixedJsonAndMultipartUsage()
         {
             var inputModel = MultipartModel(
@@ -1652,14 +1573,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 serializationOptions: InputFactory.Serialization.Options(
                     multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
 
-        private static InputModelProperty NonFilePartProperty(string name, InputType type, string? deprecation = null)
+        private static InputModelProperty NonFilePartProperty(string name, InputType type)
             => InputFactory.Property(
                 name,
                 type,
                 isRequired: true,
                 serializationOptions: InputFactory.Serialization.Options(
-                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])),
-                deprecation: deprecation);
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
 
         private static InputModelType MultipartModel(
             string name,

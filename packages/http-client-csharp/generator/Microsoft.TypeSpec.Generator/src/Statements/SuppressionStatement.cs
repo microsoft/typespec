@@ -22,8 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             RestoreStatement = new PragmaWarningRestoreStatement(code, justification);
         }
 
-        public T? AsStatement<T>() where T : MethodBodyStatement
-            => Inner as T ?? (Inner as SuppressionStatement)?.AsStatement<T>();
+        public T? AsStatement<T>() where T : MethodBodyStatement => Inner as T;
 
         internal override void Write(CodeWriter writer)
         {
