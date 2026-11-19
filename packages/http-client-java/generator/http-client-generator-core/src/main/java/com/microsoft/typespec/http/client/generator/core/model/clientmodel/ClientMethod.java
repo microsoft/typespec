@@ -117,6 +117,7 @@ public class ClientMethod {
     private final OperationInstrumentationInfo instrumentationInfo;
 
     private final ClientMethod overloadedClientMethod;
+    private final ClientMethodSseMetadata sseMetadata;
 
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
@@ -141,7 +142,8 @@ public class ClientMethod {
             .operationInstrumentationInfo(instrumentationInfo)
             .apiMetadata(apiMetadata)
             .hasWithContextOverload(hasWithContextOverload)
-            .overloadedClientMethod(overloadedClientMethod);
+            .overloadedClientMethod(overloadedClientMethod)
+            .sseMetadata(sseMetadata);
     }
 
     /**
@@ -175,7 +177,7 @@ public class ClientMethod {
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation, ApiMetadata apiMetadata,
         boolean hasWithContextOverload, OperationInstrumentationInfo instrumentationInfo,
-        ClientMethod overloadedClientMethod) {
+        ClientMethod overloadedClientMethod, ClientMethodSseMetadata sseMetadata) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -221,6 +223,7 @@ public class ClientMethod {
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
         this.instrumentationInfo = instrumentationInfo;
         this.overloadedClientMethod = overloadedClientMethod;
+        this.sseMetadata = sseMetadata;
     }
 
     @Override
@@ -451,6 +454,10 @@ public class ClientMethod {
         return overloadedClientMethod;
     }
 
+    public ClientMethodSseMetadata getSseMetadata() {
+        return sseMetadata;
+    }
+
     /**
      * Add this ClientMethod's imports to the provided set of imports.
      *
@@ -642,6 +649,7 @@ public class ClientMethod {
         protected boolean hidePageableParams;
         protected OperationInstrumentationInfo instrumentationInfo;
         protected ClientMethod overloadedClientMethod;
+        protected ClientMethodSseMetadata sseMetadata;
 
         public Builder apiMetadata(ApiMetadata apiMetadata) {
             this.apiMetadata = apiMetadata;
@@ -902,6 +910,11 @@ public class ClientMethod {
             return this;
         }
 
+        public Builder sseMetadata(ClientMethodSseMetadata sseMetadata) {
+            this.sseMetadata = sseMetadata;
+            return this;
+        }
+
         /**
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
@@ -911,8 +924,8 @@ public class ClientMethod {
                 clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, apiMetadata, hasWithContextOverload, instrumentationInfo,
-                overloadedClientMethod);
+                externalDocumentation, apiMetadata, hasWithContextOverload, instrumentationInfo, overloadedClientMethod,
+                sseMetadata);
         }
     }
 }

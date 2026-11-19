@@ -11,6 +11,70 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class TypeSpecInputConverterTests
     {
         [TestCase(null)]
+        [TestCase("")]
+        [TestCase("Use \"Current\" instead.\nSee C:\\sdk.")]
+        public void LoadsPropertyDeprecationMetadata(string? message)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "value",
+                      {{(message is not null ? $"\"deprecation\": {JsonSerializer.Serialize(message)}," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(message, property.Deprecation);
+        }
+
+        [Test]
+        public void LoadsContinuationTokenMarker(
+            [Values("query", "header", "path", "body", "method", "endpoint")] string kind,
+            [Values(null, false, true)] bool? isContinuationToken)
+        {
+            var json = $$"""
+                {
+                  "$id": "token",
+                  "kind": "{{kind}}",
+                  "name": "token",
+                  "serializedName": "token",
+                  "type": { "kind": "string" },
+                  "scope": "method",
+                  "location": "query",
+                  "contentTypes": ["application/json"],
+                  "defaultContentType": "application/json",
+                  {{(isContinuationToken.HasValue ? $"\"isContinuationToken\": {isContinuationToken.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "optional": true
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputParameterConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+
+            var parameter = JsonSerializer.Deserialize<InputParameter>(json, options)!;
+
+            Assert.AreEqual(isContinuationToken ?? false, parameter.IsContinuationToken);
+            parameter.Update(isContinuationToken: true);
+            parameter.Update();
+            Assert.IsTrue(parameter.IsContinuationToken);
+            parameter.Update(isContinuationToken: false);
+            Assert.IsFalse(parameter.IsContinuationToken);
+        }
+
+        [TestCase(null)]
         [TestCase(false)]
         [TestCase(true)]
         public void LoadsConstructorRequirednessSeparately(bool? requiredInConstructor)
