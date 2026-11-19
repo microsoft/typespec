@@ -748,6 +748,26 @@ class Serializer:  # pylint: disable=too-many-public-methods
             raise TypeError("{} must be type {}.".format(name, data_type)) from exc
         return str(output)
 
+    def query_model(self, name, data, **kwargs):
+        """Serialize a model's wire-name/value pairs for form-style query expansion.
+
+        :param str name: The name of the query parameter.
+        :param Mapping data: The model or mapping to serialize.
+        :keyword bool skip_quote: Whether to skip URL encoding.
+        :return: Individually encoded property names and values.
+        :rtype: dict[str, str]
+        :raises ValueError: if data is None.
+        """
+        if data is None:
+            raise ValueError("No value for given attribute: {}".format(name))
+        return {
+            self.query(name, key, "str", **kwargs): self.query(
+                name, value, "bool" if isinstance(value, bool) else "str", **kwargs
+            )
+            for key, value in data.items()
+            if value is not None
+        }
+
     def header(self, name, data, data_type, **kwargs):
         """Serialize data intended for a request header.
 
