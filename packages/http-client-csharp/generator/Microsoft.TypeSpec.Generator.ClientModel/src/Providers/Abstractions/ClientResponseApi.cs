@@ -39,6 +39,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public abstract CSharpType ClientCollectionResponseOfTType { get; }
         public abstract CSharpType ClientCollectionAsyncResponseOfTType { get; }
+
+        /// <inheritdoc/>
+        public virtual bool SupportsPageResumption => false;
+
         public abstract string ResponseParameterName { get; }
 
         public abstract TypeProvider CreateClientCollectionResultDefinition(

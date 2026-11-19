@@ -27,6 +27,7 @@ export const typespecCompiler = createPackage({
         "getAutoDecoratorValue",
         "hasAutoDecorator",
         "setAutoDecorator",
+        "TypeRefValue",
       ],
     },
   },

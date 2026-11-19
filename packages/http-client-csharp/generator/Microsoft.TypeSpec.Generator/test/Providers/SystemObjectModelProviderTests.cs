@@ -265,6 +265,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         [TestCase(false)]
         [TestCase(true)]
+        public void ExternalTypeDoesNotInheritNominalInputBase(bool framework)
+        {
+            MockHelpers.LoadMockGenerator();
+            var nominalBase = InputFactory.Model("Pet");
+            var inputModel = InputFactory.Model("Mammal", baseModel: nominalBase,
+                external: new InputExternalTypeMetadata("System.Object", null, null));
+            var systemType = framework ? new CSharpType(typeof(object)) : CreateSystemCSharpType("External", "TestFramework");
+            var provider = new SystemObjectModelProvider(systemType, inputModel);
+
+            Assert.IsNull(provider.BaseType);
+            Assert.IsNull(provider.BaseModelProvider);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public void MappedLastContractPropertySynchronizesParameterAfterClrRemapping(bool materializeParameterInVisitor)
         {
             var inputModel = InputFactory.Model(

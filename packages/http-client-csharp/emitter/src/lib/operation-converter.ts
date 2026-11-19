@@ -979,11 +979,7 @@ function loadPagingServiceMetadata(
   }
 
   let continuationToken: InputContinuationToken | undefined;
-
-  if (
-    method.pagingMetadata.continuationTokenParameterSegments &&
-    method.pagingMetadata.continuationTokenResponseSegments
-  ) {
+  if (method.pagingMetadata.continuationTokenParameterSegments) {
     // The last segment of the service method parameter can be used to map back to the protocol parameter
     const lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
@@ -996,19 +992,22 @@ function loadPagingServiceMetadata(
       ),
     );
     if (continuationTokenParameter) {
-      continuationToken = {
-        parameter: continuationTokenParameter,
-        responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
-          getResponseSegmentName(segment),
-        ),
-        responseLocation: diagnostics.pipe(
-          getResponseLocation(
-            context,
-            method,
-            method.pagingMetadata.continuationTokenResponseSegments?.[0],
+      continuationTokenParameter.isContinuationToken = true;
+      if (method.pagingMetadata.continuationTokenResponseSegments) {
+        continuationToken = {
+          parameter: continuationTokenParameter,
+          responseSegments: method.pagingMetadata.continuationTokenResponseSegments.map((segment) =>
+            getResponseSegmentName(segment),
           ),
-        ),
-      };
+          responseLocation: diagnostics.pipe(
+            getResponseLocation(
+              context,
+              method,
+              method.pagingMetadata.continuationTokenResponseSegments[0],
+            ),
+          ),
+        };
+      }
     }
   }
 

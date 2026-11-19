@@ -1,3 +1,6 @@
+kind: project
+features:
+  - union-extends
 emit:
   - "@typespec/http-client-csharp"
 options:
