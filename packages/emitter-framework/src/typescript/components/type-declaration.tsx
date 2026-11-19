@@ -1,6 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import type { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
+import { getDoc } from "../utils/doc.js";
 import { declarationRefkeys } from "../utils/refkey.js";
 import { EnumDeclaration } from "./enum-declaration.js";
 import { InterfaceDeclaration } from "./interface-declaration.jsx";
@@ -35,7 +36,7 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
   }
 
   const { type, ...restProps } = props;
-  const doc = props.doc ?? $.type.getDoc(type);
+  const doc = props.doc ?? getDoc($, type);
   switch (type.kind) {
     case "Model":
       return <InterfaceDeclaration doc={doc} type={type} {...restProps} />;

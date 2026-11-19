@@ -52,7 +52,7 @@ namespace SampleTypeSpec
 
         /// <summary> Converts a string to a <see cref="PreviewExtensibleChoice"/>. </summary>
         /// <param name="value"> The value. </param>
-        public static implicit operator PreviewExtensibleChoice?(string value) => value == null ? null : new PreviewExtensibleChoice(value);
+        public static implicit operator PreviewExtensibleChoice?(string value) => value == null ? (PreviewExtensibleChoice?)null : new PreviewExtensibleChoice(value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]

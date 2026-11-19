@@ -9,24 +9,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class InputModelPropertyTests
     {
         [Test]
-        public void LifecycleVisibilityDefaultsToAll()
-        {
-            var property = InputFactory.Property("state", InputPrimitiveType.String);
-            Assert.AreEqual(InputVisibility.All, property.Visibility);
-        }
-
-        [TestCase(InputVisibility.Read | InputVisibility.Update)]
-        [TestCase(InputVisibility.Create)]
-        [TestCase(InputVisibility.None)]
-        public void CanUpdateLifecycleVisibility(InputVisibility visibility)
-        {
-            var property = InputFactory.Property("state", InputPrimitiveType.String);
-            property.Update(visibility: visibility);
-            property.Update();
-            Assert.AreEqual(visibility, property.Visibility);
-        }
-
-        [Test]
         public void CanUpdateModelPropertyName()
         {
             var property = InputFactory.Property("OriginalName", InputPrimitiveType.String);
@@ -83,6 +65,30 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void CanUpdateConstructorRequirednessWithoutChangingWireRequirement()
+        {
+            var property = InputFactory.Property("TestName", InputPrimitiveType.String, isRequired: true);
+
+            property.Update(isRequiredInConstructor: false);
+            property.Update();
+
+            Assert.IsFalse(property.IsRequiredInConstructor);
+            Assert.IsTrue(property.IsRequired);
+        }
+
+        [Test]
+        public void RenamingPreservesOriginalPropertyName()
+        {
+            var property = InputFactory.Property("value", InputPrimitiveType.String);
+            property.Update(name: "renamedValue");
+
+            Assert.AreEqual("value", property.OriginalName);
+            Assert.AreEqual("renamedValue", property.Name);
+            property.Update(originalName: "originalValue");
+            Assert.AreEqual("originalValue", property.OriginalName);
+        }
+
+        [Test]
         public void CanUpdateModelPropertyIsReadOnly()
         {
             var property = InputFactory.Property("TestName", InputPrimitiveType.String, isReadOnly: false);
@@ -122,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         public void CanUpdateMultiplePropertiesAtOnce()
         {
             var property = InputFactory.Property("OriginalName", InputPrimitiveType.String, isRequired: false, isDiscriminator: false);
-            
+
             property.Update(
                 name: "UpdatedName",
                 summary: "Updated summary",

@@ -61,7 +61,7 @@ public final class MapperUtils {
             String[] packageSuffixes;
             if (settings.isCustomType(enumTypeName)) {
                 packageSuffixes = new String[] { settings.getCustomTypesSubpackage() };
-            } else if (settings.isDataPlaneClient()
+            } else if ((settings.isDataPlaneClient() || settings.isFluent())
                 && (enumType.getUsage() != null && enumType.getUsage().contains(SchemaContext.INTERNAL))) {
                 // internal type, which is not exposed to user
                 packageSuffixes

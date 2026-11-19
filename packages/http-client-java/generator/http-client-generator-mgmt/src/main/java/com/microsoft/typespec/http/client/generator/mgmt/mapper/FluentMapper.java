@@ -225,7 +225,6 @@ public class FluentMapper {
                 openModules.add(new ModuleInfo.OpenModule(packageName, openToModules));
             }
         }
-
         return moduleInfo;
     }
 

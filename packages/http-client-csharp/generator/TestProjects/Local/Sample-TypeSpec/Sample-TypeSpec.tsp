@@ -5,7 +5,6 @@ import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
 import "@typespec/http-client";
-import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -25,7 +24,6 @@ namespace SampleTypeSpec;
 using TypeSpec.Http;
 using TypeSpec.Http.Streams;
 using TypeSpec.Versioning;
-using TypeSpec.HttpClient.CSharp;
 using TypeSpec.Xml;
 using TypeSpec.Events;
 using TypeSpec.SSE;
@@ -388,7 +386,7 @@ model RoundTripModel {
 }
 
 @doc("A sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model DynamicModel {
   name: string;
   optionalUnknown?: unknown;
@@ -408,12 +406,12 @@ model DynamicModel {
 }
 
 @doc("Another sample dynamic model.")
-@dynamicModel
+@dynamicModel("csharp")
 model AnotherDynamicModel {
   bar: string;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.json)
 @access(Access.public)
 model NullableDynamicModel {
@@ -432,7 +430,7 @@ model OptionalNullableBase {
   inheritedNullable?: string | null;
 }
 
-@dynamicModel
+@dynamicModel("csharp")
 @usage(Usage.input | Usage.output | Usage.json)
 @access(Access.public)
 model OptionalNullableDynamicProperties extends OptionalNullableBase {}
@@ -1112,6 +1110,31 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
 
+model ResponseStreamEvent {
+  sequenceNumber: int32;
+}
+
+model ResponseStreamCreated extends ResponseStreamEvent {
+  id: string;
+}
+
+model ResponseStreamTextDelta extends ResponseStreamEvent {
+  delta: string;
+}
+
+@events
+union ResponseStreamEvents extends ResponseStreamEvent {
+  @Events.contentType("application/json")
+  `response.created`: ResponseStreamCreated,
+
+  @Events.contentType("application/json")
+  `response.output_text.delta`: ResponseStreamTextDelta,
+}
+
+@get
+@route("/streaming/sse/receive-response-events")
+op receiveResponseEvents(): SSEStream<ResponseStreamEvents>;
+
 @route("/experimental/jsonl")
 @get
 op receiveExperimentalJsonLines(): JsonlStream<PreviewDetails>;
@@ -1132,266 +1155,622 @@ op getAcronymParameters(
 @convenientAPI(true, "csharp")
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
 
-#deprecated "Use \"CurrentDetails\" instead.\nSee C:\\sdk."
-@TypeSpec.HttpClient.experimental(#{
-  emitterScope: "@typespec/http-client-csharp",
-  diagnosticId: "SAMPLE0011",
-})
-model LegacyDetails {
-  choice: LegacyChoice;
-  extensibleChoice: LegacyExtensibleChoice;
+model UnionPet {
+  name: string;
 }
 
-#deprecated "Use CurrentChoice instead."
-enum LegacyChoice {
-  one,
-  two,
+model UnionCat extends UnionPet {
+  meow: boolean;
 }
 
-#deprecated "Use CurrentExtensibleChoice instead."
-union LegacyExtensibleChoice {
-  string,
-  one: "one",
+model UnionDog extends UnionPet {
+  bark: boolean;
 }
 
-model CurrentDetails extends LegacyDetails {
-  previous?: LegacyDetails[];
+@discriminated
+union UnionPets extends UnionPet {
+  cat: UnionCat,
+  dog: UnionDog,
 }
 
-interface DeprecationSamples {
-  #deprecated "Use \"read\" instead.\nSee C:\\sdk."
-  @route("/deprecated")
-  @get
-  legacy(): LegacyDetails;
-
-  @route("/deprecated/current")
-  @get
-  read(): CurrentDetails;
+@discriminated(#{ discriminatorPropertyName: "type", envelopePropertyName: "data" })
+union AlternateUnionPets extends UnionPet {
+  feline: UnionCat,
+  canine: UnionDog,
 }
 
-enum ChatTopicState {
-  active,
-  archived,
+model UnionPetContainer {
+  pet: UnionPets;
+  nullablePet: UnionPets | null;
+  pets?: UnionPets[];
+  lookup?: Record<UnionPets>;
+  alternatePet?: AlternateUnionPets;
 }
 
-model ChatTopic {
-  title: string;
-
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state: ChatTopicState;
-
-  @visibility(Lifecycle.Create)
-  createOnly?: string;
-
-  @visibility(Lifecycle.Read)
-  id: string;
+model RawUnionPetContainer {
+  pet: UnionPets;
+  nullablePet?: UnionPets | null;
+  pets?: UnionPets[];
+  lookup?: Record<UnionPets>;
+  rawPets?: UnionPets[];
+  rawLookup?: Record<UnionPets>;
 }
 
-model ChatTopicEnvelope {
-  topic: ChatTopic;
-  topics: ChatTopic[];
-  lookup: Record<ChatTopic>;
+model CollisionPetsUnion {
+  name: string;
 }
 
-model LifecycleMultipart {
-  title: HttpPart<string>;
+model NestedMammal extends CollisionPetsUnion {}
 
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state?: HttpPart<string>;
-
-  topic: HttpPart<ChatTopic>;
-
-  @visibility(Lifecycle.Read)
-  id?: HttpPart<string>;
+@TypeSpec.HttpClient.experimental(#{ diagnosticId: "UNION001" })
+model ExperimentalUnionCat extends NestedMammal {
+  meow: boolean;
 }
 
-model LifecycleReadOnlyMultipart {
-  title: HttpPart<string>;
-
-  @visibility(Lifecycle.Read)
-  id?: HttpPart<string>;
+@discriminated
+union CollisionPets extends CollisionPetsUnion {
+  mammal: NestedMammal,
 }
 
-model LifecycleReadOnlyXmlTopic {
-  title: string;
-
-  @visibility(Lifecycle.Read)
-  id: string;
+@discriminated
+union NestedPets extends NestedMammal {
+  cat: ExperimentalUnionCat,
 }
 
-model LifecycleXmlOnlyTopic {
-  title: string;
-
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state?: string;
+namespace NestedUnions {
+  @discriminated
+  union CollisionPets extends NestedMammal {
+    cat: ExperimentalUnionCat,
+  }
 }
 
-model LifecycleXmlChild {
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state?: string;
+model XmlUnionPet {
+  name: string;
 }
 
-model LifecycleXmlEnvelope {
-  child: LifecycleXmlChild;
-  children: LifecycleXmlChild[];
+model XmlUnionCat extends XmlUnionPet {
+  meow: boolean;
 }
 
-model LifecycleBase {
-  title: string;
+@discriminated
+union XmlUnionPets extends XmlUnionPet {
+  cat: XmlUnionCat,
 }
 
-model LifecycleDerived extends LifecycleBase {
-  @visibility(Lifecycle.Read, Lifecycle.Update)
-  state: string;
+model MappedUnionPet {}
+
+model MappedUnionCat extends MappedUnionPet {
+  name: string;
 }
 
-interface VisibilitySamples {
-  @route("/visibility/read-xml-topic")
-  @get
-  readXmlTopic(): LifecycleReadOnlyXmlTopic;
+@alternateType(
+  {
+    identity: "System.Text.Json.JsonElement",
+  },
+  "csharp"
+)
+@discriminated
+union MappedUnionPets extends MappedUnionPet {
+  cat: MappedUnionCat,
+}
 
-  @route("/visibility/read-only-xml")
+@alternateType(
+  {
+    identity: "System.Object",
+  },
+  "csharp"
+)
+model ExternalUnionBase {}
+
+model ExternalUnionCat extends ExternalUnionBase {
+  name: string;
+}
+
+@discriminated
+union ExternalBasePets extends ExternalUnionBase {
+  cat: ExternalUnionCat,
+}
+
+model DirectUnionPet {
+  name: string;
+  deserializeDirectPetsUnion?: string;
+  serializeDirectPetsUnion?: string;
+}
+
+model DirectUnionCat extends DirectUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union DirectPets extends DirectUnionPet {
+  cat: DirectUnionCat,
+}
+
+model DirectUnionPetContainer {
+  pet: DirectUnionPet;
+}
+
+@dynamicModel("csharp")
+model DynamicUnionPetContainer {
+  pets?: (UnionPets | null)[];
+  lookup?: Record<UnionPets | null>;
+  nested?: (UnionPets | null)[][];
+  nestedLookup?: Record<UnionPets | null>[];
+}
+
+model DescendantUnionPet {
+  name: string;
+}
+
+model DescendantUnionCat extends DescendantUnionPet {
+  deserializeDescendantPetsUnion?: string;
+  serializeDescendantPetsUnion?: string;
+}
+
+@discriminated
+union DescendantPets extends DescendantUnionPet {
+  cat: DescendantUnionCat,
+}
+
+model IntermediateUnionPet {}
+
+@alternateType(
+  {
+    identity: "System.Object",
+  },
+  "csharp"
+)
+model IntermediateUnionMammal extends IntermediateUnionPet {}
+
+model IntermediateUnionCat extends IntermediateUnionMammal {
+  name: string;
+}
+
+@discriminated
+union IntermediatePets extends IntermediateUnionPet {
+  cat: IntermediateUnionCat,
+}
+
+model ExternalVariantBase {}
+
+@alternateType(
+  {
+    identity: "System.Text.Json.JsonElement",
+  },
+  "csharp"
+)
+model ExternalVariantCat extends ExternalVariantBase {
+  name: string;
+}
+
+@discriminated
+union ExternalVariantPets extends ExternalVariantBase {
+  cat: ExternalVariantCat,
+}
+
+@route("/union-extends")
+interface UnionExtends {
   @post
-  readOnlyXml(@body topic: LifecycleReadOnlyXmlTopic, @header contentType: "application/xml"): void;
+  echo(@body pet: UnionPets): UnionPets;
 
-  @route("/visibility/text-xml")
+  @route("/xml-response")
   @post
-  textXml(@body topic: LifecycleXmlOnlyTopic, @header contentType: "text/xml"): void;
-
-  @route("/visibility/vendor-xml")
-  @post
-  vendorXml(
-    @body topic: LifecycleXmlOnlyTopic,
-    @header contentType: "application/vnd.typespec+xml",
-  ): void;
-
-  @route("/visibility/create")
-  @post
-  create(@body topic: ChatTopic): void;
-
-  @route("/visibility/update")
-  @put
-  @parameterVisibility(Lifecycle.Update)
-  update(@body topic: ChatTopic): void;
-
-  @route("/visibility/replace")
-  @put
-  @parameterVisibility(Lifecycle.Create)
-  replace(@body topic: ChatTopic): void;
-
-  @route("/visibility/patch")
-  @patch
-  patch(@body topic: ChatTopic): void;
-
-  @route("/visibility/nested")
-  @post
-  nested(@body envelope: ChatTopicEnvelope): void;
-
-  @route("/visibility/list")
-  @post
-  sendList(@body topics: ChatTopic[]): void;
-
-  @route("/visibility/dictionary")
-  @post
-  dictionary(@body topics: Record<ChatTopic>): void;
-
-  @route("/visibility/union-list")
-  @post
-  unionList(@body topics: (ChatTopic | string)[]): void;
-
-  @route("/visibility/union-dictionary")
-  @post
-  unionDictionary(@body topics: Record<ChatTopic | string>): void;
-
-  @route("/visibility/union")
-  @post
-  unionBody(@body topic: ChatTopic | string): void;
-
-  @route("/visibility/paged")
-  @post
-  @list
-  paged(@body topic: ChatTopic): {
-    @pageItems items: ChatTopic[];
-    @nextLink next?: url;
+  readXmlUnion(@body pet: XmlUnionPets, @header contentType: "application/xml"): {
+    @header contentType: "application/xml";
+    @body pet: XmlUnionPets;
   };
 
-  @route("/visibility/paged-list")
+  @route("/container")
   @post
-  @list
-  pagedList(@body topics: ChatTopic[]): Page<ChatTopic>;
+  echoContainer(@body container: UnionPetContainer): UnionPetContainer;
 
-  @route("/visibility/paged-dictionary")
+  @route("/raw-container")
   @post
-  @list
-  pagedDictionary(@body topics: Record<ChatTopic>): Page<ChatTopic>;
+  echoRawContainer(@body container: RawUnionPetContainer): RawUnionPetContainer;
 
-  @route("/visibility/optional")
+  @route("/nested-outer")
   @post
-  optional(@body topic?: ChatTopic): void;
+  echoNestedOuter(@body pet: CollisionPets): CollisionPets;
 
-  @route("/visibility/optional-dictionary")
+  @route("/nested-inner")
   @post
-  optionalDictionary(@body topics?: Record<ChatTopic>): void;
+  echoNestedInner(@body pet: NestedPets): NestedPets;
 
-  @route("/visibility/optional-list")
+  @route("/nested-same-name")
   @post
-  optionalList(@body topics?: ChatTopic[]): void;
+  echoNestedSameName(@body pet: NestedUnions.CollisionPets): NestedUnions.CollisionPets;
 
-  @route("/visibility/optional-xml")
+  @route("/xml-pets/json")
   @post
-  optionalXml(@body topic?: ChatTopic, @header contentType: "application/xml"): void;
+  echoXmlPets(@body pet: XmlUnionPets): XmlUnionPets;
 
-  @route("/visibility/optional-xml-list")
+  @route("/xml-pets/xml")
   @post
-  optionalXmlList(@body topics?: ChatTopic[], @header contentType: "application/xml"): void;
+  echoXmlBase(@body pet: XmlUnionPet, @header contentType: "application/xml"): {
+    @header contentType: "application/xml";
+    @body pet: XmlUnionPet;
+  };
 
-  @route("/visibility/spread")
+  @route("/mapped-union")
   @post
-  spread(...ChatTopicEnvelope): void;
+  echoMappedUnion(@body pet: MappedUnionPets): MappedUnionPets;
 
-  @route("/visibility/spread-xml")
+  @route("/mapped-base")
   @post
-  spreadXml(...ChatTopicEnvelope, @header contentType: "application/xml"): void;
+  echoMappedBase(@body pet: ExternalBasePets): ExternalBasePets;
 
-  @route("/visibility/xml")
+  @route("/mapped-variant")
   @post
-  xml(@body topic: ChatTopic, @header contentType: "application/xml"): void;
+  echoMappedVariant(@body pet: ExternalVariantPets): ExternalVariantPets;
 
-  @route("/visibility/xml-list")
+  @route("/direct-base")
   @post
-  xmlList(@body topics: ChatTopic[], @header contentType: "application/xml"): void;
+  echoDirectBase(@body pet: DirectUnionPet): DirectUnionPet;
 
-  @route("/visibility/jsonl")
+  @route("/direct-union")
   @post
-  jsonLines(stream: JsonlStream<ChatTopic>): NoContentResponse;
+  echoDirectUnion(@body pet: DirectPets): DirectPets;
 
-  @route("/visibility/multipart")
+  @route("/direct-container")
   @post
-  multipart(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: LifecycleMultipart,
-  ): void;
+  echoDirectContainer(@body container: DirectUnionPetContainer): DirectUnionPetContainer;
 
-  @route("/visibility/read-only-multipart")
+  @route("/dynamic-container")
   @post
-  readOnlyMultipart(
-    @header contentType: "multipart/form-data",
-    @multipartBody body: LifecycleReadOnlyMultipart,
-  ): void;
+  echoDynamicContainer(@body container: DynamicUnionPetContainer): DynamicUnionPetContainer;
 
-  @route("/visibility/empty-xml")
+  @route("/descendant-members")
   @post
-  emptyXml(@body envelope: LifecycleXmlEnvelope, @header contentType: "application/xml"): void;
+  echoDescendantMembers(@body pet: DescendantPets): DescendantPets;
 
-  @route("/visibility/empty-xml-list")
+  @route("/mapped-intermediate")
   @post
-  emptyXmlList(@body children: LifecycleXmlChild[], @header contentType: "application/xml"): void;
+  echoMappedIntermediate(@body pet: IntermediatePets): IntermediatePets;
 
-  @route("/visibility/base")
+  @route("/serialize-class-name")
   @post
-  createBase(@body topic: LifecycleBase): void;
+  echoSerializeClassName(@body pet: SerializeClassNames.Pets): SerializeClassNames.Pets;
 
-  @route("/visibility/derived")
+  @route("/deserialize-class-name")
+  @post
+  echoDeserializeClassName(@body pet: DeserializeClassNames.Pets): DeserializeClassNames.Pets;
+
+  @route("/custom-base")
+  @post
+  echoCustomBase(@body pet: CustomUnionPets): CustomUnionPets;
+
+  @route("/custom-container")
+  @post
+  echoCustomContainer(@body pet: CustomUnionPet): CustomUnionPet;
+
+  @route("/custom-intermediate")
+  @post
+  echoCustomIntermediate(@body pet: CustomIntermediatePets): CustomIntermediatePets;
+
+  @route("/rebased-variants")
+  @post
+  echoRebasedVariants(@body pet: RebasedPets): RebasedPets;
+
+  @route("/rebased-base")
+  @post
+  echoRebasedBase(@body pet: RebasedBase.Pets): RebasedBase.Pets;
+
+  @route("/rebased-derived")
+  @post
+  echoRebasedDerived(@body pet: RebasedDerived.Pets): RebasedDerived.Pets;
+
+  @route("/descendant-deserializer")
+  @post
+  echoDescendantDeserializer(@body pet: DescendantDeserializer.Pets): DescendantDeserializer.Pets;
+
+  @route("/jsonl/send")
+  @post
+  sendPets(stream: JsonlStream<UnionPets>): NoContentResponse;
+
+  @route("/jsonl/bytes")
+  @post
+  sendBytes(stream: JsonlStream<bytes>): NoContentResponse;
+
+  @route("/jsonl/receive")
   @get
-  readDerived(): LifecycleDerived;
+  receivePets(): JsonlStream<UnionPets>;
+
+  @route("/pets")
+  @post
+  echoPets(@body pets: UnionPets[]): UnionPets[];
+
+  @route("/lookup")
+  @post
+  echoLookup(@body pets: Record<UnionPets>): Record<UnionPets>;
+
+  @route("/cat")
+  @get
+  getCat(): UnionCat;
 }
+
+model SerializePetsUnion {
+  name: string;
+}
+
+model SerializeNamedCat extends SerializePetsUnion {}
+
+namespace SerializeClassNames {
+  @discriminated
+  union Pets extends SerializePetsUnion {
+    cat: SerializeNamedCat,
+  }
+}
+
+model DeserializePetsUnion {
+  name: string;
+}
+
+model DeserializeNamedCat extends DeserializePetsUnion {}
+
+namespace DeserializeClassNames {
+  @discriminated
+  union Pets extends DeserializePetsUnion {
+    cat: DeserializeNamedCat,
+  }
+}
+
+model CustomUnionPet {
+  name?: string;
+  children?: CustomUnionPets[];
+}
+
+model CustomUnionCat extends CustomUnionPet {
+  meow: boolean;
+}
+
+@discriminated
+union CustomUnionPets extends CustomUnionPet {
+  cat: CustomUnionCat,
+}
+
+model CustomIntermediatePet {}
+
+model CustomIntermediateMammal extends CustomIntermediatePet {}
+
+model CustomIntermediateCat extends CustomIntermediateMammal {
+  meow: boolean;
+}
+
+@discriminated
+union CustomIntermediatePets extends CustomIntermediatePet {
+  cat: CustomIntermediateCat,
+}
+
+model RebasedUnionPet {
+  name: string;
+}
+
+model RebasedUnionA extends RebasedUnionPet {}
+
+model RebasedUnionB extends RebasedUnionPet {}
+
+model RebasedUnionALeaf extends RebasedUnionA {}
+
+model RebasedUnionBLeaf extends RebasedUnionB {}
+
+@discriminated
+union RebasedPets extends RebasedUnionPet {
+  a: RebasedUnionA,
+  b: RebasedUnionB,
+}
+
+namespace RebasedBase {
+  @discriminated
+  union Pets extends RebasedUnionA {
+    a: RebasedUnionALeaf,
+  }
+}
+
+namespace RebasedDerived {
+  @discriminated
+  union Pets extends RebasedUnionB {
+    b: RebasedUnionBLeaf,
+  }
+}
+
+model DeserializerPet {
+  name: string;
+}
+
+model PetsUnion extends DeserializerPet {}
+
+namespace DescendantDeserializer {
+  @discriminated
+  union Pets extends DeserializerPet {
+    pet: PetsUnion,
+  }
+}
+
+model ConstructorBase {
+  value: string;
+  mode: "fixed";
+  items: string[];
+}
+
+model ConstructorOverride extends ConstructorBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+interface ConstructorRequirements {
+  @route("/constructor-override")
+  @put
+  send(@body body: ConstructorOverride): void;
+
+  @route("/constructor-read-only-override")
+  @put
+  sendReadOnly(@body body: ConstructorReadOnlyOverride): void;
+
+  @route("/constructor-read-only-leaf")
+  @put
+  sendReadOnlyLeaf(@body body: ConstructorReadOnlyLeaf): void;
+
+  @route("/constructor-xml-override")
+  @put
+  sendXml(@body body: XmlConstructorOverride, @header contentType: "application/xml"): void;
+
+  @route("/constructor-inherited-leaf")
+  @put
+  sendInheritedLeaf(@body body: ConstructorInheritedLeaf): void;
+
+  @route("/constructor-renamed-override")
+  @put
+  sendRenamed(@body body: RenamedConstructorOverride): void;
+
+  @route("/constructor-renamed-leaf")
+  @put
+  sendRenamedLeaf(@body body: RenamedConstructorLeaf): void;
+
+  @route("/constructor-writable-leaf")
+  @put
+  sendWritableLeaf(@body body: ConstructorWritableLeaf): void;
+
+  @route("/constructor-returned-name")
+  @put
+  sendReturnedName(@body body: RenamedConstructorReturnedName): void;
+
+  @route("/constructor-required-renamed")
+  @put
+  sendRequiredRenamed(@body body: RequiredRenamedConstructorOverride): void;
+
+  @route("/constructor-read-only-collections")
+  @put
+  sendReadOnlyCollections(@body body: ConstructorReadOnlyCollectionOverride): void;
+
+  @route("/constructor-required-collections")
+  @put
+  sendRequiredCollections(@body body: ConstructorRequiredCollectionOverride): void;
+
+  @route("/constructor-renamed-literal")
+  @post
+  sendRenamedLiteral(
+    @body body: RenamedLiteralConstructorOverride,
+  ): RenamedLiteralConstructorOverride;
+
+  @route("/constructor-client-name-collision")
+  @post
+  sendClientNameCollision(
+    @body body: ConstructorClientNameCollisionLeaf,
+  ): ConstructorClientNameCollisionLeaf;
+}
+
+model ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorReadOnlyOverride extends ConstructorReadOnlyBase {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorReadOnlyLeaf extends ConstructorReadOnlyOverride {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model XmlConstructorBase {
+  value: string;
+  title: string;
+}
+
+model XmlConstructorMiddle extends XmlConstructorBase {
+  note?: string;
+}
+
+model XmlConstructorOverride extends XmlConstructorMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model ConstructorInheritedLeaf extends ConstructorOverride {}
+
+model RenamedConstructorBase {
+  value: string;
+  title: string;
+}
+
+model RenamedConstructorOverride extends RenamedConstructorBase {
+  @clientName("renamedValue", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorLeaf extends RenamedConstructorOverride {}
+
+model ConstructorWritableBase {
+  value: string;
+}
+
+model ConstructorReadOnlyMiddle extends ConstructorWritableBase {
+  @visibility(Lifecycle.Read)
+  value: string;
+}
+
+model ConstructorWritableLeaf extends ConstructorReadOnlyMiddle {
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RenamedConstructorReturnedName extends RenamedConstructorOverride {
+  @clientName("value", "csharp")
+  @visibility(Lifecycle.Create)
+  value: string;
+}
+
+model RequiredRenamedConstructorOverride extends RenamedConstructorOverride {
+  @clientName("requiredValue", "csharp")
+  value: string;
+}
+
+model ConstructorReadOnlyCollectionBase {
+  @visibility(Lifecycle.Read)
+  items: string[];
+
+  @visibility(Lifecycle.Read)
+  values: Record<string>;
+}
+
+model ConstructorReadOnlyCollectionOverride extends ConstructorReadOnlyCollectionBase {
+  @clientName("renamedItems", "csharp")
+  @visibility(Lifecycle.Create)
+  items: string[];
+
+  @clientName("renamedValues", "csharp")
+  @visibility(Lifecycle.Create)
+  values: Record<string>;
+}
+
+model ConstructorRequiredCollectionOverride extends ConstructorReadOnlyCollectionOverride {
+  @clientName("requiredItems", "csharp")
+  items: string[];
+
+  @clientName("requiredValues", "csharp")
+  values: Record<string>;
+}
+
+model LiteralConstructorBase {
+  value: string;
+}
+
+model RenamedLiteralConstructorOverride extends LiteralConstructorBase {
+  @clientName("renamedValue", "csharp")
+  value: "fixed";
+}
+
+model ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  original: string;
+}
+
+model ConstructorClientNameCollision extends ConstructorClientNameCollisionBase {
+  @clientName("value", "csharp")
+  other: string;
+}
+
+model ConstructorClientNameCollisionLeaf extends ConstructorClientNameCollision {}

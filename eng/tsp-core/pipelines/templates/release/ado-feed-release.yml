@@ -9,7 +9,7 @@ parameters:
     default: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
   - name: nodeVersion
     type: string
-    default: 24.16.0
+    default: 26.x
 
 steps:
   # Publishing the packages directly to the Azure DevOps `azure-sdk-for-js` feed bypasses the

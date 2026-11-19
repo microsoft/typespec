@@ -17,6 +17,7 @@ import type {
   TemplatedType,
   Type,
   TypeMapper,
+  TypeRefType,
   UnknownType,
   Value,
   VoidType,
@@ -243,4 +244,15 @@ export function getFullyQualifiedSymbolName(
   } else {
     return name;
   }
+}
+
+/** Determines whether a type uses the standard type-reference declaration. */
+export function isTypeRefType(program: Program, type: Type): type is TypeRefType {
+  return (
+    type.kind === "Scalar" &&
+    type.name === "TypeRef" &&
+    type.node !== undefined &&
+    type.node ===
+      program.getGlobalNamespaceType().namespaces.get("TypeSpec")?.scalars.get("TypeRef")?.node
+  );
 }

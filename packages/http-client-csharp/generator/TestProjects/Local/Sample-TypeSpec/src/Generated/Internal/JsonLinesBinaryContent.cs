@@ -7,7 +7,6 @@
 
 using System;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -23,14 +22,14 @@ namespace SampleTypeSpec
         {
             10
         };
-        private readonly ModelReaderWriterOptions _options;
+        private readonly bool _writeRawData;
 
         /// <param name="values"></param>
-        /// <param name="options"></param>
-        public JsonLinesBinaryContent(IAsyncEnumerable<T> values, ModelReaderWriterOptions options = null)
+        /// <param name="writeRawData"></param>
+        public JsonLinesBinaryContent(IAsyncEnumerable<T> values, bool writeRawData = false)
         {
             _values = values;
-            _options = options ?? ModelSerializationExtensions.WireOptions;
+            _writeRawData = writeRawData;
         }
 
         /// <param name="stream"></param>
@@ -46,7 +45,21 @@ namespace SampleTypeSpec
                 }
                 using (Utf8JsonWriter writer = new Utf8JsonWriter(stream))
                 {
-                    writer.WriteObjectValue(value, _options);
+                    if (_writeRawData && value is BinaryData data)
+                    {
+#if NET6_0_OR_GREATER
+                        writer.WriteRawValue(data);
+#else
+                        using (JsonDocument document = JsonDocument.Parse(data))
+                        {
+                            JsonSerializer.Serialize(writer, document.RootElement);
+                        }
+#endif
+                    }
+                    else
+                    {
+                        writer.WriteObjectValue(value, ModelSerializationExtensions.WireOptions);
+                    }
                     await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
                 }
                 first = false;

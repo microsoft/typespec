@@ -26,6 +26,9 @@ export const compilerFeatures = {
   "union-extends": {
     description: "Enables experimental union `extends` clauses in project code.",
   },
+  typeref: {
+    description: "Enables the typeref function for creating type-reference values.",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;

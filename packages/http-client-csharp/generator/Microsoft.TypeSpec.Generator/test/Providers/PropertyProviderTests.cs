@@ -15,6 +15,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
@@ -25,6 +26,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void ConstructorOverrideChecksDoNotRepeatedlyScanTheHierarchy()
+        {
+            var visits = 0;
+            var properties = new List<InputModelProperty>();
+            InputModelType CreateModel(string name, IReadOnlyList<InputModelType> children)
+            {
+                var property = InputFactory.Property(name, InputPrimitiveType.String, isRequired: true);
+                properties.Add(property);
+                var inputs = new Mock<IReadOnlyList<InputModelProperty>>();
+                inputs.SetupGet(list => list.Count).Returns(1);
+                inputs.Setup(list => list[0]).Returns(property);
+                inputs.Setup(list => list.GetEnumerator()).Returns(() =>
+                {
+                    visits++;
+                    return ((IEnumerable<InputModelProperty>)new[] { property }).GetEnumerator();
+                });
+                return new InputModelType(name, "Sample", name, null, null, null, null,
+                    InputModelTypeUsage.Input, inputs.Object, null, children, null, null,
+                    new Dictionary<string, InputModelType>(), null, false, new InputSerializationOptions(), false);
+            }
+
+            var children = Enumerable.Range(0, 24).Select(i => CreateModel($"Child{i}", [])).ToArray();
+            _ = CreateModel("Root", children);
+            visits = 0;
+
+            foreach (var input in properties)
+            {
+                Assert.IsFalse(new PropertyProvider(input, new TestTypeProvider()).Body.HasSetter);
+            }
+
+            Assert.LessOrEqual(visits, properties.Count * 2);
         }
 
         [Test]
@@ -39,6 +74,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("snake_case", property.WireInfo?.SerializedName);
             Assert.IsNotNull(property.Description);
             Assert.AreEqual("Description for snake_case", property.Description!.ToString());
+        }
+
+        [Test]
+        public void TestPropertyDocumentationPreservesCodeSpans()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "accessString",
+                        InputPrimitiveType.String,
+                        doc: "The Redis ACL permissions string applied to this assignment, for example `+@read\n~cache:* ~other:*`. Defaults to `+@all ~*` if not specified. This is *optional*.")
+                ]);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(modelProvider).Write().Content);
         }
 
         [Test]

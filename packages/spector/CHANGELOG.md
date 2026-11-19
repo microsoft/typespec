@@ -1,5 +1,12 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.31
+
+### Bug Fixes
+
+- [#12288](https://github.com/microsoft/typespec/pull/12288) Honor per-scenario project feature flags when compiling scenarios and validating mock APIs, and report configuration diagnostics.
+
+
 ## 0.1.0-alpha.30
 
 No changes, version bump only.

@@ -35,6 +35,7 @@ export function marshalTypeForJs<T extends Value | TemplateValue>(
     case "ScalarValue":
     case "EnumValue":
     case "Function":
+    case "TypeRefValue":
       return value as any;
     default:
       compilerAssert(
