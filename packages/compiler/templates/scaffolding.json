@@ -61,7 +61,11 @@
         "options": {
           "emitter-output-dir": "{output-dir}/server/aspnet"
         },
-        "message": "\n\tGenerated ASP.Net services require dotnet 9:\n\thttps://dotnet.microsoft.com/download \n\n\tCreate an ASP.Net service project for your TypeSpec:\n\t> npx hscs-scaffold . --use-swaggerui --overwrite\n\n\tMore information on getting started:\n\thttps://aka.ms/tsp/hscs/start\n         "
+        "message": "\n\tGenerated ASP.Net services require dotnet 9:\n\thttps://dotnet.microsoft.com/download \n\n\tCreate an ASP.Net service project for your TypeSpec:\n\t> npx hscs-scaffold . --use-swaggerui --overwrite\n\n\tMore information on getting started:\n\thttps://aka.ms/tsp/hscs/start\n         ",
+        "gitignorePatterns": [
+          "bin/",
+          "obj/"
+        ]
       },
       "@typespec/http-server-js": {
         "label": "JavaScript server stubs",

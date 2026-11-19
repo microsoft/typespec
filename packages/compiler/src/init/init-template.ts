@@ -92,6 +92,8 @@ export interface EmitterTemplate {
   message?: string;
   /** Optional specific emitter version. `latest` if not specified */
   version?: string;
+  /** Optional lines to add to the generated .gitignore when this emitter is selected */
+  gitignorePatterns?: string[];
 }
 
 /**
@@ -151,6 +153,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
           options: {} as any,
           message: { type: "string", nullable: true },
           version: { type: "string", nullable: true },
+          gitignorePatterns: { type: "array", items: { type: "string" }, nullable: true },
         },
         required: [],
       },

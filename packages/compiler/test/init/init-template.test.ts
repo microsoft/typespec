@@ -127,6 +127,29 @@ it("can exclude .gitignore file", async () => {
   strictEqual(typeof getOutputFile(".gitignore"), "undefined");
 });
 
+it("adds gitignore patterns from selected emitters to .gitignore file", async () => {
+  const emitters = {
+    foo: { selected: true, gitignorePatterns: ["bin/", "obj/"] },
+  };
+
+  await runTemplate({ emitters }, { emitters });
+  const output = getOutputFile(".gitignore");
+  ok(output);
+  expect(output.split("\n")).toEqual(expect.arrayContaining(["bin/", "obj/"]));
+});
+
+it("adds a gitignore pattern only once when multiple emitters specify it", async () => {
+  const emitters = {
+    foo: { selected: true, gitignorePatterns: ["bin/", "obj/"] },
+    bar: { selected: true, gitignorePatterns: ["bin/"] },
+  };
+
+  await runTemplate({ emitters }, { emitters });
+  const output = getOutputFile(".gitignore");
+  ok(output);
+  expect(output.split("\n").filter((line) => line === "bin/")).toHaveLength(1);
+});
+
 it("specifying both config and emitters merge the 2", async () => {
   const emitters = {
     foo: { selected: true, options: { opt1: "val-1" } },
