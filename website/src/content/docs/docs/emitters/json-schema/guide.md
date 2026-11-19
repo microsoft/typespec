@@ -45,6 +45,8 @@ Set `file-type: yaml` to emit `Widget.schema.yaml` instead. The file name templa
 
 The template must be a file name, not a path: `/` and `\` are rejected. Use `emitter-output-dir` to configure the output directory.
 
+Templates that resolve to an empty name, `.` or `..` are also rejected. When emitting separate schema files, each must have a unique file name; collisions are reported as errors before any files are written. A fixed name such as `"schema.{ext}"` is valid when only one schema file is emitted.
+
 Implicit `$id` values and references between schemas use the configured file names. Explicit ids set with `@id` are preserved. When bundling, `bundleId` still determines the bundle file name; `file-name` only affects the implicit ids and references of the bundled schemas.
 
 ## Bundling behavior

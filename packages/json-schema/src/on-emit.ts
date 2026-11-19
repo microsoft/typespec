@@ -2,6 +2,7 @@ import { createAssetEmitter } from "@typespec/asset-emitter";
 import {
   type EmitContext,
   type Enum,
+  interpolatePath,
   type Model,
   NoTarget,
   type Scalar,
@@ -22,6 +23,19 @@ export async function $onEmit(context: EmitContext<JSONSchemaEmitterOptions>) {
   if (context.options["file-name"]?.match(/[/\\]/)) {
     reportDiagnostic(context.program, {
       code: "invalid-file-name",
+      target: NoTarget,
+    });
+    return;
+  }
+
+  const fileName = interpolatePath(context.options["file-name"] ?? "{name}.{ext}", {
+    name: "{name}",
+    ext: context.options["file-type"] === "json" ? "json" : "yaml",
+  });
+  if (fileName === "" || fileName === "." || fileName === "..") {
+    reportDiagnostic(context.program, {
+      code: "invalid-file-name",
+      messageId: "empty",
       target: NoTarget,
     });
     return;

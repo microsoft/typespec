@@ -95,4 +95,86 @@ describe("json-schema: output file", () => {
     const schemas = await emitSchema("model `..` {}");
     expect(Object.keys(schemas)).toContain("_.json");
   });
+
+  it.each(["", ".", "..", "{unknown}", "{unknown}.", "{unknown}.."])(
+    "reject filename templates resolving to an empty name or directory marker: %s",
+    async (fileName) => {
+      const [schemas, diagnostics] = await emitSchemaWithDiagnostics("model Foo {}", {
+        "file-name": fileName,
+      });
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/json-schema/invalid-file-name",
+        message:
+          "The 'file-name' option must resolve to a non-empty file name other than '.' or '..'. Use '{name}' and '{ext}' as placeholders.",
+      });
+      expect(schemas).toEqual({});
+    },
+  );
+
+  it("report filename collisions even when explicit schema ids are distinct", async () => {
+    const [schemas, diagnostics] = await emitSchemaWithDiagnostics(
+      `
+        @id("foo") model Foo {}
+        @id("bar") model Bar {}
+        model Other {}
+      `,
+      { "file-name": "schema.{ext}" },
+    );
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/json-schema/duplicate-output-file",
+        message:
+          "Multiple schemas emit to the same file \"schema.json\". Configure 'file-name' to produce unique filenames.",
+      },
+      {
+        code: "@typespec/json-schema/duplicate-output-file",
+      },
+      {
+        code: "@typespec/json-schema/duplicate-output-file",
+      },
+    ]);
+    expect(schemas).toEqual({});
+  });
+
+  it("report collisions introduced by sanitizing declaration names", async () => {
+    const [schemas, diagnostics] = await emitSchemaWithDiagnostics(`
+      @id("foo") model \`A/B\` {}
+      @id("bar") model A_B {}
+    `);
+
+    expectDiagnostics(diagnostics, [
+      { code: "@typespec/json-schema/duplicate-output-file" },
+      { code: "@typespec/json-schema/duplicate-output-file" },
+    ]);
+    expect(schemas).toEqual({});
+  });
+
+  it("allow a fixed filename when only one schema is emitted", async () => {
+    const schemas = await emitSchema(
+      `
+        @jsonSchema model Foo { bar: Bar; }
+        model Bar {}
+      `,
+      { "file-name": "schema.{ext}" },
+      { emitNamespace: false },
+    );
+
+    expect(Object.keys(schemas)).toEqual(["schema.json"]);
+    expect(schemas["schema.json"].properties.bar.$ref).toBe("#/$defs/Bar");
+  });
+
+  it("allow matching schema filenames when bundling schemas with distinct ids", async () => {
+    const schemas = await emitSchema(
+      `
+        @id("foo") model Foo {}
+        @id("bar") model Bar {}
+      `,
+      { "file-name": "schema.{ext}", bundleId: "bundle.json" },
+    );
+
+    expect(Object.keys(schemas)).toEqual(["bundle.json"]);
+    expect(Object.keys(schemas["bundle.json"].$defs).sort()).toEqual(["bar", "foo"]);
+  });
 });

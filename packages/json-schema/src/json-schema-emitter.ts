@@ -1020,6 +1020,31 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         content: this.#serializeSourceFileContent(content),
       });
     } else {
+      const paths = new DuplicateTracker<string, JsonSchemaDeclaration>();
+      for (const sf of sourceFiles) {
+        if (sf.meta.shouldEmit) {
+          paths.track(sf.path, this.#typeForSourceFile.get(sf)!);
+        }
+      }
+
+      let hasDuplicatePaths = false;
+      for (const [path, types] of paths.entries()) {
+        hasDuplicatePaths = true;
+        const file = getRelativePathFromDirectory(
+          this.emitter.getOptions().emitterOutputDir,
+          path,
+          false,
+        );
+        for (const type of types) {
+          reportDiagnostic(this.emitter.getProgram(), {
+            code: "duplicate-output-file",
+            format: { file },
+            target: type,
+          });
+        }
+      }
+      if (hasDuplicatePaths) return;
+
       for (const sf of sourceFiles) {
         const emittedSf = await this.emitter.emitSourceFile(sf);
 

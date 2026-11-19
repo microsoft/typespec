@@ -182,6 +182,14 @@ export const $lib = createTypeSpecLibrary({
       messages: {
         default:
           "The 'file-name' option must not contain directory separators. Use 'emitter-output-dir' to configure the output directory.",
+        empty:
+          "The 'file-name' option must resolve to a non-empty file name other than '.' or '..'. Use '{name}' and '{ext}' as placeholders.",
+      },
+    },
+    "duplicate-output-file": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple schemas emit to the same file "${"file"}". Configure 'file-name' to produce unique filenames.`,
       },
     },
     "invalid-prefix-items": {
