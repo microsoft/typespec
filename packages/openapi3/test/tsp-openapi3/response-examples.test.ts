@@ -401,6 +401,7 @@ describe("response media type examples", () => {
 
   it.each([
     ["string", { type: "string" }, "hello"],
+    ["date scalar", { type: "string", format: "date" }, "2026-01-02"],
     ["array", { type: "array", items: { type: "integer" } }, [1, 2]],
     ["enum", { type: "string", enum: ["small", "large"] }, "small"],
   ] as const)("imports a referenced %s body for 200 and 201", async (_, schema, value) => {

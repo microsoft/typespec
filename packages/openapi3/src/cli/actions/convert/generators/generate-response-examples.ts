@@ -6,6 +6,7 @@ import type {
   SupportedOpenAPISchema,
 } from "../../../../types.js";
 import type { TypeSpecModelProperty } from "../interfaces.js";
+import { getTypeSpecKind } from "../transforms/transform-component-schemas.js";
 import type { Context } from "../utils/context.js";
 import { isValidLiteralStatusCode } from "../utils/response-properties.js";
 import { getTypeSpecPrimitiveFromSchema } from "./generate-types.js";
@@ -153,6 +154,7 @@ function generateExampleValue(
   scope: string[],
   context: Context,
   depth = 0,
+  scalarName?: string,
 ): string {
   const invalid = () => {
     throw new Error("payload cannot be represented in the generated response type.");
@@ -163,7 +165,14 @@ function generateExampleValue(
   if ("$ref" in schema) {
     const resolved = context.getSchemaByRef(schema.$ref);
     if (!resolved) return invalid();
-    const expression = convert(value, resolved);
+    const expression = generateExampleValue(
+      value,
+      resolved,
+      scope,
+      context,
+      depth + 1,
+      getTypeSpecKind(resolved) === "scalar" ? context.getRefName(schema.$ref, scope) : undefined,
+    );
     // String enums become nominal TypeSpec enums, not string literal unions.
     if (
       resolved.type === "string" &&
@@ -289,7 +298,7 @@ function generateExampleValue(
       case "plainDate":
       case "plainTime":
       case "duration":
-        return `${primitive}.fromISO(${quote(value)})`;
+        return `${scalarName ?? primitive}.fromISO(${quote(value)})`;
       case "bytes":
         return invalid();
       default:
