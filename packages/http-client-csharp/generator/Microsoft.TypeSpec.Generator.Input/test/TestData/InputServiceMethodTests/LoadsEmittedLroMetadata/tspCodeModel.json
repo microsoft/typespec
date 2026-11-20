@@ -135,34 +135,26 @@
           {
             "$id": "11",
             "kind": "property",
-            "name": "updatedAt",
-            "originalName": "updated",
+            "name": "jobId",
+            "originalName": "id",
             "apiVersions": [],
-            "serializedName": "last_updated",
+            "serializedName": "job_id",
             "type": {
               "$id": "12",
-              "kind": "utcDateTime",
-              "name": "utcDateTime",
-              "encode": "rfc3339",
-              "wireType": {
-                "$id": "13",
-                "kind": "string",
-                "name": "string",
-                "crossLanguageDefinitionId": "TypeSpec.string",
-                "decorators": []
-              },
-              "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
-            "optional": true,
+            "optional": false,
             "readOnly": false,
             "discriminator": false,
             "flatten": false,
             "decorators": [],
-            "crossLanguageDefinitionId": "LroFixture.BaseMonitor.updated",
+            "crossLanguageDefinitionId": "LroFixture.BaseMonitor.id",
             "serializationOptions": {
               "json": {
-                "name": "last_updated"
+                "name": "job_id"
               }
             },
             "isHttpMetadata": false,
@@ -172,7 +164,7 @@
       },
       "properties": [
         {
-          "$id": "14",
+          "$id": "13",
           "kind": "property",
           "name": "status",
           "apiVersions": [],
@@ -195,13 +187,13 @@
           "isExactName": false
         },
         {
-          "$id": "15",
+          "$id": "14",
           "kind": "property",
           "name": "result",
           "apiVersions": [],
           "serializedName": "result",
           "type": {
-            "$id": "16",
+            "$id": "15",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -220,133 +212,8 @@
           },
           "isHttpMetadata": false,
           "isExactName": false
-        },
-        {
-          "$id": "17",
-          "kind": "property",
-          "name": "jobId",
-          "originalName": "id",
-          "apiVersions": [],
-          "serializedName": "job_id",
-          "type": {
-            "$id": "18",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-          },
-          "optional": false,
-          "readOnly": false,
-          "discriminator": false,
-          "flatten": false,
-          "decorators": [],
-          "crossLanguageDefinitionId": "LroFixture.Monitor.id",
-          "serializationOptions": {
-            "json": {
-              "name": "job_id"
-            }
-          },
-          "isHttpMetadata": false,
-          "isExactName": false
-        },
-        {
-          "$id": "19",
-          "kind": "property",
-          "name": "progress",
-          "originalName": "percent",
-          "apiVersions": [],
-          "serializedName": "percent_complete",
-          "type": {
-            "$id": "20",
-            "kind": "int32",
-            "name": "int32",
-            "crossLanguageDefinitionId": "TypeSpec.int32",
-            "decorators": []
-          },
-          "optional": true,
-          "readOnly": false,
-          "access": "internal",
-          "discriminator": false,
-          "flatten": false,
-          "decorators": [],
-          "crossLanguageDefinitionId": "LroFixture.Monitor.percent",
-          "serializationOptions": {
-            "json": {
-              "name": "percent_complete"
-            }
-          },
-          "isHttpMetadata": false,
-          "isExactName": false
-        },
-        {
-          "$id": "21",
-          "kind": "property",
-          "name": "statistics",
-          "apiVersions": [],
-          "serializedName": "statistics",
-          "type": {
-            "$id": "22",
-            "kind": "model",
-            "name": "Statistics",
-            "apiVersions": [],
-            "namespace": "LroFixture",
-            "crossLanguageDefinitionId": "LroFixture.Statistics",
-            "usage": "Output,Json,LroPolling,LroFinalEnvelope",
-            "decorators": [],
-            "serializationOptions": {
-              "json": {
-                "name": "Statistics"
-              }
-            },
-            "isExactName": false,
-            "properties": [
-              {
-                "$id": "23",
-                "kind": "property",
-                "name": "completed",
-                "apiVersions": [],
-                "serializedName": "completed",
-                "type": {
-                  "$id": "24",
-                  "kind": "int32",
-                  "name": "int32",
-                  "crossLanguageDefinitionId": "TypeSpec.int32",
-                  "decorators": []
-                },
-                "optional": false,
-                "readOnly": false,
-                "discriminator": false,
-                "flatten": false,
-                "decorators": [],
-                "crossLanguageDefinitionId": "LroFixture.Statistics.completed",
-                "serializationOptions": {
-                  "json": {
-                    "name": "completed"
-                  }
-                },
-                "isHttpMetadata": false,
-                "isExactName": false
-              }
-            ]
-          },
-          "optional": true,
-          "readOnly": false,
-          "discriminator": false,
-          "flatten": false,
-          "decorators": [],
-          "crossLanguageDefinitionId": "LroFixture.Monitor.statistics",
-          "serializationOptions": {
-            "json": {
-              "name": "statistics"
-            }
-          },
-          "isHttpMetadata": false,
-          "isExactName": false
         }
       ]
-    },
-    {
-      "$ref": "22"
     },
     {
       "$ref": "10"
@@ -354,32 +221,32 @@
   ],
   "clients": [
     {
-      "$id": "25",
+      "$id": "16",
       "kind": "client",
       "name": "LroFixtureClient",
       "isExactName": false,
       "namespace": "LroFixture",
       "methods": [
         {
-          "$id": "26",
+          "$id": "17",
           "kind": "basic",
           "name": "getStatus",
           "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "27",
+            "$id": "18",
             "name": "getStatus",
             "isExactName": false,
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "28",
+                "$id": "19",
                 "kind": "path",
                 "name": "id",
                 "serializedName": "jobId",
                 "type": {
-                  "$id": "29",
+                  "$id": "20",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -397,12 +264,12 @@
                 "crossLanguageDefinitionId": "LroFixture.getStatus.id",
                 "methodParameterSegments": [
                   {
-                    "$id": "30",
+                    "$id": "21",
                     "kind": "method",
                     "name": "id",
                     "serializedName": "jobId",
                     "type": {
-                      "$id": "31",
+                      "$id": "22",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -422,7 +289,7 @@
                 "isExactName": false
               },
               {
-                "$id": "32",
+                "$id": "23",
                 "kind": "header",
                 "name": "accept",
                 "serializedName": "Accept",
@@ -438,7 +305,7 @@
                 "crossLanguageDefinitionId": "LroFixture.getStatus.accept",
                 "methodParameterSegments": [
                   {
-                    "$id": "33",
+                    "$id": "24",
                     "kind": "method",
                     "name": "accept",
                     "serializedName": "Accept",
@@ -491,10 +358,10 @@
           },
           "parameters": [
             {
-              "$ref": "30"
+              "$ref": "21"
             },
             {
-              "$ref": "33"
+              "$ref": "24"
             }
           ],
           "response": {
@@ -508,14 +375,14 @@
           "crossLanguageDefinitionId": "LroFixture.getStatus"
         },
         {
-          "$id": "34",
+          "$id": "25",
           "kind": "lro",
           "name": "begin",
           "isExactName": false,
           "accessibility": "internal",
           "apiVersions": [],
           "operation": {
-            "$id": "35",
+            "$id": "26",
             "name": "begin",
             "isExactName": false,
             "accessibility": "internal",
@@ -530,12 +397,12 @@
                     "name": "location",
                     "nameInResponse": "Operation-Location",
                     "type": {
-                      "$id": "36",
+                      "$id": "27",
                       "kind": "url",
                       "name": "ResourceLocation",
                       "crossLanguageDefinitionId": "TypeSpec.Rest.ResourceLocation",
                       "baseType": {
-                        "$id": "37",
+                        "$id": "28",
                         "kind": "url",
                         "name": "url",
                         "crossLanguageDefinitionId": "TypeSpec.url",
@@ -562,7 +429,7 @@
           "parameters": [],
           "response": {
             "type": {
-              "$id": "38",
+              "$id": "29",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
@@ -587,60 +454,25 @@
               }
             },
             "resultPath": "result",
-            "pollingResponseModel": {
-              "$ref": "9"
-            },
-            "statusMetadata": [
-              {
-                "property": {
-                  "$ref": "19"
-                },
-                "propertySegments": [
-                  {
-                    "$ref": "19"
-                  }
-                ]
-              },
-              {
-                "property": {
-                  "$ref": "21"
-                },
-                "propertySegments": [
-                  {
-                    "$ref": "21"
-                  }
-                ]
-              },
-              {
-                "property": {
-                  "$ref": "11"
-                },
-                "propertySegments": [
-                  {
-                    "$ref": "11"
-                  }
-                ]
-              }
-            ],
             "operationId": [
               {
-                "$id": "39",
+                "$id": "30",
                 "kind": "path",
                 "source": {
                   "location": "ResponseHeader",
                   "property": {
-                    "$id": "40",
+                    "$id": "31",
                     "kind": "property",
                     "name": "location",
                     "apiVersions": [],
                     "serializedName": "Operation-Location",
                     "type": {
-                      "$id": "41",
+                      "$id": "32",
                       "kind": "url",
                       "name": "ResourceLocation",
                       "crossLanguageDefinitionId": "TypeSpec.Rest.ResourceLocation",
                       "baseType": {
-                        "$id": "42",
+                        "$id": "33",
                         "kind": "url",
                         "name": "url",
                         "crossLanguageDefinitionId": "TypeSpec.url",
@@ -660,19 +492,19 @@
                   }
                 },
                 "pathParameter": {
-                  "$ref": "28"
+                  "$ref": "19"
                 },
                 "pollingPath": "/jobs/{jobId}/status"
               },
               {
-                "$id": "43",
+                "$id": "34",
                 "kind": "property",
                 "property": {
-                  "$ref": "17"
+                  "$ref": "11"
                 },
                 "propertySegments": [
                   {
-                    "$ref": "17"
+                    "$ref": "11"
                   }
                 ]
               }
@@ -682,13 +514,13 @@
       ],
       "parameters": [
         {
-          "$id": "44",
+          "$id": "35",
           "kind": "endpoint",
           "name": "endpoint",
           "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
-            "$id": "45",
+            "$id": "36",
             "kind": "url",
             "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"

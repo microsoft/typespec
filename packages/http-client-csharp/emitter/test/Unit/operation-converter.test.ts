@@ -1,4 +1,3 @@
-import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { expectDiagnostics, type TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { readFileSync } from "node:fs";
@@ -29,15 +28,11 @@ using Azure.ClientGenerator.Core;
 @service
 namespace LroFixture;
 
-model Statistics {
-  completed: int32;
-}
-
 model BaseMonitor {
-  @lroStatusMetadata
-  @clientName("updatedAt")
-  @encodedName("application/json", "last_updated")
-  updated?: utcDateTime;
+  @lroOperationId
+  @clientName("jobId")
+  @encodedName("application/json", "job_id")
+  id: string;
 }
 
 model Monitor extends BaseMonitor {
@@ -46,20 +41,6 @@ model Monitor extends BaseMonitor {
 
   @lroResult
   result?: string;
-
-  @lroOperationId
-  @clientName("jobId")
-  @encodedName("application/json", "job_id")
-  id: string;
-
-  @lroStatusMetadata
-  @access(Access.internal, "csharp")
-  @clientName("progress")
-  @encodedName("application/json", "percent_complete")
-  percent?: int32;
-
-  @lroStatusMetadata
-  statistics?: Statistics;
 }
 
 @get
@@ -123,26 +104,15 @@ describe("Operation Converter", () => {
       `;
       const program = await typeSpecCompile(
         `
-        model Statistics { completed: int32; }
         model BaseMonitor {
-          ${selected ? "@lroStatusMetadata" : ""}
-          @clientName("updatedAt")
-          @encodedName("application/json", "last_updated")
-          updated?: utcDateTime;
-        }
-        model Monitor extends BaseMonitor {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroResult result?: string;
           ${["both", "body"].includes(selection) ? "@lroOperationId" : ""}
           @clientName("jobId")
           @encodedName("application/json", "job_id")
           id: string;
-          ${selected ? "@lroStatusMetadata" : ""}
-          @clientName("progress")
-          @encodedName("application/json", "percent_complete")
-          percent?: int32;
-          ${selected ? "@lroStatusMetadata" : ""}
-          statistics?: Statistics;
+        }
+        model Monitor extends BaseMonitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroResult result?: string;
         }
         ${pollingFirst ? `${pollingOperation}\n${startOperation}` : `${startOperation}\n${pollingOperation}`}
         `,
@@ -156,47 +126,10 @@ describe("Operation Converter", () => {
       ok(method?.kind === "lro");
       const metadata = method.lroMetadata;
       if (!selected) {
-        strictEqual(metadata.statusMetadata, undefined);
         strictEqual(metadata.operationId, undefined);
-        strictEqual(metadata.pollingResponseModel, undefined);
-        const json = serializeCodeModel(sdkContext, root);
-        strictEqual(json.includes('"statusMetadata"'), false);
-        strictEqual(json.includes('"operationId"'), false);
-        strictEqual(json.includes('"pollingResponseModel"'), false);
+        strictEqual(serializeCodeModel(sdkContext, root).includes('"operationId"'), false);
         return;
       }
-      strictEqual(
-        metadata.pollingResponseModel,
-        root.models.find((m) => m.name === "Monitor"),
-      );
-      deepStrictEqual(
-        metadata.statusMetadata?.map((entry) => [
-          entry.property.name,
-          entry.property.optional,
-          entry.propertySegments.map((p) => p.serializedName),
-        ]),
-        [
-          ["progress", true, ["percent_complete"]],
-          ["statistics", true, ["statistics"]],
-          ["updatedAt", true, ["last_updated"]],
-        ],
-      );
-      for (const entry of metadata.statusMetadata!) {
-        strictEqual(entry.propertySegments[0], entry.property);
-      }
-      const baseMonitor = root.models.find((m) => m.name === "BaseMonitor");
-      ok(baseMonitor);
-      strictEqual(
-        metadata.statusMetadata![2].property,
-        baseMonitor.properties.find((p) => p.name === "updatedAt"),
-      );
-      const statistics = metadata.statusMetadata![1].property.type;
-      strictEqual(
-        statistics,
-        root.models.find((m) => m.name === "Statistics"),
-      );
-      ok(statistics.kind === "model");
-      strictEqual(statistics.properties[0].name, "completed");
       deepStrictEqual(
         metadata.operationId?.map((entry) => entry.kind),
         selection === "both" ? ["path", "property"] : [selection === "body" ? "property" : "path"],
@@ -234,28 +167,18 @@ describe("Operation Converter", () => {
           strictEqual(entry.property.name, "jobId");
           strictEqual(entry.propertySegments[0], entry.property);
           strictEqual(entry.property.serializedName, "job_id");
+          strictEqual(
+            entry.property,
+            root.models
+              .find((m) => m.name === "BaseMonitor")
+              ?.properties.find((p) => p.name === "jobId"),
+          );
         }
       }
       const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
       const serializedMetadata = serialized.clients[0].methods.find(
         (m: { name: string }) => m.name === "begin",
       ).lroMetadata;
-      const serializedMonitor =
-        serialized.models[root.models.indexOf(metadata.pollingResponseModel!)];
-      strictEqual(
-        serializedMetadata.pollingResponseModel.$ref ?? serializedMetadata.pollingResponseModel.$id,
-        serializedMonitor.$ref ?? serializedMonitor.$id,
-      );
-      deepStrictEqual(
-        serializedMetadata.statusMetadata.map(
-          (entry: { property: object; propertySegments: object[] }) => entry.propertySegments[0],
-        ),
-        serializedMetadata.statusMetadata.map(
-          (entry: { property: { $ref: string; $id: string } }) => ({
-            $ref: entry.property.$ref ?? entry.property.$id,
-          }),
-        ),
-      );
       deepStrictEqual(
         serializedMetadata.operationId.map((entry: { kind: string }) => entry.kind),
         metadata.operationId!.map((entry) => entry.kind),
@@ -340,13 +263,12 @@ describe("Operation Converter", () => {
     });
   });
 
-  it("reports an empty status metadata path without dropping valid selections", async () => {
+  it("reports an empty operation ID property path without dropping valid selections", async () => {
     const program = await typeSpecCompile(
       `
       model Monitor {
         @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
         @lroResult result?: string;
-        @lroStatusMetadata progress?: int32;
         @lroOperationId id: string;
       }
       @get @route("/jobs/{jobId}/status")
@@ -363,16 +285,18 @@ describe("Operation Converter", () => {
     const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
     const sdkMethod = sdkContext.sdkPackage.clients[0].methods.find((m) => m.name === "begin");
     ok(sdkMethod?.kind === "lro");
-    ok(sdkMethod.lroMetadata.statusMetadata?.[0]);
-    sdkMethod.lroMetadata.statusMetadata[0].propertySegments = [];
+    const sdkProperty = sdkMethod.lroMetadata.operationId?.find(
+      (entry) => entry.kind === "property",
+    );
+    ok(sdkProperty?.kind === "property");
+    sdkProperty.propertySegments = [];
 
     const [root, diagnostics] = createModel(sdkContext);
     const method = root.clients[0].methods.find((m) => m.name === "begin");
     ok(method?.kind === "lro");
-    deepStrictEqual(method.lroMetadata.statusMetadata, []);
     deepStrictEqual(
       method.lroMetadata.operationId?.map((entry) => entry.kind),
-      ["path", "property"],
+      ["path"],
     );
     expectDiagnostics(diagnostics, {
       severity: "error",
@@ -527,15 +451,14 @@ describe("Operation Converter", () => {
   );
 
   it.each([true, false])(
-    "preserves selected properties without converting an unexposed polling model, path ID: %s",
+    "preserves an operation ID property from an unexposed polling model, path ID: %s",
     async (hasPathId) => {
       const program = await typeSpecCompile(
         `
-      model Details { value: string; }
       model FinalResult { value: string; }
       model Monitor {
         @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroStatusMetadata details?: Details;
+        @lroOperationId @encodedName("application/json", "job_id") jobId: string;
         unrelated: [string, int32];
       }
       @get @route("/jobs/{jobId}/status")
@@ -576,799 +499,23 @@ describe("Operation Converter", () => {
       );
       const method = root.clients[0].methods.find((m) => m.name === "begin");
       ok(method?.kind === "lro");
-      strictEqual(method.lroMetadata.pollingResponseModel, undefined);
-      strictEqual(method.lroMetadata.operationId?.length ?? 0, hasPathId ? 1 : 0);
+      deepStrictEqual(
+        method.lroMetadata.operationId?.map((entry) => entry.kind),
+        hasPathId ? ["path", "property"] : ["property"],
+      );
       strictEqual(
         root.models.some((model) => model.name === "Monitor"),
         false,
       );
-      const selection = method.lroMetadata.statusMetadata?.[0];
-      ok(selection);
+      const selection = method.lroMetadata.operationId?.find((entry) => entry.kind === "property");
+      ok(selection?.kind === "property");
       strictEqual(selection.propertySegments[0], selection.property);
-      ok(selection.property.type.kind === "model");
-      strictEqual(selection.property.type.properties[0].name, "value");
-      strictEqual(
-        selection.property.type,
-        root.models.find((model) => model.name === "Details"),
-      );
+      strictEqual(selection.property.serializedName, "job_id");
       const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
-      const serializedMethod = serialized.clients[0].methods.find(
-        (m: { name: string }) => m.name === "begin",
-      );
-      const serializedSelection = serializedMethod.lroMetadata.statusMetadata[0];
-      strictEqual(serializedMethod.lroMetadata.pollingResponseModel, undefined);
+      const serializedSelection = serialized.clients[0].methods
+        .find((m: { name: string }) => m.name === "begin")
+        .lroMetadata.operationId.find((entry: { kind: string }) => entry.kind === "property");
       strictEqual(serializedSelection.propertySegments[0].$ref, serializedSelection.property.$id);
-      strictEqual(
-        serializedSelection.property.type.$ref,
-        serialized.models.find((model: { name: string }) => model.name === "Details").$id,
-      );
-    },
-  );
-
-  it.each([true, false])(
-    "retains an exposed protocol-only polling model when declared first: %s",
-    async (pollingFirst) => {
-      const pollingOperation = `
-        @get @route("/jobs/{jobId}/status")
-        @convenientAPI(false, "csharp")
-        op getStatus(@lroOperationId @path("jobId") id: string): Monitor;
-      `;
-      const startOperation = `
-        @post @route("/jobs") @pollingOperation(getStatus)
-        @convenientAPI(false, "csharp")
-        op begin(): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-        };
-      `;
-      const program = await typeSpecCompile(
-        `
-        model Monitor {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroResult result?: string;
-          @lroStatusMetadata progress?: int32;
-        }
-        ${pollingFirst ? `${pollingOperation}\n${startOperation}` : `${startOperation}\n${pollingOperation}`}
-        `,
-        runner,
-        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-      );
-      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-      strictEqual(
-        sdkContext.sdkPackage.models.some((model) => model.name === "Monitor"),
-        false,
-      );
-      const [root, diagnostics] = createModel(sdkContext);
-      deepStrictEqual(diagnostics, []);
-      const method = root.clients[0].methods.find((m) => m.name === "begin");
-      ok(method?.kind === "lro");
-      const monitor = method.lroMetadata.pollingResponseModel;
-      ok(monitor);
-      strictEqual(
-        monitor,
-        root.models.find((model) => model.name === "Monitor"),
-      );
-      strictEqual(
-        method.lroMetadata.statusMetadata?.[0].property,
-        monitor.properties.find((property) => property.name === "progress"),
-      );
-    },
-  );
-
-  it.each([true, false])(
-    "uses a monitor exposed by a different protocol-only method regardless of its order: %s",
-    async (readerFirst) => {
-      const reader = `
-        @get @route("/inspect")
-        @convenientAPI(false, "csharp")
-        op inspect(): Monitor;
-      `;
-      const start = `
-        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-        @useFinalStateVia("original-uri")
-        @convenientAPI(false, "csharp")
-        op begin(@path("jobId") id: string): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-        };
-      `;
-      const program = await typeSpecCompile(
-        `
-        model FinalResult { value: string; }
-        model Monitor {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroStatusMetadata progress?: int32;
-        }
-        @get @route("/jobs/{jobId}/status")
-        op getStatus(@path("jobId") id: string): Monitor;
-        @get @route("/jobs/{jobId}")
-        op getResult(@path("jobId") id: string): FinalResult;
-        @client({ service: Azure.Csharp.Testing })
-        interface PublicOperations {
-          ${readerFirst ? `${reader}\n${start}` : `${start}\n${reader}`}
-        }
-        `,
-        runner,
-        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-      );
-      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-      strictEqual(
-        sdkContext.sdkPackage.models.some((model) => model.name === "Monitor"),
-        false,
-      );
-      const [root, diagnostics] = createModel(sdkContext);
-      deepStrictEqual(diagnostics, []);
-      const method = root.clients[0].methods.find((method) => method.name === "begin");
-      ok(method?.kind === "lro");
-      const monitor = root.models.find((model) => model.name === "Monitor");
-      ok(monitor);
-      strictEqual(method.lroMetadata.pollingResponseModel === monitor, true);
-      strictEqual(
-        method.lroMetadata.statusMetadata?.[0].property,
-        monitor.properties.find((property) => property.name === "progress"),
-      );
-      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
-      const serializedMethod = serialized.clients[0].methods.find(
-        (method: { name: string }) => method.name === "begin",
-      );
-      const serializedMonitor = serialized.models.find(
-        (model: { name: string }) => model.name === "Monitor",
-      );
-      strictEqual(serializedMethod.lroMetadata.pollingResponseModel.$ref, serializedMonitor.$id);
-    },
-  );
-
-  it("does not convert the original polling model when the exposed response uses an alternate type", async () => {
-    const program = await typeSpecCompile(
-      `
-      model FinalResult { value: string; }
-      model Replacement { value: string; }
-      @alternateType(Replacement, "csharp")
-      model Monitor {
-        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroStatusMetadata progress?: int32;
-        unrelated: [string, int32];
-      }
-      @get @route("/jobs/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getStatus(@path("jobId") id: string): Monitor;
-      @get @route("/jobs/{jobId}")
-      @convenientAPI(false, "csharp")
-      op getResult(@path("jobId") id: string): FinalResult;
-      @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-      @useFinalStateVia("original-uri")
-      @convenientAPI(false, "csharp")
-      op begin(@path("jobId") id: string): {
-        @statusCode code: 202;
-        @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-        @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-      };
-      `,
-      runner,
-      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-    );
-    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-    const sdkStart = sdkContext.sdkPackage.clients[0].methods.find(
-      (method) => method.name === "begin",
-    );
-    const sdkPoll = sdkContext.sdkPackage.clients[0].methods.find(
-      (method) => method.name === "getStatus",
-    );
-    ok(sdkStart?.kind === "lro");
-    ok(sdkPoll);
-    strictEqual(sdkStart.lroMetadata.pollingInfo.responseModel.name, "Monitor");
-    strictEqual(
-      sdkPoll.operation.responses.some(
-        (response) => response.type?.kind === "model" && response.type.name === "Replacement",
-      ),
-      true,
-    );
-    const [root, diagnostics] = createModel(sdkContext);
-    deepStrictEqual(
-      diagnostics.map((diagnostic) => diagnostic.code),
-      [],
-    );
-    const method = root.clients[0].methods.find((method) => method.name === "begin");
-    ok(method?.kind === "lro");
-    strictEqual(method.lroMetadata.pollingResponseModel, undefined);
-    strictEqual(
-      root.models.some((model) => model.name === "Monitor"),
-      false,
-    );
-    strictEqual(method.lroMetadata.statusMetadata?.[0].property.name, "progress");
-  });
-
-  it("preserves effective scoped access on the type graph of a hidden monitor selection", async () => {
-    const program = await typeSpecCompile(
-      `
-      enum State { Ready: "ready", Waiting: "waiting" }
-      model BaseDetails { state: State; }
-      model NestedDetails extends BaseDetails { value: string; }
-      model Details { nested: NestedDetails; }
-      model PublicDetails { value: string; }
-      model FinalResult { value: string; }
-      model Monitor {
-        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroStatusMetadata @access(Access.internal, "csharp")
-        details?: Details;
-        @lroStatusMetadata @access(Access.internal, "csharp")
-        publicDetails?: PublicDetails;
-      }
-      @get @route("/jobs/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getStatus(@path("jobId") id: string): Monitor;
-      @get @route("/jobs/{jobId}")
-      @convenientAPI(false, "csharp")
-      op getResult(@path("jobId") id: string): FinalResult;
-      @client({ service: Azure.Csharp.Testing })
-      interface PublicOperations {
-        @get @route("/publicDetails") op readPublicDetails(): PublicDetails;
-        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-        @useFinalStateVia("original-uri") @access(Access.internal, "csharp")
-        @convenientAPI(false, "csharp")
-        op begin(@path("jobId") id: string): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-        };
-      }
-      `,
-      runner,
-      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-    );
-    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-    deepStrictEqual(sdkContext.diagnostics, []);
-    strictEqual(
-      sdkContext.sdkPackage.models.find((model) => model.name === "Details")?.access,
-      "internal",
-    );
-    strictEqual(
-      sdkContext.sdkPackage.models.find((model) => model.name === "NestedDetails")?.access,
-      "internal",
-    );
-    strictEqual(
-      sdkContext.sdkPackage.models.find((model) => model.name === "BaseDetails")?.access,
-      "internal",
-    );
-    strictEqual(
-      sdkContext.sdkPackage.models.find((model) => model.name === "PublicDetails")?.access,
-      "public",
-    );
-    strictEqual(
-      sdkContext.sdkPackage.enums.find((type) => type.name === "State")?.access,
-      "internal",
-    );
-    const [root, diagnostics] = createModel(sdkContext);
-    deepStrictEqual(diagnostics, []);
-    strictEqual(
-      root.models.some((model) => model.name === "Monitor"),
-      false,
-    );
-    const method = root.clients[0].methods.find((method) => method.name === "begin");
-    ok(method?.kind === "lro");
-    strictEqual(method.lroMetadata.statusMetadata?.[0].property.access, "internal");
-    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
-    const serializedMethod = serialized.clients[0].methods.find(
-      (method: { name: string }) => method.name === "begin",
-    );
-    strictEqual(serializedMethod.lroMetadata.statusMetadata[0].property.access, "internal");
-    strictEqual(root.models.find((model) => model.name === "Details")?.access, "internal");
-    strictEqual(root.models.find((model) => model.name === "NestedDetails")?.access, "internal");
-    strictEqual(root.models.find((model) => model.name === "BaseDetails")?.access, "internal");
-    strictEqual(root.models.find((model) => model.name === "PublicDetails")?.access, undefined);
-    strictEqual(root.enums.find((type) => type.name === "State")?.access, "internal");
-  });
-
-  it("does not apply a selection access override scoped to another emitter", async () => {
-    const program = await typeSpecCompile(
-      `
-      model Monitor {
-        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroResult result?: string;
-        @lroStatusMetadata @access(Access.internal, "python")
-        progress?: int32;
-      }
-      @get @route("/jobs/{jobId}/status")
-      op getStatus(@path("jobId") id: string): Monitor;
-      @post @route("/jobs") @pollingOperation(getStatus)
-      op begin(): {
-        @statusCode code: 202;
-        @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-      };
-      `,
-      runner,
-      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-    );
-    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-    const [root, diagnostics] = createModel(sdkContext);
-    deepStrictEqual(diagnostics, []);
-    const method = root.clients[0].methods.find((method) => method.name === "begin");
-    ok(method?.kind === "lro");
-    strictEqual(method.lroMetadata.statusMetadata?.[0].property.access, undefined);
-  });
-
-  it.each(
-    ['"ready"', '"ready" | null'].flatMap((literal) => [
-      { literal, ownerAccess: true, propertyAccess: false },
-      { literal, ownerAccess: false, propertyAccess: true },
-    ]),
-  )(
-    "normalizes a hidden enum selection: $literal, internal owner: $ownerAccess",
-    async ({ literal, ownerAccess, propertyAccess }) => {
-      const program = await typeSpecCompile(
-        `
-      model FinalResult { value: string; }
-      ${ownerAccess ? '@access(Access.internal, "csharp")' : ""}
-      model Monitor {
-        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroStatusMetadata ${propertyAccess ? '@access(Access.internal, "csharp")' : ""}
-        mode?: ${literal};
-      }
-      @get @route("/jobs/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getStatus(@path("jobId") id: string): Monitor;
-      @get @route("/jobs/{jobId}")
-      @convenientAPI(false, "csharp")
-      op getResult(@path("jobId") id: string): FinalResult;
-      @client({ service: Azure.Csharp.Testing })
-      interface PublicOperations {
-        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-        @useFinalStateVia("original-uri") @access(Access.internal, "csharp")
-        @convenientAPI(false, "csharp")
-        op begin(@path("jobId") id: string): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-        };
-      }
-      `,
-        runner,
-        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-      );
-      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-      const sdkStart = sdkContext.sdkPackage.clients[0].methods.find(
-        (method) => method.name === "begin",
-      );
-      ok(sdkStart?.kind === "lro");
-      strictEqual(
-        sdkStart.lroMetadata.pollingInfo.responseModel.access,
-        ownerAccess ? "internal" : "public",
-      );
-      const [root, diagnostics] = createModel(sdkContext);
-      deepStrictEqual(diagnostics, []);
-      const method = root.clients[0].methods.find((method) => method.name === "begin");
-      ok(method?.kind === "lro");
-      let selected = method.lroMetadata.statusMetadata?.[0].property.type;
-      if (selected?.kind === "nullable") selected = selected.type;
-      ok(selected?.kind === "enum");
-      strictEqual(selected.name, "MonitorMode");
-      strictEqual(selected.access, "internal");
-      ok(selected.usage & UsageFlags.Output);
-      strictEqual(root.enums.includes(selected), true);
-      strictEqual(
-        root.models.some((model) => model.name === "Monitor"),
-        false,
-      );
-    },
-  );
-
-  it.each(["waiting", "ready"])(
-    "emits distinct literal enums for same-named hidden monitors: %s",
-    async (secondValue) => {
-      const program = await typeSpecCompile(
-        `
-      namespace First {
-        model Monitor {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroStatusMetadata mode?: "ready";
-        }
-      }
-      namespace Second {
-        model Monitor {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroStatusMetadata mode?: "${secondValue}";
-        }
-      }
-      enum MonitorMode { Known: "known" }
-      model MonitorMode1 { value: string; }
-      model FinalResult { value: string; }
-      @get @route("/first/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getFirstStatus(@path("jobId") id: string): First.Monitor;
-      @get @route("/second/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getSecondStatus(@path("jobId") id: string): Second.Monitor;
-      @get @route("/jobs/{jobId}")
-      @convenientAPI(false, "csharp")
-      op getResult(@path("jobId") id: string): FinalResult;
-      @client({ service: Azure.Csharp.Testing })
-      interface PublicOperations {
-        @get @route("/known") op readKnown(): MonitorMode;
-        @get @route("/known-model") op readKnownModel(): MonitorMode1;
-        @post @route("/first/{jobId}") @pollingOperation(getFirstStatus)
-        @finalOperation(getResult) @useFinalStateVia("original-uri")
-        @convenientAPI(false, "csharp")
-        op beginFirst(@path("jobId") id: string): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<First.Monitor>;
-          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-        };
-        @post @route("/second/{jobId}") @pollingOperation(getSecondStatus)
-        @finalOperation(getResult) @useFinalStateVia("original-uri")
-        @convenientAPI(false, "csharp")
-        op beginSecond(@path("jobId") id: string): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<Second.Monitor>;
-          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-        };
-      }
-      `,
-        runner,
-        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-      );
-      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-      const [root, diagnostics] = createModel(sdkContext);
-      deepStrictEqual(diagnostics, []);
-      const first = root.clients[0].methods.find((method) => method.name === "beginFirst");
-      const second = root.clients[0].methods.find((method) => method.name === "beginSecond");
-      ok(first?.kind === "lro");
-      ok(second?.kind === "lro");
-      const firstEnum = first.lroMetadata.statusMetadata?.[0].property.type;
-      const secondEnum = second.lroMetadata.statusMetadata?.[0].property.type;
-      ok(firstEnum?.kind === "enum");
-      ok(secondEnum?.kind === "enum");
-      notStrictEqual(firstEnum, secondEnum);
-      deepStrictEqual(
-        firstEnum.values.map((value) => value.value),
-        ["ready"],
-      );
-      deepStrictEqual(
-        secondEnum.values.map((value) => value.value),
-        [secondValue],
-      );
-      strictEqual(root.enums.includes(firstEnum), true);
-      strictEqual(root.enums.includes(secondEnum), true);
-      const knownEnum = root.enums.find((type) =>
-        type.crossLanguageDefinitionId.endsWith(".MonitorMode"),
-      );
-      const knownModel = root.models.find((type) => type.name === "MonitorMode1");
-      ok(knownEnum);
-      ok(knownModel);
-      strictEqual(knownEnum.name, "MonitorMode");
-      strictEqual(
-        new Set([knownEnum.name, knownModel.name, firstEnum.name, secondEnum.name]).size,
-        4,
-      );
-      strictEqual(
-        root.models.some((model) => model.name === "Monitor"),
-        false,
-      );
-      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
-      for (const [methodName, enumType] of [
-        ["beginFirst", firstEnum],
-        ["beginSecond", secondEnum],
-      ] as const) {
-        const method = serialized.clients[0].methods.find(
-          (candidate: { name: string }) => candidate.name === methodName,
-        );
-        const propertyType = method.lroMetadata.statusMetadata[0].property.type;
-        const serializedEnum = serialized.enums[root.enums.indexOf(enumType)];
-        strictEqual(
-          propertyType.$ref ?? propertyType.$id,
-          serializedEnum.$ref ?? serializedEnum.$id,
-        );
-      }
-    },
-  );
-
-  it.each([
-    {
-      description: "client type",
-      monitor: "Testing",
-      property: "client",
-      client: "TestingClient",
-      knownType: "",
-      knownOperation: "",
-      expected: "TestingClient1",
-    },
-    {
-      description: "normalized model type",
-      monitor: "Monitor",
-      property: "some_mode",
-      client: "PublicOperations",
-      knownType: "model MonitorSomeMode { value: string; }",
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
-      expected: "MonitorSome_mode1",
-    },
-    {
-      description: "normalized enum type",
-      monitor: "Monitor",
-      property: "some_mode",
-      client: "PublicOperations",
-      knownType: 'enum MonitorSomeMode { Known: "known" }',
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
-      expected: "MonitorSome_mode1",
-    },
-    {
-      description: "separator-normalized type",
-      monitor: "Monitor",
-      property: '@clientName("some-mode", "csharp") someMode',
-      client: "PublicOperations",
-      knownType: "model MonitorSomeMode { value: string; }",
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
-      expected: "MonitorSome-mode1",
-    },
-    {
-      description: "Unicode-cased type",
-      monitor: "Monitor",
-      property: '@clientName("some_\u03c2_code", "csharp") someSigma',
-      client: "PublicOperations",
-      knownType:
-        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSome\u03a3Code"), "csharp") model Known { value: string; }',
-      knownOperation: '@get @route("/known") op readKnown(): Known;',
-      expected: "MonitorSome_\u03c2_code1",
-    },
-    {
-      description: "supplementary-character-normalized type",
-      monitor: "Monitor",
-      property: '@clientName("some_\u{10400}mode", "csharp") someMode',
-      client: "PublicOperations",
-      knownType: "model MonitorSomeMode { value: string; }",
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
-      expected: "MonitorSome_\u{10400}mode1",
-    },
-    {
-      description: "request model projected to a content type",
-      monitor: "Monitor",
-      property: "someContent",
-      client: "PublicOperations",
-      knownType: "model MonitorSomeRequest { value: string; }",
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeRequest;',
-      expected: "MonitorSomeContent1",
-    },
-    {
-      description: "response model projected to a result type",
-      monitor: "Monitor",
-      property: "someResult",
-      client: "PublicOperations",
-      knownType: "model MonitorSomeResponse { value: string; }",
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeResponse;',
-      expected: "MonitorSomeResult1",
-    },
-    {
-      description: "exact response model type",
-      monitor: "Monitor",
-      property: "someResult",
-      client: "PublicOperations",
-      knownType:
-        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSomeResponse"), "csharp") model Known { value: string; }',
-      knownOperation: '@get @route("/known") op readKnown(): Known;',
-      expected: "MonitorSomeResult",
-    },
-    {
-      description: "distinct type",
-      monitor: "Monitor",
-      property: "other_mode",
-      client: "PublicOperations",
-      knownType: "model MonitorSomeMode { value: string; }",
-      knownOperation: '@get @route("/known") op readKnown(): MonitorSomeMode;',
-      expected: "MonitorOther_mode",
-    },
-    {
-      description: "exact projected model type",
-      monitor: "Monitor",
-      property: "some_mode",
-      client: "PublicOperations",
-      knownType:
-        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSomeMode"), "csharp") model Known { value: string; }',
-      knownOperation: '@get @route("/known") op readKnown(): Known;',
-      expected: "MonitorSome_mode1",
-    },
-    {
-      description: "distinct exact model type",
-      monitor: "Monitor",
-      property: "some_mode",
-      client: "PublicOperations",
-      knownType:
-        '@clientName(Azure.ClientGenerator.Core.exact("MonitorSome_mode"), "csharp") model Known { value: string; }',
-      knownOperation: '@get @route("/known") op readKnown(): Known;',
-      expected: "MonitorSome_mode",
-    },
-  ])(
-    "avoids a metadata literal enum collision with a $description",
-    async ({ monitor, property, client, knownType, knownOperation, expected }) => {
-      const program = await typeSpecCompile(
-        `
-        ${knownType}
-        model FinalResult { value: string; }
-        model ${monitor} {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroStatusMetadata ${property}?: "ready";
-        }
-        @get @route("/jobs/{jobId}/status")
-        @convenientAPI(false, "csharp")
-        op getStatus(@path("jobId") id: string): ${monitor};
-        @get @route("/jobs/{jobId}")
-        @convenientAPI(false, "csharp")
-        op getResult(@path("jobId") id: string): FinalResult;
-        @client({ service: Azure.Csharp.Testing })
-        interface ${client} {
-          ${knownOperation}
-          @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-          @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
-          op begin(@path("jobId") id: string): {
-            @statusCode code: 202;
-            @pollingLocation @header("Operation-Location") location: ResourceLocation<${monitor}>;
-            @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-          };
-        }
-        `,
-        runner,
-        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-      );
-      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-      const [root, diagnostics] = createModel(sdkContext);
-      deepStrictEqual(diagnostics, []);
-      strictEqual(root.clients[0].name, client);
-      const method = root.clients[0].methods.find((candidate) => candidate.name === "begin");
-      ok(method?.kind === "lro");
-      const selected = method.lroMetadata.statusMetadata?.[0].property.type;
-      ok(selected?.kind === "enum");
-      strictEqual(selected.name, expected);
-      strictEqual(root.enums.includes(selected), true);
-    },
-  );
-
-  it("avoids a metadata literal enum collision with a nested client", async () => {
-    const program = await typeSpecCompile(
-      `
-      model FinalResult { value: string; }
-      model Testing {
-        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroStatusMetadata client?: "ready";
-      }
-      @get @route("/jobs/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getStatus(@path("jobId") id: string): Testing;
-      @get @route("/jobs/{jobId}")
-      @convenientAPI(false, "csharp")
-      op getResult(@path("jobId") id: string): FinalResult;
-      @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-      @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
-      op begin(@path("jobId") id: string): {
-        @statusCode code: 202;
-        @pollingLocation @header("Operation-Location") location: ResourceLocation<Testing>;
-        @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-      };
-      interface TestingClient {
-        @get @route("/ping") op ping(): void;
-      }
-      `,
-      runner,
-      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-    );
-    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-    const [root, diagnostics] = createModel(sdkContext);
-    deepStrictEqual(diagnostics, []);
-    ok(root.clients[0].children?.some((client) => client.name === "TestingClient"));
-    const method = root.clients[0].methods.find((candidate) => candidate.name === "begin");
-    ok(method?.kind === "lro");
-    const selected = method.lroMetadata.statusMetadata?.[0].property.type;
-    ok(selected?.kind === "enum");
-    strictEqual(selected.name, "TestingClient1");
-  });
-
-  it("avoids normalized-name collisions between selected literal enums", async () => {
-    const program = await typeSpecCompile(
-      `
-      model FinalResult { value: string; }
-      model Monitor {
-        @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-        @lroStatusMetadata some_mode?: "ready";
-        @lroStatusMetadata someMode?: "waiting";
-      }
-      @get @route("/jobs/{jobId}/status")
-      @convenientAPI(false, "csharp")
-      op getStatus(@path("jobId") id: string): Monitor;
-      @get @route("/jobs/{jobId}")
-      @convenientAPI(false, "csharp")
-      op getResult(@path("jobId") id: string): FinalResult;
-      @client({ service: Azure.Csharp.Testing })
-      interface PublicOperations {
-        @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-        @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
-        op begin(@path("jobId") id: string): {
-          @statusCode code: 202;
-          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-          @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-        };
-      }
-      `,
-      runner,
-      { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-    );
-    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-    const [root, diagnostics] = createModel(sdkContext);
-    deepStrictEqual(diagnostics, []);
-    const method = root.clients[0].methods.find((candidate) => candidate.name === "begin");
-    ok(method?.kind === "lro");
-    const selections = method.lroMetadata.statusMetadata;
-    ok(selections);
-    deepStrictEqual(
-      selections.map((entry) => {
-        const type = entry.property.type;
-        ok(type.kind === "enum");
-        return type.name;
-      }),
-      ["MonitorSome_mode", "MonitorSomeMode1"],
-    );
-  });
-
-  it.each([
-    { optional: true, shareSdkType: false },
-    { optional: false, shareSdkType: false },
-    { optional: true, shareSdkType: true },
-  ])(
-    "keeps a shared model's literal type, optional: $optional, shared SDK type: $shareSdkType",
-    async ({ optional, shareSdkType }) => {
-      const program = await typeSpecCompile(
-        `
-        model Shared { value${optional ? "?" : ""}: "ready"; }
-        model FinalResult { value: string; }
-        model Monitor {
-          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
-          @lroStatusMetadata mode?: "ready";
-        }
-        @get @route("/jobs/{jobId}/status")
-        op getStatus(@path("jobId") id: string): Monitor;
-        @get @route("/jobs/{jobId}")
-        op getResult(@path("jobId") id: string): FinalResult;
-        @client({ service: Azure.Csharp.Testing })
-        interface PublicOperations {
-          @post @route("/shared") op useShared(@body input: Shared): void;
-          @post @route("/jobs/{jobId}") @pollingOperation(getStatus) @finalOperation(getResult)
-          @useFinalStateVia("original-uri") @convenientAPI(false, "csharp")
-          op begin(@path("jobId") id: string): {
-            @statusCode code: 202;
-            @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
-            @finalLocation @header("Location") finalLocation: ResourceLocation<FinalResult>;
-          };
-        }
-        `,
-        runner,
-        { IsAzureCoreNeeded: true, IsTCGCNeeded: true },
-      );
-      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
-      if (shareSdkType) {
-        const sharedModel = sdkContext.sdkPackage.models.find((model) => model.name === "Shared");
-        const start = sdkContext.sdkPackage.clients[0].methods.find(
-          (method) => method.name === "begin",
-        );
-        ok(sharedModel);
-        ok(start?.kind === "lro");
-        ok(start.lroMetadata.statusMetadata?.[0]);
-        start.lroMetadata.statusMetadata[0].property.type = sharedModel.properties[0].type;
-      }
-      const [root, diagnostics] = createModel(sdkContext);
-      deepStrictEqual(
-        diagnostics.map((diagnostic) => diagnostic.code),
-        [],
-      );
-      const method = root.clients[0].methods.find((method) => method.name === "begin");
-      ok(method?.kind === "lro");
-      const selected = method.lroMetadata.statusMetadata?.[0].property.type;
-      const shared = root.models.find((model) => model.name === "Shared")?.properties[0].type;
-      ok(selected?.kind === "enum");
-      ok(selected.usage & UsageFlags.Output);
-      ok(shared);
-      strictEqual(shared.kind, optional ? "enum" : "constant");
-      if (shared.kind === "enum") {
-        strictEqual(shared.name, "SharedValue");
-        ok(shared.usage & UsageFlags.Input);
-        strictEqual(selected === shared, shareSdkType);
-      }
-      strictEqual(root.enums.includes(selected), true);
     },
   );
 

@@ -6,17 +6,14 @@ import type {
   SdkEnumType,
   SdkHttpOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic } from "@typespec/compiler";
 import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type { CodeModel } from "../type/code-model.js";
 import type {
-  InputClient,
   InputEnumType,
   InputLiteralType,
   InputModelType,
-  InputType,
   InputUnionType,
 } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
@@ -24,8 +21,8 @@ import { createDiagnostic } from "./lib.js";
 import { updateModelConstructorRequirements } from "./model-constructor.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { fromSdkType, normalizeLiteralTypeForProperty } from "./type-converter.js";
-import { getClientNamespaceString } from "./utils.js";
+import { fromSdkType } from "./type-converter.js";
+import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -85,9 +82,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   // operation-parameter enums) where the namespace can be inconsistent across emission
   // paths. Distinct named types that share a name across different namespaces still have
   // distinct crossLanguageDefinitionIds and are preserved.
-  // Metadata selections retain distinct enum identities even if their anonymous names collide.
   const existingEnumKeys = new Set(enums.map((e) => typeDedupeKey(e)));
-  const existingEnums = new Set(enums);
   for (const type of sdkContext.__typeCache.types.values()) {
     if (typesBeforeClients.has(type)) continue;
     if (type.kind === "model") {
@@ -99,17 +94,9 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
     } else if (type.kind === "enum") {
       const enumType = type as InputEnumType;
       const key = typeDedupeKey(enumType);
-      if (
-        existingEnums.has(enumType) ||
-        (existingEnumKeys.has(key) && !sdkContext.__typeCache.lroMetadataEnums.has(enumType))
-      ) {
-        continue;
-      }
+      if (existingEnumKeys.has(key)) continue;
       enums.push(enumType);
-      existingEnums.add(enumType);
-      if (!sdkContext.__typeCache.lroMetadataEnums.has(enumType)) {
-        existingEnumKeys.add(key);
-      }
+      existingEnumKeys.add(key);
     }
   }
 
@@ -117,18 +104,7 @@ export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, reado
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
   // Fix naming conflicts for constants, enums, and models
-  fixNamingConflicts(
-    models,
-    enums,
-    constants,
-    sdkContext.__typeCache.lroMetadataEnums,
-    typesBeforeClients,
-    sdkContext.__typeCache.clients.values(),
-  );
-  // Name normalization copies the owning model's usage; LRO metadata enums are always deserialized.
-  for (const type of sdkContext.__typeCache.lroMetadataEnums) {
-    type.usage |= UsageFlags.Output | UsageFlags.Json;
-  }
+  fixNamingConflicts(models, constants);
 
   // Resolve the root namespace. When this cannot be determined the generated code model
   // has no name, which the .NET generator rejects with an opaque root-level deserialization
@@ -190,29 +166,24 @@ function parseApiVersions(
  * @param enums - Array of input enum types
  * @param constants - Array of input literal types (constants)
  */
-function fixNamingConflicts(
-  models: InputModelType[],
-  enums: InputEnumType[],
-  constants: InputLiteralType[],
-  lroMetadataEnums: Set<InputEnumType>,
-  typesBeforeClients: Set<InputType>,
-  clients: Iterable<InputClient>,
-): void {
-  const modelEnums = new Set<InputEnumType>();
+function fixNamingConflicts(models: InputModelType[], constants: InputLiteralType[]): void {
   // First, fix names for constants and constant-derived enums in model properties
   for (const model of models) {
     for (const property of model.properties) {
       const type = property.type;
-      let nestedType = type;
-      while (nestedType.kind === "nullable") nestedType = nestedType.type;
-      if (nestedType.kind === "enum") modelEnums.add(nestedType);
 
       if (type.kind === "constant") {
         // Fix constant property names
-        normalizeLiteralTypeForProperty(type, model, property.name);
+        type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
+        type.namespace = model.namespace;
+        type.access = model.access;
+        type.usage = model.usage;
       } else if (type.kind === "enum" && type.crossLanguageDefinitionId === "") {
         // Fix enum names for enums created from constants
-        normalizeLiteralTypeForProperty(type, model, property.name);
+        type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
+        type.namespace = model.namespace;
+        type.access = model.access;
+        type.usage = model.usage;
       }
     }
   }
@@ -245,48 +216,6 @@ function fixNamingConflicts(
       modelNameMap.set(key, 1);
     }
   }
-
-  // LRO metadata enums are synthesized by this emitter from TCGC constants, so TCGC does not reserve their names.
-  // They must have distinct C# type and output file names without renaming existing types.
-  const usedTypeNames = new Set([...clients].map(csharpTypeNameKey));
-  for (const model of models) {
-    const name = csharpTypeNameKey(model);
-    usedTypeNames.add(name);
-    if (!model.isExactName) {
-      // ModelProvider may project Request/Response suffixes to Content/Result.
-      if (name.endsWith("REQUEST")) usedTypeNames.add(`${name.slice(0, -7)}CONTENT`);
-      if (name.endsWith("RESPONSE")) usedTypeNames.add(`${name.slice(0, -8)}RESULT`);
-    }
-  }
-  for (const type of enums) {
-    if (!lroMetadataEnums.has(type) || typesBeforeClients.has(type)) {
-      usedTypeNames.add(csharpTypeNameKey(type));
-    }
-  }
-  const metadataEnums = enums
-    .filter((type) => lroMetadataEnums.has(type) && !typesBeforeClients.has(type))
-    .sort((a, b) => Number(modelEnums.has(b)) - Number(modelEnums.has(a)));
-  for (const type of metadataEnums) {
-    const baseName = type.name;
-    let suffix = 1;
-    while (usedTypeNames.has(csharpTypeNameKey(type))) {
-      type.name = `${baseName}${suffix++}`;
-    }
-    usedTypeNames.add(csharpTypeNameKey(type));
-  }
-}
-
-function csharpTypeNameKey(type: { name: string; isExactName?: boolean }): string {
-  if (type.isExactName) return type.name.toUpperCase();
-  // C# checks UTF-16 code units and removes separators (including underscores).
-  const codeUnits = type.name.replace(/[\uD800-\uDFFF]/g, " ");
-  const startsWithDigit = /^\p{Nd}/u.test(codeUnits);
-  const start = startsWithDigit ? 0 : codeUnits.search(/[\p{L}\p{Nl}_]/u);
-  const name = start < 0 ? codeUnits : codeUnits.slice(start);
-  return `${startsWithDigit ? "_" : ""}${name.replace(
-    /_|[^\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]/gu,
-    "",
-  )}`.toUpperCase();
 }
 
 /**

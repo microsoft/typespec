@@ -52,7 +52,7 @@ import type {
 } from "../type/input-type.js";
 import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
-import { firstLetterToUpperCase, isReadOnly } from "./utils.js";
+import { isReadOnly } from "./utils.js";
 
 // we have this complicated type here to let the caller of fromSdkType could infer the real return type of this function.
 type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
@@ -322,7 +322,6 @@ export function fromSdkModelProperty(
     ),
     optional: sdkProperty.optional,
     readOnly: isReadOnly(sdkProperty),
-    access: sdkProperty.__raw ? getAccessOverride(sdkContext, sdkProperty.__raw) : undefined,
     discriminator: sdkProperty.discriminator,
     flatten: sdkProperty.flatten,
     decorators: sdkProperty.decorators,
@@ -417,17 +416,6 @@ function createEnumType(
   }
 
   return diagnostics.wrap(inputEnumType);
-}
-
-export function normalizeLiteralTypeForProperty(
-  type: InputLiteralType | InputEnumType,
-  model: Pick<InputModelType, "name" | "namespace" | "access" | "usage">,
-  propertyName: string,
-): void {
-  type.name = `${model.name}${firstLetterToUpperCase(propertyName)}`;
-  type.namespace = model.namespace;
-  type.access = model.access;
-  type.usage = model.usage;
 }
 
 function fromSdkDateTimeType(

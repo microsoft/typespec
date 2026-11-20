@@ -9,26 +9,17 @@ namespace Microsoft.TypeSpec.Generator.Input
     public sealed class InputLongRunningServiceMetadata
     {
         public InputLongRunningServiceMetadata(int finalStateVia, InputOperationResponse finalResponse, string? resultPath)
-            : this(finalStateVia, finalResponse, resultPath, [], [])
+            : this(finalStateVia, finalResponse, resultPath, [])
         {
         }
 
         public InputLongRunningServiceMetadata(int finalStateVia, InputOperationResponse finalResponse, string? resultPath,
-            IReadOnlyList<InputLroStatusMetadata> statusMetadata, IReadOnlyList<InputLroOperationIdMetadata> operationId)
-            : this(finalStateVia, finalResponse, resultPath, statusMetadata, operationId, null)
-        {
-        }
-
-        public InputLongRunningServiceMetadata(int finalStateVia, InputOperationResponse finalResponse, string? resultPath,
-            IReadOnlyList<InputLroStatusMetadata> statusMetadata, IReadOnlyList<InputLroOperationIdMetadata> operationId,
-            InputModelType? pollingResponseModel)
+            IReadOnlyList<InputLroOperationIdMetadata> operationId)
         {
             FinalStateVia = finalStateVia;
             FinalResponse = finalResponse;
             ResultPath = resultPath;
-            StatusMetadata = statusMetadata;
             OperationId = operationId;
-            PollingResponseModel = pollingResponseModel;
         }
 
         public InputLongRunningServiceMetadata() : this(1, new InputOperationResponse(), null) { }
@@ -36,14 +27,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         public int FinalStateVia { get; }
         public InputOperationResponse FinalResponse { get; }
         public string? ResultPath { get; }
-        /// <summary>
-        /// The polling response model when it is otherwise emitted. Selections may be present even when this is null.
-        /// </summary>
-        public InputModelType? PollingResponseModel { get; }
-        /// <summary>
-        /// Auxiliary values from the latest polling response, in selection order.
-        /// </summary>
-        public IReadOnlyList<InputLroStatusMetadata> StatusMetadata { get; }
         /// <summary>
         /// Server-issued ID sources in availability order: polling URL, then polling response body.
         /// These selections do not replace the complete polling URL.

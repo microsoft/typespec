@@ -5,7 +5,6 @@ import type { InputOperation } from "./input-operation.js";
 import type {
   InputMethodParameter,
   InputModelProperty,
-  InputModelType,
   InputParameter,
   InputPathParameter,
   InputType,
@@ -82,16 +81,7 @@ export interface InputLongRunningServiceMetadata {
   finalStateVia: OperationFinalStateVia;
   finalResponse: OperationResponse;
   resultPath?: string;
-  /** Present when the polling response model is otherwise emitted. */
-  pollingResponseModel?: InputModelType;
-  statusMetadata?: InputLroStatusMetadata[];
   operationId?: InputLroOperationIdMetadata[];
-}
-
-export interface InputLroStatusMetadata {
-  property: InputModelProperty;
-  /** Typed path relative to the polling response model, not the final result. */
-  propertySegments: InputModelProperty[];
 }
 
 export enum InputOperationLinkLocation {

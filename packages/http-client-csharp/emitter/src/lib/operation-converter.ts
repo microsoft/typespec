@@ -31,8 +31,6 @@ import {
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
-  updateUsageOrAccess,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Union } from "@typespec/compiler";
 import {
@@ -41,6 +39,7 @@ import {
   getDeprecated,
   isErrorModel,
   NoTarget,
+  resolveEncodedName,
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
@@ -59,7 +58,7 @@ import type {
   InputLongRunningServiceMetadata,
   InputLongRunningServiceMethod,
   InputLroOperationIdMetadata,
-  InputLroStatusMetadata,
+  InputLroOperationIdPropertyMetadata,
   InputNextLink,
   InputPagingServiceMetadata,
   InputPagingServiceMethod,
@@ -87,11 +86,7 @@ import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
-import {
-  fromSdkModelProperty,
-  fromSdkType,
-  normalizeLiteralTypeForProperty,
-} from "./type-converter.js";
+import { fromSdkModelProperty, fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
 
 export function fromSdkServiceMethod(
@@ -743,7 +738,7 @@ function loadLongRunningMetadata(
   const pollingOperation =
     step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
   let pollingMethod: SdkServiceMethod<SdkHttpOperation> | undefined;
-  if (pollingOperation && (metadata.statusMetadata?.length || metadata.operationId?.length)) {
+  if (pollingOperation && metadata.operationId?.length) {
     const pollingClient = sdkContext.getClientForOperation(pollingOperation.__raw.operation);
     const clients = [...sdkContext.sdkPackage.clients];
     for (let index = 0; index < clients.length; index++) {
@@ -767,63 +762,17 @@ function loadLongRunningMetadata(
     );
   };
 
-  const convertSelectedProperty = (sdkProperty: SdkModelPropertyType) => {
-    let sdkType = sdkProperty.type;
-    while (sdkType.kind === "nullable") sdkType = sdkType.type;
-    const alreadyConverted = sdkContext.__typeCache.types.has(sdkType);
+  const convertProperty = (sdkProperty: SdkModelPropertyType) => {
     const property = diagnostics.pipe(
       fromSdkModelProperty(sdkContext, sdkProperty, metadata.pollingInfo.responseModel),
     );
-    if (!property) return undefined;
-
-    const selectedTypes = new Set<SdkType>();
-    diagnostics.pipe(
-      updateUsageOrAccess(sdkContext, UsageFlags.Output, sdkProperty.type, {
-        seenTypes: selectedTypes,
-      }),
-    );
-    for (const selectedType of selectedTypes) {
-      if (selectedType.kind === "model" && selectedType.baseModel) {
-        selectedTypes.add(selectedType.baseModel);
-      }
-      if (
-        (selectedType.kind === "model" || selectedType.kind === "enum") &&
-        selectedType.access === "internal"
-      ) {
-        const input = sdkContext.__typeCache.types.get(selectedType);
-        if (input?.kind === "model" || input?.kind === "enum") {
-          input.access ??= "internal";
-        }
-      }
-    }
-
-    let inputType = property.type;
-    while (inputType.kind === "nullable") inputType = inputType.type;
-    if (
-      sdkType.kind === "constant" &&
-      inputType.kind === "enum" &&
-      inputType.crossLanguageDefinitionId === ""
-    ) {
-      if (!alreadyConverted) {
-        const owner = sdkProperty.__raw?.model
-          ? diagnostics.pipe(getSdkModelWithDiagnostics(sdkContext, sdkProperty.__raw.model))
-          : metadata.pollingInfo.responseModel;
-        normalizeLiteralTypeForProperty(
-          inputType,
-          {
-            name: owner.name,
-            namespace: owner.namespace,
-            access:
-              owner.access === "internal" || sdkProperty.access === "internal"
-                ? "internal"
-                : undefined,
-            usage: owner.usage,
-          },
-          property.name,
-        );
-      }
-      inputType.usage |= UsageFlags.Output | UsageFlags.Json;
-      sdkContext.__typeCache.lroMetadataEnums.add(inputType);
+    // TCGC omits serialization options when the polling model is not otherwise emitted.
+    if (property && property.serializedName === undefined && sdkProperty.__raw) {
+      property.serializedName = resolveEncodedName(
+        sdkContext.program,
+        sdkProperty.__raw,
+        "application/json",
+      );
     }
     return property;
   };
@@ -831,13 +780,13 @@ function loadLongRunningMetadata(
   const convertSelection = (entry: {
     property: SdkModelPropertyType;
     propertySegments: SdkModelPropertyType[];
-  }): InputLroStatusMetadata | undefined => {
+  }): Pick<InputLroOperationIdPropertyMetadata, "property" | "propertySegments"> | undefined => {
     if (!entry.property || !entry.propertySegments?.length) {
       reportInvalidSelection("a selected property must have a nonempty property path.");
       return undefined;
     }
 
-    const property = convertSelectedProperty(entry.property);
+    const property = convertProperty(entry.property);
     if (!property) {
       reportInvalidSelection("a selected property could not be converted.");
       return undefined;
@@ -845,7 +794,7 @@ function loadLongRunningMetadata(
 
     const propertySegments: InputModelProperty[] = [];
     for (const segment of entry.propertySegments) {
-      const converted = convertSelectedProperty(segment);
+      const converted = convertProperty(segment);
       if (!converted) {
         reportInvalidSelection("a selected property path could not be converted.");
         return undefined;
@@ -854,14 +803,6 @@ function loadLongRunningMetadata(
     }
     return { property, propertySegments };
   };
-
-  const statusMetadata: InputLroStatusMetadata[] = [];
-  for (const entry of metadata.statusMetadata ?? []) {
-    const selection = convertSelection(entry);
-    if (selection) {
-      statusMetadata.push(selection);
-    }
-  }
 
   const operationId: InputLroOperationIdMetadata[] = [];
   for (const entry of metadata.operationId ?? []) {
@@ -970,13 +911,6 @@ function loadLongRunningMetadata(
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
-    get pollingResponseModel() {
-      if (statusMetadata.length === 0 && operationId.length === 0) return undefined;
-      // Other client methods may expose this model after the LRO is converted.
-      const model = sdkContext.__typeCache.types.get(metadata.pollingInfo.responseModel);
-      return model?.kind === "model" ? model : undefined;
-    },
-    statusMetadata: metadata.statusMetadata ? statusMetadata : undefined,
     operationId: metadata.operationId ? operationId : undefined,
   });
 }

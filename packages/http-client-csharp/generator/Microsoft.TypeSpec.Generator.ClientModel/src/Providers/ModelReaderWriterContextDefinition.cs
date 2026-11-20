@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
-using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -46,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
             var customizedBuildableTypes = BuildCustomizedBuildableTypes();
-            var lroMetadataTypes = CollectLroMetadataTypes();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
@@ -71,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!(IsPublicApi(provider) || IsInternalLroMetadataType(provider, lroMetadataTypes))
+                if (!IsPublicApi(provider)
                     || !ShouldWriteProvider(provider)
                     || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
@@ -90,52 +88,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
-        }
-
-        // LRO pollers read internal polling and selected models through this context at runtime.
-        private static bool IsInternalLroMetadataType(TypeProvider provider, HashSet<CSharpType> lroMetadataTypes)
-            => provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private)
-                && lroMetadataTypes.Contains(provider.Type);
-
-        private static HashSet<CSharpType> CollectLroMetadataTypes()
-        {
-            var types = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
-            foreach (var client in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
-            {
-                foreach (var method in client.Methods)
-                {
-                    var metadata = method switch
-                    {
-                        InputLongRunningServiceMethod lro => lro.LongRunningServiceMetadata,
-                        InputLongRunningPagingServiceMethod lroPaging => lroPaging.LongRunningServiceMetadata,
-                        _ => null
-                    };
-                    if (metadata is null)
-                    {
-                        continue;
-                    }
-
-                    if (metadata.PollingResponseModel is { } pollingModel
-                        && ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(pollingModel) is { } pollingType)
-                    {
-                        types.Add(pollingType.WithNullable(false));
-                    }
-
-                    var properties = metadata.StatusMetadata.SelectMany(selection => selection.PropertySegments)
-                        .Concat(metadata.OperationId.OfType<InputLroOperationIdPropertyMetadata>()
-                            .SelectMany(selection => selection.PropertySegments));
-                    foreach (var property in properties)
-                    {
-                        var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(property.Type);
-                        if (type is not null)
-                        {
-                            types.Add(type.GetNestedElementType().WithNullable(false));
-                        }
-                    }
-                }
-            }
-            return types;
         }
 
         // Protected-only providers can also have the Public flag added by TypeProvider.

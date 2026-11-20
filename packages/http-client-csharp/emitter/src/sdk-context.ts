@@ -21,7 +21,6 @@ import type { InputOperation } from "./type/input-operation.js";
 import type { InputServiceMethod } from "./type/input-service-method.js";
 import type {
   InputClient,
-  InputEnumType,
   InputHttpParameter,
   InputLiteralType,
   InputMethodParameter,
@@ -66,7 +65,6 @@ class SdkTypeCache {
   properties: Map<SdkModelPropertyType, InputModelProperty>;
   responses: Map<SdkHttpResponse, OperationResponse>;
   types: Map<SdkType, InputType>;
-  lroMetadataEnums: Set<InputEnumType>;
   constants: Map<SdkConstantType, InputLiteralType>;
   crossLanguageDefinitionIds: Map<string, Type | undefined>;
   namespaces: Map<string, InputNamespace>;
@@ -80,7 +78,6 @@ class SdkTypeCache {
     this.properties = new Map<SdkModelPropertyType, InputModelProperty>();
     this.responses = new Map<SdkHttpResponse, OperationResponse>();
     this.types = new Map<SdkType, InputType>();
-    this.lroMetadataEnums = new Set<InputEnumType>();
     this.constants = new Map<SdkConstantType, InputLiteralType>();
     this.crossLanguageDefinitionIds = new Map<string, Type | undefined>();
     this.namespaces = new Map<string, InputNamespace>();
