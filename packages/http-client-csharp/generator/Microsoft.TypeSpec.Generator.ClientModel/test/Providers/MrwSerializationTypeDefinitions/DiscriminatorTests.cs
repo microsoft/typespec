@@ -3,8 +3,11 @@
 
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -239,6 +242,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual("Sample.Customizations", unknown.CustomCodeView?.Type.Namespace);
             Assert.IsTrue(unknown.CustomCodeView!.Methods.Any(m => m.Signature.Name == "CustomMethod"));
             Assert.AreEqual("CustomUnknownActivity", unknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameRestoredFromDllBackedLastContract()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var lastContract = await Helpers.GetCompilationFromDirectoryAsync(
+                method: nameof(HistoricalUnknownNameUsedBySerialization));
+            var fixtureDirectory = nameof(HistoricalUnknownNameUsedBySerialization);
+            var fixtureTrees = lastContract.SyntaxTrees.Where(tree =>
+                Path.GetFileName(Path.GetDirectoryName(tree.FilePath)) == fixtureDirectory);
+            var fixtureCompilation = CSharpCompilation.Create(
+                "HistoricalUnknownNameDll",
+                fixtureTrees,
+                lastContract.References.Append(
+                    MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location)),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var assemblyStream = new MemoryStream();
+            var emitResult = fixtureCompilation.Emit(assemblyStream);
+            Assert.That(emitResult.Success, Is.True, string.Join("\n", emitResult.Diagnostics));
+            var dllBackedLastContract = fixtureCompilation.RemoveAllSyntaxTrees()
+                .AddReferences(MetadataReference.CreateFromImage(assemblyStream.ToArray()));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                lastContractCompilation: () => Task.FromResult<Compilation>(dllBackedLastContract));
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownActivity", unknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameNotRestoredWhenNoProxyAttribute()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameNotRestoredWhenNoProxyAttribute)));
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", unknown.Name);
         }
 
         [TestCase("UnknownActivity", "Sample.Models")]

@@ -3,8 +3,10 @@
 
 namespace Sample.Models
 {
+    [System.ClientModel.Primitives.PersistableModelProxy(typeof(UnknownActivity))]
     public abstract class PipelineActivity { }
 
+    [System.ClientModel.Primitives.PersistableModelProxy(typeof(UnknownCopySource))]
     public abstract class CopyActivitySource : PipelineActivity { }
 
     internal class UnknownActivity : PipelineActivity { }

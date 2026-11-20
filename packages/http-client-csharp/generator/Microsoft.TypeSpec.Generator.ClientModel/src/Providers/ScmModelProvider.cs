@@ -109,28 +109,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private string? BuildLastContractUnknownDiscriminatorModelName()
         {
             if (_inputModel.BaseModel is not { } baseModel ||
-                ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.LastContractView is not { } lastContractBase ||
-                ScmCodeModelGenerator.Instance.SourceInputModel.LastContract is not { } lastContract)
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.LastContractView is not { } lastContractBase)
             {
                 return null;
             }
 
-            var lastContractBaseType = lastContract.GetTypeByMetadataName(
-                $"{lastContractBase.Type.Namespace}.{lastContractBase.Type.ClrMetadataName}");
-            var previousUnknownModel = lastContract.GetSymbolsWithName(
-                    static name => name.StartsWith("Unknown", StringComparison.Ordinal),
-                    SymbolFilter.Type)
-                .OfType<INamedTypeSymbol>()
-                .FirstOrDefault(type => type.BaseType is { } baseType &&
-                    SymbolEqualityComparer.Default.Equals(baseType, lastContractBaseType));
-            if (previousUnknownModel is null ||
-                previousUnknownModel.Name == base.BuildName() ||
-                previousUnknownModel.ContainingNamespace.ToDisplayString() != BuildNamespace())
+            var proxyAttributes = lastContractBase.Attributes
+                .Where(attribute => attribute.Type.Equals(typeof(PersistableModelProxyAttribute)))
+                .ToArray();
+            if (proxyAttributes.Length != 1 ||
+                proxyAttributes[0].Arguments.Count != 1 ||
+                proxyAttributes[0].Arguments[0] is not TypeOfExpression { Type: var previousUnknownType } ||
+                previousUnknownType.Namespace != BuildNamespace() ||
+                previousUnknownType.Name == base.BuildName())
             {
                 return null;
             }
 
-            var previousUnknownTypeName = $"{previousUnknownModel.ContainingNamespace}.{previousUnknownModel.Name}";
+            var previousUnknownTypeName = previousUnknownType.FullyQualifiedName;
             var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
             if (sourceInputModel.ApiCompatBaseline.IsTypeSuppressed(previousUnknownTypeName))
             {
@@ -140,15 +136,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            if (HasUnknownDiscriminatorNameCollision(previousUnknownModel.Name))
+            if (HasUnknownDiscriminatorNameCollision(previousUnknownType.Name))
             {
                 ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{previousUnknownModel.ContainingNamespace}.{previousUnknownModel.Name}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by another generated or custom type.",
+                    $"Skipping back-compat unknown discriminator model name '{previousUnknownTypeName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by another generated or custom type.",
                     BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
                 return null;
             }
 
-            return previousUnknownModel.Name;
+            return previousUnknownType.Name;
         }
 
         private bool HasUnknownDiscriminatorNameCollision(string name)

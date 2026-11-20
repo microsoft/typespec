@@ -3,6 +3,7 @@
 
 namespace Sample.Models
 {
+    [System.ClientModel.Primitives.PersistableModelProxy(typeof(UnknownActivity))]
     public abstract class PipelineActivity { }
 
     internal class UnknownActivity : PipelineActivity { }
