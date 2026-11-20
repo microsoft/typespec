@@ -8,7 +8,7 @@ deploy() {
   local registry="typespecacr" app="csharp-playground-server" group="typespec"
   local image="$registry.azurecr.io/$app:$tag"
 
-  az acr build --registry "$registry" --no-cache --image "$app:$tag" \
+  az acr build --registry "$registry" --image "$app:$tag" \
     --file "$context/playground-server/Dockerfile" "$context"
 
   # ARM may apply the update even when the CLI reports a GatewayTimeout.

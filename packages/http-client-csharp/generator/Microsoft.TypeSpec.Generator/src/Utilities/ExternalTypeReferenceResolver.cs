@@ -35,6 +35,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     /// </remarks>
     internal static class ExternalTypeReferenceResolver
     {
+        public const string PackageReferenceGuidance =
+            "A ProjectReference alone cannot resolve @alternateType. Use a versioned NuGet PackageReference " +
+            "and, if versions are managed centrally, set the version there (for example, in a package override)";
+
         // Per-generator cache state. Using ConditionalWeakTable means a new CodeModelGenerator instance
         // (e.g. a fresh mock installed by the next test) starts with an empty cache automatically, and
         // the entries are released when the generator is collected.
@@ -268,7 +272,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     : $" (>= {external.MinVersion})";
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"package '{external.Package}'{versionQualifier} is not present in package dependencies."));
+                    $"no assembly was found in the project's resolved dependencies for NuGet package '{external.Package}'{versionQualifier}. " +
+                    PackageReferenceGuidance));
             }
 
             // Pin every package in this package's dependency closure before loading it, so the resolving

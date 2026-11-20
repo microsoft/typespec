@@ -3,7 +3,7 @@ using Microsoft.TypeSpec.Generator.Customizations;
 namespace Sample.Models
 {
     [CodeGenType("Gadget")]
-    public partial class WidgetRequest
+    public partial class WidgetContent
     {
     }
 }

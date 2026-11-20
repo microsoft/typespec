@@ -1701,6 +1701,35 @@ describe("function type assignability", () => {
     "fn(a: valueof unknown, b?: valueof unknown)",
     "fn(a: valueof string, ...args: valueof int32[])",
   ); // string -> unknown, int32? -> unknown?
+  expectAssignmentErrors("fn() => Reflection.Namespace", "fn() => Reflection.Model");
+  expectAssignmentErrors("fn(a: Reflection.Model)", "fn(a: Reflection.Namespace)");
+  expectAssignmentErrors(
+    "fn() => Reflection.Namespace | string",
+    "fn() => Reflection.Model | string",
+  );
+  expectAssignmentErrors("fn() => Reflection.Namespace", "fn() => {}");
+  expectAssignmentErrors(
+    "fn() => valueof Reflection.EnumMember",
+    "fn() => valueof Reflection.Model",
+  );
+  expectAssignmentErrors("fn() => Reflection.Namespace[]", "fn() => Reflection.Model[]");
+  expectAssignmentErrors("fn() => [Reflection.Namespace]", "fn() => [Reflection.Model]");
+  expectAssignmentErrors("fn() => [Reflection.Namespace]", "fn() => Reflection.Model[]");
+  expectAssignmentErrors(
+    "fn() => { ns: Reflection.Namespace }",
+    "fn() => { ns: Reflection.Model }",
+  );
+  expectAssignmentErrors(
+    "fn() => { ns: Reflection.Namespace }",
+    "fn() => Record<Reflection.Model>",
+  );
+  expectAssignmentOk(
+    "fn() => { ns: Reflection.Namespace }",
+    "fn() => { ns: Reflection.Namespace }",
+  );
+  expectAssignmentOk("fn() => Reflection.Namespace", "fn() => Reflection.Namespace");
+  expectAssignmentOk("fn() => Reflection.Namespace", "fn() => unknown");
+  expectAssignmentOk("fn() => Reflection.Namespace", "fn() => Reflection.Namespace | string");
 });
 
 describe("calling template arguments", () => {

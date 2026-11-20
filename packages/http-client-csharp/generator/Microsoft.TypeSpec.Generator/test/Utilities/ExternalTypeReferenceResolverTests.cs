@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -69,6 +71,71 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
         }
 
+        [TestCase(null, null)]
+        [TestCase("Test.Referenced.Project", "2.0.0")]
+        public async Task CreateCSharpType_ReportsHowToResolveProjectReference(string? package, string? minVersion)
+        {
+            const string projectName = "TestProject";
+            const string typeName = "Test.Referenced.Project.AlternateType";
+            var sourceDir = Path.Combine(_projectDir!, "src");
+            var dependencyDir = Directory.CreateDirectory(Path.Combine(_projectDir!, "Dependency"));
+            const string dependencyProject = """
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>net10.0</TargetFramework>
+                  </PropertyGroup>
+                </Project>
+                """;
+            File.WriteAllText(Path.Combine(dependencyDir.FullName, "Test.Referenced.Project.csproj"), dependencyProject);
+            File.WriteAllText(Path.Combine(sourceDir, $"{projectName}.csproj"), """
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>net10.0</TargetFramework>
+                  </PropertyGroup>
+                  <ItemGroup>
+                    <ProjectReference Include="../Dependency/Test.Referenced.Project.csproj" />
+                  </ItemGroup>
+                </Project>
+                """);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{projectName}\"}}");
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            Assert.That(File.Exists(Path.Combine(sourceDir, "obj", "project.assets.json")), Is.True);
+
+            using var diagnosticStream = new MemoryStream();
+            using var emitter = new Emitter(diagnosticStream);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var external = new InputExternalTypeMetadata(typeName, package, minVersion);
+            var inputType = InputFactory.Union([InputPrimitiveType.String], "ExternalUnion", external);
+
+            Assert.That(generator.Object.TypeFactory.CreateCSharpType(inputType), Is.Null);
+
+            diagnosticStream.Position = 0;
+            using var diagnostic = await JsonDocument.ParseAsync(diagnosticStream);
+            var parameters = diagnostic.RootElement.GetProperty("params");
+            var message = parameters.GetProperty("message").GetString();
+            Assert.Multiple(() =>
+            {
+                Assert.That(parameters.GetProperty("code").GetString(), Is.EqualTo("unsupported-external-type"));
+                Assert.That(parameters.GetProperty("severity").GetString(), Is.EqualTo("warning"));
+                Assert.That(message, Does.Contain(typeName));
+                Assert.That(message, Does.Contain("ProjectReference alone"));
+                Assert.That(message, Does.Contain("versioned NuGet PackageReference"));
+                Assert.That(message, Does.Contain("package override"));
+                if (package == null)
+                {
+                    Assert.That(message, Does.Contain("specify its package ID in @alternateType"));
+                }
+                else
+                {
+                    Assert.That(message, Does.Contain("no assembly was found in the project's resolved dependencies"));
+                    Assert.That(message, Does.Contain($"NuGet package '{package}' (>= {minVersion})"));
+                }
+            });
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task TryResolve_LoadsTypeFromNuGetCache(bool isHosted)
@@ -98,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
             StringAssert.Contains(
-                "is not present in package dependencies.",
+                "no assembly was found in the project's resolved dependencies",
                 ExternalTypeReferenceResolver.GetFailureReason(external));
             Assert.AreEqual(refsBefore, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
             Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
@@ -116,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             await ExternalTypeReferenceResolver.ResolveAllAsync();
 
             StringAssert.Contains(
-                "is not present in package dependencies.",
+                "no assembly was found in the project's resolved dependencies",
                 ExternalTypeReferenceResolver.GetFailureReason(external));
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
             Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
@@ -133,7 +200,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
-            StringAssert.Contains("is not present in package dependencies.", ExternalTypeReferenceResolver.GetFailureReason(external));
+            StringAssert.Contains("no assembly was found in the project's resolved dependencies", ExternalTypeReferenceResolver.GetFailureReason(external));
             Assert.AreEqual(refsBefore, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
         }
 
@@ -200,7 +267,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             Assert.IsNull(resolved);
             StringAssert.Contains(
-                "is not present in package dependencies.",
+                "no assembly was found in the project's resolved dependencies",
                 ExternalTypeReferenceResolver.GetFailureReason(external),
                 "A missing package should be reported as a missing package.");
         }
