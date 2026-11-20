@@ -41,14 +41,14 @@ describe("import schema examples", () => {
   it("creates example decorators in reverse order without mutating the input", () => {
     const schema: OpenAPISchema3_2 = {
       type: "object",
-      examples: [{ name: "Fluffy" }, { name: "Spot" }, { name: "Mochi" }],
+      examples: [{ name: "Fluffy" }, { name: "Spot" }, { name: "Buddy" }],
     };
     expect(generateDecorators(getDecoratorsForSchema(schema))).toEqual([
-      '@example(#{name: "Mochi"})',
+      '@example(#{name: "Buddy"})',
       '@example(#{name: "Spot"})',
       '@example(#{name: "Fluffy"})',
     ]);
-    expect(schema.examples).toEqual([{ name: "Fluffy" }, { name: "Spot" }, { name: "Mochi" }]);
+    expect(schema.examples).toEqual([{ name: "Fluffy" }, { name: "Spot" }, { name: "Buddy" }]);
   });
 
   it("preserves duplicate examples", () => {
@@ -115,7 +115,7 @@ describe("import schema examples", () => {
 
   it.each([
     { examples: [{ name: "Fluffy" }] },
-    { examples: [{ name: "Fluffy" }, { name: "Spot" }, { name: "Mochi" }] },
+    { examples: [{ name: "Fluffy" }, { name: "Spot" }, { name: "Buddy" }] },
     { examples: [{ name: "Fluffy" }, { name: "Fluffy" }] },
   ])("round-trips model examples $examples in their original order", async ({ examples }) => {
     const code = await convertOpenAPI3Document(
