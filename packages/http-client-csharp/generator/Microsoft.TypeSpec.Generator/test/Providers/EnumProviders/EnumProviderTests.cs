@@ -1351,6 +1351,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("AND", false, "And")]
         [TestCase("OR", false, "Or")]
         [TestCase("NOT_FOUND", false, "NotFound")]
+        [TestCase("FooOR", false, "FooOR")]
+        [TestCase("ORfoo", false, "ORfoo")]
+        [TestCase("Foo_OR", false, "FooOr")]
+        [TestCase("OR_foo", false, "OrFoo")]
+        [TestCase("ORFoo", false, "ORFoo")]
+        [TestCase("FooHTTP", false, "FooHttp")]
         [TestCase("HTTPStatus", false, "HttpStatus")]
         [TestCase("IOStream", false, "IOStream")]
         [TestCase("CallbackURL", false, "CallbackUri")]
@@ -1397,16 +1403,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(expectedName, enumProvider.EnumValues.Single().Name);
         }
 
-        [TestCase(false, "Fixed")]
-        [TestCase(true, "Extensible")]
-        public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData)
+        [TestCase(false, "Fixed", "CallbackUrl")]
+        [TestCase(true, "Extensible", "CallbackUrl")]
+        [TestCase(true, "Extensible", "CallbackURL")]
+        public async Task BuildEnumType_PreservesUrlSuffixFromLastContract(bool isExtensible, string testData, string inputName)
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: (inputType) => typeof(string),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
             var input = InputFactory.StringEnum(
                 "mockInputEnum",
-                [("CallbackUrl", "value")],
+                [(inputName, "value")],
                 isExtensible: isExtensible);
 
             var enumProvider = EnumProvider.Create(input);

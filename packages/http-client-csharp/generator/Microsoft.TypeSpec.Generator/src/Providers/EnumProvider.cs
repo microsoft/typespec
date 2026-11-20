@@ -160,13 +160,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var inputName = inputValues[i].Name;
-                var pascalName = normalizeUppercase ? inputName.NormalizeUppercaseWords() : inputName;
-                var normalizedName = (pascalName == inputName ? name : pascalName.ToIdentifierName().NormalizeCSharpUrlSuffix())
-                    .NormalizeCSharpAcronyms();
-                normalizedNames[i] = lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
-                    ? name
-                    : normalizedName;
+                var identifier = normalizeUppercase ? inputValues[i].Name.ToPascalCaseIdentifierName() : name;
+                var urlName = normalizeUppercase ? identifier.NormalizeCSharpUrlSuffix() : name;
+                var normalizedName = urlName.NormalizeCSharpAcronyms();
+                if (lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName))
+                {
+                    normalizedName = name;
+                }
+                else if (urlName != identifier && urlName != name && !IsCustomizedValueName(normalizedName))
+                {
+                    // A new suffix rewrite can hide a compatible name that differs only in casing or underscores.
+                    var compatibleName = GetBackCompatibleName(name, previousNames, lastContractNames, isExactName: false);
+                    if (compatibleName != name)
+                    {
+                        normalizedName = compatibleName;
+                    }
+                }
+                normalizedNames[i] = normalizedName;
             }
             return normalizedNames;
         }

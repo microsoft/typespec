@@ -16,8 +16,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
             | (?<![\p{L}\p{M}\p{N}])\p{Lu}{2}(?![\p{L}\p{M}\p{N}])    # Standalone two-letter words, e.g. OR
             """, RegexOptions.IgnorePatternWhitespace);
 
-        public static string NormalizeUppercaseWords(this string name) =>
-            _uppercaseWords.Replace(name, static match => match.Value[..1] + match.Value[1..].ToLowerInvariant());
+        public static string ToPascalCaseIdentifierName(this string name) =>
+            _uppercaseWords.Replace(name, static match => match.Value[..1] + match.Value[1..].ToLowerInvariant())
+                .ToIdentifierName();
 
         private static bool IsWordSeparator(char c, bool preserveUnderscores = false)
             => !SyntaxFacts.IsIdentifierPartCharacter(c) || (!preserveUnderscores && c == '_');
