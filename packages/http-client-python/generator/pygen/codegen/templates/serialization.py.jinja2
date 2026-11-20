@@ -748,7 +748,9 @@ class Serializer:  # pylint: disable=too-many-public-methods
             raise TypeError("{} must be type {}.".format(name, data_type)) from exc
         return str(output)
 
-    def query_model(self, name, data, **kwargs):
+    def query_model(
+        self, name: str, data: Optional[Mapping[str, Any]], *, skip_quote: bool = False
+    ) -> dict[str, str]:
         """Serialize a model's wire-name/value pairs for form-style query expansion.
 
         :param str name: The name of the query parameter.
@@ -761,8 +763,8 @@ class Serializer:  # pylint: disable=too-many-public-methods
         if data is None:
             raise ValueError("No value for given attribute: {}".format(name))
         return {
-            self.query(name, key, "str", **kwargs): self.query(
-                name, value, "bool" if isinstance(value, bool) else "str", **kwargs
+            cast(str, self.query(name, key, "str", skip_quote=skip_quote)): cast(
+                str, self.query(name, value, "bool" if isinstance(value, bool) else "str", skip_quote=skip_quote)
             )
             for key, value in data.items()
             if value is not None
