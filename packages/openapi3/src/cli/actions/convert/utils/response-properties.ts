@@ -1,4 +1,10 @@
-import type { OpenAPI3Header, OpenAPI3Schema, Refable } from "../../../../types.js";
+import type {
+  OpenAPI3Header,
+  OpenAPI3Response,
+  OpenAPI3Schema,
+  Refable,
+  SupportedOpenAPISchema,
+} from "../../../../types.js";
 import type { TypeSpecDecorator, TypeSpecModelProperty } from "../interfaces.js";
 import type { Context } from "./context.js";
 import { convertHeaderName } from "./convert-header-name.js";
@@ -44,6 +50,31 @@ export function convertStatusCodeToProperty(statusCode: string): TypeSpecModelPr
   };
 }
 
+export function hasResponseExamples(content: OpenAPI3Response["content"]): boolean {
+  return Object.values(content ?? {}).some((c) => "example" in c || "examples" in c);
+}
+
+/** Scalars do not necessarily default to application/json in the HTTP library. */
+export function isScalarBody(
+  schema: Refable<SupportedOpenAPISchema> | undefined,
+  context: Context,
+  seen = new Set<string>(),
+): boolean {
+  if (!schema) return false;
+  if ("$ref" in schema) {
+    if (seen.has(schema.$ref)) return false;
+    seen.add(schema.$ref);
+    return isScalarBody(context.getSchemaByRef(schema.$ref), context, seen);
+  }
+  return (
+    schema.type === "string" ||
+    schema.type === "number" ||
+    schema.type === "integer" ||
+    schema.type === "boolean" ||
+    (schema.anyOf ?? schema.oneOf ?? []).some((s) => isScalarBody(s, context, new Set(seen)))
+  );
+}
+
 export type ConvertHeaderToPropertyProps = {
   name: string;
   header: Refable<OpenAPI3Header>;
@@ -73,4 +104,43 @@ export function convertHeaderToProperty(
     isOptional: !header.required,
     schema: header.schema ?? {},
   };
+}
+
+/** Properties and media type selected for a generated component response model. */
+export function getComponentResponseProperties(
+  statusCode: string,
+  response: OpenAPI3Response,
+  context: Context,
+): { properties: TypeSpecModelProperty[]; mediaType?: string } {
+  const properties: TypeSpecModelProperty[] = [];
+  if (statusCode !== "default") {
+    properties.push(convertStatusCodeToProperty(statusCode));
+  }
+  for (const [name, header] of Object.entries(response.headers ?? {})) {
+    const property = convertHeaderToProperty({ name, header, context });
+    if (property) properties.push(property);
+  }
+  const contents = Object.entries(response.content ?? {});
+  const preferred = contents.find(([mediaType]) => mediaType === "application/json") ?? contents[0];
+  if (
+    preferred &&
+    (preferred[0] !== "application/json" ||
+      (hasResponseExamples(response.content) && isScalarBody(preferred[1].schema, context)))
+  ) {
+    properties.push({
+      name: "contentType",
+      decorators: [{ name: "header", args: ["Content-Type"] }],
+      isOptional: false,
+      schema: { type: "string", enum: [preferred[0]] },
+    });
+  }
+  if (preferred?.[1].schema) {
+    properties.push({
+      name: "body",
+      decorators: [{ name: "body", args: [] }],
+      isOptional: false,
+      schema: preferred[1].schema,
+    });
+  }
+  return { properties, mediaType: preferred?.[0] };
 }
