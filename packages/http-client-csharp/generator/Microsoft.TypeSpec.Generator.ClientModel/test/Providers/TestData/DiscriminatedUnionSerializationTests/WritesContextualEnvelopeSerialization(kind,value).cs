@@ -54,9 +54,9 @@ namespace Sample.Models
             switch (discriminator.GetString())
             {
                 case "feline":
-                    return options.ShouldReadThroughProxy(typeof(global::Sample.Models.Cat), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(discriminator0.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Cat.DeserializeCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy<global::Sample.Models.Cat>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(discriminator0.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Cat.DeserializeCat(discriminator0, options);
                 case "canine":
-                    return options.ShouldReadThroughProxy(typeof(global::Sample.Models.Dog), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Dog>(discriminator0.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Dog.DeserializeDog(discriminator0, options);
+                    return options.ShouldReadThroughProxy<global::Sample.Models.Dog>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Dog>(discriminator0.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Dog.DeserializeDog(discriminator0, options);
                 default:
                     throw new global::System.Text.Json.JsonException("Unknown discriminator value for union 'pets'.");
             }

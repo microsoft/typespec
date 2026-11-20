@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected SimpleModelValue() => throw null;
 
-        internal SimpleModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SimpleModelValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

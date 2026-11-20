@@ -2,10 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SampleTypeSpec;
 
@@ -124,17 +130,107 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(1, itemProxy.ReadCount);
         }
 
+        // An XML-only parent read with "W" resolves its own format to XML but passes "W" to nested reads. A nested model that
+        // also supports JSON reports "J" for "W", so its proxy-aware read must still request XML and keep the proxies.
+        [TestCase("W")]
+        [TestCase("X")]
+        public void NestedDualFormatXmlModelReadsUseRegisteredProxy(string format)
+        {
+            var proxy = new TreeXmlProxy();
+            var options = new ModelReaderWriterOptions(format);
+            options.Proxies.Add(proxy);
+
+            var container = ModelReaderWriter.Read<XmlTreeContainer>(
+                BinaryData.FromString("""<XmlTreeContainer><tree><species>tree</species><id>t1</id><height>10</height><age>5</age></tree></XmlTreeContainer>"""),
+                options,
+                SampleTypeSpecContext.Default);
+
+            Assert.AreEqual("proxy:t1", container!.Tree.Id);
+            Assert.AreEqual(5, container.Tree.Age);
+            Assert.AreEqual(1, proxy.ReadCount);
+            Assert.AreEqual("X", proxy.LastReadFormat);
+        }
+
+        // Clients copy the proxies configured on their options into the options they use for every operation.
+        [Test]
+        public void ClientResponsesUseClientOptionsProxies()
+        {
+            var proxy = new ThingProxy();
+            var handler = new StubHandler(("""{"name":"hi"}""", "application/json"));
+
+            var result = CreateClient(handler, proxy).SayHi("head", "query");
+
+            Assert.AreEqual("proxy:hi", result.Value.Rename);
+            Assert.AreEqual(1, proxy.ReadCount);
+        }
+
+        [Test]
+        public void ClientRequestBodiesUseClientOptionsProxies()
+        {
+            var proxy = new ThingProxy();
+            var handler = new StubHandler(("""{"requiredModel":{"name":"response"}}""", "application/json"));
+            var action = new RoundTripModel(
+                "value",
+                1,
+                [],
+                new Dictionary<string, StringExtensibleEnum>(),
+                CreateThing("request"),
+                BinaryData.FromString("1"),
+                new Dictionary<string, BinaryData>(),
+                new ModelWithRequiredNullableProperties(null, null, null),
+                BinaryData.FromBytes([1]));
+
+            var result = CreateClient(handler, proxy).HelloAgain("p2", "p1", action);
+
+            using var request = JsonDocument.Parse(handler.RequestBodies.Single());
+            Assert.AreEqual("request", request.RootElement.GetProperty("requiredModel").GetProperty("proxied").GetString());
+            Assert.AreEqual("proxy:response", result.Value.RequiredModel.Rename);
+            Assert.AreEqual(1, proxy.WriteCount);
+            Assert.AreEqual(1, proxy.ReadCount);
+        }
+
+        [Test]
+        public void ClientPagesUseClientOptionsProxies()
+        {
+            var proxy = new ThingProxy();
+            var handler = new StubHandler(
+                ("""{"things":[{"name":"first"}],"next":"https://example.com/link?page=2"}""", "application/json"),
+                ("""{"things":[{"name":"second"}]}""", "application/json"));
+
+            var items = CreateClient(handler, proxy).GetWithNextLink().ToArray();
+
+            Assert.AreEqual(new[] { "proxy:first", "proxy:second" }, items.Select(item => item.Rename));
+            Assert.AreEqual(2, handler.RequestBodies.Count);
+        }
+
+        [Test]
+        public void SubClientResponsesUseClientOptionsProxies()
+        {
+            var proxy = new TreeXmlProxy();
+            var handler = new StubHandler(("""<tree><species>tree</species><id>t1</id><height>10</height><age>5</age></tree>""", "application/xml"));
+
+            var result = CreateClient(handler, proxy).GetPlantOperationsClient().GetTree();
+
+            Assert.AreEqual("proxy:t1", result.Value.Id);
+            Assert.AreEqual(1, proxy.ReadCount);
+            Assert.AreEqual("X", proxy.LastReadFormat);
+        }
+
         [Test]
         public void ShouldReadThroughProxyRequiresProxiesAndBuildableModel()
         {
             var options = new ModelReaderWriterOptions("W");
-            Assert.IsFalse(options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default));
+            Assert.IsFalse(options.ShouldReadThroughProxy<Thing>(SampleTypeSpecContext.Default));
 
             options.Proxies.Add(new ThingProxy());
 
-            Assert.IsTrue(options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default));
-            // Internal models are not registered in the generated context, so they keep the static deserializer.
-            Assert.IsFalse(options.ShouldReadThroughProxy(typeof(PageThing), SampleTypeSpecContext.Default));
+            // Repeat each check so the cached per-type answer is exercised as well as the first lookup.
+            for (int i = 0; i < 2; i++)
+            {
+                Assert.IsTrue(options.ShouldReadThroughProxy<Thing>(SampleTypeSpecContext.Default));
+                // Internal models are not registered in the generated context, so they keep the static deserializer.
+                Assert.IsFalse(options.ShouldReadThroughProxy<PageThing>(SampleTypeSpecContext.Default));
+            }
         }
 
         private static ModelReaderWriterOptions CreateOptions(ModelProxy proxy)
@@ -142,6 +238,40 @@ namespace TestProjects.Local.Tests
             var options = new ModelReaderWriterOptions("W");
             options.Proxies.Add(proxy);
             return options;
+        }
+
+        private static SampleTypeSpecClient CreateClient(StubHandler handler, ModelProxy proxy)
+        {
+            var options = new SampleTypeSpecClientOptions
+            {
+                Transport = new HttpClientPipelineTransport(new HttpClient(handler)),
+                RetryPolicy = new ClientRetryPolicy(0)
+            };
+            options.ModelProxies.Add(proxy);
+            return new SampleTypeSpecClient(new Uri("https://example.com"), new ApiKeyCredential("key"), options);
+        }
+
+        // Returns the queued responses in order and records each request body.
+        private sealed class StubHandler : HttpMessageHandler
+        {
+            private readonly Queue<(string Content, string ContentType)> _responses;
+
+            public StubHandler(params (string Content, string ContentType)[] responses)
+            {
+                _responses = new(responses);
+            }
+
+            public List<string> RequestBodies { get; } = [];
+
+            protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                RequestBodies.Add(request.Content?.ReadAsStringAsync(cancellationToken).GetAwaiter().GetResult() ?? string.Empty);
+                var (content, contentType) = _responses.Dequeue();
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(content, Encoding.UTF8, contentType) };
+            }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+                => Task.FromResult(Send(request, cancellationToken));
         }
 
         // PageThing is internal, so it is not buildable through the generated context; read it through its own interface.
@@ -191,16 +321,28 @@ namespace TestProjects.Local.Tests
             }
         }
 
+        private sealed class TreeXmlProxy : XmlTestProxy<Tree>
+        {
+            protected override Tree Transform(Tree model)
+            {
+                model.Id = $"proxy:{model.Id}";
+                return model;
+            }
+        }
+
         // XML proxies only implement IPersistableModel<T>; reads transform the model's own XML deserialization.
         private abstract class XmlTestProxy<T> : ModelProxy<T> where T : class
         {
             public int ReadCount { get; private set; }
+
+            public string? LastReadFormat { get; private set; }
 
             protected abstract T Transform(T model);
 
             public override T Create(BinaryData data, ModelReaderWriterOptions options)
             {
                 ReadCount++;
+                LastReadFormat = options.Format;
                 return Transform(ModelReaderWriter.Read<T>(data, ModelReaderWriterOptions.Xml, SampleTypeSpecContext.Default)!);
             }
 

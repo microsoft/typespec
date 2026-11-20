@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
@@ -48,5 +49,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static InvokeMethodExpression GetUtf8Bytes(ScopedApi<XElement> element)
             => element.Invoke(GetUtf8BytesMethodName);
+
+        public static ScopedApi<ModelReaderWriterOptions> ToXmlOptions(this ScopedApi<ModelReaderWriterOptions> options)
+            => options.Invoke(ToXmlOptionsMethodName).As<ModelReaderWriterOptions>();
     }
 }

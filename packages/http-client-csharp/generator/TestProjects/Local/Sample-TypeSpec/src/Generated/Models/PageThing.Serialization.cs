@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializePageThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PageThing"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static PageThing FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<PageThing>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<PageThing>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializePageThing(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<PageThing>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -145,7 +158,7 @@ namespace SampleTypeSpec
                     List<Thing> array = new List<Thing>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(item, options));
+                        array.Add(options.ShouldReadThroughProxy<Thing>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(item, options));
                     }
                     items = array;
                     continue;

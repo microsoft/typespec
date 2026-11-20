@@ -105,6 +105,35 @@ namespace SampleTypeSpec
             return DeserializeXmlUnionCat(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="XmlUnionCat"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static new XmlUnionCat FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+
+            if (response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                if (options.ShouldReadThroughProxy<XmlUnionCat>(SampleTypeSpecContext.Default))
+                {
+                    return ModelReaderWriter.Read<XmlUnionCat>(response.Content, options, SampleTypeSpecContext.Default);
+                }
+                using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+                return DeserializeXmlUnionCat(document.RootElement, options);
+            }
+
+            if (options.ShouldReadThroughProxy<XmlUnionCat>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<XmlUnionCat>(response.Content, options.ToXmlOptions(), SampleTypeSpecContext.Default);
+            }
+            using Stream stream = response.ContentStream;
+            if (stream == null)
+            {
+                return default;
+            }
+
+            return DeserializeXmlUnionCat(XElement.Load(stream, LoadOptions.PreserveWhitespace), options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<XmlUnionCat>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)

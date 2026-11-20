@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializePagePreviewDetails(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PagePreviewDetails"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static PagePreviewDetails FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<PagePreviewDetails>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<PagePreviewDetails>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializePagePreviewDetails(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<PagePreviewDetails>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -148,7 +161,7 @@ namespace SampleTypeSpec
                     List<PreviewDetails> array = new List<PreviewDetails>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(options.ShouldReadThroughProxy(typeof(PreviewDetails), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<PreviewDetails>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : PreviewDetails.DeserializePreviewDetails(item, options));
+                        array.Add(options.ShouldReadThroughProxy<PreviewDetails>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<PreviewDetails>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : PreviewDetails.DeserializePreviewDetails(item, options));
                     }
                     items = array;
                     continue;

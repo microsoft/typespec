@@ -27,7 +27,7 @@ namespace Sample.Models
             {
                 if (prop.NameEquals("nested"u8))
                 {
-                    nested = options.ShouldReadThroughProxy(typeof(global::Sample.Models.NestedModel), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.NestedModel>(prop.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.NestedModel.DeserializeNestedModel(prop.Value, options);
+                    nested = options.ShouldReadThroughProxy<global::Sample.Models.NestedModel>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.NestedModel>(prop.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.NestedModel.DeserializeNestedModel(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("nestedList"u8))
@@ -39,7 +39,7 @@ namespace Sample.Models
                     global::System.Collections.Generic.List<global::Sample.Models.NestedModel> array = new global::System.Collections.Generic.List<global::Sample.Models.NestedModel>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(options.ShouldReadThroughProxy(typeof(global::Sample.Models.NestedModel), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.NestedModel>(item.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.NestedModel.DeserializeNestedModel(item, options));
+                        array.Add(options.ShouldReadThroughProxy<global::Sample.Models.NestedModel>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.NestedModel>(item.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.NestedModel.DeserializeNestedModel(item, options));
                     }
                     nestedList = array;
                     continue;
@@ -53,7 +53,7 @@ namespace Sample.Models
                     global::System.Collections.Generic.Dictionary<string, global::Sample.Models.NestedModel> dictionary = new global::System.Collections.Generic.Dictionary<string, global::Sample.Models.NestedModel>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, options.ShouldReadThroughProxy(typeof(global::Sample.Models.NestedModel), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.NestedModel>(prop0.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.NestedModel.DeserializeNestedModel(prop0.Value, options));
+                        dictionary.Add(prop0.Name, options.ShouldReadThroughProxy<global::Sample.Models.NestedModel>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.NestedModel>(prop0.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.NestedModel.DeserializeNestedModel(prop0.Value, options));
                     }
                     nestedDictionary = dictionary;
                     continue;

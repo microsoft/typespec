@@ -14,7 +14,7 @@ namespace _Type.Property.Optional
     {
         protected UnionFloatLiteral() => throw null;
 
-        internal UnionFloatLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal UnionFloatLiteral(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected Float() => throw null;
 
-        internal Float(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Float(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

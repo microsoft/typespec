@@ -162,7 +162,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "pet":
-                    return options.ShouldReadThroughProxy(typeof(PetsUnion), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<PetsUnion>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : PetsUnion.DeserializePetsUnion(discriminator0, options);
+                    return options.ShouldReadThroughProxy<PetsUnion>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<PetsUnion>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : PetsUnion.DeserializePetsUnion(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'Pets'.");
             }

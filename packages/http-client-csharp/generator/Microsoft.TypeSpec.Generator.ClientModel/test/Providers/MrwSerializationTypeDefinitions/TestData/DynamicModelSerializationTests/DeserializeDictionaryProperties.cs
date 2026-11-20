@@ -36,7 +36,7 @@ namespace Sample
                     global::System.Collections.Generic.Dictionary<string, global::Sample.Models.Cat> dictionary = new global::System.Collections.Generic.Dictionary<string, global::Sample.Models.Cat>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, options.ShouldReadThroughProxy(typeof(global::Sample.Models.Cat), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(prop0.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Cat.DeserializeCat(prop0.Value, options));
+                        dictionary.Add(prop0.Name, options.ShouldReadThroughProxy<global::Sample.Models.Cat>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(prop0.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Cat.DeserializeCat(prop0.Value, options));
                     }
                     cats = dictionary;
                     continue;

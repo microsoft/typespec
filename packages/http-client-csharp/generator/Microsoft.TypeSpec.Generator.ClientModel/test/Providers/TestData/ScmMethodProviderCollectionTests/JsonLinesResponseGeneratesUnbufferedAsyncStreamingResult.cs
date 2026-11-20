@@ -2,5 +2,5 @@ public virtual async global::System.Threading.Tasks.Task<global::System.ClientMo
 {
     using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateReceiveRequest(cancellationToken.ToRequestOptions());
     message.BufferResponse = false;
-    return global::System.ClientModel.AsyncStreamingResult.CreateJsonLines<global::Sample.Models.Info>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Info>(data, global::Sample.ModelSerializationExtensions.WireOptions, global::Sample.SampleContext.Default), cancellationToken);
+    return global::System.ClientModel.AsyncStreamingResult.CreateJsonLines<global::Sample.Models.Info>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Info>(data, _modelReaderWriterOptions, global::Sample.SampleContext.Default), cancellationToken);
 }

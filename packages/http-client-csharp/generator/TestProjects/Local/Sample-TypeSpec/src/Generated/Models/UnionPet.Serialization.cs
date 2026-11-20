@@ -172,9 +172,9 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return options.ShouldReadThroughProxy(typeof(UnionCat), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionCat.DeserializeUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy<UnionCat>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionCat.DeserializeUnionCat(discriminator0, options);
                 case "dog":
-                    return options.ShouldReadThroughProxy(typeof(UnionDog), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionDog>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionDog.DeserializeUnionDog(discriminator0, options);
+                    return options.ShouldReadThroughProxy<UnionDog>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionDog>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionDog.DeserializeUnionDog(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'UnionPets'.");
             }
@@ -228,9 +228,9 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "feline":
-                    return options.ShouldReadThroughProxy(typeof(UnionCat), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionCat.DeserializeUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy<UnionCat>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionCat.DeserializeUnionCat(discriminator0, options);
                 case "canine":
-                    return options.ShouldReadThroughProxy(typeof(UnionDog), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionDog>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionDog.DeserializeUnionDog(discriminator0, options);
+                    return options.ShouldReadThroughProxy<UnionDog>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<UnionDog>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : UnionDog.DeserializeUnionDog(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'AlternateUnionPets'.");
             }

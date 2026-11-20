@@ -37,6 +37,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public abstract ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null);
         public abstract ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes);
         public virtual ValueExpression? UserAgentPolicy(CSharpType clientType) => null;
+
+        /// <summary>
+        /// Gets the model proxies configured on the client options, or <c>null</c> when the client options don't carry
+        /// model proxies. Generated clients add these proxies to the <c>ModelReaderWriterOptions</c> they use to read and
+        /// write models in their operations.
+        /// </summary>
+        /// <param name="clientOptions">The client options expression.</param>
+        public virtual ValueExpression? GetModelProxies(ValueExpression clientOptions) => null;
+
+        /// <summary>
+        /// Gets whether generated clients route model reads and writes through the proxies configured on their options.
+        /// </summary>
+        public bool SupportsModelProxies => GetModelProxies(Empty) is not null;
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }

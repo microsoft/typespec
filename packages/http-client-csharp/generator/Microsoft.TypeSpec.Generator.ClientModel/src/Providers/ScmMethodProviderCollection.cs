@@ -44,6 +44,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScmMethodProvider? _legacyAsyncProtocol;
 
         private ClientProvider Client { get; }
+
+        // The client's options carry the model proxies configured on its client options. Clients whose pipeline options
+        // don't carry model proxies keep using the shared wire options.
+        private bool SupportsModelProxies => Client.ModelReaderWriterOptionsField != null;
+        private ScopedApi<ModelReaderWriterOptions> ClientModelReaderWriterOptions =>
+            Client.ModelReaderWriterOptionsField?.As<ModelReaderWriterOptions>() ?? ModelSerializationExtensionsSnippets.Wire;
+
+        // Paging collections read their pages with the client's options, which follow the client argument.
+        private ValueExpression[] PagingCollectionOptionsArguments =>
+            Client.ModelReaderWriterOptionsField is { } optionsField ? [optionsField] : [];
         protected InputServiceMethod ServiceMethod { get; }
         protected TypeProvider EnclosingType { get; }
         public IReadOnlyList<ScmMethodProvider> MethodProviders => _methods ??= BuildMethods();
@@ -551,7 +561,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     UsingDeclare("document", data.Parse(), out var document),
                     DiscriminatedUnionSerialization.DeserializeValue(
                         ServiceMethod.Response.Type!, responseBodyType.OutputType, document.RootElement(),
-                        ModelSerializationExtensionsSnippets.Wire, out var value),
+                        ClientModelReaderWriterOptions, out var value),
                     Return(result.FromValue(value, result.GetRawResponse()))
                 ];
             }
@@ -576,7 +586,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 responseBodyType,
                                 jsonElement,
                                 data,
-                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                ClientModelReaderWriterOptions,
                                 SerializationFormat.Default),
                                 result.GetRawResponse()))
                         },
@@ -634,7 +644,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
             void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value, InputType? inputType = null)
             {
-                var options = ModelSerializationExtensionsSnippets.Wire;
+                var options = ClientModelReaderWriterOptions;
                 var optionalBody = inputType != null &&
                     ServiceMethod.Operation.Parameters.OfType<InputBodyParameter>().FirstOrDefault() is { IsRequired: false };
                 ValueExpression initialization = optionalBody
@@ -752,11 +762,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             }
                         }
 
-                        if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format))
+                        if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format, out var isXml))
                         {
                             // Create using declaration for BinaryContent
                             var methodName = $"To{requestContentType.Name}";
-                            statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
+                            // A dual-format model reports "J" for the wire format, so XML bodies request XML explicitly
+                            // while keeping the proxies configured on the client options.
+                            ValueExpression formatArgument = SupportsModelProxies
+                                ? (isXml ? ClientModelReaderWriterOptions.ToXmlOptions() : ClientModelReaderWriterOptions)
+                                : format;
+                            statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, formatArgument), out var content));
                             declarations["content"] = content;
                         }
                         else if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
@@ -1011,11 +1026,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             rootElementVar.Elements(Literal(childName)),
                             out ScopedApi<XElement> item)
                             .Add(arrayVar.As(listType).Add(
-                                MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
-                                    elementType,
-                                    item,
-                                    null,
-                                    ModelSerializationExtensionsSnippets.Wire))),
+                                SupportsModelProxies
+                                    ? MrwSerializationTypeDefinition.GetProxyAwareXmlDeserializationMethodInvocation(elementType, item, ClientModelReaderWriterOptions)
+                                    : MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                                        elementType,
+                                        item,
+                                        null,
+                                        ModelSerializationExtensionsSnippets.Wire))),
                         defaultValue.Assign(arrayVar).Terminate()
                     }
                 });
@@ -1077,7 +1094,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return AddElement(
                     dictKey,
-                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
+                    SupportsModelProxies
+                        ? MrwSerializationTypeDefinition.GetProxyAwareDeserializationMethodInvocation(elementType, item, data, ClientModelReaderWriterOptions)
+                        : MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
                     value);
             }
         }
@@ -1210,6 +1229,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType())
             {
                 return response.Content().InvokeToString();
+            }
+            if (SupportsModelProxies && MrwSerializationTypeDefinition.HasResponseConversion(responseBodyType))
+            {
+                // The cast operator can't take the client's options, so it would skip the configured model proxies.
+                return Static(responseBodyType.WithNullable(false)).Invoke(
+                    MrwSerializationTypeDefinition.FromResponseMethodName,
+                    [result, ClientModelReaderWriterOptions]);
             }
             return result.CastTo(responseBodyType);
         }
@@ -1622,7 +1648,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
                         {
-                            AddArgument(protocolParam, spread);
+                            AddArgument(protocolParam, ToRequestContent(spread, convenienceParam.SpreadSource.Type, isOptional: false));
                             addedSpreadSource = true;
                         }
                     }
@@ -1653,8 +1679,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             }
                             else
                             {
-                                // Use implicit operator as fallback
-                                AddArgument(protocolParam, convenienceParam);
+                                // Use implicit operator as fallback, unless the client's options carry model proxies.
+                                AddArgument(protocolParam, ToRequestContent(convenienceParam, convenienceParam.Type, isOptional: convenienceParam.DefaultValue != null));
                             }
                         }
                     }
@@ -2104,6 +2130,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection.Type,
                         [
                             This,
+                            .. PagingCollectionOptionsArguments,
                             .. constructorArguments
                         ]))
                     ];
@@ -2113,6 +2140,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 collection.Type,
                 [
                     This,
+                    .. PagingCollectionOptionsArguments,
                     .. BuildCreateRequestArguments(createRequestSignature, parameters)
                 ]));
         }
@@ -2252,7 +2280,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static ValueExpression CreateStreamingResultExpression(
+        private ValueExpression CreateStreamingResultExpression(
             InputStreamingType streamingType,
             ValueExpression response,
             ValueExpression? cancellationToken,
@@ -2270,7 +2298,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         payloadType,
                         streamingType,
                         "Unable to resolve SSE stream item type.");
-                    var parser = CreateSseParser(payloadCSharpType);
+                    var parser = CreateSseParser(payloadCSharpType, ClientModelReaderWriterOptions);
                     var arguments = cancellationToken != null
                         ? new ValueExpression[] { response, parser, terminalPredicate, cancellationToken }
                         : [response, parser, terminalPredicate];
@@ -2307,7 +2335,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ModelReaderWriterSnippets.Read(
                     itemType,
                     data,
-                    ModelSerializationExtensionsSnippets.Wire));
+                    ClientModelReaderWriterOptions));
             var jsonLinesArguments = cancellationToken != null
                 ? new ValueExpression[]
                 {
@@ -2347,7 +2375,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new FuncExpression([item.Declaration], isTerminal);
         }
 
-        private static ValueExpression CreateSseParser(CSharpType payloadCSharpType)
+        private static ValueExpression CreateSseParser(CSharpType payloadCSharpType, ScopedApi<ModelReaderWriterOptions> options)
         {
             var eventType = new VariableExpression(typeof(string), "_");
             var data = new VariableExpression(typeof(ReadOnlySpan<byte>), "data");
@@ -2359,7 +2387,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ModelReaderWriterSnippets.Read(
                     payloadCSharpType,
                     binaryData,
-                    ModelSerializationExtensionsSnippets.Wire));
+                    options));
         }
 
         private CSharpType? GetResponseBodyType(InputType? responseType)
@@ -2493,12 +2521,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Equals(typeof(TimeSpan)) || type.Equals(typeof(BinaryData));
         }
 
+        // The implicit operator can't take the client's options, so it would skip the configured model proxies.
+        private ValueExpression ToRequestContent(ValueExpression model, CSharpType modelType, bool isOptional)
+        {
+            if (!SupportsModelProxies || !MrwSerializationTypeDefinition.HasRequestContentConversion(modelType))
+            {
+                return model;
+            }
+
+            return (isOptional ? model.NullConditional() : model)
+                .Invoke(MrwSerializationTypeDefinition.ToRequestContentMethodName, ClientModelReaderWriterOptions);
+        }
+
         private bool TryGetFormatArgumentForDualFormatModel(
             ModelProvider? bodyModel,
             InputModelType? bodyInputModel,
-            [NotNullWhen(true)] out ScopedApi<string>? format)
+            [NotNullWhen(true)] out ScopedApi<string>? format,
+            out bool isXml)
         {
             format = null;
+            isXml = false;
 
             // Find the first JSON or XML media type
             string? matchedMediaType = null;
@@ -2523,7 +2565,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
             {
                 // Determine the format: XML or JSON
-                format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
+                isXml = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase);
+                format = isXml
                     ? ModelReaderWriterOptionsSnippets.XmlFormat
                     : ModelReaderWriterOptionsSnippets.JsonFormat;
                 return true;

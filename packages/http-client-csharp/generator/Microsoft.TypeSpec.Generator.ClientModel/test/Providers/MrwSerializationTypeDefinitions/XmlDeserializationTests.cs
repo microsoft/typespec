@@ -142,10 +142,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        // A nested model that also supports JSON reports "J" for the wire format, so it is only read through
-        // ModelReaderWriter proxies when the options explicitly request XML.
+        // A nested model that also supports JSON reports "J" for the wire format, so an XML-only parent reads it through
+        // ModelReaderWriter with XML options that keep the registered proxies, regardless of whether it was read with "W" or "X".
         [Test]
-        public void XmlDeserializationMethodRoutesDualFormatNestedModelOnlyForXmlFormat()
+        public void XmlDeserializationMethodReadsDualFormatNestedModelWithXmlOptions()
         {
             var innerModel = InputFactory.Model(
                 "InnerModel",

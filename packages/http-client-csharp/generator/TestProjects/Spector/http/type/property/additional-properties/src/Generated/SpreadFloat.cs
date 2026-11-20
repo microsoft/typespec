@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected SpreadFloat() => throw null;
 
-        internal SpreadFloat(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SpreadFloat(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

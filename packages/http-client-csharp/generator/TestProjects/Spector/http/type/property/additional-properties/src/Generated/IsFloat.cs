@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsFloat() => throw null;
 
-        internal IsFloat(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IsFloat(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

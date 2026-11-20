@@ -354,9 +354,23 @@ namespace SampleTypeSpec
 #endif
         }
 
-        public static bool ShouldReadThroughProxy(this ModelReaderWriterOptions options, Type modelType, ModelReaderWriterContext context)
+        public static bool ShouldReadThroughProxy<T>(this ModelReaderWriterOptions options, ModelReaderWriterContext context)
         {
-            return options.Proxies.Count > 0 && context.TryGetTypeBuilder(modelType, out _);
+            return options.Proxies.Count > 0 && ProxyReadEligibility<T>.IsBuildable(context);
+        }
+
+        public static ModelReaderWriterOptions ToWireOptions(this IList<ModelProxy> modelProxies)
+        {
+            if (modelProxies.Count == 0)
+            {
+                return WireOptions;
+            }
+            ModelReaderWriterOptions options = new ModelReaderWriterOptions("W");
+            foreach (ModelProxy proxy in modelProxies)
+            {
+                options.Proxies.Add(proxy);
+            }
+            return options;
         }
 
         public static ReadOnlySpan<byte> SliceToStartOfPropertyName(this ReadOnlySpan<byte> jsonPath)
@@ -462,6 +476,20 @@ namespace SampleTypeSpec
 
         public static BinaryData GetUtf8Bytes(this XElement element) => BinaryData.FromString(element.ToString(SaveOptions.DisableFormatting));
 
+        public static ModelReaderWriterOptions ToXmlOptions(this ModelReaderWriterOptions options)
+        {
+            if (options.Format == "X")
+            {
+                return options;
+            }
+            ModelReaderWriterOptions xmlOptions = new ModelReaderWriterOptions("X");
+            foreach (ModelProxy proxy in options.Proxies)
+            {
+                xmlOptions.Proxies.Add(proxy);
+            }
+            return xmlOptions;
+        }
+
         public static void WriteStringValue(this XmlWriter writer, DateTimeOffset value, string format)
         {
             writer.WriteValue(TypeFormatters.ToString(value, format));
@@ -513,6 +541,22 @@ namespace SampleTypeSpec
                     return;
                 default:
                     throw new NotSupportedException($"Not supported type {typeof(T)}");
+            }
+        }
+
+        private static class ProxyReadEligibility<T>
+        {
+            private static int s_state;
+
+            public static bool IsBuildable(ModelReaderWriterContext context)
+            {
+                int state = s_state;
+                if (state == 0)
+                {
+                    state = context.TryGetTypeBuilder(typeof(T), out _) ? 1 : 2;
+                    s_state = state;
+                }
+                return state == 1;
             }
         }
     }

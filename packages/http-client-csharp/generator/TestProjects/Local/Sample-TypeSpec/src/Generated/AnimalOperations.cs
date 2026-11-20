@@ -17,6 +17,7 @@ namespace SampleTypeSpec
     public partial class AnimalOperations
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions = ModelSerializationExtensions.WireOptions;
 
         /// <summary> Initializes a new instance of AnimalOperations for mocking. </summary>
         protected AnimalOperations()
@@ -25,11 +26,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal AnimalOperations(ClientPipeline pipeline, Uri endpoint)
+        internal AnimalOperations(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -86,8 +89,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdatePetAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            ClientResult result = UpdatePetAsAnimal(animal.ToBinaryContent(_modelReaderWriterOptions), cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(Animal.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> Update a pet as an animal. </summary>
@@ -99,8 +102,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdatePetAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            ClientResult result = await UpdatePetAsAnimalAsync(animal.ToBinaryContent(_modelReaderWriterOptions), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(Animal.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -154,8 +157,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = UpdateDogAsAnimal(animal, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            ClientResult result = UpdateDogAsAnimal(animal.ToBinaryContent(_modelReaderWriterOptions), cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(Animal.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> Update a dog as an animal. </summary>
@@ -167,8 +170,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(animal, nameof(animal));
 
-            ClientResult result = await UpdateDogAsAnimalAsync(animal, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Animal)result, result.GetRawResponse());
+            ClientResult result = await UpdateDogAsAnimalAsync(animal.ToBinaryContent(_modelReaderWriterOptions), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(Animal.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
     }
 }

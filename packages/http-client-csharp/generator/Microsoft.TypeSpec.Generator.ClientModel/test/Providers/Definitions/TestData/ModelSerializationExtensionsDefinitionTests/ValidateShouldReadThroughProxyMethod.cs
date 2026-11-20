@@ -2,16 +2,15 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
 
 namespace Sample
 {
     public partial class ModelSerializationExtensions
     {
-        public static bool ShouldReadThroughProxy(this global::System.ClientModel.Primitives.ModelReaderWriterOptions options, global::System.Type modelType, global::System.ClientModel.Primitives.ModelReaderWriterContext context)
+        public static bool ShouldReadThroughProxy<T>(this global::System.ClientModel.Primitives.ModelReaderWriterOptions options, global::System.ClientModel.Primitives.ModelReaderWriterContext context)
         {
-            return ((options.Proxies.Count > 0) && context.TryGetTypeBuilder(modelType, out _));
+            return ((options.Proxies.Count > 0) && global::Sample.ModelSerializationExtensions.ProxyReadEligibility<T>.IsBuildable(context));
         }
     }
 }

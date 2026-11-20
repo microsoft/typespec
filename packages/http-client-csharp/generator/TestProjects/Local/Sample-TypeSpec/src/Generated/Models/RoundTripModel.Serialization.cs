@@ -71,12 +71,32 @@ namespace SampleTypeSpec
             return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
         public static explicit operator RoundTripModel(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializeRoundTripModel(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RoundTripModel"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static RoundTripModel FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<RoundTripModel>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<RoundTripModel>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeRoundTripModel(document.RootElement, options);
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -408,7 +428,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredModel"u8))
                 {
-                    requiredModel = options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(prop.Value, options);
+                    requiredModel = options.ShouldReadThroughProxy<Thing>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnum"u8))
@@ -622,7 +642,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("modelWithRequiredNullable"u8))
                 {
-                    modelWithRequiredNullable = options.ShouldReadThroughProxy(typeof(ModelWithRequiredNullableProperties), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
+                    modelWithRequiredNullable = options.ShouldReadThroughProxy<ModelWithRequiredNullableProperties>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("requiredBytes"u8))

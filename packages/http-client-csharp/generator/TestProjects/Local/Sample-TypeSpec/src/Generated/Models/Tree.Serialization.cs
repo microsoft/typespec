@@ -95,11 +95,10 @@ namespace SampleTypeSpec
             return BinaryContent.Create(tree, ModelSerializationExtensions.WireOptions);
         }
 
-        /// <summary> Converts the model to BinaryContent using the specified format. </summary>
-        /// <param name="format"> The format to use for serialization. </param>
-        internal BinaryContent ToBinaryContent(string format)
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
         {
-            ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
             return BinaryContent.Create(this, options);
         }
 
@@ -121,6 +120,35 @@ namespace SampleTypeSpec
             }
 
             return DeserializeTree(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Tree"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static Tree FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+
+            if (response.Headers.TryGetValue("Content-Type", out string value) && value.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                if (options.ShouldReadThroughProxy<Tree>(SampleTypeSpecContext.Default))
+                {
+                    return ModelReaderWriter.Read<Tree>(response.Content, options, SampleTypeSpecContext.Default);
+                }
+                using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+                return DeserializeTree(document.RootElement, options);
+            }
+
+            if (options.ShouldReadThroughProxy<Tree>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<Tree>(response.Content, options.ToXmlOptions(), SampleTypeSpecContext.Default);
+            }
+            using Stream stream = response.ContentStream;
+            if (stream == null)
+            {
+                return default;
+            }
+
+            return DeserializeTree(XElement.Load(stream, LoadOptions.PreserveWhitespace), options);
         }
 
         /// <param name="writer"> The JSON writer. </param>

@@ -1119,10 +1119,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// XML counterpart of <see cref="GetProxyAwareDeserializationMethodInvocation"/>. A model that also supports JSON
-        /// reports "J" as its wire format, so it is only read through <see cref="ModelReaderWriter"/> when XML is
-        /// requested explicitly; otherwise the XML payload would be parsed as JSON.
+        /// reports "J" as its wire format, so its proxy-aware read requests XML explicitly; otherwise an XML-only parent
+        /// read with "W" would parse the child's XML payload as JSON.
         /// </summary>
-        private static ValueExpression GetProxyAwareXmlDeserializationMethodInvocation(
+        internal static ValueExpression GetProxyAwareXmlDeserializationMethodInvocation(
             CSharpType valueType,
             ScopedApi<XElement> element,
             ScopedApi<ModelReaderWriterOptions> options)
@@ -1134,15 +1134,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var modelType = valueType.WithNullable(false);
-            var shouldReadThroughProxy = options.ShouldReadThroughProxy(modelType);
-            if (serialization.SupportsJson)
-            {
-                shouldReadThroughProxy = options.Format().Equal(ModelReaderWriterOptionsSnippets.XmlFormat).And(shouldReadThroughProxy);
-            }
+            var readOptions = serialization.SupportsJson ? options.ToXmlOptions() : options;
 
             return new TernaryConditionalExpression(
-                shouldReadThroughProxy,
-                ModelReaderWriterSnippets.Read(modelType, element.GetUtf8Bytes(), options),
+                options.ShouldReadThroughProxy(modelType),
+                ModelReaderWriterSnippets.Read(modelType, element.GetUtf8Bytes(), readOptions),
                 deserialize);
         }
 

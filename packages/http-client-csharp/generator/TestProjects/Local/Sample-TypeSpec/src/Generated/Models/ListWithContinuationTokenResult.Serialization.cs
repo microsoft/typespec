@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializeListWithContinuationTokenResult(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenResult"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static ListWithContinuationTokenResult FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<ListWithContinuationTokenResult>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<ListWithContinuationTokenResult>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeListWithContinuationTokenResult(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ListWithContinuationTokenResult>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -151,7 +164,7 @@ namespace SampleTypeSpec
                     List<Thing> array = new List<Thing>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(options.ShouldReadThroughProxy(typeof(Thing), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(item, options));
+                        array.Add(options.ShouldReadThroughProxy<Thing>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<Thing>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : Thing.DeserializeThing(item, options));
                     }
                     things = array;
                     continue;

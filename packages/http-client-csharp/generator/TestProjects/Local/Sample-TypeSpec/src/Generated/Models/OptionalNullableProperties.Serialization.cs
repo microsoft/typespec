@@ -311,7 +311,7 @@ namespace SampleTypeSpec
                         nullableModel = null;
                         continue;
                     }
-                    nullableModel = options.ShouldReadThroughProxy(typeof(OptionalNullableChild), SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<OptionalNullableChild>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : OptionalNullableChild.DeserializeOptionalNullableChild(prop.Value, options);
+                    nullableModel = options.ShouldReadThroughProxy<OptionalNullableChild>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<OptionalNullableChild>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : OptionalNullableChild.DeserializeOptionalNullableChild(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("nullableString"u8))

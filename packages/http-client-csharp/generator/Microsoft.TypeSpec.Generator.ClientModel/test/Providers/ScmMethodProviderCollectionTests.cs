@@ -1605,10 +1605,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         construction.Type.ToString().Contains("CollectionResult", StringComparison.Ordinal)).ArgumentList!.Arguments;
                 CollectionAssert.AreEqual(
                     new[] { omitPathParameter ? "null" : "targetDBName", "sourceIPAddress", "cancellationToken.ToRequestOptions()" },
-                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.Expression.ToString()));
+                    arguments.Skip(isStreaming ? 0 : 2).Select(argument => argument.Expression.ToString()));
                 CollectionAssert.AreEqual(
                     omitPathParameter ? new[] { "targetDBName", "sourceIPAddress", "options" } : new string?[] { null, null, null },
-                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
+                    arguments.Skip(isStreaming ? 0 : 2).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
+                if (!isStreaming)
+                {
+                    CollectionAssert.AreEqual(
+                        new[] { "this", "_modelReaderWriterOptions" },
+                        arguments.Take(2).Select(argument => argument.Expression.ToString()));
+                }
             }
         }
 
@@ -4463,7 +4469,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [dualFormatModel]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [dualFormatModel], clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
@@ -4496,7 +4502,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [dualFormatModel]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [dualFormatModel], clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
@@ -4529,7 +4535,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var serviceMethod = InputFactory.BasicServiceMethod("UpdateModel", operation, parameters: [methodBodyParam]);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [jsonOnlyModel]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [jsonOnlyModel], clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
@@ -4543,6 +4549,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var expectedMethodBody = Helpers.GetExpectedFromFile();
 
             Assert.AreEqual(expectedMethodBody, methodBody);
+        }
+
+        // With model proxies on the client options, convenience methods convert request bodies and responses with the
+        // client's options because the cast operators can't take them.
+        [TestCase(InputModelTypeUsage.Json, "application/json")]
+        [TestCase(InputModelTypeUsage.Json | InputModelTypeUsage.Xml, "application/json")]
+        [TestCase(InputModelTypeUsage.Json | InputModelTypeUsage.Xml, "application/xml")]
+        [TestCase(InputModelTypeUsage.Xml, "application/xml")]
+        public void ConvenienceMethod_ModelProxies_ConvertsWithClientOptions(InputModelTypeUsage format, string contentType)
+        {
+            var model = InputFactory.Model("TestModel", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | format);
+            var bodyParam = InputFactory.BodyParameter("body", model, isRequired: true);
+            var methodBodyParam = InputFactory.MethodParameter("body", model, isRequired: true, location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "UpdateModel",
+                parameters: [bodyParam],
+                requestMediaTypes: [contentType],
+                responses: [InputFactory.OperationResponse([200], bodytype: model, contentTypes: [contentType])]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "UpdateModel",
+                operation,
+                parameters: [methodBodyParam],
+                response: InputFactory.ServiceMethodResponse(model, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [model]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") &&
+                m.Signature.Name == "UpdateModel");
+
+            Assert.IsNotNull(convenienceMethod);
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var parameters = $"{format.ToString().Replace(", ", ",")},{contentType.Substring("application/".Length)}";
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters), methodBody);
         }
 
         [Test]

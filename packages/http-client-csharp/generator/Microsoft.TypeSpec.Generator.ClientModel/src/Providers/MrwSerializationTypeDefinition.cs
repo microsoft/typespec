@@ -456,12 +456,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (!_inputModel.IsUnknownDiscriminatorModel)
                 {
+                    bool supportsModelProxies = ValueExpression.Empty.ToApi<ClientPipelineApi>().SupportsModelProxies;
+
                     // cast operators
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
                     {
                         methods.Add(BuildImplicitToBinaryContent());
+                        if (supportsModelProxies)
+                        {
+                            // Clients pass the options built from their configured model proxies.
+                            methods.Add(BuildToRequestContentWithOptionsMethod());
+                        }
                         // Add internal ToBinaryContent helper for format-specific serialization
-                        if (_supportsJson && _supportsXml)
+                        else if (_supportsJson && _supportsXml)
                         {
                             methods.Add(BuildToBinaryContentMethod());
                         }
@@ -470,6 +477,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
                     {
                         methods.Add(GetExplicitFromClientResultMethod(_supportsJson, _supportsXml));
+                        if (supportsModelProxies)
+                        {
+                            methods.Add(GetFromClientResultWithOptionsMethod(_supportsJson, _supportsXml));
+                        }
                     }
                 }
 

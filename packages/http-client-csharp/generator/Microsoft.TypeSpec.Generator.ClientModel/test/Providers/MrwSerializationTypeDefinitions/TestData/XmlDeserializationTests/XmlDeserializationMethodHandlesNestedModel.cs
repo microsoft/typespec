@@ -41,7 +41,7 @@ namespace Sample.Models
                 string localName = child.Name.LocalName;
                 if ((localName == "inner"))
                 {
-                    inner = options.ShouldReadThroughProxy(typeof(global::Sample.Models.InnerModel), global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.InnerModel>(child.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.InnerModel.DeserializeInnerModel(child, options);
+                    inner = options.ShouldReadThroughProxy<global::Sample.Models.InnerModel>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.InnerModel>(child.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.InnerModel.DeserializeInnerModel(child, options);
                     continue;
                 }
             }

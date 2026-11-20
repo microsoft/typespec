@@ -9,7 +9,7 @@ using (global::System.IO.Stream stream = data.ToStream())
         global::System.Collections.Generic.List<global::Sample.Models.SignedIdentifier> array = new global::System.Collections.Generic.List<global::Sample.Models.SignedIdentifier>();
         foreach (var item in element.Elements("SignedIdentifier"))
         {
-            array.Add(global::Sample.Models.SignedIdentifier.DeserializeSignedIdentifier(item, global::Sample.ModelSerializationExtensions.WireOptions));
+            array.Add(_modelReaderWriterOptions.ShouldReadThroughProxy<global::Sample.Models.SignedIdentifier>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.SignedIdentifier>(item.GetUtf8Bytes(), _modelReaderWriterOptions, global::Sample.SampleContext.Default) : global::Sample.Models.SignedIdentifier.DeserializeSignedIdentifier(item, _modelReaderWriterOptions));
         }
         value = array;
     }

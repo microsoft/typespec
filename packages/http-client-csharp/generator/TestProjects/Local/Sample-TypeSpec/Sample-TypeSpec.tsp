@@ -1012,6 +1012,20 @@ interface PlantOperations {
     @header contentType: "application/json";
     @body body: Tree;
   };
+
+  @doc("Get an XML-only container that nests a tree, which also supports JSON")
+  @get
+  @route("/tree/container")
+  getTreeContainer(): {
+    @header contentType: "application/xml";
+    @body body: XmlTreeContainer;
+  };
+}
+
+@doc("XML-only container whose nested tree also supports JSON")
+model XmlTreeContainer {
+  @doc("The nested tree")
+  tree: Tree;
 }
 
 model MetricsClientParams {

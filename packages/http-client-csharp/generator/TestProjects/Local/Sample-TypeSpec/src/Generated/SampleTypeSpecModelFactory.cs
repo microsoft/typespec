@@ -535,6 +535,14 @@ namespace SampleTypeSpec
             return new UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> XML-only container whose nested tree also supports JSON. </summary>
+        /// <param name="tree"> The nested tree. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.XmlTreeContainer"/> instance for mocking. </returns>
+        public static XmlTreeContainer XmlTreeContainer(Tree tree = default)
+        {
+            return new XmlTreeContainer(tree);
+        }
+
         /// <summary> The GetWidgetMetricsResult. </summary>
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>

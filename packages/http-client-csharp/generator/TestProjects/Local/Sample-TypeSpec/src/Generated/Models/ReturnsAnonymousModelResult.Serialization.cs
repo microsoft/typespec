@@ -64,6 +64,19 @@ namespace SampleTypeSpec
             return DeserializeReturnsAnonymousModelResult(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ReturnsAnonymousModelResult"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static ReturnsAnonymousModelResult FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<ReturnsAnonymousModelResult>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<ReturnsAnonymousModelResult>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeReturnsAnonymousModelResult(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ReturnsAnonymousModelResult>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)

@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializeSerializeNamedCat(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="SerializeNamedCat"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static SerializeNamedCat FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<SerializeNamedCat>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<SerializeNamedCat>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeSerializeNamedCat(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<SerializeNamedCat>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)

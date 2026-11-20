@@ -13,13 +13,15 @@ namespace Sample
     internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly global::System.DateTimeOffset _startsOn;
         private readonly string _startsOn0;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.DateTimeOffset startsOn, string startsOn0, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, global::System.DateTimeOffset startsOn, string startsOn0, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _startsOn = startsOn;
             _startsOn0 = startsOn0;
             _options = options;
@@ -34,7 +36,7 @@ namespace Sample
                 global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
-                nextPageUri = ((global::Sample.Models.Page)result).NextCat;
+                nextPageUri = global::Sample.Models.Page.FromClientResult(result, _modelReaderWriterOptions).NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -45,7 +47,7 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
+            global::System.Uri nextPage = global::Sample.Models.Page.FromClientResult(page, _modelReaderWriterOptions).NextCat;
             if ((nextPage != null))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));

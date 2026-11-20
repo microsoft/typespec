@@ -11,7 +11,7 @@ namespace _Type.Union.Discriminated.Extends._InjectedDiscriminator
     {
         protected InjectedDiscriminator() => throw null;
 
-        internal InjectedDiscriminator(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal InjectedDiscriminator(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

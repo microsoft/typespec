@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -41,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TokenProviderFieldName = "_tokenProvider";
         private const string TokenCredentialFieldName = "_tokenCredential";
         private const string EndpointFieldName = "_endpoint";
+        private const string ModelReaderWriterOptionsFieldName = "_modelReaderWriterOptions";
         private const string CredentialParamName = "credential";
         private const string SettingsParamName = "settings";
         private const string ClientSuffix = "Client";
@@ -182,6 +184,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 typeof(Uri),
                 EndpointFieldName,
                 this);
+            // Clients created through the mocking constructor skip the constructors that copy the client options' proxies,
+            // so the field starts with the shared wire options to keep their convenience methods working.
+            ModelReaderWriterOptionsField = ValueExpression.Empty.ToApi<ClientPipelineApi>().SupportsModelProxies
+                ? new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    typeof(ModelReaderWriterOptions),
+                    ModelReaderWriterOptionsFieldName,
+                    this,
+                    initializationValue: ModelSerializationExtensionsSnippets.Wire)
+                : null;
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
@@ -515,6 +527,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 PipelineProperty.AsParameter
             };
 
+            // The parent passes the options it built from its client options so subclient operations use the same proxies.
+            if (ModelReaderWriterOptionsField != null)
+            {
+                subClientParameters.Add(ModelReaderWriterOptionsField.AsParameter);
+            }
+
             // Auth credentials are NOT included here — the parent passes its authenticated
             // pipeline, so the sub-client doesn't need separate credential parameters.
             subClientParameters.Add(_subClientEndpointParameter);
@@ -623,6 +641,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
+
+        /// <summary>
+        /// Gets the field holding the <see cref="ModelReaderWriterOptions"/> the client uses to read and write models, or
+        /// <c>null</c> when the client pipeline options don't carry model proxies.
+        /// </summary>
+        public FieldProvider? ModelReaderWriterOptionsField { get; }
 
         public IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
 
@@ -749,6 +773,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = [EndpointField];
+
+            if (ModelReaderWriterOptionsField != null)
+            {
+                fields.Add(ModelReaderWriterOptionsField);
+            }
 
             if (_apiKeyAuthFields != null)
             {
@@ -1359,6 +1388,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
+            }
+
+            // Creating the pipeline freezes the client options, so the proxies copied here can't change afterwards.
+            if (ModelReaderWriterOptionsField != null &&
+                This.ToApi<ClientPipelineApi>().GetModelProxies(clientOptionsParameter) is { } modelProxies)
+            {
+                body.Add(ModelReaderWriterOptionsField.Assign(ModelSerializationExtensionsSnippets.ToWireOptions(modelProxies)).Terminate());
             }
 
             foreach (var f in Fields)
