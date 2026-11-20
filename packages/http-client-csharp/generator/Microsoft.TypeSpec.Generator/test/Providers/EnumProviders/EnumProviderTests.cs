@@ -1385,6 +1385,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ("HTTPStatus", false),
                 ("HTTP2", false),
                 ("UTF8", false),
+                ("VM2", false),
+                ("IO2", false),
+                ("IPV4", false),
+                ("IPV6", false),
                 ("HTTP2foo", false),
                 ("HTTP2", true),
                 ("IOStream", false),
@@ -1401,6 +1405,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             }
 
             var provider = EnumProvider.Create(input);
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    "And", "Or", "NotFound", "FooOR", "ORfoo", "FooOr", "OrFoo", "ORFoo", "FooHTTP", "HTTPStatus",
+                    "Http2", "Utf8", "Vm2", "Io2", "IPV4", "IPV6", "HTTP2foo", "HTTP2", "IOStream", "CallbackURL",
+                    "Callbackurl", "CallbackUri", "AND"
+                },
+                provider.Properties.Select(p => p.Name).ToArray());
             var content = new TypeProviderWriter(provider).Write().Content;
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }

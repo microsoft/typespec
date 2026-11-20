@@ -23,6 +23,10 @@ namespace Sample.Models
         private const string HTTPStatusValue = "HTTPStatus";
         private const string Http2Value = "HTTP2";
         private const string Utf8Value = "UTF8";
+        private const string Vm2Value = "VM2";
+        private const string Io2Value = "IO2";
+        private const string IPV4Value = "IPV4";
+        private const string IPV6Value = "IPV6";
         private const string HTTP2fooValue = "HTTP2foo";
         private const string HTTP2Value = "HTTP2";
         private const string IOStreamValue = "IOStream";
@@ -61,6 +65,14 @@ namespace Sample.Models
         public static global::Sample.Models.MockInputEnum Http2 { get; } = new global::Sample.Models.MockInputEnum(Http2Value);
 
         public static global::Sample.Models.MockInputEnum Utf8 { get; } = new global::Sample.Models.MockInputEnum(Utf8Value);
+
+        public static global::Sample.Models.MockInputEnum Vm2 { get; } = new global::Sample.Models.MockInputEnum(Vm2Value);
+
+        public static global::Sample.Models.MockInputEnum Io2 { get; } = new global::Sample.Models.MockInputEnum(Io2Value);
+
+        public static global::Sample.Models.MockInputEnum IPV4 { get; } = new global::Sample.Models.MockInputEnum(IPV4Value);
+
+        public static global::Sample.Models.MockInputEnum IPV6 { get; } = new global::Sample.Models.MockInputEnum(IPV6Value);
 
         public static global::Sample.Models.MockInputEnum HTTP2foo { get; } = new global::Sample.Models.MockInputEnum(HTTP2fooValue);
 
