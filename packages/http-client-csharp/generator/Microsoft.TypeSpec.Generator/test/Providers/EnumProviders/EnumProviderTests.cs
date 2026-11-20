@@ -1184,6 +1184,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Other", enumType.Properties[1].Name);
         }
 
+        [Test]
+        public async Task BackCompat_ExtensibleEnumUrlSuffixPreservesUnderscoredName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var input = InputFactory.StringEnum("mockInputEnum", [("CallbackURL", "callback-url")], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual("Callback_Url", enumType.Properties.Single().Name);
+            var field = enumType.Fields.Single(f => f.Name == "Callback_UrlValue");
+            Assert.AreEqual("callback-url", ((LiteralExpression)field.InitializationValue!).Literal);
+        }
+
         // Verifies that when custom code already implements the underscore-named member (e.g. the
         // user manually re-added 'Existing_Value' pointing at the generated 'ExistingValue'), the
         // underscore back-compat restoration does NOT rename the generated member. Otherwise the
