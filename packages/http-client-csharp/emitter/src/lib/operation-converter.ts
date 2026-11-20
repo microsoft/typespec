@@ -30,6 +30,8 @@ import {
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
+  updateUsageOrAccess,
+  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Union } from "@typespec/compiler";
 import {
@@ -54,6 +56,7 @@ import type {
   InputLongRunningPagingServiceMethod,
   InputLongRunningServiceMetadata,
   InputLongRunningServiceMethod,
+  InputLroStatusMetadata,
   InputNextLink,
   InputPagingServiceMetadata,
   InputPagingServiceMethod,
@@ -65,6 +68,8 @@ import type {
   InputHeaderParameter,
   InputHttpParameter,
   InputMethodParameter,
+  InputModelProperty,
+  InputModelType,
   InputPathParameter,
   InputQueryParameter,
   InputStreamingType,
@@ -725,6 +730,57 @@ function loadLongRunningMetadata(
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
 ): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
+  const metadata = method.lroMetadata;
+
+  let pollingResponseModel: InputModelType | undefined;
+  let statusMetadata: InputLroStatusMetadata[] | undefined;
+  if (metadata.statusMetadata?.length) {
+    // Status metadata is read by deserializing the polling response with its generated deserializer,
+    // so the polling model graph must be emitted with JSON deserialization even when the polling
+    // operation itself is not exposed.
+    const pollingModel = metadata.pollingInfo.responseModel;
+    const outputTypes = new Set<SdkType>();
+    diagnostics.pipe(
+      updateUsageOrAccess(sdkContext, UsageFlags.Output | UsageFlags.Json, pollingModel, {
+        seenTypes: outputTypes,
+      }),
+    );
+    pollingResponseModel = diagnostics.pipe(fromSdkType(sdkContext, pollingModel));
+    for (const type of outputTypes) {
+      const inputType = sdkContext.__typeCache.types.get(type);
+      if (inputType?.kind === "model" || inputType?.kind === "enum") {
+        inputType.usage |= UsageFlags.Output | UsageFlags.Json;
+      }
+    }
+
+    statusMetadata = [];
+    for (const entry of metadata.statusMetadata) {
+      const property = sdkContext.__typeCache.properties.get(entry.property);
+      const propertySegments = entry.propertySegments.map((segment) =>
+        sdkContext.__typeCache.properties.get(segment),
+      );
+      if (
+        property === undefined ||
+        propertySegments.length === 0 ||
+        propertySegments.some((segment) => segment === undefined)
+      ) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "general-error",
+            format: {
+              message: `Invalid LRO status metadata for '${method.name}': property '${entry.property.name}' is not a property of the polling response model '${pollingModel.name}'.`,
+            },
+            target: method.__raw ?? NoTarget,
+          }),
+        );
+        continue;
+      }
+      statusMetadata.push({
+        property,
+        propertySegments: propertySegments as InputModelProperty[],
+      });
+    }
+  }
 
   return diagnostics.wrap({
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
@@ -740,6 +796,8 @@ function loadLongRunningMetadata(
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
+    pollingResponseModel,
+    statusMetadata,
   });
 }
 

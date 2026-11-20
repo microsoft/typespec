@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -29,19 +30,23 @@ namespace Microsoft.TypeSpec.Generator.Input
             int finalStateVia = default;
             InputOperationResponse? finalResponse = null;
             string? resultPath = null;
+            InputModelType? pollingResponseModel = null;
+            IReadOnlyList<InputLroStatusMetadata>? statusMetadata = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadInt32("finalStateVia", ref finalStateVia)
                     || reader.TryReadComplexType("finalResponse", options, ref finalResponse)
-                    || reader.TryReadString("resultPath", ref resultPath);
+                    || reader.TryReadString("resultPath", ref resultPath)
+                    || reader.TryReadComplexType("pollingResponseModel", options, ref pollingResponseModel)
+                    || reader.TryReadComplexType("statusMetadata", options, ref statusMetadata);
 
                 if (!isKnownProperty)
                 {
-                    continue;
+                    reader.SkipProperty();
                 }
             }
 
-            var result = new InputLongRunningServiceMetadata(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath);
+            var result = new InputLongRunningServiceMetadata(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath, pollingResponseModel, statusMetadata ?? []);
 
             return result;
         }
