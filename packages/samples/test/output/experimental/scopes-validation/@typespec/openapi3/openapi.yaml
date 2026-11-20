@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    get:
+      operationId: Api_common
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    Ambiguous:
+      type: object
+    Clients:
+      type: string
+      enum:
+        - csharp
+        - python
+    Features:
+      type: string
+      enum:
+        - shared
+    Payload:
+      type: string
+    Stages:
+      type: string
+      enum:
+        - preview
+        - stable
+    Valid:
+      type: object

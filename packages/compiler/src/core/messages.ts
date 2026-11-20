@@ -158,6 +158,8 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
+      whenCondition:
+        "'when' condition expected. A condition must be an enum member reference (e.g. `Clients.csharp`) or `since(...)`/`before(...)`.",
       typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
@@ -297,6 +299,60 @@ const diagnostics = {
         "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
     },
   },
+  "scoped-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "'when' clauses require the 'scoped-decorators' feature to be enabled. Add 'scoped-decorators' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "unknown-when-filter": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown 'when' filter '${"name"}'. Expected one of: ${"expected"}.`,
+    },
+  },
+  "invalid-scope-condition": {
+    severity: "error",
+    messages: {
+      default: "A scope condition must reference an enum member.",
+      range: "'since' and 'before' require a member of an ordered (versioning) axis.",
+      visibility: paramMessage`'${"name"}' is a visibility class. Visibility is selected per property set by '@visibility' and visibility filters, not by scope views.`,
+    },
+  },
+  "unreachable-scope-condition": {
+    severity: "warning",
+    messages: {
+      default:
+        "This 'when' condition is not satisfied by any scope view, so the annotated element is never present.",
+    },
+  },
+  "invalid-scope-hierarchy": {
+    severity: "error",
+    messages: {
+      default: "Scope parents must form an acyclic hierarchy.",
+      root: paramMessage`Scope '${"member"}' has parents in different axes ('${"first"}' and '${"second"}'). All parents must share the same root axis.`,
+    },
+  },
+  "ambiguous-scoped-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ambiguous '${"decorator"}' application. Add a more specific application covering this overlap.`,
+    },
+  },
+  "incompatible-scoped-reference": {
+    severity: "error",
+    messages: {
+      default: paramMessage`'${"target"}' is not present in scope view '${"view"}'.`,
+    },
+  },
+  "invalid-scoped-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`A ${"kind"} cannot be used as a scoped property type.`,
+    },
+  },
+
   "using-invalid-ref": {
     severity: "error",
     messages: {

@@ -1,16 +1,112 @@
-import type { ModelProperty, Namespace, Operation, Program, Type } from "@typespec/compiler";
-import { type unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
+import type {
+  EnumMember,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Program,
+  Type,
+} from "@typespec/compiler";
+import {
+  registerScopeViewAxis,
+  type unsafe_MutatorWithNamespace as MutatorWithNamespace,
+} from "@typespec/compiler/experimental";
 import {
   getMadeOptionalOn,
   getMadeRequiredOn,
   getRenamedFrom,
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
+  getVersion,
 } from "./decorators.js";
 import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
-import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
+import {
+  Availability,
+  getAvailabilityMapInTimeline,
+  getVersions,
+  resolveVersions,
+} from "./versioning.js";
+
+/**
+ * Register the version axes of a program with the conditional-scope views. Only root services
+ * contribute an axis: dependency versions are implied by the root version and pinned
+ * `@useDependency` versions are the only selectable member of their axis.
+ * @internal
+ */
+export function registerVersioningScopeAxes(
+  program: Program,
+  namespaces: readonly Namespace[],
+): void {
+  const versioned = namespaces.filter((namespace) => getVersion(program, namespace));
+  const dependencies = new Set<Namespace>();
+  for (const namespace of namespaces) {
+    for (const resolution of resolveVersions(program, namespace)) {
+      for (const [dependency, version] of resolution.versions) {
+        if (dependency === namespace) continue;
+        dependencies.add(dependency);
+        if (!resolution.rootVersion) {
+          registerScopeViewAxis(program, {
+            enum: version.enumMember.enum,
+            members: [version.enumMember],
+          });
+        }
+      }
+    }
+  }
+  for (const namespace of versioned) {
+    if (!dependencies.has(namespace)) registerRootAxis(program, namespace);
+  }
+}
+
+function registerRootAxis(program: Program, namespace: Namespace): void {
+  const resolutions = resolveVersions(program, namespace).filter((x) => x.rootVersion);
+  if (resolutions.length === 0) return;
+  const timeline = new VersioningTimeline(
+    program,
+    resolutions.map((x) => x.versions),
+  );
+  const helper = new VersioningHelper(program, timeline);
+  const byMember = new Map(resolutions.map((x) => [x.rootVersion!.enumMember, x] as const));
+  const momentOf = (member: EnumMember) => timeline.get(byMember.get(member)!.rootVersion!);
+  const namespaces = new Set(resolutions.flatMap((resolution) => [...resolution.versions.keys()]));
+  const includes = (type: Type) => {
+    let owner = getVersions(program, type)[0];
+    while (owner) {
+      if (namespaces.has(owner)) return true;
+      owner = owner.namespace;
+    }
+    return false;
+  };
+  registerScopeViewAxis(program, {
+    enum: resolutions[0].rootVersion!.enumMember.enum,
+    implied(member) {
+      const resolution = byMember.get(member);
+      return resolution ? [...resolution.versions.values()].map((x) => x.enumMember) : [];
+    },
+    isPresent(member, type) {
+      return (
+        !byMember.has(member) || !includes(type) || helper.existsAtVersion(type, momentOf(member))
+      );
+    },
+    project(member) {
+      const mutator = createVersionMutator(helper, momentOf(member));
+      return {
+        ...Object.fromEntries(
+          Object.entries(mutator).map(([kind, record]) => [
+            kind,
+            typeof record === "string"
+              ? record
+              : typeof record === "function"
+                ? { filter: includes, mutate: record }
+                : { ...record, filter: includes },
+          ]),
+        ),
+        name: mutator.name,
+      };
+    },
+  });
+}
 
 /**
  * Snapshot mutators for a service with its own declared versions.
