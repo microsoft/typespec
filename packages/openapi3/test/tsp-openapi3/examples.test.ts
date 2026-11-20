@@ -29,6 +29,14 @@ function documentFor(schema: OpenAPISchema3_2): OpenAPIDocument3_2 {
   };
 }
 
+function examplesForSchema(schema: any, document: any) {
+  if ("$ref" in schema) {
+    const name = schema.$ref.split("/").at(-1);
+    return document.components.schemas[name].examples;
+  }
+  return schema.examples;
+}
+
 describe("import schema examples", () => {
   it("creates example decorators in reverse order without mutating the input", () => {
     const schema: OpenAPISchema3_2 = {
@@ -145,6 +153,171 @@ describe("import schema examples", () => {
       "Spot",
       "Fluffy",
     ]);
+  });
+
+  it("uses scalar constructors and enum members in schema examples", async () => {
+    const schemas: Record<string, OpenAPISchema3_2> = {
+      Color: { type: "string", enum: ["red", "blue"], examples: ["blue"] },
+      Timestamp: {
+        type: "string",
+        format: "date-time",
+        examples: ["2026-11-20T16:00:00Z"],
+      },
+      Pet: {
+        type: "object",
+        properties: {
+          color: { $ref: "#/components/schemas/Color" },
+          timestamps: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Timestamp" },
+          },
+        },
+        examples: [
+          {
+            color: "red",
+            timestamps: ["2026-11-20T16:00:00Z"],
+          },
+        ],
+      },
+    };
+    const input = documentFor({});
+    input.components = { schemas };
+
+    const code = await convertOpenAPI3Document(input);
+    expect(code).toContain("Pets.Color.red");
+    expect(code).toContain('Pets.Timestamp.fromISO("2026-11-20T16:00:00Z")');
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual(schemas.Pet.examples);
+    expect(output.components.schemas.Color.examples).toEqual(schemas.Color.examples);
+    expect(output.components.schemas.Timestamp.examples).toEqual(schemas.Timestamp.examples);
+  });
+
+  it("preserves parent examples when unwrapping an inline object union member", async () => {
+    const examples = [{ name: "parent" }];
+    const code = await convertOpenAPI3Document(
+      documentFor({
+        anyOf: [
+          {
+            type: "object",
+            properties: { name: { type: "string" } },
+            examples: [{ name: "member" }],
+          },
+          { type: "null" },
+        ],
+        examples,
+      }),
+    );
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
+  it("round-trips examples on inline request and response body schemas", async () => {
+    const input = documentFor({});
+    input.paths = {
+      "/pets": {
+        post: {
+          operationId: "createPet",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { name: { type: "string" } },
+                  examples: [{ name: "request example" }],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Created",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: { name: { type: "string" } },
+                    examples: [{ name: "response example" }],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPIDocument3_2["paths"];
+
+    const code = await convertOpenAPI3Document(input);
+    const output = await emitOpenAPI(code);
+    expect(
+      (input.paths as any)["/pets"].post.requestBody.content["application/json"].schema.examples,
+    ).toEqual([{ name: "request example" }]);
+    expect(
+      examplesForSchema(
+        output.paths["/pets"].post.requestBody.content["application/json"].schema,
+        output,
+      ),
+    ).toEqual([{ name: "request example" }]);
+    expect(
+      examplesForSchema(
+        output.paths["/pets"].post.responses["200"].content["application/json"].schema,
+        output,
+      ),
+    ).toEqual([{ name: "response example" }]);
+  });
+
+  it("round-trips examples on inline string request and response bodies", async () => {
+    const input = documentFor({});
+    input.paths = {
+      "/pets": {
+        post: {
+          operationId: "createPet",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { type: "string", examples: ["request example"] },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Created",
+              content: {
+                "application/json": {
+                  schema: { type: "string", examples: ["response example"] },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPIDocument3_2["paths"];
+
+    const code = await convertOpenAPI3Document(input);
+    const output = await emitOpenAPI(code);
+    const requestContent = output.paths["/pets"].post.requestBody.content as Record<string, any>;
+    const responseContent = output.paths["/pets"].post.responses["200"].content as Record<
+      string,
+      any
+    >;
+    const requestSchema = Object.values(requestContent)[0].schema;
+    const responseSchema = Object.values(responseContent)[0].schema;
+    expect(examplesForSchema(requestSchema, output)).toEqual(["request example"]);
+    expect(examplesForSchema(responseSchema, output)).toEqual(["response example"]);
+  });
+
+  it("preserves backslashes in nested schema examples", async () => {
+    const examples = [{ path: "C:\\temp" }];
+    const code = await convertOpenAPI3Document(
+      documentFor({
+        type: "object",
+        properties: { path: { type: "string" } },
+        examples,
+      }),
+    );
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
   });
 
   it("preserves outer examples without merging nullable union member examples", async () => {

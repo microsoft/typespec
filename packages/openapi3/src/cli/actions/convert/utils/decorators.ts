@@ -240,6 +240,7 @@ function getHeaderArgs(explode: boolean): TSValue | undefined {
 export function getDecoratorsForSchema(
   schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
   context?: Context,
+  exampleTargetType?: string,
 ): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
@@ -261,20 +262,7 @@ export function getDecoratorsForSchema(
   const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
 
   decorators.push(...getExtensions(schemaWithoutRef));
-
-  if ("examples" in schemaWithoutRef) {
-    if (Array.isArray(schemaWithoutRef.examples)) {
-      // Decorators are applied in reverse order, so reverse to preserve the examples array order.
-      for (const example of [...schemaWithoutRef.examples].reverse()) {
-        decorators.push({
-          name: "example",
-          args: [createTSValue(normalizeObjectValueToTSValueExpression(example))],
-        });
-      }
-    } else {
-      context?.logger.warn("Schema examples must be an array. The examples will be ignored.");
-    }
-  }
+  decorators.push(...getExampleDecoratorsForSchema(schema, context, exampleTargetType));
 
   // Handle readOnly and writeOnly properties
   // These are mutually exclusive - if both are present, emit a warning and ignore both
@@ -433,6 +421,169 @@ export function getDecoratorsForSchema(
   }
 
   return decorators;
+}
+
+export function getExampleDecoratorsForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  context?: Context,
+  exampleTargetType?: string,
+): TypeSpecDecorator[] {
+  const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+  if (!("examples" in schemaWithoutRef)) {
+    return [];
+  }
+
+  if (!Array.isArray(schemaWithoutRef.examples)) {
+    context?.logger.warn("Schema examples must be an array. The examples will be ignored.");
+    return [];
+  }
+
+  // Decorators are applied in reverse order, so reverse to preserve the examples array order.
+  return [...schemaWithoutRef.examples].reverse().map((example) => ({
+    name: "example",
+    args: [createTSValue(getExampleValueExpression(example, schema, context, exampleTargetType))],
+  }));
+}
+
+function getExampleValueExpression(
+  value: unknown,
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  context?: Context,
+  exampleTargetType?: string,
+): string {
+  if (value === null) return "null";
+
+  const isRef = "$ref" in schema;
+  const referencedSchema = isRef ? context?.getSchemaByRef(schema.$ref) : undefined;
+  const effectiveSchema = referencedSchema
+    ? ({ ...referencedSchema, ...schema } as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2)
+    : (schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2);
+  const typeName = isRef
+    ? context?.getRefName(schema.$ref, [context.rootNamespace])
+    : exampleTargetType;
+
+  if (
+    typeName &&
+    effectiveSchema.type === "string" &&
+    effectiveSchema.enum?.includes(value as string)
+  ) {
+    return `${typeName}.${printIdentifier(String(value), "disallow-reserved")}`;
+  }
+
+  if (
+    typeof value === "string" &&
+    effectiveSchema.type === "string" &&
+    effectiveSchema.format === "date-time"
+  ) {
+    return `${typeName ?? "utcDateTime"}.fromISO(${stringLiteralForExample(value)})`;
+  }
+
+  const unionMembers = effectiveSchema.anyOf ?? effectiveSchema.oneOf;
+  if (unionMembers) {
+    const matchingMember = unionMembers.find((member) =>
+      isExampleValueCompatible(value, member, context),
+    );
+    if (matchingMember) {
+      return getExampleValueExpression(value, matchingMember, context);
+    }
+  }
+
+  if (Array.isArray(value)) {
+    const itemSchema = effectiveSchema.items;
+    return `#[${value
+      .map((item) => getExampleValueExpression(item, itemSchema ?? {}, context))
+      .join(", ")}]`;
+  }
+
+  if (typeof value === "object") {
+    const properties = effectiveSchema.properties ?? {};
+    return `#{${Object.entries(value)
+      .map(([key, propertyValue]) => {
+        const propertySchema =
+          properties[key] ??
+          (typeof effectiveSchema.additionalProperties === "object"
+            ? effectiveSchema.additionalProperties
+            : {});
+        return `${printIdentifier(key, "disallow-reserved")}: ${getExampleValueExpression(
+          propertyValue,
+          propertySchema,
+          context,
+        )}`;
+      })
+      .join(", ")}}`;
+  }
+
+  return typeof value === "string" ? stringLiteralForExample(value) : JSON.stringify(value);
+}
+
+function isExampleValueCompatible(
+  value: unknown,
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  context?: Context,
+): boolean {
+  if (value === null) {
+    return "$ref" in schema
+      ? isExampleValueCompatible(value, context?.getSchemaByRef(schema.$ref) ?? {}, context)
+      : (schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2).type === "null" ||
+          ("type" in schema && Array.isArray(schema.type) && schema.type.includes("null"));
+  }
+
+  if ("$ref" in schema) {
+    const referencedSchema = context?.getSchemaByRef(schema.$ref);
+    return referencedSchema ? isExampleValueCompatible(value, referencedSchema, context) : true;
+  }
+
+  if (schema.const !== undefined && schema.const !== value) return false;
+  if (schema.enum && !schema.enum.includes(value as never)) return false;
+
+  const unionMembers = schema.anyOf ?? schema.oneOf;
+  if (unionMembers) {
+    return unionMembers.some((member) => isExampleValueCompatible(value, member, context));
+  }
+
+  if (Array.isArray(schema.type)) {
+    return schema.type.some((type) =>
+      isExampleValueCompatible(value, { ...schema, type } as OpenAPI3Schema, context),
+    );
+  }
+
+  switch (schema.type) {
+    case "array":
+      return (
+        Array.isArray(value) &&
+        (!schema.items ||
+          value.every((item) => isExampleValueCompatible(item, schema.items!, context)))
+      );
+    case "object":
+      return (
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        Object.entries(value).every(([key, propertyValue]) => {
+          const propertySchema =
+            schema.properties?.[key] ??
+            (typeof schema.additionalProperties === "object"
+              ? schema.additionalProperties
+              : undefined);
+          return (
+            !propertySchema || isExampleValueCompatible(propertyValue, propertySchema, context)
+          );
+        })
+      );
+    case "string":
+      return typeof value === "string";
+    case "boolean":
+      return typeof value === "boolean";
+    case "integer":
+      return typeof value === "number" && Number.isInteger(value);
+    case "number":
+      return typeof value === "number";
+    default:
+      return true;
+  }
+}
+
+function stringLiteralForExample(value: string): string {
+  return JSON.stringify(value).replaceAll("${", "\\${");
 }
 
 export function getDirectivesForSchema(

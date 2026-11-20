@@ -31,6 +31,7 @@ export async function convertOpenAPI3Document(
   document: SupportedOpenAPIDocuments,
   { disableExternalRefs, namespace }: ConvertOpenAPI3DocumentOptions = {},
 ) {
+  const conversionDocument = hoistInlineBodyExampleSchemas(document);
   const dereferenceOptions = disableExternalRefs
     ? {
         onDereference: (data: { schema: AnyObject; ref: string }): void => {
@@ -41,11 +42,14 @@ export async function convertOpenAPI3Document(
         },
       }
     : {};
-  const { specification } = await dereference(document as unknown as AnyObject, dereferenceOptions);
+  const { specification } = await dereference(
+    conversionDocument as unknown as AnyObject,
+    dereferenceOptions,
+  );
   if (!specification) {
     throw new Error("Failed to dereference OpenAPI document");
   }
-  const context = createContext(document, console, namespace);
+  const context = createContext(conversionDocument, console, namespace);
   const program = transform(context);
   const content = generateMain(program, context);
   try {
@@ -56,4 +60,97 @@ export async function convertOpenAPI3Document(
   } catch {
     return content;
   }
+}
+
+function hoistInlineBodyExampleSchemas(
+  document: SupportedOpenAPIDocuments,
+): SupportedOpenAPIDocuments {
+  const converted = structuredClone(document) as SupportedOpenAPIDocuments;
+  const mutableDocument = converted as any;
+  const components = (mutableDocument.components ??= {});
+  const schemas = (components.schemas ??= {});
+  let nextSchemaIndex = 0;
+
+  function hoistContentSchemas(content: Record<string, any> | undefined): void {
+    for (const mediaType of Object.values(content ?? {})) {
+      const schema = mediaType?.schema;
+      if (
+        !schema ||
+        typeof schema !== "object" ||
+        "$ref" in schema ||
+        !("examples" in schema) ||
+        (Array.isArray(schema.examples) && schema.examples.length === 0)
+      ) {
+        continue;
+      }
+
+      let name: string;
+      do {
+        name = `__OpenAPIExampleBody${nextSchemaIndex++}`;
+      } while (name in schemas);
+
+      schemas[name] = schema;
+      mediaType.schema = { $ref: `#/components/schemas/${name}` };
+    }
+  }
+
+  function hoistRequestBody(requestBody: any): void {
+    if (requestBody && typeof requestBody === "object" && !("$ref" in requestBody)) {
+      hoistContentSchemas(requestBody.content);
+    }
+  }
+
+  function hoistResponses(responses: any): void {
+    if (!responses || typeof responses !== "object" || "$ref" in responses) {
+      return;
+    }
+
+    for (const response of Object.values(responses)) {
+      if (response && typeof response === "object" && !("$ref" in response)) {
+        hoistContentSchemas((response as any).content);
+      }
+    }
+  }
+
+  for (const requestBody of Object.values(components.requestBodies ?? {})) {
+    hoistRequestBody(requestBody);
+  }
+  for (const response of Object.values(components.responses ?? {})) {
+    if (response && typeof response === "object" && !("$ref" in response)) {
+      hoistContentSchemas((response as any).content);
+    }
+  }
+
+  function hoistOperation(operation: any): void {
+    if (!operation || typeof operation !== "object") {
+      return;
+    }
+
+    if ("requestBody" in operation || "responses" in operation) {
+      hoistRequestBody(operation.requestBody);
+      hoistResponses(operation.responses);
+    }
+  }
+
+  function visitPathItem(pathItem: any): void {
+    if (!pathItem || typeof pathItem !== "object") {
+      return;
+    }
+
+    hoistOperation(pathItem.query);
+    for (const operation of Object.values(pathItem.additionalOperations ?? {})) {
+      hoistOperation(operation);
+    }
+    for (const [key, operation] of Object.entries(pathItem)) {
+      if (key !== "query" && key !== "additionalOperations") {
+        hoistOperation(operation);
+      }
+    }
+  }
+
+  for (const pathItem of Object.values(mutableDocument.paths ?? {})) {
+    visitPathItem(pathItem);
+  }
+
+  return converted;
 }

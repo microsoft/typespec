@@ -79,7 +79,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "enum",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema, context),
+      decorators: getDecoratorsForSchema(
+        schema,
+        context,
+        context.getRefName(`#/components/schemas/${name}`, [context.rootNamespace]),
+      ),
       doc: schema.description,
       schema,
     };
@@ -219,7 +223,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "scalar",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema, context),
+      decorators: getDecoratorsForSchema(
+        schema,
+        context,
+        context.getRefName(`#/components/schemas/${name}`, [context.rootNamespace]),
+      ),
       doc: schema.description,
       schema: "$ref" in schema ? {} : schema,
     });
@@ -332,6 +340,9 @@ function unwrapSingleAnyOfOneOf(
         ...(schema as object),
         ...member,
         description: member.description || schema.description,
+        ...("examples" in schema && schema.examples !== undefined
+          ? { examples: schema.examples }
+          : {}),
         anyOf: undefined,
         oneOf: undefined,
       };
