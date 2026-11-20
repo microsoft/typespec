@@ -2077,6 +2077,39 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] ReceiveResponseEvents
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<AsyncStreamingResult<SseItem<BinaryData>>> ReceiveResponseEventsAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReceiveResponseEventsRequest(options);
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReceiveResponseEvents. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<AsyncStreamingResult<SseItem<ResponseStreamEvent>>> ReceiveResponseEventsAsync(CancellationToken cancellationToken = default)
+        {
+            using PipelineMessage message = CreateReceiveResponseEventsRequest(cancellationToken.ToRequestOptions());
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateSse<ResponseStreamEvent>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (eventType, data) => eventType switch
+            {
+                "response.created" => ModelReaderWriter.Read<ResponseStreamCreated>(BinaryData.FromBytes(data.ToArray()), _modelReaderWriterOptions, SampleTypeSpecContext.Default),
+                "response.output_text.delta" => ModelReaderWriter.Read<ResponseStreamTextDelta>(BinaryData.FromBytes(data.ToArray()), _modelReaderWriterOptions, SampleTypeSpecContext.Default),
+                _ => ModelReaderWriter.Read<ResponseStreamEvent>(BinaryData.FromBytes(data.ToArray()), _modelReaderWriterOptions, SampleTypeSpecContext.Default)
+            }, null, cancellationToken);
+        }
+
+        /// <summary>
         /// [Protocol Method] ReceiveExperimentalJsonLines
         /// <list type="bullet">
         /// <item>

@@ -446,6 +446,32 @@ namespace SampleTypeSpec
             return new StreamingItem(message, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The ResponseStreamCreated. </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ResponseStreamCreated"/> instance for mocking. </returns>
+        public static ResponseStreamCreated ResponseStreamCreated(int sequenceNumber = default, string id = default)
+        {
+            return new ResponseStreamCreated(sequenceNumber, additionalBinaryDataProperties: null, id);
+        }
+
+        /// <summary> The ResponseStreamEvent. </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ResponseStreamEvent"/> instance for mocking. </returns>
+        public static ResponseStreamEvent ResponseStreamEvent(int sequenceNumber = default)
+        {
+            return new ResponseStreamEvent(sequenceNumber, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ResponseStreamTextDelta. </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <param name="delta"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ResponseStreamTextDelta"/> instance for mocking. </returns>
+        public static ResponseStreamTextDelta ResponseStreamTextDelta(int sequenceNumber = default, string delta = default)
+        {
+            return new ResponseStreamTextDelta(sequenceNumber, additionalBinaryDataProperties: null, delta);
+        }
+
         /// <summary> The PreviewDetails. </summary>
         /// <param name="choice"></param>
         /// <returns> A new <see cref="SampleTypeSpec.PreviewDetails"/> instance for mocking. </returns>
