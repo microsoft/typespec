@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -96,42 +97,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private string? BuildLastContractUnknownDiscriminatorModelName()
         {
             if (_inputModel.BaseModel is not { } baseModel ||
-                ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.LastContractView is not { } lastContractBase)
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.LastContractView is not { } lastContractBase ||
+                ScmCodeModelGenerator.Instance.SourceInputModel.LastContract is not { } lastContract)
             {
                 return null;
             }
 
-            AttributeStatement? proxyAttribute = null;
-            foreach (var attribute in lastContractBase.Attributes)
-            {
-                if (!attribute.Type.Equals(typeof(PersistableModelProxyAttribute)))
-                {
-                    continue;
-                }
-
-                if (proxyAttribute is not null)
-                {
-                    return null;
-                }
-
-                proxyAttribute = attribute;
-            }
-
-            if (proxyAttribute?.Arguments is not [TypeOfExpression { Type: var proxyType }] ||
-                proxyType.Namespace != BuildNamespace())
+            var lastContractBaseType = lastContract.GetTypeByMetadataName(
+                $"{lastContractBase.Type.Namespace}.{lastContractBase.Type.ClrMetadataName}");
+            var previousUnknownModel = lastContract.GetSymbolsWithName(
+                    static name => name.StartsWith("Unknown", StringComparison.Ordinal),
+                    SymbolFilter.Type)
+                .OfType<INamedTypeSymbol>()
+                .FirstOrDefault(type => type.BaseType is { } baseType &&
+                    SymbolEqualityComparer.Default.Equals(baseType, lastContractBaseType));
+            if (previousUnknownModel is null ||
+                previousUnknownModel.Name == base.BuildName() ||
+                previousUnknownModel.ContainingNamespace.ToDisplayString() != BuildNamespace())
             {
                 return null;
             }
 
-            if (HasUnknownDiscriminatorNameCollision(proxyType.Name))
+            if (HasUnknownDiscriminatorNameCollision(previousUnknownModel.Name))
             {
                 ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{proxyType.FullyQualifiedName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by another generated or custom type.",
+                    $"Skipping back-compat unknown discriminator model name '{previousUnknownModel.ContainingNamespace}.{previousUnknownModel.Name}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by another generated or custom type.",
                     BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
                 return null;
             }
 
-            return proxyType.Name;
+            return previousUnknownModel.Name;
         }
 
         private bool HasUnknownDiscriminatorNameCollision(string name)
