@@ -153,3 +153,18 @@ it.each(["Test", "Alias"])("preserves non-generic constructor identity through %
   expect(value.scalar).toBe(Test);
   expect(value.type).toBe(Test);
 });
+
+it("preserves deprecation diagnostics for late-bound templated constructors", async () => {
+  const diagnostics = await Tester.diagnose(`
+    scalar Test<T> {
+      #deprecated "Use a different initializer"
+      init from(a: T);
+    }
+    alias Instance = Test<string>;
+    const value: Instance = Instance.from("a");
+  `);
+
+  expectDiagnostics(diagnostics, [
+    { code: "deprecated", severity: "warning", message: "Deprecated: Use a different initializer" },
+  ]);
+});

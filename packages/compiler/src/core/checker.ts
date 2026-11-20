@@ -1854,7 +1854,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
       if (sym.flags & SymbolFlags.LateBound) {
         compilerAssert(sym.type, `Expected late bound symbol to have type`);
-        return sym.type;
+        if (sym.type.kind !== "ScalarConstructor") {
+          return sym.type;
+        }
+        // Scalar constructors must also pass through the deprecation check below.
+        baseType = sym.type;
       } else if (sym.flags & SymbolFlags.TemplateParameter) {
         compilerAssert(symNode, "Expected template parameter symbol to have a node");
         const mapped = checkTemplateParameterDeclaration(
