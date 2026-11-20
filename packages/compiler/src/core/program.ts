@@ -650,7 +650,7 @@ async function createProgram(
 
   function parseOrReuse(file: SourceFile): TypeSpecScriptNode {
     const old = oldProgram?.sourceFiles.get(file.path) ?? host?.parseCache?.get(file);
-    if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions)) {
+    if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions ?? {})) {
       return old;
     }
     const script = parse(file, options.parseOptions);

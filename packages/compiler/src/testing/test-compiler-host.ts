@@ -2,7 +2,13 @@ import type { RmOptions } from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { CompilerPackageRoot, NodeHost } from "../core/node-host.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
-import type { CompilerHost, StringLiteral, Type } from "../core/types.js";
+import type {
+  CompilerHost,
+  SourceFile,
+  StringLiteral,
+  Type,
+  TypeSpecScriptNode,
+} from "../core/types.js";
 import { resolveVirtualPath } from "./fs.js";
 import type { TestFileSystem, TypeSpecTestLibrary } from "./types.js";
 import { TestHostError } from "./types.js";
@@ -40,11 +46,35 @@ export interface TestHostOptions {
   compilerHostOverrides?: Partial<CompilerHost>;
 }
 
+/**
+ * Source files and parse results shared by a test file system and its clones.
+ * Returning the same `SourceFile` for unchanged content lets the compiler reuse parsed and bound scripts across compilations.
+ */
+export interface TestSourceCache {
+  readonly files: Map<string, SourceFile>;
+  readonly parseCache: WeakMap<SourceFile, TypeSpecScriptNode>;
+}
+
+export function createSourceCache(): TestSourceCache {
+  return { files: new Map(), parseCache: new WeakMap() };
+}
+
 export function createTestCompilerHost(
   virtualFs: Map<string, string>,
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions,
+  sourceCache: TestSourceCache = createSourceCache(),
 ): CompilerHost {
+  function getSourceFile(contents: string, path: string): SourceFile {
+    const cached = sourceCache.files.get(path);
+    if (cached?.text === contents) {
+      return cached;
+    }
+    const file = createSourceFile(contents, path);
+    sourceCache.files.set(path, file);
+    return file;
+  }
+
   const libDirs = [resolveVirtualPath("./node_modules/@typespec/compiler/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath("./node_modules/@typespec/compiler/test-lib"));
@@ -57,7 +87,7 @@ export function createTestCompilerHost(
         // eslint-disable-next-line @typescript-eslint/no-deprecated
         throw new TestHostError(`File ${url} not found.`, "ENOENT");
       }
-      return createSourceFile(contents, url);
+      return getSourceFile(contents, url);
     },
     async readFile(path: string) {
       path = resolveVirtualPath(path);
@@ -66,7 +96,7 @@ export function createTestCompilerHost(
         // eslint-disable-next-line @typescript-eslint/no-deprecated
         throw new TestHostError(`File ${path} not found.`, "ENOENT");
       }
-      return createSourceFile(contents, path);
+      return getSourceFile(contents, path);
     },
 
     async writeFile(path: string, content: string) {
@@ -99,6 +129,8 @@ export function createTestCompilerHost(
         virtualFs.delete(path);
       }
     },
+
+    parseCache: sourceCache.parseCache,
 
     getLibDirs() {
       return libDirs;

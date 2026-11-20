@@ -309,6 +309,15 @@ describe("compiler options", () => {
   });
 });
 
+it("reuses parsed library files across compilations", async () => {
+  const first = await Tester.compile(`model Foo {}`);
+  const second = await Tester.compile(`model Bar {}`);
+  const stdPath = resolveVirtualPath("node_modules/@typespec/compiler/lib/std/types.tsp");
+  const script = first.program.sourceFiles.get(stdPath);
+  expect(script).toBeDefined();
+  expect(second.program.sourceFiles.get(stdPath)).toBe(script);
+});
+
 describe("emitter", () => {
   const EmitterTester = Tester.files({
     "node_modules/dummy-emitter/package.json": JSON.stringify({
