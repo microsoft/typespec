@@ -281,57 +281,5 @@ namespace SampleTypeSpec
             ClientResult result = await UpdateTreeAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue(Tree.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
-
-        /// <summary>
-        /// [Protocol Method] Get an XML-only container that nests a tree, which also supports JSON
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetTreeContainer(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetTreeContainerRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Get an XML-only container that nests a tree, which also supports JSON
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetTreeContainerAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetTreeContainerRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Get an XML-only container that nests a tree, which also supports JSON. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<XmlTreeContainer> GetTreeContainer(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = GetTreeContainer(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(XmlTreeContainer.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
-        }
-
-        /// <summary> Get an XML-only container that nests a tree, which also supports JSON. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<XmlTreeContainer>> GetTreeContainerAsync(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await GetTreeContainerAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(XmlTreeContainer.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
-        }
     }
 }

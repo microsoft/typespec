@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -35,6 +36,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
             [ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
+        // Clients whose options carry model proxies pass their options so the proxies apply to the items written here.
+        // The parameter is optional so existing callers, such as custom code, keep writing with the wire options.
+        private static ParameterProvider? CreateOptionsParameter()
+            => ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies
+                ? new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), defaultValue: Null)
+                : null;
+
+        private static ScopedApi<ModelReaderWriterOptions> GetOptions(ParameterProvider? optionsParameter)
+            => optionsParameter?.As<ModelReaderWriterOptions>() ?? ModelSerializationExtensionsSnippets.Wire;
+
+        // options ??= ModelSerializationExtensions.WireOptions;
+        private static MethodBodyStatement DefaultOptions(ParameterProvider? optionsParameter)
+            => optionsParameter is null
+                ? MethodBodyStatement.Empty
+                : optionsParameter.Assign(ModelSerializationExtensionsSnippets.Wire, nullCoalesce: true).Terminate();
+
+        private static ParameterProvider[] WithOptions(ParameterProvider? optionsParameter, params ParameterProvider[] parameters)
+            => optionsParameter is null ? parameters : [.. parameters, optionsParameter];
+
         protected override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>
@@ -61,10 +81,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableTType = typeof(IEnumerable<>);
             CSharpType tType = enumerableTType.GetGenericArguments()[0];
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
+            var optionsParameter = CreateOptionsParameter();
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter],
+                Parameters: WithOptions(optionsParameter, enumerableParameter),
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -73,6 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var body = new List<MethodBodyStatement>
             {
+                DefaultOptions(optionsParameter),
                 Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content)
             };
             var writer = content.JsonWriter();
@@ -81,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteStartArray(),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    writer.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.As(tType), GetOptions(optionsParameter))
                 },
                 writer.WriteEndArray(),
                 MethodBodyStatement.EmptyLine,
@@ -130,10 +152,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var spanType = typeof(ReadOnlySpan<>);
             CSharpType tType = spanType.GetGenericArguments()[0];
             var spanParameter = new ParameterProvider("span", FormattableStringHelpers.Empty, spanType);
+            var optionsParameter = CreateOptionsParameter();
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [spanParameter],
+                Parameters: WithOptions(optionsParameter, spanParameter),
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -142,6 +165,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var body = new List<MethodBodyStatement>
             {
+                DefaultOptions(optionsParameter),
                 Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content)
             };
             var writer = content.JsonWriter();
@@ -151,7 +175,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, i.LessThan(spanParameter.Property(nameof(ReadOnlySpan<byte>.Length))), i.Increment())
                 {
-                    writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(new IndexerExpression(spanParameter, i).As(tType), GetOptions(optionsParameter))
                 },
                 writer.WriteEndArray(),
                 MethodBodyStatement.EmptyLine,
@@ -166,10 +190,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dictionaryTType = typeof(IDictionary<,>);
             CSharpType valueType = dictionaryTType.GetGenericArguments()[1];
             var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, new CSharpType(dictionaryTType, typeof(string), valueType));
+            var optionsParameter = CreateOptionsParameter();
             var signature = new MethodSignature(
                 Name: _fromDictionaryName,
                 Modifiers: _methodModifiers,
-                Parameters: [dictionaryParameter],
+                Parameters: WithOptions(optionsParameter, dictionaryParameter),
                 ReturnType: _requestBodyType,
                 GenericArguments: [valueType],
                 GenericParameterConstraints: [Where.NotNull(valueType)],
@@ -178,6 +203,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var body = new List<MethodBodyStatement>
             {
+                DefaultOptions(optionsParameter),
                 Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content)
             };
             var writer = content.JsonWriter();
@@ -187,7 +213,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
-                    writer.WriteObjectValue(item.Property("Value").As(valueType), ModelSerializationExtensionsSnippets.Wire)
+                    writer.WriteObjectValue(item.Property("Value").As(valueType), GetOptions(optionsParameter))
                 },
                 writer.WriteEndObject(),
                 MethodBodyStatement.EmptyLine,
@@ -285,10 +311,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
             var rootNameHintParameter = new ParameterProvider("rootNameHint", FormattableStringHelpers.Empty, typeof(string));
             var childNameHintParameter = new ParameterProvider("childNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var optionsParameter = CreateOptionsParameter();
             var signature = new MethodSignature(
                 Name: _fromEnumerableName,
                 Modifiers: _methodModifiers,
-                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter],
+                Parameters: WithOptions(optionsParameter, enumerableParameter, rootNameHintParameter, childNameHintParameter),
                 ReturnType: _requestBodyType,
                 GenericArguments: [tType],
                 GenericParameterConstraints: [Where.NotNull(tType)],
@@ -304,7 +331,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 xmlWriter.WriteStartElement(rootNameHintParameter),
                 new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
-                    xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
+                    xmlWriter.WriteObjectValue(item.As(tType), GetOptions(optionsParameter), childNameHintParameter)
                 },
                 xmlWriter.WriteEndElement(),
             ]);
@@ -319,7 +346,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))])))))
             ]);
 
-            var body = new MethodBodyStatement[] { outerUsing };
+            var body = new MethodBodyStatement[] { DefaultOptions(optionsParameter), outerUsing };
 
             return new MethodProvider(signature, body, this);
         }

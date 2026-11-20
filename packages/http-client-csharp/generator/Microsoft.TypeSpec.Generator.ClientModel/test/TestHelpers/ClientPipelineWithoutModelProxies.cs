@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         {
         }
 
-        public override ValueExpression? GetModelProxies(ValueExpression clientOptions) => null;
+        public override bool SupportsModelProxies => false;
 
         public override ClientPipelineApi FromExpression(ValueExpression expression)
             => new ClientPipelineWithoutModelProxies(expression);

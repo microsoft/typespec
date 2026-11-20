@@ -456,7 +456,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (!_inputModel.IsUnknownDiscriminatorModel)
                 {
-                    bool supportsModelProxies = ValueExpression.Empty.ToApi<ClientPipelineApi>().SupportsModelProxies;
+                    bool supportsModelProxies = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies;
 
                     // cast operators
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))

@@ -22,7 +22,8 @@ namespace SampleTypeSpec
         }
 
         /// <summary></summary>
-        internal MultiPartFormContent ToMultipartFormContent()
+        /// <param name="options"> The options used to write the model parts, including the registered model proxies. </param>
+        internal MultiPartFormContent ToMultipartFormContent(ModelReaderWriterOptions options)
         {
             MultiPartFormContent content = new MultiPartFormContent();
 
@@ -37,11 +38,11 @@ namespace SampleTypeSpec
             content.Add("uint8Part", Uint8Part, "text/plain");
             BinaryData dictionaryPartData = MultipartFormDataHelper.FromDictionary(DictionaryPart, "application/json");
             content.Add("dictionaryPart", dictionaryPartData);
-            BinaryData dictionaryModelPartData = ModelReaderWriter.Write(DictionaryModelPart, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default).WithMediaType("application/json");
+            BinaryData dictionaryModelPartData = ModelReaderWriter.Write(DictionaryModelPart, options, SampleTypeSpecContext.Default).WithMediaType("application/json");
             content.Add("dictionaryModelPart", dictionaryModelPartData);
             BinaryData listPartData = MultipartFormDataHelper.FromEnumerable(ListPart, "application/json");
             content.Add("listPart", listPartData);
-            BinaryData listModelPartData = ModelReaderWriter.Write(ListModelPart, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default).WithMediaType("application/json");
+            BinaryData listModelPartData = ModelReaderWriter.Write(ListModelPart, options, SampleTypeSpecContext.Default).WithMediaType("application/json");
             content.Add("listModelPart", listModelPartData);
             foreach (string item in MultipleListPart)
             {

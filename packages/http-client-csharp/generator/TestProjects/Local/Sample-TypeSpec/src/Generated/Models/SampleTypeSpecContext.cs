@@ -109,7 +109,6 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(XmlItem))]
     [ModelReaderWriterBuildable(typeof(XmlModelWithNamespace))]
     [ModelReaderWriterBuildable(typeof(XmlNestedModel))]
-    [ModelReaderWriterBuildable(typeof(XmlTreeContainer))]
     [ModelReaderWriterBuildable(typeof(XmlUnionCat))]
     [ModelReaderWriterBuildable(typeof(XmlUnionPet))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext

@@ -130,27 +130,6 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(1, itemProxy.ReadCount);
         }
 
-        // An XML-only parent read with "W" resolves its own format to XML but passes "W" to nested reads. A nested model that
-        // also supports JSON reports "J" for "W", so its proxy-aware read must still request XML and keep the proxies.
-        [TestCase("W")]
-        [TestCase("X")]
-        public void NestedDualFormatXmlModelReadsUseRegisteredProxy(string format)
-        {
-            var proxy = new TreeXmlProxy();
-            var options = new ModelReaderWriterOptions(format);
-            options.Proxies.Add(proxy);
-
-            var container = ModelReaderWriter.Read<XmlTreeContainer>(
-                BinaryData.FromString("""<XmlTreeContainer><tree><species>tree</species><id>t1</id><height>10</height><age>5</age></tree></XmlTreeContainer>"""),
-                options,
-                SampleTypeSpecContext.Default);
-
-            Assert.AreEqual("proxy:t1", container!.Tree.Id);
-            Assert.AreEqual(5, container.Tree.Age);
-            Assert.AreEqual(1, proxy.ReadCount);
-            Assert.AreEqual("X", proxy.LastReadFormat);
-        }
-
         // Clients copy the proxies configured on their options into the options they use for every operation.
         [Test]
         public void ClientResponsesUseClientOptionsProxies()
@@ -203,6 +182,43 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(2, handler.RequestBodies.Count);
         }
 
+        // Multipart bodies write their model parts with the client's options.
+        [Test]
+        public void ClientMultipartBodiesUseClientOptionsProxies()
+        {
+            var proxy = new ThingProxy();
+            var handler = new StubHandler(HttpStatusCode.NoContent);
+#pragma warning disable SCME0004 // Multipart file parts and content are evaluation-only.
+            var cat = new Cat(
+                "id",
+                true,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                new Dictionary<string, string>(),
+                new Dictionary<string, Thing> { ["key"] = CreateThing("value") },
+                [],
+                [CreateThing("item")],
+                [],
+                BinaryData.FromString("image"),
+                StringExtensibleEnum.One,
+                StringFixedEnum.One,
+                IntExtensibleEnum.One,
+                IntFixedEnum.One);
+
+            CreateClient(handler, proxy).UploadCat(cat);
+#pragma warning restore SCME0004
+
+            var body = handler.RequestBodies.Single();
+            StringAssert.Contains("""{"proxied":"item"}""", body);
+            StringAssert.Contains("""{"proxied":"value"}""", body);
+            Assert.AreEqual(2, proxy.WriteCount);
+        }
+
         [Test]
         public void SubClientResponsesUseClientOptionsProxies()
         {
@@ -251,14 +267,21 @@ namespace TestProjects.Local.Tests
             return new SampleTypeSpecClient(new Uri("https://example.com"), new ApiKeyCredential("key"), options);
         }
 
-        // Returns the queued responses in order and records each request body.
+        // Returns the queued responses in order, or an empty response with the given status, and records each request body.
         private sealed class StubHandler : HttpMessageHandler
         {
             private readonly Queue<(string Content, string ContentType)> _responses;
+            private readonly HttpStatusCode _statusCode = HttpStatusCode.OK;
 
             public StubHandler(params (string Content, string ContentType)[] responses)
             {
                 _responses = new(responses);
+            }
+
+            public StubHandler(HttpStatusCode statusCode)
+            {
+                _responses = new();
+                _statusCode = statusCode;
             }
 
             public List<string> RequestBodies { get; } = [];
@@ -266,8 +289,12 @@ namespace TestProjects.Local.Tests
             protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
             {
                 RequestBodies.Add(request.Content?.ReadAsStringAsync(cancellationToken).GetAwaiter().GetResult() ?? string.Empty);
+                if (_responses.Count == 0)
+                {
+                    return new HttpResponseMessage(_statusCode);
+                }
                 var (content, contentType) = _responses.Dequeue();
-                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(content, Encoding.UTF8, contentType) };
+                return new HttpResponseMessage(_statusCode) { Content = new StringContent(content, Encoding.UTF8, contentType) };
             }
 
             protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

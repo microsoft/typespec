@@ -2636,12 +2636,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(message, _modelReaderWriterOptions);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromDictionary(message, _modelReaderWriterOptions);"));
             }
             else
             {
@@ -2678,7 +2678,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
+                .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span, _modelReaderWriterOptions);"));
         }
 
         [Test]
@@ -2748,12 +2748,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message, _modelReaderWriterOptions);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message, _modelReaderWriterOptions);"));
             }
             else
             {
@@ -4722,6 +4722,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters), methodBody);
         }
 
+        // Collection bodies written by BinaryContentHelper pass the client's options so its proxies apply to model items.
+        // BinaryData items are written by their own overloads, which don't take options.
+        [TestCase("ModelList")]
+        [TestCase("ModelDictionary")]
+        [TestCase("BinaryDataList")]
+        public void ConvenienceMethod_ModelProxies_PassClientOptionsToBinaryContentHelper(string bodyKind)
+        {
+            var item = InputFactory.Model("Item", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            InputType bodyType = bodyKind switch
+            {
+                "ModelList" => InputFactory.Array(item),
+                "ModelDictionary" => InputFactory.Dictionary(item),
+                _ => InputFactory.Array(InputPrimitiveType.Any)
+            };
+            var operation = InputFactory.Operation(
+                "Upload",
+                parameters: [InputFactory.BodyParameter("body", bodyType, isRequired: true)],
+                requestMediaTypes: ["application/json"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [InputFactory.MethodParameter("body", bodyType, isRequired: true, location: InputRequestLocation.Body)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [item]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var convenienceMethod = new ScmMethodProviderCollection(serviceMethod, client!).Single(m =>
+                m.Signature.Parameters.All(p => p.Name != "options") && m.Signature.Name == "Upload");
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(bodyKind), convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
         [Test]
         public void ConvenienceMethod_XmlListBody_UsesXmlFromEnumerable()
         {
@@ -4863,7 +4896,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
 
             // Ensure the method body uses the standard JSON FromEnumerable (no rootNameHint/childNameHint)
-            Assert.IsTrue(methodBody.Contains("BinaryContentHelper.FromEnumerable(body)"));
+            Assert.IsTrue(methodBody.Contains("BinaryContentHelper.FromEnumerable(body, _modelReaderWriterOptions)"));
             Assert.IsFalse(methodBody.Contains("rootNameHint"));
             Assert.IsFalse(methodBody.Contains("childNameHint"));
         }

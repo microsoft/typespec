@@ -54,6 +54,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // Paging collections read their pages with the client's options, which follow the client argument.
         private ValueExpression[] PagingCollectionOptionsArguments =>
             Client.ModelReaderWriterOptionsField is { } optionsField ? [optionsField] : [];
+
+        // The BinaryContentHelper overloads that write models take the client's options when it carries model proxies.
+        // BinaryData items are written by their own overloads, which don't take options.
+        private ValueExpression? BinaryContentHelperOptions(CSharpType? elementType)
+            => SupportsModelProxies && elementType?.Equals(typeof(BinaryData)) != true
+                ? ClientModelReaderWriterOptions
+                : null;
         protected InputServiceMethod ServiceMethod { get; }
         protected TypeProvider EnclosingType { get; }
         public IReadOnlyList<ScmMethodProvider> MethodProviders => _methods ??= BuildMethods();
@@ -700,25 +707,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span"), BinaryContentHelperOptions(null)), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
                     {
                         if (TryGetXmlCollectionNames(parameter, out var rootName, out var childName))
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName)), out var content));
+                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName), BinaryContentHelperOptions(null)), out var content));
                             declarations["content"] = content;
                         }
                         else
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, BinaryContentHelperOptions(parameter.Type.ElementType)), out var content));
                             declarations["content"] = content;
                         }
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter, BinaryContentHelperOptions(parameter.Type.ElementType)), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.Equals(typeof(string)))
@@ -779,7 +786,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             var bodyExpression = inputParam is { IsRequired: false }
                                 ? parameter.NullConditional()
                                 : parameter;
-                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression), out var content));
+                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression, SupportsModelProxies ? ClientModelReaderWriterOptions : null), out var content));
                             declarations["content"] = content;
                         }
                         // else rely on implicit operator to convert to BinaryContent

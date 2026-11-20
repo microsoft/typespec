@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static MrwSerializationTypeDefinition? GetModelSerialization(CSharpType type)
         {
-            if (!ValueExpression.Empty.ToApi<ClientPipelineApi>().SupportsModelProxies
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies
                 || !ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider)
                 || provider is not ModelProvider || provider is SystemObjectModelProvider)
             {

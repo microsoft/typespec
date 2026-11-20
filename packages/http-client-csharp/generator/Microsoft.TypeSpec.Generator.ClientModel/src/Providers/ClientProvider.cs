@@ -186,7 +186,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
             // Clients created through the mocking constructor skip the constructors that copy the client options' proxies,
             // so the field starts with the shared wire options to keep their convenience methods working.
-            ModelReaderWriterOptionsField = ValueExpression.Empty.ToApi<ClientPipelineApi>().SupportsModelProxies
+            ModelReaderWriterOptionsField = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies
                 ? new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     typeof(ModelReaderWriterOptions),
@@ -1390,11 +1390,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
             }
 
-            // Creating the pipeline freezes the client options, so the proxies copied here can't change afterwards.
-            if (ModelReaderWriterOptionsField != null &&
-                This.ToApi<ClientPipelineApi>().GetModelProxies(clientOptionsParameter) is { } modelProxies)
+            // Creating the pipeline freezes the client options, so the options built here can't change afterwards.
+            if (ModelReaderWriterOptionsField != null)
             {
-                body.Add(ModelReaderWriterOptionsField.Assign(ModelSerializationExtensionsSnippets.ToWireOptions(modelProxies)).Terminate());
+                body.Add(ModelReaderWriterOptionsField.Assign(
+                    This.ToApi<ClientPipelineApi>().GetModelReaderWriterOptions(clientOptionsParameter)).Terminate());
             }
 
             foreach (var f in Fields)

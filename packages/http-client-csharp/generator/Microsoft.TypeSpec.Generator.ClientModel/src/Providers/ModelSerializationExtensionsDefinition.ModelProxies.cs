@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider[] BuildModelProxyMethods()
         {
             MethodProvider shouldReadThroughProxy = BuildShouldReadThroughProxyMethodProvider();
-            return ValueExpression.Empty.ToApi<ClientPipelineApi>().SupportsModelProxies
+            return ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies
                 ? [shouldReadThroughProxy, BuildToWireOptionsMethodProvider()]
                 : [shouldReadThroughProxy];
         }

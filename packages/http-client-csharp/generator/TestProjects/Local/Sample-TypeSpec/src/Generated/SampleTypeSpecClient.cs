@@ -1947,7 +1947,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormContent content = body.ToMultipartFormContent();
+            using MultiPartFormContent content = body.ToMultipartFormContent(_modelReaderWriterOptions);
             return UploadCat(content, content.MediaType, cancellationToken.ToRequestOptions());
         }
 
@@ -1961,7 +1961,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormContent content = body.ToMultipartFormContent();
+            using MultiPartFormContent content = body.ToMultipartFormContent(_modelReaderWriterOptions);
             return await UploadCatAsync(content, content.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 

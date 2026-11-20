@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -39,17 +40,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public virtual ValueExpression? UserAgentPolicy(CSharpType clientType) => null;
 
         /// <summary>
-        /// Gets the model proxies configured on the client options, or <c>null</c> when the client options don't carry
-        /// model proxies. Generated clients add these proxies to the <c>ModelReaderWriterOptions</c> they use to read and
-        /// write models in their operations.
+        /// Gets whether the client options of this pipeline carry model proxies. When <c>true</c>, generated clients store
+        /// the options returned by <see cref="GetModelReaderWriterOptions(ValueExpression)"/> and pass them to every model
+        /// they read and write in their operations. Pipelines whose client options don't carry model proxies keep the
+        /// default (<c>false</c>), and their clients use the shared wire options.
         /// </summary>
-        /// <param name="clientOptions">The client options expression.</param>
-        public virtual ValueExpression? GetModelProxies(ValueExpression clientOptions) => null;
+        public virtual bool SupportsModelProxies => false;
 
         /// <summary>
-        /// Gets whether generated clients route model reads and writes through the proxies configured on their options.
+        /// Gets the <c>ModelReaderWriterOptions</c> a generated client uses to read and write models in its operations,
+        /// built from its client options. Only called when <see cref="SupportsModelProxies"/> is <c>true</c>.
         /// </summary>
-        public bool SupportsModelProxies => GetModelProxies(Empty) is not null;
+        /// <param name="clientOptions">The client options expression.</param>
+        public virtual ValueExpression GetModelReaderWriterOptions(ValueExpression clientOptions) => ModelSerializationExtensionsSnippets.Wire;
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }
