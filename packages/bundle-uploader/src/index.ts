@@ -36,6 +36,9 @@ export interface BundleAndUploadStandalonePackageOptions {
    * Absolute path to the package directory.
    */
   packagePath: string;
+
+  /** Replace existing bundles and assets for the same package version. Defaults to false. */
+  overwrite?: boolean;
 }
 
 /**
@@ -48,6 +51,7 @@ export interface BundleAndUploadStandalonePackageOptions {
  */
 export async function bundleAndUploadStandalonePackage({
   packagePath,
+  overwrite = false,
 }: BundleAndUploadStandalonePackageOptions) {
   const pkgJsonPath = resolve(packagePath, "package.json");
   const pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
@@ -57,7 +61,7 @@ export async function bundleAndUploadStandalonePackage({
   const manifest = bundle.manifest;
   logInfo(`Bundling standalone package: ${manifest.name}@${manifest.version}`);
 
-  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
+  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential(), { overwrite });
   await uploader.createIfNotExists();
 
   const result = await uploader.upload(bundle);
@@ -153,6 +157,9 @@ async function uploadPlaygroundAssets(
 
 export interface BundleAndUploadPackagesOptions {
   repoRoot: string;
+
+  /** Replace existing bundles for the same package version. Defaults to false. */
+  overwrite?: boolean;
   /**
    * List of packages to bundle and upload.
    */
@@ -193,12 +200,13 @@ export async function bundleAndUploadPackages({
   packages,
   indexName,
   indexVersion,
+  overwrite = false,
 }: BundleAndUploadPackagesOptions) {
   const allProjects = await findWorkspacePackages(repoRoot);
   const projects = allProjects.filter((x) => packages.includes(x.manifest.name!));
   logInfo("Current index version:", indexVersion);
 
-  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
+  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential(), { overwrite });
   await uploader.createIfNotExists();
 
   const existingIndex = await uploader.getIndex(indexName, indexVersion);
@@ -208,6 +216,13 @@ export async function bundleAndUploadPackages({
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
+      if (overwrite) {
+        for (const key of Object.keys(importMap)) {
+          if (key === manifest.name || key.startsWith(`${manifest.name}/`)) {
+            delete importMap[key];
+          }
+        }
+      }
       logSuccess(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
     } else {
       logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
