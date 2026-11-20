@@ -1,20 +1,22 @@
 package payload.multipart.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.multipart.formdata.file.UploadFileArrayRequest;
 import payload.multipart.formdata.file.UploadFileRequiredFilenameRequest;
 import payload.multipart.formdata.file.UploadFileSpecificContentTypeRequest;
@@ -50,52 +52,110 @@ public final class FormDataFilesImpl {
     }
 
     /**
-     * The interface defining all the services for MultiPartClientFormDataFiles to be used by the proxy service to
-     * perform REST calls.
+     * The HTTP operations for MultiPartClientFormDataFiles.
      */
-    @ServiceInterface(name = "MultiPartClientFormDataFiles", host = "{endpoint}")
     public interface FormDataFilesService {
         static FormDataFilesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.multipart.implementation.FormDataFilesServiceImpl");
-                return (FormDataFilesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new FormDataFilesServiceImpl(pipeline);
         }
 
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file/specific-content-type",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> uploadFileSpecificContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") UploadFileSpecificContentTypeRequest body, RequestContext requestContext);
+        Response<Void> uploadFileSpecificContentType(String endpoint, String contentType,
+            UploadFileSpecificContentTypeRequest body, RequestContext requestContext);
 
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file/required-filename",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> uploadFileRequiredFilename(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") UploadFileRequiredFilenameRequest body, RequestContext requestContext);
+        Response<Void> uploadFileRequiredFilename(String endpoint, String contentType,
+            UploadFileRequiredFilenameRequest body, RequestContext requestContext);
 
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file/file-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> uploadFileArray(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") UploadFileArrayRequest body, RequestContext requestContext);
+        Response<Void> uploadFileArray(String endpoint, String contentType, UploadFileArrayRequest body,
+            RequestContext requestContext);
+    }
+
+    private static final class FormDataFilesServiceImpl implements FormDataFilesService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(FormDataFilesService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private FormDataFilesServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> uploadFileSpecificContentType(String endpoint, String contentType,
+            UploadFileSpecificContentTypeRequest body, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/multipart/form-data/file/specific-content-type");
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> uploadFileRequiredFilename(String endpoint, String contentType,
+            UploadFileRequiredFilenameRequest body, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/multipart/form-data/file/required-filename");
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> uploadFileArray(String endpoint, String contentType, UploadFileArrayRequest body,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/multipart/form-data/file/file-array");
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

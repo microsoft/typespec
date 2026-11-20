@@ -37,13 +37,15 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
     public final void write(Proxy restAPI, JavaClass classBlock) {
         JavaSettings settings = JavaSettings.getInstance();
         if (restAPI != null) {
-            classBlock.javadocComment(comment -> comment.description(String.format(
-                "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
+            boolean direct = settings.generateClientCoreHttpOperations();
+            classBlock.javadocComment(comment -> comment.description(String.format(direct
+                ? "The HTTP operations for %1$s."
+                : "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
                 restAPI.getClientTypeName())));
             if (settings.isAzureV1()) {
                 classBlock.annotation("Host(\"" + restAPI.getBaseURL() + "\")");
                 classBlock.annotation("ServiceInterface(name = \"" + restAPI.getClientTypeName() + "\")");
-            } else {
+            } else if (!direct) {
                 classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\", host = \"%2$s\")",
                     restAPI.getClientTypeName(), restAPI.getBaseURL()));
             }
@@ -54,22 +56,21 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             }
 
             classBlock.interfaceBlock(visibility, restAPI.getName(), interfaceBlock -> {
-                if (settings.isAzureV2() || !settings.isAzureV1()) {
+                if (!settings.isAzureV1()) {
                     interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
                         restAPI.getName() + " getNewInstance(HttpPipeline pipeline)",
-                        javaBlock -> javaBlock.tryBlock(tryBlock -> {
-                            tryBlock
-                                .line("Class<?> clazz = Class.forName(" + "\"" + JavaSettings.getInstance().getPackage()
-                                    + ".implementation." + restAPI.getName() + "Impl" + "\");");
-                            tryBlock.line("return (" + restAPI.getName() + ") clazz.getMethod(\"getNewInstance\", "
-                                + "HttpPipeline.class).invoke(null, pipeline);");
-                        })
-                            .catchBlock(
-                                "ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e",
-                                catchBlock -> catchBlock.line("throw new RuntimeException(e);")));
+                        javaBlock -> javaBlock.methodReturn(direct
+                            ? "new " + ClientCoreHttpOperationTemplate.implementationName(restAPI) + "(pipeline)"
+                            : "RestProxy.create(" + restAPI.getName() + ".class, pipeline)"));
                 }
 
                 for (ProxyMethod restAPIMethod : restAPI.getMethods()) {
+                    if (direct) {
+                        writeProxyMethodSignature(ClientCoreHttpOperationTemplate.parameterDeclarations(restAPIMethod),
+                            restAPIMethod, interfaceBlock);
+                        continue;
+                    }
+
                     if (restAPIMethod.getRequestContentType().equals("multipart/form-data")
                         || restAPIMethod.getRequestContentType().equals("application/x-www-form-urlencoded")) {
                         interfaceBlock.lineComment("@Multipart not supported by " + ClassType.REST_PROXY.getName());
@@ -133,6 +134,9 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                     writeProxyMethodSignature(parameterDeclarationList, restAPIMethod, interfaceBlock);
                 }
             });
+            if (direct) {
+                ClientCoreHttpOperationTemplate.write(restAPI, classBlock, settings);
+            }
         }
     }
 
@@ -260,8 +264,8 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    protected void writeProxyMethodSignature(java.util.ArrayList<String> parameterDeclarationList,
-        ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
+    protected void writeProxyMethodSignature(List<String> parameterDeclarationList, ProxyMethod restAPIMethod,
+        JavaInterface interfaceBlock) {
         if (restAPIMethod.getImplementation() != null) {
             String parameterDeclarations = String.join(", ", parameterDeclarationList);
             IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();

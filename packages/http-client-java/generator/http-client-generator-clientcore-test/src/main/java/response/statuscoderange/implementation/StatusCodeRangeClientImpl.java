@@ -1,22 +1,21 @@
 package response.statuscoderange.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
-import response.statuscoderange.DefaultError;
-import response.statuscoderange.ErrorInRange;
-import response.statuscoderange.NotFoundError;
-import response.statuscoderange.Standard4XXError;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.util.Map;
 
 /**
  * Initializes a new instance of the StatusCodeRangeClient type.
@@ -84,145 +83,281 @@ public final class StatusCodeRangeClientImpl {
     }
 
     /**
-     * The interface defining all the services for StatusCodeRangeClient to be used by the proxy service to perform REST
-     * calls.
+     * The HTTP operations for StatusCodeRangeClient.
      */
-    @ServiceInterface(name = "StatusCodeRangeClient", host = "{endpoint}")
     public interface StatusCodeRangeClientService {
         static StatusCodeRangeClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("response.statuscoderange.implementation.StatusCodeRangeClientServiceImpl");
-                return (StatusCodeRangeClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new StatusCodeRangeClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/response/status-code-range/error-response-status-code-in-range",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail(
-            statusCode = { 494, 495, 496, 497, 498, 499 },
-            exceptionBodyClass = ErrorInRange.class)
-        @UnexpectedResponseExceptionDetail(exceptionBodyClass = DefaultError.class)
-        Response<Void> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
-            RequestContext requestContext);
+        Response<Void> errorResponseStatusCodeInRange(String endpoint, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/response/status-code-range/error-response-status-code-404",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail(
-            statusCode = {
-                400,
-                401,
-                402,
-                403,
-                405,
-                406,
-                407,
-                408,
-                409,
-                410,
-                411,
-                412,
-                413,
-                414,
-                415,
-                416,
-                417,
-                418,
-                419,
-                420,
-                421,
-                422,
-                423,
-                424,
-                425,
-                426,
-                427,
-                428,
-                429,
-                430,
-                431,
-                432,
-                433,
-                434,
-                435,
-                436,
-                437,
-                438,
-                439,
-                440,
-                441,
-                442,
-                443,
-                444,
-                445,
-                446,
-                447,
-                448,
-                449,
-                450,
-                451,
-                452,
-                453,
-                454,
-                455,
-                456,
-                457,
-                458,
-                459,
-                460,
-                461,
-                462,
-                463,
-                464,
-                465,
-                466,
-                467,
-                468,
-                469,
-                470,
-                471,
-                472,
-                473,
-                474,
-                475,
-                476,
-                477,
-                478,
-                479,
-                480,
-                481,
-                482,
-                483,
-                484,
-                485,
-                486,
-                487,
-                488,
-                489,
-                490,
-                491,
-                492,
-                493,
-                494,
-                495,
-                496,
-                497,
-                498,
-                499 },
-            exceptionBodyClass = Standard4XXError.class)
-        @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundError.class)
-        @UnexpectedResponseExceptionDetail
-        Response<Void> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
-            RequestContext requestContext);
+        Response<Void> errorResponseStatusCode404(String endpoint, RequestContext requestContext);
+    }
+
+    private static final class StatusCodeRangeClientServiceImpl implements StatusCodeRangeClientService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(StatusCodeRangeClientService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private StatusCodeRangeClientServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> errorResponseStatusCodeInRange(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/response/status-code-range/error-response-status-code-in-range");
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer,
+                        CoreUtils.createParameterizedType(response.statuscoderange.DefaultError.class),
+                        Map.ofEntries(
+                            Map.entry(494,
+                                CoreUtils.createParameterizedType(response.statuscoderange.ErrorInRange.class)),
+                            Map.entry(495,
+                                CoreUtils.createParameterizedType(response.statuscoderange.ErrorInRange.class)),
+                            Map.entry(496,
+                                CoreUtils.createParameterizedType(response.statuscoderange.ErrorInRange.class)),
+                            Map.entry(497,
+                                CoreUtils.createParameterizedType(response.statuscoderange.ErrorInRange.class)),
+                            Map.entry(498,
+                                CoreUtils.createParameterizedType(response.statuscoderange.ErrorInRange.class)),
+                            Map.entry(499,
+                                CoreUtils.createParameterizedType(response.statuscoderange.ErrorInRange.class))),
+                        HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> errorResponseStatusCode404(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/response/status-code-range/error-response-status-code-404");
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null,
+                        Map.ofEntries(
+                            Map.entry(400,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(401,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(402,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(403,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(405,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(406,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(407,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(408,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(409,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(410,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(411,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(412,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(413,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(414,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(415,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(416,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(417,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(418,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(419,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(420,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(421,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(422,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(423,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(424,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(425,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(426,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(427,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(428,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(429,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(430,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(431,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(432,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(433,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(434,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(435,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(436,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(437,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(438,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(439,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(440,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(441,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(442,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(443,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(444,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(445,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(446,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(447,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(448,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(449,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(450,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(451,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(452,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(453,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(454,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(455,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(456,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(457,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(458,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(459,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(460,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(461,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(462,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(463,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(464,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(465,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(466,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(467,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(468,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(469,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(470,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(471,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(472,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(473,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(474,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(475,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(476,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(477,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(478,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(479,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(480,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(481,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(482,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(483,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(484,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(485,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(486,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(487,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(488,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(489,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(490,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(491,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(492,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(493,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(494,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(495,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(496,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(497,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(498,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(499,
+                                CoreUtils.createParameterizedType(response.statuscoderange.Standard4XXError.class)),
+                            Map.entry(404,
+                                CoreUtils.createParameterizedType(response.statuscoderange.NotFoundError.class))),
+                        HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

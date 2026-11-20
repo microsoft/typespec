@@ -235,8 +235,8 @@ public class ProxyMethodParameter extends MethodParameter {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        if (getRequestParameterLocation()
-            != RequestParameterLocation.NONE/* && getRequestParameterLocation() != RequestParameterLocation.FormData */) {
+        if (!settings.generateClientCoreHttpOperations()
+            && getRequestParameterLocation() != RequestParameterLocation.NONE) {
             if (settings.isAzureV1()) {
                 imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
@@ -262,7 +262,7 @@ public class ProxyMethodParameter extends MethodParameter {
 //            imports.add(String.format("com.azure.core.annotation.FormParam"));
 //        }
 
-        if (!settings.isAzureV1()) {
+        if (!settings.isAzureV1() && !settings.generateClientCoreHttpOperations()) {
             imports.add("io.clientcore.core.http.models.HttpMethod");
         }
 

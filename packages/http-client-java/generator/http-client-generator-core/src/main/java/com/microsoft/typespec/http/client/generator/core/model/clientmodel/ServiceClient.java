@@ -312,7 +312,7 @@ public class ServiceClient {
             if (settings.isFluentPremium()) {
                 imports.add("com.azure.resourcemanager.resources.fluentcore.AzureServiceClient");
             }
-            if (!getClientMethods().isEmpty()) {
+            if (!getClientMethods().isEmpty() && !settings.generateClientCoreHttpOperations()) {
                 ClassType.REST_PROXY.addImportsTo(imports, false);
             }
 
