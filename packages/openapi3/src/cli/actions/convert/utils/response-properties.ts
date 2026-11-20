@@ -85,6 +85,8 @@ export function convertHeaderToProperty(
   props: ConvertHeaderToPropertyProps,
 ): TypeSpecModelProperty | undefined {
   const { name, context } = props;
+  if (name.toLowerCase() === "content-type") return;
+
   const header =
     "$ref" in props.header ? context.getByRef<OpenAPI3Header>(props.header.$ref) : props.header;
 

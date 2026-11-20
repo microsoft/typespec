@@ -258,6 +258,24 @@ describe("response media type examples", () => {
     expect(responses["200"].content["application/json"].example).toEqual(payload);
   });
 
+  it("uses the media type rather than a response Content-Type header", async () => {
+    const { responses } = await roundTrip(
+      document({
+        "200": {
+          ...response({ schema: { type: "string" }, example: "hello" }),
+          headers: {
+            "Content-Type": {
+              required: true,
+              schema: { type: "string", enum: ["text/plain"] },
+            },
+          },
+        },
+      }),
+    );
+    expect(Object.keys(responses["200"].content)).toEqual(["application/json"]);
+    expect(responses["200"].content["application/json"].example).toBe("hello");
+  });
+
   it("resolves local Example Object references, retaining the referencing key", async () => {
     const { responses } = await roundTrip(
       document(
