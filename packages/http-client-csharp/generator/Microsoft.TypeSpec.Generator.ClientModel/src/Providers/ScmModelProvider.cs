@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -31,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ScmModelProvider : ModelProvider
     {
         private readonly InputModelType _inputModel;
+        private readonly Lazy<string?> _lastContractUnknownDiscriminatorModelName;
         private readonly Dictionary<PropertyProvider, FieldProvider> _nullablePropertyPresence = [];
 
         // MRW and multipart serialization can add an empty constructor with an implicit base() call.
@@ -77,10 +79,104 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
+            _lastContractUnknownDiscriminatorModelName = new(BuildLastContractUnknownDiscriminatorModelName);
             IsDynamicModel = inputModel.IsDynamicModel;
             // Resolve the hierarchy only after TypeFactory has registered this provider. Eager
             // resolution here lets compatibility probes cache null types for recursive properties.
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty);
+        }
+
+        protected override string BuildName()
+        {
+            if (!_inputModel.IsUnknownDiscriminatorModel ||
+                _lastContractUnknownDiscriminatorModelName.Value is not { } historicalName)
+            {
+                return base.BuildName();
+            }
+
+            var generatedName = base.BuildName();
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), historicalName) is not null)
+            {
+                return historicalName;
+            }
+
+            return sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), generatedName) is not null
+                ? generatedName
+                : historicalName;
+        }
+
+        private string? BuildLastContractUnknownDiscriminatorModelName()
+        {
+            if (_inputModel.BaseModel is not { } baseModel ||
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.LastContractView is not { } lastContractBase)
+            {
+                return null;
+            }
+
+            var proxyAttributes = lastContractBase.Attributes
+                .Where(attribute => attribute.Type.Equals(typeof(PersistableModelProxyAttribute)))
+                .ToArray();
+            if (proxyAttributes.Length != 1 ||
+                proxyAttributes[0].Arguments.Count != 1 ||
+                proxyAttributes[0].Arguments[0] is not TypeOfExpression { Type: var previousUnknownType } ||
+                previousUnknownType.Namespace != BuildNamespace() ||
+                previousUnknownType.Name == base.BuildName())
+            {
+                return null;
+            }
+
+            var previousUnknownTypeName = previousUnknownType.FullyQualifiedName;
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.ApiCompatBaseline.IsTypeSuppressed(previousUnknownTypeName))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat unknown discriminator model name '{previousUnknownTypeName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the type is an accepted removal in the ApiCompat baseline.",
+                    BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                return null;
+            }
+
+            if (HasUnknownDiscriminatorNameCollision(previousUnknownType.Name))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat unknown discriminator model name '{previousUnknownTypeName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by another generated or custom type.",
+                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
+                return null;
+            }
+
+            return previousUnknownType.Name;
+        }
+
+        private bool HasUnknownDiscriminatorNameCollision(string name)
+        {
+            var typeFactory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            var generatedName = base.BuildName();
+            var customType = sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), name) ??
+                sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), generatedName);
+            var isCustomization = customType?.Attributes.Any(attribute =>
+                    attribute.Type.Name == "CodeGenTypeAttribute" &&
+                    attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string customName } &&
+                    (customName == name || customName == generatedName)) == true;
+            if (customType is not null && !isCustomization)
+            {
+                return true;
+            }
+
+            var emittedName = customType?.Name ?? name;
+            if (typeFactory.IsModelNameUsedByAnotherModel(emittedName, _inputModel))
+            {
+                return true;
+            }
+
+            var expectedFilePath = Path.Combine("src", "Generated", "Models", $"{emittedName}.cs");
+            if (ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums.Any(inputEnum =>
+                    inputEnum.External is null &&
+                    string.Equals(EnumProvider.Create(inputEnum).RelativeFilePath, expectedFilePath, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+            return !typeFactory.TryReserveUnknownDiscriminatorModelName(emittedName, _inputModel);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()

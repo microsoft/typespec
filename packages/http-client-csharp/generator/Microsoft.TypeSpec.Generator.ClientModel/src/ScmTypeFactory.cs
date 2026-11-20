@@ -28,6 +28,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected override IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames()
             => ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Select(ClientProvider.GetNameForCollisionCheck);
 
+        internal bool IsModelNameUsedByAnotherModel(string name, InputModelType exceptModel)
+            => base.HasModelNameCollision(name, exceptModel);
+
+        internal bool TryReserveUnknownDiscriminatorModelName(string name, InputModelType model)
+            => base.TryReserveRestoredModelName(name, model);
+
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;

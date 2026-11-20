@@ -175,6 +175,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             BackCompatibilityChangeCategory.AdditionalPropertiesShapePreserved => "AdditionalProperties Shape Preserved",
             BackCompatibilityChangeCategory.PropertyTypePreserved => "Property Type Preserved",
             BackCompatibilityChangeCategory.ModelBaseTypePreserved => "Model Base Type Preserved",
+            BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped => "Unknown Discriminator Model Name Back-Compat Skipped",
             BackCompatibilityChangeCategory.ConstructorModifierPreserved => "Constructor Modifier Preserved",
             BackCompatibilityChangeCategory.EnumMemberReordering => "Enum Member Reordering",
             BackCompatibilityChangeCategory.ApiVersionEnumMemberAdded => "Api Version Enum Member Added From Last Contract",

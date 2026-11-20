@@ -35,6 +35,29 @@ namespace Microsoft.TypeSpec.Generator
 
         private IReadOnlyDictionary<InputModelType, string>? _modelNames;
         internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
+        private IReadOnlyDictionary<InputModelType, string>? _emittedModelNames;
+        private IReadOnlyDictionary<InputModelType, string>? _fallbackModelNames;
+        private readonly HashSet<string> _restoredModelNames = new(StringComparer.OrdinalIgnoreCase);
+
+        protected bool HasModelNameCollision(string name, InputModelType exceptModel)
+        {
+            _ = ModelNames;
+            return _restoredModelNames.Contains(name) ||
+                _emittedModelNames!.Any(model =>
+                    model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase)) ||
+                _fallbackModelNames!.Any(model =>
+                    model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        protected bool TryReserveRestoredModelName(string name, InputModelType model)
+        {
+            if (HasModelNameCollision(name, model))
+            {
+                return false;
+            }
+
+            return _restoredModelNames.Add(name);
+        }
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
 
@@ -87,6 +110,8 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var result = new Dictionary<InputModelType, string>();
+            var emittedModelNames = new Dictionary<InputModelType, string>();
+            var fallbackModelNames = candidates.ToDictionary(candidate => candidate.Key, candidate => candidate.Value.Name);
             foreach (var (model, candidate) in candidates)
             {
                 // A direct input takes precedence over an implicit suffix match for the same mapping.
@@ -96,6 +121,7 @@ namespace Microsoft.TypeSpec.Generator
                     (nameCounts[candidate.FinalName] == 1 && !reservedTypes.Contains((candidate.FinalName, candidate.FinalNamespace))))
                 {
                     result.Add(model, candidate.Name);
+                    emittedModelNames.Add(model, candidate.FinalName);
                     continue;
                 }
 
@@ -109,8 +135,11 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 ReserveName(name);
                 result.Add(model, name);
+                emittedModelNames.Add(model, name);
             }
 
+            _emittedModelNames = emittedModelNames;
+            _fallbackModelNames = fallbackModelNames;
             return result;
         }
 

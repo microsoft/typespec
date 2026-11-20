@@ -63,5 +63,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         /// <summary>A model base type was preserved from the last contract.</summary>
         ModelBaseTypePreserved,
+
+        /// <summary>An unknown discriminator model name could not be preserved because it collides with another type.</summary>
+        UnknownDiscriminatorModelNameSkipped,
     }
 }

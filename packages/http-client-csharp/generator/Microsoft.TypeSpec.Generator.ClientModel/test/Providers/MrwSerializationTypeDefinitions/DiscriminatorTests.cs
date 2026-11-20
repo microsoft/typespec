@@ -3,11 +3,16 @@
 
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -170,6 +175,263 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var statements = persistableCreateCoreMethod!.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(statements);
             Assert.IsTrue(statements!.Statements.Last().ToDisplayString().Contains("DeserializePet"));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task HistoricalUnknownNameUsedBySerialization(bool isPublic)
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                compilation: isPublic ? async () => await Helpers.GetCompilationFromDirectoryAsync("Public") : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = generator.TypeFactory.CreateModel(input)!;
+            var unknown = model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel);
+            var serialization = model.SerializationProviders.Single();
+            var unknownSerialization = unknown.SerializationProviders.Single();
+            var proxyAttribute = serialization.Attributes.Single(a => a.Type.Equals(typeof(PersistableModelProxyAttribute)));
+
+            Assert.AreEqual("UnknownActivity", unknown.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile().Trim(), proxyAttribute.ToDisplayString().Trim());
+            Assert.AreEqual("UnknownActivity", unknownSerialization.Name);
+            Assert.IsTrue(unknownSerialization.Methods.Any(m => m.Signature.Name == "DeserializeUnknownActivity"));
+            var deserialize = serialization.Methods.Single(m => m.Signature.Name == "DeserializePipelineActivity");
+            StringAssert.Contains("UnknownActivity", deserialize.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain("UnknownPipelineActivity", deserialize.BodyStatements.ToDisplayString());
+            var factoryMethod = generator.OutputLibrary.ModelFactory.Value.Methods.Single(m => m.Signature.Name == "PipelineActivity");
+            StringAssert.Contains("UnknownActivity", factoryMethod.BodyStatements!.ToDisplayString());
+            var context = generator.OutputLibrary.TypeProviders.OfType<ModelReaderWriterContextDefinition>().Single();
+            Assert.AreEqual(isPublic, context.Attributes.Any(a => a.ToDisplayString().Contains("UnknownActivity")));
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameRestoredPerHierarchyLevel()
+        {
+            var root = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var child = InputFactory.Model("CopyActivitySource", baseModel: root, discriminatedKind: "copy", properties:
+                [InputFactory.Property("sourceKind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [child, root],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var rootUnknown = factory.CreateModel(root.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            var childUnknown = factory.CreateModel(child.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownActivity", rootUnknown.Name);
+            Assert.AreEqual("UnknownCopySource", childUnknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNamePreservesLegacyCustomization()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("CustomUnknownActivity", unknown.CustomCodeView?.Name);
+            Assert.AreEqual("Sample.Customizations", unknown.CustomCodeView?.Type.Namespace);
+            Assert.IsTrue(unknown.CustomCodeView!.Methods.Any(m => m.Signature.Name == "CustomMethod"));
+            Assert.AreEqual("CustomUnknownActivity", unknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameRestoredFromDllBackedLastContract()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var lastContract = await Helpers.GetCompilationFromDirectoryAsync(
+                method: nameof(HistoricalUnknownNameUsedBySerialization));
+            var fixtureDirectory = nameof(HistoricalUnknownNameUsedBySerialization);
+            var fixtureTrees = lastContract.SyntaxTrees.Where(tree =>
+                Path.GetFileName(Path.GetDirectoryName(tree.FilePath)) == fixtureDirectory);
+            var fixtureCompilation = CSharpCompilation.Create(
+                "HistoricalUnknownNameDll",
+                fixtureTrees,
+                lastContract.References.Append(
+                    MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location)),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var assemblyStream = new MemoryStream();
+            var emitResult = fixtureCompilation.Emit(assemblyStream);
+            Assert.That(emitResult.Success, Is.True, string.Join("\n", emitResult.Diagnostics));
+            var dllBackedLastContract = fixtureCompilation.RemoveAllSyntaxTrees()
+                .AddReferences(MetadataReference.CreateFromImage(assemblyStream.ToArray()));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                lastContractCompilation: () => Task.FromResult<Compilation>(dllBackedLastContract));
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownActivity", unknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameNotRestoredWhenNoProxyAttribute()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameNotRestoredWhenNoProxyAttribute)));
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", unknown.Name);
+        }
+
+        [TestCase("UnknownActivity", "Sample.Models")]
+        [TestCase("unknownactivity", "Other.Models")]
+        public async Task HistoricalUnknownNameNotRestoredWhenUsedByAnotherModel(string collisionName, string collisionNamespace)
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var collision = InputFactory.Model(collisionName, @namespace: collisionNamespace, isExactName: true);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input, collision],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameNotRestoredWhenCustomizedOutputNameCollides()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var collision = InputFactory.Model("CustomUnknown", isExactName: true);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input, collision],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameNotRestoredWhenCustomizedOutputNameCollides)),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", unknown.Name);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task HistoricalUnknownNameIsReservedAcrossModels(bool reverseOrder)
+        {
+            var first = InputFactory.Model("FirstBase", @namespace: "Sample.Models", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var second = InputFactory.Model("SecondBase", @namespace: "Other.Models", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            InputModelType[] models = reverseOrder ? [second, first] : [first, second];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => models,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameIsReservedAcrossModels)));
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            ModelProvider firstUnknown;
+            ModelProvider secondUnknown;
+            if (reverseOrder)
+            {
+                secondUnknown = factory.CreateModel(second.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+                firstUnknown = factory.CreateModel(first.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            }
+            else
+            {
+                firstUnknown = factory.CreateModel(first.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+                secondUnknown = factory.CreateModel(second.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            }
+
+            Assert.AreNotEqual(firstUnknown.Name, secondUnknown.Name);
+            Assert.AreEqual(
+                "UnknownLegacy",
+                reverseOrder ? secondUnknown.Name : firstUnknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameIsNotRestoredWhenRemovalIsAcceptedInBaseline()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.UnknownActivity' does not exist"]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            generator.Object.SourceInputModel = new SourceInputModel(
+                null,
+                generator.Object.SourceInputModel.LastContract,
+                baseline);
+            var unknown = ScmCodeModelGenerator.Instance.TypeFactory
+                .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", unknown.Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameNotRestoredWhenUsedByEnum()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var collision = InputFactory.StringEnum("UnknownActivity", [("one", "one")]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                inputEnums: () => [collision],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
+        }
+
+        [Test]
+        public async Task HistoricalUnknownNameNotRestoredWhenUsedByUnrelatedCustomType()
+        {
+            var input = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [input],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task RejectedHistoricalNameReservesFallbackBeforeOtherRestoration(bool reverseOrder)
+        {
+            var pipeline = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var job = InputFactory.Model("JobDetails", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var collision = InputFactory.Model("UnknownActivity", isExactName: true);
+            InputModelType[] models = reverseOrder
+                ? [job, collision, pipeline]
+                : [pipeline, job, collision];
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => models,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var pipelineUnknown = factory.CreateModel(pipeline.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            var jobUnknown = factory.CreateModel(job.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", pipelineUnknown.Name);
+            Assert.AreEqual("UnknownJobDetails", jobUnknown.Name);
+            Assert.AreNotEqual(pipelineUnknown.Name, jobUnknown.Name);
         }
 
         [Test]
