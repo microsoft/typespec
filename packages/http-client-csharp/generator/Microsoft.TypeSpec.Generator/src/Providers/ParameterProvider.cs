@@ -272,6 +272,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private VariableExpression? _asVariable;
 
+        internal void ShareVariableWith(ParameterProvider parameter)
+            => _asVariable = GetVariableExpression(parameter);
+
         public TypeProvider? SpreadSource { get; set; }
 
         private ParameterValidationType GetParameterValidation()

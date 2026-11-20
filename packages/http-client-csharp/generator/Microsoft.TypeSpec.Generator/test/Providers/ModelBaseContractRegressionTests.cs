@@ -264,6 +264,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 "A full string constructor does not prove the emitted parameterless initialization call is valid");
         }
 
+        [TestCase(true, false, false)]
+        [TestCase(false, true, true)]
+        public void OrdinaryMappedInitializationUsesConstructorRequiredness(bool isRequired, bool isRequiredInConstructor, bool expected)
+        {
+            var property = InputFactory.Property("name", InputPrimitiveType.String, isRequired: isRequired);
+            property.Update(isRequiredInConstructor: isRequiredInConstructor);
+            var input = InputFactory.Model("CurrentBase", properties: [property]);
+            var mapped = new SystemObjectModelProvider(new CSharpType(typeof(System.Globalization.CultureInfo)), input);
+
+            Assert.That(mapped.HasReconstructibleLastContractConstructor, Is.EqualTo(expected));
+        }
+
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        public void ProjectedInitializationUsesConstructorRequiredness(bool isRequiredInConstructor, bool expected)
+        {
+            var historical = ParseNamedType(Helpers.GetExpectedFromFile(), "Previous");
+            var property = InputFactory.Property("name", InputPrimitiveType.String);
+            property.Update(isRequiredInConstructor: isRequiredInConstructor);
+            var current = InputFactory.Model("CurrentBase", properties: []);
+            _ = InputFactory.Model("Derived", properties: [property], baseModel: current);
+            var mapped = new SystemObjectModelProvider(new CSharpType(typeof(ParameterlessNameTarget)), current, historical,
+                [property], isMappedBaseUpgrade: true);
+
+            Assert.That(mapped.HasReconstructibleLastContractConstructor, Is.EqualTo(expected));
+        }
+
         [Test]
         public void MappedInitializationMustBeCallableOnActualFrameworkTarget()
         {
@@ -568,6 +595,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             public required string Value { get; set; }
         }
         public class DisposableTarget : IDisposable { public void Dispose() { } }
+        public class ParameterlessNameTarget
+        {
+            public string Name { get; set; } = string.Empty;
+        }
         public class OptionalConstructorTarget
         {
             public OptionalConstructorTarget(int value = 0) { Value = value; }
