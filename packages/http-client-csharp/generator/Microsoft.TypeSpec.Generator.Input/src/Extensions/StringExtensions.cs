@@ -12,7 +12,8 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
     public static class StringExtensions
     {
         private static readonly Regex _uppercaseWords = new("""
-            (?<!\p{Lu})\p{Lu}{3,}(?=\p{Lu}\p{Ll}|[^\p{L}\p{M}\p{N}]|$) # Long uppercase runs, e.g. HTTP in HTTPStatus
+            (?<!\p{Lu})(?!IPV[46](?![\p{L}\p{M}\p{N}]))              # Preserve IPV4 and IPV6
+            \p{Lu}{3,}(?=\p{Lu}\p{Ll}|\p{N}*(?![\p{L}\p{M}\p{N}])) # Long uppercase runs, e.g. HTTP in HTTPStatus or HTTP2
             | (?<![\p{L}\p{M}\p{N}])\p{Lu}{2}(?![\p{L}\p{M}\p{N}])    # Standalone two-letter words, e.g. OR
             """, RegexOptions.IgnorePatternWhitespace);
 
