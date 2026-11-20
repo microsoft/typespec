@@ -59,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
-            var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames);
+            var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames, normalizeUppercase: IsExtensible);
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)

@@ -1352,6 +1352,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("OR", false, "Or")]
         [TestCase("NOT_FOUND", false, "NotFound")]
         [TestCase("HTTPStatus", false, "HttpStatus")]
+        [TestCase("IOStream", false, "IOStream")]
         [TestCase("CallbackURL", false, "CallbackUri")]
         [TestCase("AND", true, "AND")]
         public void BuildEnumType_ExtensibleStringEnum_MemberCasing(string name, bool isExactName, string expectedName)

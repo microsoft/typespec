@@ -146,12 +146,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected string[] GetGeneratedValueNames(
             IReadOnlyList<InputEnumTypeValue> inputValues,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            bool normalizeUppercase = false)
         {
             var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
             var normalizedNames = new string[previousNames.Length];
-            // An extensible input can also have a fixed view used by custom code.
-            bool normalizeUppercase = IsExtensible && this is ExtensibleEnumProvider;
             for (int i = 0; i < previousNames.Length; i++)
             {
                 var name = previousNames[i];
