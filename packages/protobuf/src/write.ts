@@ -10,6 +10,8 @@ import type {
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
   ProtoOneOfDeclaration,
+  ProtoOption,
+  ProtoOptionValue,
   ProtoServiceDeclaration,
   ProtoType,
 } from "./ast.js";
@@ -143,9 +145,65 @@ function* writeMethod(decl: ProtoMethodDeclaration): Iterable<string> {
     decl.stream & StreamingMode.Out,
   ].map((v) => (v ? "stream " : ""));
 
-  yield `rpc ${decl.name}(${inStream}${writeType(decl.input)}) returns (${outStream}${writeType(
+  const signature = `rpc ${decl.name}(${inStream}${writeType(decl.input)}) returns (${outStream}${writeType(
     decl.returns,
-  )});`;
+  )})`;
+
+  if (decl.options?.length) {
+    yield signature + " {";
+    yield* indent(flatMap(decl.options, writeOption));
+    yield "}";
+  } else yield signature + ";";
+}
+
+/**
+ * Write an `option` statement. A message literal value spans several lines.
+ */
+function* writeOption(option: ProtoOption): Iterable<string> {
+  const lines = [...writeOptionValue(option.value)];
+  lines[0] = `option ${option.name} = ${lines[0]}`;
+  lines[lines.length - 1] += ";";
+  yield* lines;
+}
+
+/**
+ * Write an option value in the Protobuf text format.
+ */
+function* writeOptionValue(value: ProtoOptionValue): Iterable<string> {
+  if (typeof value !== "object") {
+    yield writeOptionScalar(value);
+    return;
+  }
+
+  yield "{";
+  for (const [field, fieldValue] of Object.entries(value)) {
+    if (typeof fieldValue === "object") {
+      const [head, ...rest] = [...writeOptionValue(fieldValue)];
+      yield* indent([`${field} ${head}`, ...rest]);
+    } else {
+      yield* indent([`${field}: ${writeOptionScalar(fieldValue)}`]);
+    }
+  }
+  yield "}";
+}
+
+function writeOptionScalar(value: string | number | boolean): string {
+  if (typeof value !== "string") return value.toString();
+
+  const escaped = value.replace(/[\\"\n\r\t]/g, (c) => {
+    switch (c) {
+      case "\n":
+        return "\\n";
+      case "\r":
+        return "\\r";
+      case "\t":
+        return "\\t";
+      default:
+        return "\\" + c;
+    }
+  });
+
+  return `"${escaped}"`;
 }
 
 function* writeOneOf(decl: ProtoOneOfDeclaration, indentLevel: number): Iterable<string> {

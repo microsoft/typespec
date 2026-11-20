@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,6 +128,8 @@ public class ClientModel {
      */
     private final ApiMetadata apiMetadata;
 
+    private final SseModelMetadata sseMetadata;
+
     // Set of non-final properties that are set on access.
     // This pattern is used as when the ClientModel is initialized the ModelMapper may not have mapped all models
     // related to the one being initialized. When that happens some properties may not be set correctly. For example,
@@ -136,7 +139,8 @@ public class ClientModel {
     /**
      * Whether all models in the polymorphic hierarchy containing this model are in the same package.
      * <p>
-     * If this model isn't polymorphic, this will always be false.
+     * If this model or any model in its hierarchy isn't polymorphic, this will always be false. Untagged intermediate
+     * models do not declare the shared JSON helpers used by polymorphic models.
      */
     private Boolean allPolymorphicModelsInSamePackage;
 
@@ -178,7 +182,7 @@ public class ClientModel {
         String xmlName, String xmlNamespace, List<ClientModelProperty> properties,
         List<ClientModelPropertyReference> propertyReferences, IType modelType, boolean stronglyTypedHeader,
         ImplementationDetails implementationDetails, boolean usedInXml, Set<String> serializationFormats,
-        ApiMetadata apiMetadata) {
+        ApiMetadata apiMetadata, SseModelMetadata sseMetadata) {
         this.packageName = packageKeyword;
         this.name = name;
         this.fullName = packageName + "." + name;
@@ -203,6 +207,7 @@ public class ClientModel {
         this.usedInXml = usedInXml;
         this.apiMetadata = apiMetadata;
         this.serializationFormats = serializationFormats;
+        this.sseMetadata = sseMetadata;
     }
 
     /**
@@ -212,6 +217,10 @@ public class ClientModel {
      */
     public ApiMetadata getApiMetadata() {
         return apiMetadata;
+    }
+
+    public SseModelMetadata getSseMetadata() {
+        return sseMetadata;
     }
 
     /**
@@ -354,6 +363,41 @@ public class ClientModel {
     }
 
     /**
+     * Gets the nearest polymorphic descendants, traversing untagged intermediate models.
+     *
+     * @return The nearest polymorphic descendants.
+     */
+    public final List<ClientModel> getDirectPolymorphicDerivedModels() {
+        List<ClientModel> models = new ArrayList<>();
+        for (ClientModel child : derivedModels) {
+            if (child.getPolymorphicDiscriminatorName() != null) {
+                models.add(child);
+            } else {
+                models.addAll(child.getDirectPolymorphicDerivedModels());
+            }
+        }
+        return models;
+    }
+
+    /**
+     * Gets all polymorphic descendants, skipping untagged intermediate models.
+     *
+     * @return All polymorphic descendants.
+     */
+    public final List<ClientModel> getPolymorphicDerivedModels() {
+        List<ClientModel> models = new ArrayList<>();
+        for (ClientModel child : derivedModels) {
+            if (child.getPolymorphicDiscriminatorName() != null) {
+                models.add(child);
+            }
+            if (!CoreUtils.isNullOrEmpty(child.getDerivedModels())) {
+                models.addAll(child.getPolymorphicDerivedModels());
+            }
+        }
+        return models;
+    }
+
+    /**
      * Gets the name that will be used for this model's XML element representation.
      *
      * @return The name that will be used for this model's XML element representation.
@@ -465,6 +509,7 @@ public class ClientModel {
      * @param settings The settings for this Java generator session.
      */
     public void addImportsTo(Set<String> imports, JavaSettings settings) {
+        ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         // whether annotated as Immutable or Fluent is also determined by its superclass
         imports.add(this.getFullName());
         addFluentAnnotationImport(imports);
@@ -484,6 +529,7 @@ public class ClientModel {
             if (getDerivedModels() != null && getDerivedModels().size() > 0) {
                 imports.add("com.fasterxml.jackson.annotation.JsonSubTypes");
                 getDerivedModels().forEach(m -> imports.add(m.getFullName()));
+                getPolymorphicDerivedModels().forEach(m -> imports.add(m.getFullName()));
             }
         }
 
@@ -548,7 +594,7 @@ public class ClientModel {
     /**
      * Whether the polymorphic structure containing the model and all subtypes are in the same package.
      * <p>
-     * If this model isn't polymorphic, this will always be false.
+     * If this model or any model in its hierarchy isn't polymorphic, this will always be false.
      *
      * @return Whether the polymorphic structure containing the model and all subtypes are in the same package.
      */
@@ -594,7 +640,7 @@ public class ClientModel {
         ClientModel lastParent = model;
         while (parent != null) {
             lastParent = parent;
-            if (!packageName.equals(parent.getPackage())) {
+            if (!parent.isPolymorphic() || !packageName.equals(parent.getPackage())) {
                 return false;
             }
 
@@ -611,7 +657,9 @@ public class ClientModel {
         }
 
         for (ClientModel child : children) {
-            if (!packageName.equals(child.getPackage()) || !checkChildrenModelsPackage(child, packageName)) {
+            if (!child.isPolymorphic()
+                || !packageName.equals(child.getPackage())
+                || !checkChildrenModelsPackage(child, packageName)) {
                 return false;
             }
         }
@@ -644,6 +692,7 @@ public class ClientModel {
         private boolean usedInXml;
         private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
         private Set<String> serializationFormats = Set.of();
+        private SseModelMetadata sseMetadata;
 
         /**
          * Sets the package that this model class belongs to.
@@ -870,6 +919,11 @@ public class ClientModel {
             return this;
         }
 
+        public Builder sseMetadata(SseModelMetadata sseMetadata) {
+            this.sseMetadata = sseMetadata;
+            return this;
+        }
+
         /**
          * Build a new ClientModel instance with the provided properties.
          *
@@ -879,7 +933,7 @@ public class ClientModel {
             return new ClientModel(packageName, name, imports, description, isPolymorphic, polymorphicDiscriminator,
                 polymorphicDiscriminatorName, serializedName, needsFlatten, parentModelName, derivedModels, xmlName,
                 xmlNamespace, properties, propertyReferences, modelType, stronglyTypedHeader, implementationDetails,
-                usedInXml, serializationFormats, apiMetadata);
+                usedInXml, serializationFormats, apiMetadata, sseMetadata);
         }
     }
 }

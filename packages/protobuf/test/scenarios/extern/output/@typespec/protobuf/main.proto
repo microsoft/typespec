@@ -4,6 +4,7 @@ syntax = "proto3";
 
 import "foo/bar.proto";
 import "google/protobuf/empty.proto";
+import "google/longrunning/operations.proto";
 
 message BarRequest {
   google.protobuf.Empty empty = 1;
@@ -11,9 +12,11 @@ message BarRequest {
 
 message BarResponse {
   foo.Bar myExtern = 1;
+  google.longrunning.Operation operation = 2;
 }
 
 service Service {
   rpc Foo(foo.Bar) returns (google.protobuf.Empty);
   rpc Bar(BarRequest) returns (BarResponse);
+  rpc Baz(google.protobuf.Empty) returns (google.longrunning.Operation);
 }

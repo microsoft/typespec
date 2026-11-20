@@ -54,6 +54,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool IsExperimental { get; }
 
+        internal IEnumerable<string> DeclaredMemberNames => _namedTypeSymbol.GetMembers().Select(member => member.Name);
+
         private static bool HasExperimentalAttribute(ISymbol symbol)
             => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName);
 

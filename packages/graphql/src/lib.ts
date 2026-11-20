@@ -190,6 +190,12 @@ export const libDef = {
         default: paramMessage`Type "${"type"}" has no GraphQL equivalent. Using String as fallback.`,
       },
     },
+    "type-reference-not-supported": {
+      severity: "error",
+      messages: {
+        default: "Type references cannot be represented in a GraphQL schema.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,

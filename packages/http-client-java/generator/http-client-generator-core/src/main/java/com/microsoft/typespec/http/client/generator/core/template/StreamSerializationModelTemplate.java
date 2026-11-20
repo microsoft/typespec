@@ -261,12 +261,18 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 continue;
             }
             propertySerializedNames.add(parentProperty.getSerializedName());
-            if (!parentProperty.isPolymorphicDiscriminator()
-                // parent discriminators are already passed to children, see @see in method javadoc
+            boolean inheritedDiscriminator = !model.isPolymorphic()
+                && propertiesManager.getDiscriminatorProperty() != null
+                && Objects.equals(parentProperty.getSerializedName(),
+                    propertiesManager.getDiscriminatorProperty().getProperty().getSerializedName());
+            if ((!parentProperty.isPolymorphicDiscriminator() || inheritedDiscriminator)
+                // Polymorphic models receive their discriminator fields separately.
                 && ClientModelUtil.readOnlyNotInCtor(model, parentProperty, propertiesManager.getSettings())
                 // we shadow parent read-only properties in child class
                 || parentProperty.getClientFlatten()) { // we shadow parent flattened property in child class
-                fieldProperties.add(parentProperty);
+                fieldProperties.add(inheritedDiscriminator
+                    ? parentProperty.newBuilder().polymorphicDiscriminator(false).build()
+                    : parentProperty);
             }
         }
         return fieldProperties;
@@ -573,7 +579,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
         private void serializeParentJsonProperties(BiConsumer<ClientModelProperty, Boolean> serializeJsonProperty) {
             model.getParentPolymorphicDiscriminators()
-                .forEach(discriminator -> serializeJsonProperty.accept(discriminator, false));
+                .forEach(discriminator -> serializeJsonProperty.accept(discriminator, !model.isPolymorphic()));
             propertiesManager.forEachSuperRequiredProperty(property -> serializeJsonProperty.accept(property, true));
             propertiesManager.forEachSuperSetterProperty(property -> serializeJsonProperty.accept(property, true));
         }
@@ -1061,7 +1067,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     JavaIfBlock ifBlock = null;
 
                     // Add deserialization for all child types.
-                    List<ClientModel> childTypes = getAllChildTypes(model, new ArrayList<>());
+                    List<ClientModel> directChildTypes = model.getDirectPolymorphicDerivedModels();
+                    List<ClientModel> childTypes = model.getPolymorphicDerivedModels();
                     for (ClientModel childType : childTypes) {
                         // Determine which serialization method to use based on whether the child type is also a
                         // polymorphic
@@ -1078,22 +1085,17 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         boolean sameDiscriminator = Objects.equals(childType.getPolymorphicDiscriminatorName(),
                             model.getPolymorphicDiscriminatorName());
 
-                        if (!sameDiscriminator && !Objects.equals(childType.getParentModelName(), model.getName())) {
-                            // Child model and parent model don't share the same discriminator and the child isn't a
-                            // direct
-                            // child of the parent model, so skip this child model. This is done as the child model
-                            // should
-                            // be deserialized by the subtype that defines the different polymorphic discriminator.
-                            // Using
-                            // the sample above, Fish can't use "kind" to deserialize to a Shark subtype, it needs to
-                            // use
-                            // "sharktype".
+                        if (!sameDiscriminator && !directChildTypes.contains(childType)) {
+                            // A nested discriminator is handled by its nearest polymorphic parent.
                             continue;
                         }
 
-                        String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscriminator)
-                            ? ".fromJsonKnownDiscriminator(readerToUse.reset())"
-                            : ".fromJson(readerToUse.reset())";
+                        // Known-discriminator helpers are package-private.
+                        String deserializationMethod = (isSuperTypeWithDiscriminator(childType)
+                            && sameDiscriminator
+                            && Objects.equals(childType.getPackage(), model.getPackage()))
+                                ? ".fromJsonKnownDiscriminator(readerToUse.reset())"
+                                : ".fromJson(readerToUse.reset())";
 
                         ifBlock = ifOrElseIf(tryStatement, ifBlock,
                             "\"" + childType.getSerializedName() + "\".equals(discriminatorValue)",
@@ -1110,17 +1112,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             });
 
             readJsonObject(classBlock, true, this::writeFromJsonDeserialization);
-        }
-
-        private static List<ClientModel> getAllChildTypes(ClientModel model, List<ClientModel> childTypes) {
-            for (ClientModel childType : model.getDerivedModels()) {
-                childTypes.add(childType);
-                if (!CoreUtils.isNullOrEmpty(childType.getDerivedModels())) {
-                    getAllChildTypes(childType, childTypes);
-                }
-            }
-
-            return childTypes;
         }
 
         /**
@@ -2058,7 +2049,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         .filter(discriminator -> discriminatorProperty == null
                             || !Objects.equals(discriminator.getSerializedName(),
                                 discriminatorProperty.getProperty().getSerializedName()))
-                        .forEach(discriminator -> serializeXml(methodBlock, discriminator, false));
+                        .forEach(discriminator -> serializeXml(methodBlock, discriminator, !model.isPolymorphic()));
                     if (discriminatorProperty != null) {
                         serializeXml(methodBlock, discriminatorProperty.getProperty(), false);
                     }
@@ -2218,17 +2209,20 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 JavaIfBlock ifBlock = null;
 
                 // Add deserialization for all child types.
-                List<ClientModel> childTypes = getAllChildTypes(model, new ArrayList<>());
+                List<ClientModel> directChildTypes = model.getDirectPolymorphicDerivedModels();
+                List<ClientModel> childTypes = model.getPolymorphicDerivedModels();
                 for (ClientModel childType : childTypes) {
                     boolean sameDiscriminator = Objects.equals(childType.getPolymorphicDiscriminatorName(),
                         model.getPolymorphicDiscriminatorName());
-                    if (!sameDiscriminator && !Objects.equals(childType.getParentModelName(), model.getName())) {
+                    if (!sameDiscriminator && !directChildTypes.contains(childType)) {
                         continue;
                     }
 
-                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscriminator)
-                        ? ".fromXmlInternal(reader, finalRootElementName)"
-                        : ".fromXml(reader, finalRootElementName)";
+                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType)
+                        && sameDiscriminator
+                        && Objects.equals(childType.getPackage(), model.getPackage()))
+                            ? ".fromXmlInternal(reader, finalRootElementName)"
+                            : ".fromXml(reader, finalRootElementName)";
                     ifBlock = ifOrElseIf(methodBlock, ifBlock,
                         "\"" + childType.getSerializedName() + "\".equals(discriminatorValue)",
                         ifStatement -> ifStatement.methodReturn(childType.getName() + deserializationMethod));

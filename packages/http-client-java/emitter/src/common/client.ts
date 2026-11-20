@@ -131,14 +131,16 @@ export interface PageableContinuationToken {
    * The reference to response header of the operation as continuationToken in API request.
    */
   responseHeader?: HttpHeader;
+  includeContinuationTokenParameter?: boolean;
 }
 
 export function createPageableContinuationToken(
   parameter: Parameter,
   responseProperty?: Property[],
   responseHeader?: HttpHeader,
+  includeContinuationTokenParameter = false,
 ): PageableContinuationToken {
-  return { parameter, responseProperty, responseHeader };
+  return { parameter, responseProperty, responseHeader, includeContinuationTokenParameter };
 }
 
 export interface Serializable {

@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -19,12 +21,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq.Protected;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -2502,6 +2506,436 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", false, false)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", true, false)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", false, true)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", true, true)]
+        [TestCase("GetByResourceGroupAsync", "ListByResourceGroup", false, false)]
+        [TestCase("GetByResourceGroupAsync", "ListByResourceGroup", true, false)]
+        [TestCase("GetAll", "List", false, false)]
+        [TestCase("GetAll", "List", true, false)]
+        [TestCase("ListAll", "List", false, false)]
+        [TestCase("ListAll", "List", true, false)]
+        public void ListNormalizationPreservesDistinctRequestBuilders(
+            string getName, string listName, bool reverseOrder, bool exactGetName)
+        {
+            const string collectionPath = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/singletonTrackedResources";
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            InputParameter[] operationParameters =
+            [
+                InputFactory.PathParameter("subscriptionId", InputPrimitiveType.String, isRequired: true),
+                InputFactory.PathParameter("resourceGroupName", InputPrimitiveType.String, isRequired: true)
+            ];
+            InputMethodParameter[] methodParameters =
+            [
+                InputFactory.MethodParameter("subscriptionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                InputFactory.MethodParameter("resourceGroupName", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path)
+            ];
+            var getOperation = InputFactory.Operation(
+                getName, parameters: operationParameters, path: collectionPath + "/default",
+                responses: [InputFactory.OperationResponse([200], resource)], isExactName: exactGetName);
+            var getMethod = InputFactory.BasicServiceMethod(
+                getName, getOperation, parameters: methodParameters,
+                response: InputFactory.ServiceMethodResponse(resource, null), isExactName: exactGetName);
+            var listOperation = InputFactory.Operation(
+                listName, parameters: operationParameters, path: collectionPath,
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                listName, listOperation, parameters: methodParameters,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var inputClient = InputFactory.Client(
+                "TestClient", methods: reverseOrder ? [listMethod, getMethod] : [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var listRestName = getName.EndsWith("Async", StringComparison.Ordinal)
+                ? getName[..^"Async".Length]
+                : listName;
+
+            Assert.AreEqual(getName, getMethod.Name);
+            Assert.AreEqual(listName, listMethod.Name);
+            var getRequest = client.RestClient.GetCreateRequestMethod(getOperation);
+            var listRequest = client.RestClient.GetCreateRequestMethod(listOperation);
+            Assert.AreNotSame(getRequest, listRequest);
+            Assert.AreEqual($"Create{getName}Request", getRequest.Signature.Name);
+            Assert.AreEqual($"Create{listRestName}Request", listRequest.Signature.Name);
+            CollectionAssert.AreEqual(
+                getRequest.Signature.Parameters.Select(parameter => parameter.Type),
+                listRequest.Signature.Parameters.Select(parameter => parameter.Type));
+
+            foreach (var provider in new TypeProvider[] { client, client.RestClient })
+            {
+                var syntax = CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content).GetRoot();
+                var signatures = syntax.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                    .Select(method => (
+                        method.Identifier.ValueText,
+                        Parameters: string.Join(",", method.ParameterList.Parameters.Select(parameter => parameter.Type!.ToString()))))
+                    .ToArray();
+                Assert.AreEqual(signatures.Length, signatures.Distinct().Count());
+            }
+
+            foreach (var request in new[] { getRequest, listRequest })
+            {
+                Assert.Contains(request, client.RestClient.Methods.ToArray());
+                var syntax = CSharpSyntaxTree.ParseText(request.BodyStatements!.ToDisplayString()).GetRoot();
+                var path = string.Concat(syntax.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax member &&
+                        member.Name.Identifier.ValueText == "AppendPath")
+                    .Select(invocation => invocation.ArgumentList.Arguments[0].Expression)
+                    .OfType<LiteralExpressionSyntax>()
+                    .Select(literal => literal.Token.ValueText));
+                var expectedPath = request == getRequest ? getOperation.Path : listOperation.Path;
+                Assert.AreEqual(expectedPath.Replace("{subscriptionId}", "").Replace("{resourceGroupName}", ""), path);
+            }
+
+            foreach (var method in client.GetMethodCollectionByOperation(getOperation).Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestCalls = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax member &&
+                        member.Name.Identifier.ValueText.StartsWith("Create", StringComparison.Ordinal))
+                    .Select(invocation => ((MemberAccessExpressionSyntax)invocation.Expression).Name.Identifier.ValueText);
+                CollectionAssert.AreEqual(new[] { getRequest.Signature.Name }, requestCalls);
+            }
+
+            var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+            Assert.AreEqual(4, collections.Length);
+            foreach (var collection in collections)
+            {
+                var syntax = CSharpSyntaxTree.ParseText(new TypeProviderWriter(collection).Write().Content).GetRoot();
+                var requestCalls = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax member &&
+                        member.Name.Identifier.ValueText.StartsWith("Create", StringComparison.Ordinal) &&
+                        member.Name.Identifier.ValueText.EndsWith("Request", StringComparison.Ordinal))
+                    .Select(invocation => ((MemberAccessExpressionSyntax)invocation.Expression).Name.Identifier.ValueText)
+                    .ToArray();
+                CollectionAssert.Contains(requestCalls, listRequest.Signature.Name);
+                CollectionAssert.Contains(requestCalls, $"CreateNext{listRestName}Request");
+                CollectionAssert.DoesNotContain(requestCalls, getRequest.Signature.Name);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ListNormalizationRequestBuildersMatchBaseline(bool reverseOrder)
+        {
+            const string collectionPath = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/singletonTrackedResources";
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            InputParameter[] operationParameters =
+            [
+                InputFactory.PathParameter("subscriptionId", InputPrimitiveType.String, isRequired: true),
+                InputFactory.PathParameter("resourceGroupName", InputPrimitiveType.String, isRequired: true)
+            ];
+            InputMethodParameter[] methodParameters =
+            [
+                InputFactory.MethodParameter("subscriptionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                InputFactory.MethodParameter("resourceGroupName", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path)
+            ];
+            var getOperation = InputFactory.Operation(
+                "GetByResourceGroup", parameters: operationParameters, path: collectionPath + "/default",
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetByResourceGroup", getOperation, parameters: methodParameters,
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var listOperation = InputFactory.Operation(
+                "ListByResourceGroup", parameters: operationParameters, path: collectionPath,
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListByResourceGroup", listOperation, parameters: methodParameters,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var inputClient = InputFactory.Client(
+                "TestClient", methods: reverseOrder ? [listMethod, getMethod] : [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            var syntax = CSharpSyntaxTree.ParseText(new TypeProviderWriter(client.RestClient).Write().Content).GetRoot();
+            var requestBuilders = syntax.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.ValueText.StartsWith("Create", StringComparison.Ordinal) &&
+                    method.Identifier.ValueText.EndsWith("Request", StringComparison.Ordinal))
+                .OrderBy(method => method.Identifier.ValueText, StringComparer.Ordinal)
+                .ToArray();
+            CollectionAssert.AreEqual(
+                new[] { "CreateGetByResourceGroupRequest", "CreateListByResourceGroupRequest", "CreateNextListByResourceGroupRequest" },
+                requestBuilders.Select(method => method.Identifier.ValueText));
+            var generatedCode = string.Join(Environment.NewLine + Environment.NewLine, requestBuilders.Select(method => method.NormalizeWhitespace().ToFullString()))
+                .ReplaceLineEndings("\n");
+            Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), generatedCode);
+        }
+
+        [Test]
+        public void ListNormalizationProtocolMethodBodyMatchesBaseline()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            var getOperation = InputFactory.Operation(
+                "GetWidgets",
+                path: "/widgets/default",
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgets", getOperation,
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                path: "/widgets",
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListWidgets", listOperation,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            var protocolMethodBodies = client.GetMethodCollectionByOperation(getOperation)
+                .Where(method => method.Kind == ScmMethodKind.Protocol)
+                .Select(method => method.BodyStatements!.ToDisplayString());
+            var generatedCode = string.Join(Environment.NewLine + Environment.NewLine, protocolMethodBodies).ReplaceLineEndings("\n");
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
+        }
+
+        [Test]
+        public void ListNormalizationIgnoresUnavailableStreamingMethodName()
+        {
+            var streamType = new InputStreamingType(
+                "Stream", "Sample.Stream", InputPrimitiveType.String, ["application/jsonl"], streamKind: "jsonl");
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var listMethod = InputFactory.BasicServiceMethod(
+                "ListWidgets", listOperation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var getOperation = InputFactory.Operation(
+                "GetWidgetsAsync",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgetsAsync", getOperation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", listMethod.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetWidgetsAsync", "GetWidgetsAsync" },
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name));
+            CollectionAssert.AreEquivalent(
+                new[] { "GetWidgetsAsyncAsync", "GetWidgetsAsyncAsync" },
+                client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name));
+        }
+
+        [Test]
+        public void ListNormalizationPreservesLowercaseExactPublicName()
+        {
+            var listOperation = InputFactory.Operation("ListWidgets");
+            var listMethod = InputFactory.BasicServiceMethod("ListWidgets", listOperation);
+            var getOperation = InputFactory.Operation("getWidgetsAsync", isExactName: true);
+            var getMethod = InputFactory.BasicServiceMethod("getWidgetsAsync", getOperation, isExactName: true);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", listMethod.Name);
+            Assert.AreEqual("getWidgetsAsync", getMethod.Name);
+            Assert.AreEqual("CreateGetWidgetsRequest", client.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
+            Assert.AreEqual("CreateGetWidgetsAsyncRequest", client.RestClient.GetCreateRequestMethod(getOperation).Signature.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetWidgets", "GetWidgetsAsync", "GetWidgets", "GetWidgetsAsync" },
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name));
+            CollectionAssert.AreEquivalent(
+                new[] { "getWidgetsAsync", "getWidgetsAsyncAsync", "getWidgetsAsync", "getWidgetsAsyncAsync" },
+                client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name));
+        }
+
+        [Test]
+        public void ListUrlNormalizationUsesProjectedPublicNameForExactAsyncPeer()
+        {
+            var listOperation = InputFactory.Operation("ListUrl");
+            var listMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation);
+            var getOperation = InputFactory.Operation("GetUrlAsync", isExactName: true);
+            var getMethod = InputFactory.BasicServiceMethod("GetUrlAsync", getOperation, isExactName: true);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetUri", listMethod.Name);
+            Assert.AreEqual("GetUrlAsync", getMethod.Name);
+            Assert.AreEqual("CreateGetUrlRequest", client.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
+            Assert.AreEqual("CreateGetUrlAsyncRequest", client.RestClient.GetCreateRequestMethod(getOperation).Signature.Name);
+            CollectionAssert.Contains(
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name).ToArray(),
+                "GetUri");
+            CollectionAssert.Contains(
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name).ToArray(),
+                "GetUriAsync");
+            CollectionAssert.Contains(
+                client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name).ToArray(),
+                "GetUrlAsync");
+        }
+
+        [TestCase("GetUri")]
+        [TestCase("GetUriAsync")]
+        public void ListUrlNormalizationFallsBackBeforeUrlProjection(string getName)
+        {
+            var listOperation = InputFactory.Operation("ListUrl");
+            var listMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation);
+            var getOperation = InputFactory.Operation(getName);
+            var getMethod = InputFactory.BasicServiceMethod(getName, getOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetUrl", listMethod.Name);
+            Assert.AreEqual(getName, getMethod.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetUrl", "GetUrlAsync", "GetUrl", "GetUrlAsync" },
+                client.GetMethodCollectionByOperation(listOperation)
+                    .Select(method => method.Signature.Name)
+                    .Where(name => name.StartsWith("Get", StringComparison.Ordinal)));
+        }
+
+        [Test]
+        public void ListNormalizationPreservesNameWhenNextLinkRequestsCollide()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            InputServiceMethod CreateMethod(string name, InputType idType, out InputOperation operation)
+            {
+                operation = InputFactory.Operation(
+                    name,
+                    parameters:
+                    [
+                        InputFactory.QueryParameter("id", idType, isRequired: true),
+                        InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false)
+                    ],
+                    responses: [InputFactory.OperationResponse([200], page)]);
+                return InputFactory.PagingServiceMethod(
+                    name,
+                    operation,
+                    parameters:
+                    [
+                        InputFactory.MethodParameter("id", idType, isRequired: true, location: InputRequestLocation.Query),
+                        InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false, location: InputRequestLocation.Query)
+                    ],
+                    response: InputFactory.ServiceMethodResponse(page, null),
+                    pagingMetadata: new InputPagingServiceMetadata(
+                        ["value"],
+                        new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
+                        null,
+                        ["maxPageSize"]));
+            }
+
+            var getMethod = CreateMethod("GetWidgets", InputPrimitiveType.String, out var getOperation);
+            var listMethod = CreateMethod("ListWidgets", InputPrimitiveType.Int32, out var listOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", getMethod.Name);
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+            Assert.AreEqual("CreateNextGetWidgetsRequest", client.RestClient.GetCreateNextLinkRequestMethod(getOperation).Signature.Name);
+            Assert.AreEqual("CreateNextListWidgetsRequest", client.RestClient.GetCreateNextLinkRequestMethod(listOperation).Signature.Name);
+
+            var syntax = CSharpSyntaxTree.ParseText(new TypeProviderWriter(client.RestClient).Write().Content).GetRoot();
+            var signatures = syntax.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Select(method => (
+                    method.Identifier.ValueText,
+                    Parameters: string.Join(",", method.ParameterList.Parameters.Select(parameter => parameter.Type!.ToString()))))
+                .ToArray();
+            Assert.AreEqual(signatures.Length, signatures.Distinct().Count());
+        }
+
+        [Test]
+        public void ListNormalizationPreservesNameWhenInitialAndNextLinkRequestsCollide()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListWidgets",
+                listOperation,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var nextOperation = InputFactory.Operation(
+                "NextGetWidgets",
+                parameters: [InputFactory.PathParameter("nextPage", InputPrimitiveType.Url, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var nextMethod = InputFactory.BasicServiceMethod(
+                "NextGetWidgets",
+                nextOperation,
+                parameters: [InputFactory.MethodParameter("nextPage", InputPrimitiveType.Url, isRequired: true, location: InputRequestLocation.Path)],
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, nextMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+            var initialNextRequest = client.RestClient.GetCreateRequestMethod(nextOperation);
+            var listNextLinkRequest = client.RestClient.GetCreateNextLinkRequestMethod(listOperation);
+            Assert.AreEqual("CreateNextGetWidgetsRequest", initialNextRequest.Signature.Name);
+            Assert.AreEqual("CreateNextListWidgetsRequest", listNextLinkRequest.Signature.Name);
+            Assert.AreNotEqual(initialNextRequest.Signature.Name, listNextLinkRequest.Signature.Name);
+            CollectionAssert.AreEqual(
+                initialNextRequest.Signature.Parameters.Select(parameter => parameter.Type),
+                listNextLinkRequest.Signature.Parameters.Select(parameter => parameter.Type));
+        }
+
+        [Test]
+        public void ListNormalizationPreservesNameWhenRequestBuilderNamesCollide()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("value", InputFactory.Array(resource))]);
+            var getOperation = InputFactory.Operation(
+                "GetWidgets", parameters: [InputFactory.QueryParameter("id", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgets", getOperation,
+                parameters: [InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)],
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                parameters: [InputFactory.QueryParameter("count", InputPrimitiveType.Int32, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListWidgets", listOperation,
+                parameters: [InputFactory.MethodParameter("count", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query)],
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.PagingMetadata(["value"], null, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+            Assert.AreEqual("CreateGetWidgetsRequest", client.RestClient.GetCreateRequestMethod(getOperation).Signature.Name);
+            Assert.AreEqual("CreateListWidgetsRequest", client.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
+        }
+
         [Test]
         public void MethodStartingWithListIsNotRenamedIfNotFullWord()
         {
@@ -3922,6 +4356,350 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false, false, true, false, Description = "Unbranded paging retains the token because collection-based resumption is not enabled.")]
+        [TestCase(false, true, true, false, Description = "Unbranded paging retains the token when a new optional parameter is added.")]
+        [TestCase(true, false, true, false)]
+        [TestCase(true, true, true, false)]
+        [TestCase(true, false, false, false)]
+        [TestCase(true, true, false, false)]
+        [TestCase(true, false, true, true)]
+        [TestCase(true, true, true, false, true, false)]
+        [TestCase(true, false, true, false, false, true)]
+        [TestCase(true, true, true, false, false, true)]
+        [TestCase(true, true, true, false, true, true)]
+        [TestCase(true, true, true, false, true, false, true)]
+        public async Task BackCompatibility_NextLinkContinuationToken(
+            bool supportsPageResumption, bool newOptionalParameter, bool hasPreviousDefaults, bool customizeProtocol,
+            bool stringFilter = false, bool regenerate = false, bool protocolOnly = false)
+        {
+            var (inputClient, item, page, method) = CreateContinuationTokenPagingClient(newOptionalParameter, stringFilter, protocolOnly);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: customizeProtocol ? () => Helpers.GetCompilationFromDirectoryAsync("CustomProtocol") : null,
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    customizeProtocol ? "CustomProtocolLast" : hasPreviousDefaults ? null : "NoDefaults"),
+                clientResponseApi: supportsPageResumption ? new ResumableClientResultProvider() : null);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+
+            client.ProcessTypeForBackCompatibility();
+
+            if (regenerate)
+            {
+                var previousSources = generator.Object.OutputLibrary.TypeProviders
+                    .Select(provider => new TypeProviderWriter(provider).Write())
+                    .Select(file => (file.Name, file.Content)).ToArray();
+                var previousContract = await Helpers.GetCompilationFromSourceFilesAsync(previousSources);
+                generator = await MockHelpers.LoadMockGeneratorAsync(
+                    clients: () => [inputClient],
+                    inputModels: () => [item, page],
+                    lastContractCompilation: () => Task.FromResult(previousContract),
+                    clientResponseApi: new ResumableClientResultProvider());
+                diagnostics.SetLength(0);
+                generator.SetupGet(g => g.Emitter).Returns(emitter);
+                client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+                client.ProcessTypeForBackCompatibility();
+            }
+
+            var file = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var retainsToken = supportsPageResumption && (hasPreviousDefaults || newOptionalParameter);
+            var baseline = protocolOnly ? "StringFilter,ProtocolOnly" : stringFilter ? "StringFilter"
+                : $"{supportsPageResumption},{newOptionalParameter}{(customizeProtocol ? ",CustomProtocol" : hasPreviousDefaults ? "" : ",NoDefaults")}";
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baseline), file.Content);
+            using (var requestWriter = new CodeWriter())
+            {
+                requestWriter.WriteMethod(client.RestClient.GetCreateRequestMethod(method.Operation));
+                var requestBaseline = newOptionalParameter ? stringFilter ? "CreateRequest,StringFilter" : "CreateRequest,Filter" : "CreateRequest";
+                Assert.AreEqual(Helpers.GetExpectedFromFile(requestBaseline), requestWriter.ToString(false));
+            }
+            if (retainsToken)
+            {
+                using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+                Assert.AreEqual("diagnostic", notification.RootElement.GetProperty("method").GetString());
+                var warning = notification.RootElement.GetProperty("params");
+                Assert.AreEqual("signature-collision", warning.GetProperty("code").GetString());
+                Assert.AreEqual("warning", warning.GetProperty("severity").GetString());
+                Assert.AreEqual(method.Operation.CrossLanguageDefinitionId, warning.GetProperty("crossLanguageDefinitionId").GetString());
+                if (!customizeProtocol)
+                {
+                    var compilation = await CompilePagingApiConsumerAsync(client);
+                    Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity == DiagnosticSeverity.Error).Select(diagnostic => diagnostic.ToString()));
+                }
+            }
+            else
+            {
+                Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NextLinkPagingPreservesLiteralArgumentCalls(bool withFilter)
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var compilation = await CompilePagingApiConsumerAsync(client);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
+
+        [Test]
+        public async Task NextLinkPagingUsesBetterLiteralConversion()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter: true, filterType: InputPrimitiveType.Any);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            Moq.Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<CSharpType>("CreateCSharpTypeCore", InputPrimitiveType.Any)
+                .Returns(new CSharpType(typeof(object)));
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
+            Assert.AreEqual(string.Empty, Encoding.UTF8.GetString(diagnostics.ToArray()));
+            var compilation = await CompilePagingApiConsumerAsync(client);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
+
+        [Test]
+        public async Task NextLinkPagingHandlesRenamedCustomToken()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient();
+            Compilation? customization = null;
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: async () => customization = await Helpers.GetCompilationFromDirectoryAsync(),
+                clientResponseApi: new ResumableClientResultProvider());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var customCode = customization!.SyntaxTrees.Single(tree => tree.FilePath.EndsWith("TestClient.cs", StringComparison.Ordinal)).GetText().ToString();
+            var compilation = await CompilePagingApiConsumerAsync(client, "RenamedConsumer", customCode);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+            using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+            Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
+        }
+
+        [Test]
+        public async Task NextLinkPagingPreservesTokenlessPartial()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient();
+            Compilation? customization = null;
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: async () => customization = await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var customCode = customization!.SyntaxTrees.Single(tree => tree.FilePath.EndsWith("TestClient.cs", StringComparison.Ordinal)).GetText().ToString();
+            var compilation = await CompilePagingApiConsumerAsync(client, "PartialConsumer", customCode);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+            using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+            StringAssert.Contains("partial", notification.RootElement.GetProperty("params").GetProperty("message").GetString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
+        }
+
+        [Test]
+        public async Task NextLinkPagingRetainsTokenForLongerArgumentCollision()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter: true, filterType: InputPrimitiveType.Any);
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(),
+                clientResponseApi: new ResumableClientResultProvider());
+            Moq.Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<CSharpType>("CreateCSharpTypeCore", InputPrimitiveType.Any)
+                .Returns(new CSharpType(typeof(object)));
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var compilation = await CompilePagingApiConsumerAsync(client, "LongerConsumer");
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+            using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+            Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
+        }
+
+        private static async Task<Compilation> CompilePagingApiConsumerAsync(ClientProvider client,
+            string consumer = "Consumer", string? customCode = null)
+        {
+            var file = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var syntax = CSharpSyntaxTree.ParseText(file.Content).GetRoot();
+            // Compile real API signatures in isolation; generated request bodies are verified by baselines.
+            var body = (BlockSyntax)SyntaxFactory.ParseStatement(
+                Helpers.GetExpectedFromFile("MethodBody", method: nameof(BackCompatibility_NextLinkContinuationToken)));
+            var api = syntax.ReplaceNodes(syntax.DescendantNodes().OfType<MethodDeclarationSyntax>(),
+                (_, method) => method.WithBody(body));
+            List<(string Name, string Content)> sources =
+            [
+                (file.Name, api.ToFullString()),
+                ("Consumer.cs", Helpers.GetExpectedFromFile(consumer, method: consumer == "Consumer"
+                    ? nameof(BackCompatibility_NextLinkContinuationToken) : nameof(NextLinkPagingPreservesLiteralArgumentCalls)))
+            ];
+            if (customCode != null)
+            {
+                sources.Add(("Custom.cs", customCode));
+            }
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sources);
+            return compilation.RemoveSyntaxTrees(compilation.SyntaxTrees.Where(tree =>
+                !sources.Any(source => source.Name == tree.FilePath)));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NextLinkPagingImplementsRenamedPartials(bool hasLastContract)
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient();
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync("CustomProtocol",
+                    method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                lastContractCompilation: hasLastContract
+                    ? () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken))
+                    : null,
+                clientResponseApi: new ResumableClientResultProvider());
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            var expected = hasLastContract
+                ? Helpers.GetExpectedFromFile("True,False,CustomProtocol", method: nameof(BackCompatibility_NextLinkContinuationToken))
+                : Helpers.GetExpectedFromFile("False");
+            Assert.AreEqual(expected, output.Content);
+        }
+
+        [Test]
+        public async Task NextLinkPagingRetainsTokenForOptionalArgumentCollision()
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(withFilter: true, stringFilter: true);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(),
+                clientResponseApi: new ResumableClientResultProvider());
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            using var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray()));
+            Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), output.Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task NextLinkPagingAccountsForCustomMethods(bool tokenBearingCustomMethod)
+        {
+            var (inputClient, item, page, _) = CreateContinuationTokenPagingClient(
+                withFilter: tokenBearingCustomMethod, stringFilter: tokenBearingCustomMethod);
+            using var diagnostics = new MemoryStream();
+            using var emitter = new Emitter(diagnostics);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [item, page],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(tokenBearingCustomMethod.ToString()),
+                lastContractCompilation: tokenBearingCustomMethod ? null
+                    : () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NextLinkContinuationToken)),
+                clientResponseApi: new ResumableClientResultProvider());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
+            var client = generator.Object.TypeFactory.CreateClient(inputClient)!;
+
+            client.ProcessTypeForBackCompatibility();
+
+            var output = new TypeProviderWriter(new FilteredMethodsTypeProvider(client, name => name is "GetItems" or "GetItemsAsync")).Write();
+            using (var notification = JsonDocument.Parse(Encoding.UTF8.GetString(diagnostics.ToArray())))
+            {
+                Assert.AreEqual("signature-collision", notification.RootElement.GetProperty("params").GetProperty("code").GetString());
+            }
+            var expected = tokenBearingCustomMethod
+                ? Helpers.GetExpectedFromFile(method: nameof(NextLinkPagingRetainsTokenForOptionalArgumentCollision))
+                : Helpers.GetExpectedFromFile("False");
+            Assert.AreEqual(expected, output.Content);
+        }
+
+        private static (InputClient Client, InputModelType Item, InputModelType Page, InputPagingServiceMethod Method)
+            CreateContinuationTokenPagingClient(bool withFilter = false, bool stringFilter = false, bool protocolOnly = false, InputType? filterType = null)
+        {
+            var pageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32);
+            var token = InputFactory.QueryParameter("token", InputPrimitiveType.String);
+            var methodToken = InputFactory.MethodParameter("token", InputPrimitiveType.String, location: InputRequestLocation.Query);
+            token.Update(isContinuationToken: true, methodParameterSegments: [methodToken]);
+            filterType ??= stringFilter ? InputPrimitiveType.String : InputPrimitiveType.Boolean;
+            var filter = InputFactory.QueryParameter("filter", filterType);
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                    InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var operation = InputFactory.Operation("GetItems",
+                parameters: withFilter ? [pageSize, token, filter] : [pageSize, token],
+                generateConvenienceMethod: !protocolOnly,
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation,
+                parameters: withFilter
+                    ? [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
+                           methodToken,
+                           InputFactory.MethodParameter("filter", filterType, location: InputRequestLocation.Query)]
+                    : [InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, location: InputRequestLocation.Query),
+                           methodToken],
+                response: InputFactory.ServiceMethodResponse(InputFactory.Array(item), ["items"]),
+                pagingMetadata: new InputPagingServiceMetadata(["items"],
+                    new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null), null));
+            return (InputFactory.Client(TestClientName, methods: [method]), item, page, method);
         }
 
         [Test]
@@ -5954,26 +6732,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
         {
-            var inputOperation = InputFactory.Operation("GetUrl");
-            var inputServiceMethod = InputFactory.BasicServiceMethod("GetUrl", inputOperation);
-            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var requestBody = InputFactory.Model("RequestBody");
+            InputParameter[] operationParameters =
+            [
+                InputFactory.HeaderParameter("contentType", InputPrimitiveType.String, isRequired: true, isContentType: true, serializedName: "Content-Type"),
+                InputFactory.BodyParameter("body", requestBody, isRequired: true)
+            ];
+            InputMethodParameter[] methodParameters =
+            [
+                InputFactory.MethodParameter("contentType", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header, serializedName: "Content-Type"),
+                InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
+            ];
+            var listOperation = InputFactory.Operation("ListUrl", parameters: operationParameters, httpMethod: "POST");
+            var listServiceMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation, parameters: methodParameters);
+            var getOperation = InputFactory.Operation("GetUrl", parameters: operationParameters, httpMethod: "POST", isExactName: true);
+            var getServiceMethod = InputFactory.BasicServiceMethod("GetUrl", getOperation, parameters: methodParameters, isExactName: true);
+            var client = InputFactory.Client("TestClient", methods: [listServiceMethod, getServiceMethod]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
             var shippedWrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
 
-            var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(inputOperation, shippedWrapper);
+            var shippedWrapperMethods = clientProvider.GetMethodCollectionByOperation(listOperation, shippedWrapper);
             var publicMethodName = shippedWrapperMethods.Single(m =>
                 m.Kind == ScmMethodKind.Convenience &&
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
-            var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(inputOperation).Signature.Name;
+            var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(listOperation).Signature.Name;
 
-            Assert.AreEqual("GetUrl", publicMethodName);
-            Assert.AreEqual("CreateGetUrlRequest", capturedRequestMethodName);
+            var newWrapper = new BackCompatTypeProvider("NewMockableTestResource", "Sample");
+            var newWrapperMethods = clientProvider.GetMethodCollectionByOperation(listOperation, newWrapper);
+            var newPublicMethodName = newWrapperMethods.Single(m =>
+                m.Kind == ScmMethodKind.Convenience &&
+                !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
+            Assert.AreEqual("ListUrl", publicMethodName);
+            Assert.AreEqual("CreateListUrlRequest", capturedRequestMethodName);
+            Assert.AreEqual("ListUri", newPublicMethodName);
+            foreach (var protocolMethod in shippedWrapperMethods.Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                var syntax = CSharpSyntaxTree.ParseText(protocolMethod.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestCalls = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax member &&
+                        member.Name.Identifier.ValueText.StartsWith("Create", StringComparison.Ordinal))
+                    .Select(invocation => ((MemberAccessExpressionSyntax)invocation.Expression).Name.Identifier.ValueText);
+                CollectionAssert.Contains(requestCalls, capturedRequestMethodName);
+            }
 
-            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
-            _ = clientProvider.GetMethodCollectionByOperation(inputOperation, newWrapper);
+            Assert.AreEqual(
+                capturedRequestMethodName,
+                clientProvider.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
 
             var emittedRestClient = new TypeProviderWriter(clientProvider.RestClient).Write().Content;
             StringAssert.Contains(

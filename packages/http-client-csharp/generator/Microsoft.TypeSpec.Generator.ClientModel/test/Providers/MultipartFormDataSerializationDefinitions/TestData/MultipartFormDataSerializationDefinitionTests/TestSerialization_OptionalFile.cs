@@ -8,9 +8,9 @@ using Sample;
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Sample.Models
 {
-    public partial class OptionalFileRequest
+    public partial class OptionalFileContent
     {
-        internal OptionalFileRequest()
+        internal OptionalFileContent()
         {
         }
 

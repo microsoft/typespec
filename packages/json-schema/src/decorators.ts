@@ -34,7 +34,7 @@ import type {
   PrefixItemsDecorator,
   UniqueItemsDecorator,
 } from "../generated-defs/TypeSpec.JsonSchema.js";
-import { JsonSchemaStateKeys } from "./lib.js";
+import { JsonSchemaStateKeys, reportDiagnostic } from "./lib.js";
 import { createDataDecorator } from "./utils.js";
 
 /**
@@ -272,7 +272,14 @@ export const $prefixItems: PrefixItemsDecorator = (
   target: Type,
   value: Type,
 ) => {
-  setPrefixItems(context.program, target, value as Tuple); // This cast is incorrect and would cause a crash https://github.com/microsoft/typespec/issues/4742
+  if (value.kind !== "Tuple") {
+    reportDiagnostic(context.program, {
+      code: "invalid-prefix-items",
+      target: context.getArgumentTarget(0) ?? target,
+    });
+    return;
+  }
+  setPrefixItems(context.program, target, value);
 };
 
 /**

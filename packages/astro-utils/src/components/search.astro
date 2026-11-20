@@ -1,0 +1,422 @@
+---
+import type {} from "@astrojs/starlight";
+import { Icon } from "@astrojs/starlight/components";
+
+export interface Props {
+  scopes?: boolean;
+}
+
+const { scopes = false } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
+const bundlePath = `${baseUrl.replace(/\/$/, "")}/pagefind/`;
+const label = Astro.locals.t?.("search.label") ?? "Search";
+const devWarning =
+  Astro.locals.t?.("search.devWarning") ?? "Search is only available in production builds.";
+---
+
+<div class="pagefind-search" data-pagefind-ignore>
+  {import.meta.env.PROD ? (
+    <>
+      <link rel="stylesheet" href={`${bundlePath}pagefind-component-ui.css`} />
+      <template>
+        <pagefind-modal-trigger placeholder={label} />
+        <pagefind-modal>
+          {scopes && (
+            <>
+              <pagefind-modal-header>
+                <typespec-search-input class="search-header">
+                  <search class="search-input-wrapper" aria-label={label}>
+                    <input
+                      type="search"
+                      aria-label={label}
+                      aria-describedby="search-prefix-hint"
+                      placeholder={label}
+                      autocomplete="off"
+                      autocapitalize="none"
+                      spellcheck="false"
+                      enterkeyhint="search"
+                    />
+                    <button type="button" class="search-clear" hidden>
+                      Clear
+                    </button>
+                  </search>
+                  <p id="search-prefix-hint" class="search-hint">
+                    <span class="search-mode" aria-live="polite">
+                      Docs
+                    </span>
+                    <span>
+                      Type <kbd>?</kbd> for search selectors
+                    </span>
+                  </p>
+                </typespec-search-input>
+              </pagefind-modal-header>
+              <pagefind-modal-body>
+                <ul class="search-selectors" aria-label="Search selectors">
+                  <li>
+                    <button type="button" data-prefix="">
+                      <strong>Docs</strong>
+                      <span>No prefix: guides and decorator references</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" data-prefix="api: ">
+                      <code>api:</code>
+                      <span>JavaScript API reference</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" data-prefix="all: ">
+                      <code>all:</code>
+                      <span>All documentation and JavaScript APIs</span>
+                    </button>
+                  </li>
+                </ul>
+                <div class="search-results" hidden>
+                  <pagefind-summary default-message="Start typing to search." />
+                  <pagefind-results>
+                    <script
+                      type="text/pagefind-template"
+                      is:inline
+                      set:html={`
+                    <li class="pf-result">
+                      <div class="pf-result-card">
+                        <div class="pf-result-content">
+                          {{#if meta.searchContext}}
+                          <p class="search-result-context">{{ meta.searchContext }}</p>
+                          {{/if}}
+                          <p class="pf-result-title">
+                            <a class="pf-result-link" href="{{ url | safeUrl }}">{{ meta.title }}</a>
+                          </p>
+                          {{#if excerpt}}
+                          <p class="pf-result-excerpt">{{+ excerpt +}}</p>
+                          {{/if}}
+                        </div>
+                      </div>
+                      {{#if sub_results}}
+                      <ul class="pf-heading-chips">
+                        {{#each sub_results as sub}}
+                        <li class="pf-heading-chip">
+                          <a class="pf-heading-link" href="{{ sub.url | safeUrl }}">{{ sub.title }}</a>
+                          <p class="pf-heading-excerpt">{{+ sub.excerpt +}}</p>
+                        </li>
+                        {{/each}}
+                      </ul>
+                      {{/if}}
+                    </li>
+                  `}
+                    />
+                  </pagefind-results>
+                </div>
+              </pagefind-modal-body>
+              <pagefind-modal-footer>
+                <pagefind-keyboard-hints />
+              </pagefind-modal-footer>
+            </>
+          )}
+        </pagefind-modal>
+      </template>
+      <script type="module" define:vars={{ baseUrl, bundlePath, scopes }}>
+        await import(`${bundlePath}pagefind-component-ui.js`);
+        // Configure the instance before the template's components connect.
+        window.PagefindComponents.configureInstance("default", {
+          baseUrl,
+          bundlePath,
+          ranking: {
+            // Avoid favoring short generated API pages over guides and decorator references.
+            pageLength: 0,
+          },
+        });
+        if (scopes && !customElements.get("typespec-search-input")) {
+          class PrefixSearchInput extends window.PagefindComponents.PagefindElement {
+            init() {
+              this.inputEl = this.querySelector("input");
+              this.clearEl = this.querySelector(".search-clear");
+              this.modeEl = this.querySelector(".search-mode");
+              const modal = this.closest("pagefind-modal");
+              this.selectorsEl = modal.querySelector(".search-selectors");
+              this.resultsEl = modal.querySelector(".search-results");
+              this.abortController = new AbortController();
+              const { signal } = this.abortController;
+              this.hasSearched = false;
+              this.updateState();
+              this.inputEl.addEventListener(
+                "input",
+                (event) => {
+                  this.updateState();
+                  clearTimeout(this.searchTimeout);
+                  if (!event.isComposing) {
+                    this.searchTimeout = setTimeout(() => this.runSearch(), 150);
+                  }
+                },
+                { signal },
+              );
+              this.inputEl.addEventListener(
+                "keydown",
+                (event) => {
+                  if (event.key !== "ArrowDown" || event.isComposing) return;
+                  event.preventDefault();
+                  if (!this.selectorsEl.hidden) {
+                    this.selectorsEl.querySelector("button").focus();
+                  } else {
+                    this.instance.focusNextResults(this.inputEl);
+                  }
+                },
+                { signal },
+              );
+              this.inputEl.addEventListener(
+                "focus",
+                () => {
+                  if (!this.hasSearched) this.runSearch();
+                  this.instance.registerShortcut({ label: "↓", description: "navigate" }, this);
+                  this.instance.registerShortcut({ label: "?", description: "selectors" }, this);
+                },
+                { signal },
+              );
+              this.inputEl.addEventListener(
+                "blur",
+                () => {
+                  this.instance.deregisterAllShortcuts(this);
+                },
+                { signal },
+              );
+              this.clearEl.addEventListener(
+                "click",
+                () => {
+                  clearTimeout(this.searchTimeout);
+                  this.inputEl.value = "";
+                  this.runSearch();
+                  this.focus();
+                },
+                { signal },
+              );
+              this.selectorsEl.addEventListener(
+                "click",
+                (event) => {
+                  const button = event.target.closest("button[data-prefix]");
+                  if (!button) return;
+                  clearTimeout(this.searchTimeout);
+                  this.inputEl.value = button.dataset.prefix;
+                  this.runSearch();
+                  this.focus();
+                },
+                { signal },
+              );
+              this.selectorsEl.addEventListener(
+                "keydown",
+                (event) => {
+                  const buttons = [...this.selectorsEl.querySelectorAll("button")];
+                  const index = buttons.indexOf(document.activeElement);
+                  if (index < 0 || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
+                  event.preventDefault();
+                  if (event.key === "ArrowUp" && index === 0) {
+                    this.focus();
+                  } else {
+                    buttons[
+                      Math.min(buttons.length - 1, index + (event.key === "ArrowDown" ? 1 : -1))
+                    ].focus();
+                  }
+                },
+                { signal },
+              );
+            }
+            updateState() {
+              const value = this.inputEl.value.trimStart();
+              const prefix = /^(api|all):\s*/i.exec(value);
+              const scope = prefix
+                ? prefix[1].toLowerCase() === "api"
+                  ? "JS API"
+                  : "All"
+                : "Docs";
+              const help = value.trim() === "" || value.trim() === "?";
+              if (this.modeEl.textContent !== scope) this.modeEl.textContent = scope;
+              this.clearEl.hidden = this.inputEl.value.length === 0;
+              this.selectorsEl.hidden = !help;
+              this.resultsEl.hidden = help;
+              return { scope, term: help ? "" : value.slice(prefix?.[0].length ?? 0).trim() };
+            }
+            runSearch() {
+              const { scope, term } = this.updateState();
+              this.hasSearched = true;
+              this.instance.triggerSearchWithFilters(
+                term,
+                scope === "All" ? {} : { "search-scope": [scope] },
+              );
+            }
+            register(instance) {
+              instance.registerInput(this, { keyboardNavigation: true });
+              instance.on(
+                "error",
+                () => {
+                  this.selectorsEl.hidden = true;
+                  this.resultsEl.hidden = false;
+                },
+                this,
+              );
+            }
+            focus() {
+              this.inputEl.focus();
+            }
+            cleanup() {
+              clearTimeout(this.searchTimeout);
+              this.abortController.abort();
+              this.instance.deregisterAllShortcuts(this);
+            }
+          }
+          customElements.define("typespec-search-input", PrefixSearchInput);
+        }
+        const template = document.querySelector(".pagefind-search template");
+        template.replaceWith(template.content.cloneNode(true));
+      </script>
+    </>
+  ) : (
+    <button type="button" class="search-dev" disabled title={devWarning}>
+      <Icon name="magnifier" />
+      <span>{label}</span>
+    </button>
+  )}
+</div>
+
+<style>
+  .pagefind-search {
+    --pf-font: var(--fontFamilyBase);
+    --pf-text: var(--colorNeutralForeground1);
+    --pf-text-secondary: var(--colorNeutralForeground2);
+    --pf-text-muted: var(--colorNeutralForeground3);
+    --pf-background: var(--colorNeutralBackground1);
+    --pf-border: var(--colorNeutralStroke1);
+    --pf-border-focus: var(--colorBrandStroke1);
+    --pf-outline-focus: var(--colorBrandStroke1);
+    --pf-hover: var(--colorNeutralBackground1Hover);
+    --pf-mark: var(--colorBrandForeground1);
+    --pf-skeleton: var(--colorNeutralBackground3);
+    --pf-skeleton-shine: var(--colorNeutralBackground1);
+    --pf-scroll-shadow: var(--colorNeutralShadowAmbient);
+    --pf-shadow-lg: var(--shadow64);
+    --pf-error-bg: var(--colorStatusDangerBackground1);
+    --pf-error-border: var(--colorStatusDangerBorder1);
+    --pf-error-text: var(--colorStatusDangerForeground1);
+    --pf-error-text-secondary: var(--colorStatusDangerForeground1);
+    --pf-modal-backdrop: var(--colorNeutralBackgroundAlpha);
+    --pf-modal-max-width: 40rem;
+    --pf-modal-max-height: calc(100dvh - 8rem);
+    --pf-modal-top: 4rem;
+    --pf-border-radius: var(--borderRadiusMedium);
+  }
+
+  .search-dev {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: var(--borderRadiusMedium);
+    background: var(--colorNeutralBackground1);
+    color: var(--colorNeutralForeground3);
+    font: inherit;
+  }
+
+  .search-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: var(--borderRadiusMedium);
+    background: var(--colorNeutralBackground1);
+    color: var(--colorNeutralForeground1);
+    font: 1rem var(--fontFamilyBase);
+  }
+
+  .search-input-wrapper input {
+    appearance: none;
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+
+  .search-input-wrapper input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .search-input-wrapper:focus-within,
+  .search-selectors button:focus-visible {
+    outline: 2px solid var(--colorBrandStroke1);
+    outline-offset: 2px;
+  }
+
+  .search-clear {
+    margin-inline-end: 0.75rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: 0.875rem var(--fontFamilyBase);
+    cursor: pointer;
+  }
+
+  .search-hint {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    color: var(--colorNeutralForeground2);
+    font: 0.75rem var(--fontFamilyBase);
+  }
+
+  .search-mode {
+    font-weight: var(--fontWeightSemibold);
+  }
+
+  .search-selectors {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-selectors button {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem;
+    border: 0;
+    border-radius: var(--borderRadiusMedium);
+    background: transparent;
+    color: var(--colorNeutralForeground1);
+    font: 0.875rem var(--fontFamilyBase);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .search-selectors button:hover,
+  .search-selectors button:focus-visible {
+    background: var(--colorNeutralBackground1Hover);
+  }
+
+  .search-selectors code {
+    font-family: var(--fontFamilyMonospace);
+  }
+
+  .pagefind-search :global(.search-result-context) {
+    margin: 0 0 0.25rem;
+    color: var(--colorNeutralForeground2);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .pagefind-search :global(.pf-trigger-text),
+    .pagefind-search :global(.pf-trigger-shortcut) {
+      /* Override the Component UI's high-specificity reset for a compact mobile trigger. */
+      display: none !important;
+    }
+  }
+</style>

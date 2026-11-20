@@ -24,6 +24,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [TestCase(typeof(int[]), true)]
+        [TestCase(typeof(int?[]), false)]
+        [TestCase(typeof(int[][]), true)]
+        [TestCase(typeof(int?[][]), false)]
+        [TestCase(typeof(List<int>[]), true)]
+        [TestCase(typeof(List<int?>[]), false)]
+        [TestCase(typeof(string[]), false)]
+        public async Task ArrayCustomizationsOnlyReplaceMatchingOverloads(Type parameterType, bool shouldGenerate)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new TestTypeProvider(name: "ArrayOverloads");
+            var parameter = new ParameterProvider("values", $"The values.", parameterType);
+            var method = new MethodProvider(
+                new MethodSignature("Apply", null, MethodSignatureModifiers.Public, null, null, [parameter]),
+                Snippet.Throw(Snippet.Null), provider);
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(provider.Type, null, MethodSignatureModifiers.Public, [parameter]),
+                Snippet.Throw(Snippet.Null), provider);
+            provider.Update(methods: [method], constructors: [constructor]);
+
+            Assert.That(provider.CustomCodeView, Is.Not.Null);
+            Assert.That(provider.Methods.Count, Is.EqualTo(shouldGenerate ? 1 : 0));
+            Assert.That(provider.Constructors.Count, Is.EqualTo(shouldGenerate ? 1 : 0));
+        }
+
         [Test]
         public void ExperimentalApiHelpersAreInternal()
         {
@@ -2058,6 +2083,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(
                 result.Contains("global::."),
                 $"Partial implementation wrote a return type with no namespace:\n{result}");
+        }
+
+        [Test]
+        public void CustomExperimentalAttributeRemainsOnPartialDeclaration()
+        {
+            var attribute = new AttributeStatement(typeof(ExperimentalAttribute), Snippet.Literal("CUSTOM001"));
+            var customSignature = new MethodSignature(
+                "Preview",
+                null,
+                MethodSignatureModifiers.Public,
+                typeof(int),
+                null,
+                [],
+                [attribute]);
+
+            var implementationSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, []);
+
+            Assert.AreSame(attribute, customSignature.Attributes.Single());
+            Assert.IsEmpty(implementationSignature.Attributes);
         }
 
         [Test]

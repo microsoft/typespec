@@ -41,6 +41,12 @@ public final class Resource implements JsonSerializable<Resource> {
     private String description;
 
     /*
+     * The state property.
+     */
+    @Generated
+    private String state;
+
+    /*
      * The map property.
      */
     @Generated
@@ -158,6 +164,29 @@ public final class Resource implements JsonSerializable<Resource> {
     public Resource setDescription(String description) {
         this.description = description;
         this.updatedProperties.add("description");
+        return this;
+    }
+
+    /**
+     * Get the state property: The state property.
+     * 
+     * @return the state value.
+     */
+    @Generated
+    public String getState() {
+        return this.state;
+    }
+
+    /**
+     * Set the state property: The state property.
+     * 
+     * @param state the state value to set.
+     * @return the Resource object itself.
+     */
+    @Generated
+    public Resource setState(String state) {
+        this.state = state;
+        this.updatedProperties.add("state");
         return this;
     }
 
@@ -334,6 +363,7 @@ public final class Resource implements JsonSerializable<Resource> {
         } else {
             jsonWriter.writeStartObject();
             jsonWriter.writeStringField("description", this.description);
+            jsonWriter.writeStringField("state", this.state);
             jsonWriter.writeMapField("map", this.map, (writer, element) -> writer.writeJson(element));
             jsonWriter.writeNumberField("longValue", this.longValue);
             jsonWriter.writeNumberField("intValue", this.intValue);
@@ -353,6 +383,13 @@ public final class Resource implements JsonSerializable<Resource> {
                 jsonWriter.writeNullField("description");
             } else {
                 jsonWriter.writeStringField("description", this.description);
+            }
+        }
+        if (updatedProperties.contains("state")) {
+            if (this.state == null) {
+                jsonWriter.writeNullField("state");
+            } else {
+                jsonWriter.writeStringField("state", this.state);
             }
         }
         if (updatedProperties.contains("map")) {
@@ -444,6 +481,8 @@ public final class Resource implements JsonSerializable<Resource> {
                     deserializedResource.name = reader.getString();
                 } else if ("description".equals(fieldName)) {
                     deserializedResource.description = reader.getString();
+                } else if ("state".equals(fieldName)) {
+                    deserializedResource.state = reader.getString();
                 } else if ("map".equals(fieldName)) {
                     Map<String, InnerModel> map = reader.readMap(reader1 -> InnerModel.fromJson(reader1));
                     deserializedResource.map = map;

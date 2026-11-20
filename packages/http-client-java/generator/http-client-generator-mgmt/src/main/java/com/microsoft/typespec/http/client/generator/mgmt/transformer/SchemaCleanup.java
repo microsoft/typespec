@@ -8,25 +8,33 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 
 /**
  * Cleans up unused flattened types.
+ * <p>
+ * Index references once, then peel off removable schemas with no incoming references. Removing a model releases
+ * its outgoing references and can make another model unused, so a queue reaches a fixed point without rescanning
+ * the entire code model or limiting the length of an unused chain. This is not reachability-based garbage
+ * collection: mutually referencing models remain, preserving the previous cleanup's treatment of cycles.
  */
 public class SchemaCleanup {
 
@@ -39,169 +47,153 @@ public class SchemaCleanup {
     }
 
     public CodeModel process(CodeModel codeModel) {
-        final int maxTryCount = 5;    // try a few time for recursive removal (e.g., 1st pass model removed, 2nd pass
-                                      // model used as its properties removed)
+        // Count one incoming reference per owning object, not per property. Keep the same deduplicated target set
+        // for removal, so deleting an owner decrements exactly the references it originally contributed.
+        Set<Schema> candidates = new LinkedHashSet<>();
+        Map<Schema, Set<Schema>> outgoingReferences = new LinkedHashMap<>();
+        Map<Schema, Integer> referenceCounts = new HashMap<>();
+        Map<Schema, Set<Schema>> referenceDependencies = new HashMap<>();
 
-        boolean codeModelModified = true;
-        for (int i = 0; i < maxTryCount && codeModelModified; ++i) {
-            codeModelModified = tryCleanup(codeModel, javaNamesForPreserveModel);
+        for (ObjectSchema object : codeModel.getSchemas().getObjects()) {
+            if (canRemoveObject(object)) {
+                candidates.add(object);
+            }
+            Set<Schema> references = new LinkedHashSet<>();
+            String name = Utils.getJavaName(object);
+            // Retain the legacy exclusions: built-in system-data and management-error properties do not keep
+            // otherwise unused user schemas alive.
+            if (FluentType.nonSystemData(name) && FluentType.nonManagementError(name)) {
+                for (Property property : object.getProperties()) {
+                    Schema target = schemaOrElementInCollection(property.getSchema());
+                    // A property referring to its own model doesn't keep an otherwise unused model alive.
+                    if (target != null && !Objects.equals(object, target)) {
+                        references.addAll(getReferenceDependencies(target, referenceDependencies));
+                    }
+                }
+            }
+            outgoingReferences.put(object, references);
+            references.forEach(target -> referenceCounts.merge(target, 1, Integer::sum));
+        }
+        candidates.addAll(codeModel.getSchemas().getSealedChoices());
+        candidates.addAll(codeModel.getSchemas().getChoices());
+        candidates.removeIf(schema -> javaNamesForPreserveModel.contains(Utils.getJavaName(schema)));
+
+        // Operations act as permanent roots. Their union contributes one reference per target, which is never
+        // decremented. Preserved and otherwise non-removable objects likewise retain their outgoing references.
+        Set<Schema> operationReferences = new LinkedHashSet<>();
+        for (OperationGroup group : ClientModelUtil.getAllOperationGroups(codeModel)) {
+            group.getOperations().forEach(operation -> {
+                operation.getRequests()
+                    .forEach(request -> request.getParameters()
+                        .forEach(parameter -> addReference(operationReferences, parameter.getSchema(),
+                            referenceDependencies)));
+                if (operation.getLroMetadata() == null) {
+                    operation.getResponses()
+                        .stream()
+                        .map(Response::getSchema)
+                        .forEach(schema -> addReference(operationReferences, schema, referenceDependencies));
+                } else {
+                    // TypeSpec LROs use the final result, not the initial response schema.
+                    addReference(operationReferences, operation.getLroMetadata().getFinalResultType(),
+                        referenceDependencies);
+                }
+                operation.getExceptions()
+                    .stream()
+                    .map(Response::getSchema)
+                    .forEach(schema -> addReference(operationReferences, schema, referenceDependencies));
+            });
+        }
+        operationReferences.forEach(target -> referenceCounts.merge(target, 1, Integer::sum));
+
+        // Only the transition to zero can enqueue a newly unused candidate. Multi-model cycles never reach zero;
+        // direct self-properties were excluded above so they do not prevent removal of an isolated unused model.
+        Queue<Schema> unused = new ArrayDeque<>();
+        candidates.stream().filter(schema -> referenceCounts.getOrDefault(schema, 0) == 0).forEach(unused::add);
+        Set<Schema> removed = new LinkedHashSet<>();
+        while (!unused.isEmpty()) {
+            Schema schema = unused.remove();
+            if (!removed.add(schema)) {
+                continue;
+            }
+            for (Schema target : outgoingReferences.getOrDefault(schema, Set.of())) {
+                if (referenceCounts.merge(target, -1, Integer::sum) == 0 && candidates.contains(target)) {
+                    unused.add(target);
+                }
+            }
         }
 
+        // Keep schema lists intact while the graph is being processed, then remove in place to retain survivor order.
+        codeModel.getSchemas().getObjects().removeIf(schema -> removeUnused(schema, removed, "object"));
+        codeModel.getSchemas().getSealedChoices().removeIf(schema -> removeUnused(schema, removed, "sealed choice"));
+        codeModel.getSchemas().getChoices().removeIf(schema -> removeUnused(schema, removed, "choice"));
         return codeModel;
     }
 
-    private static boolean tryCleanup(CodeModel codeModel, Set<String> javaNamesForPreserveModel) {
-        Set<ObjectSchema> schemasNotInUse = codeModel.getSchemas()
-            .getObjects()
-            .stream()
-            .filter(schema -> schema.getChildren() == null
-                || schema.getChildren().getImmediate() == null
-                || schema.getChildren().getImmediate().isEmpty())   // no children
-            .filter(schema -> schema.getParents() == null
+    // Preserve the existing inheritance policy: only leaf objects with no parents or solely resource-type parents
+    // are candidates. Other objects still participate as reference owners even though they cannot be removed.
+    private static boolean canRemoveObject(ObjectSchema schema) {
+        return (schema.getChildren() == null
+            || schema.getChildren().getImmediate() == null
+            || schema.getChildren().getImmediate().isEmpty())
+            && (schema.getParents() == null
                 || schema.getParents().getImmediate() == null
-                || schema.getParents().getImmediate().stream().allMatch(s -> {
-                    if (s instanceof ObjectSchema) {
-                        return !FluentType.nonResourceType((ObjectSchema) s);
-                    } else {
-                        return false;
-                    }
-                }))
-            .collect(Collectors.toSet());
-
-        Set<Schema> choicesSchemasNotInUse = new LinkedHashSet<>(codeModel.getSchemas().getSealedChoices());
-        choicesSchemasNotInUse.addAll(codeModel.getSchemas().getChoices());
-
-        Set<Schema> schemasInUse = new LinkedHashSet<>();
-        if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
-            // properties of object
-            Set<Schema> propertiesOfObject = codeModel.getSchemas().getObjects().stream().filter(o -> {
-                String name = Utils.getJavaName(o);
-                return FluentType.nonSystemData(name) && FluentType.nonManagementError(name);
-            })
-                .flatMap(s -> s.getProperties()
+                || schema.getParents()
+                    .getImmediate()
                     .stream()
-                    .map(Property::getSchema)
-                    .map(SchemaCleanup::schemaOrElementInCollection)
-                    .filter(Objects::nonNull)
-                    .filter(s1 -> !Objects.equals(s, s1))   // schema of property is not the same of itself, solve the
-                                                            // simplest recursive reference case
-                )
-                .collect(Collectors.toSet());
-            schemasNotInUse.removeAll(propertiesOfObject);
-            choicesSchemasNotInUse.removeAll(propertiesOfObject);
-            schemasInUse.addAll(propertiesOfObject);
+                    .allMatch(parent -> parent instanceof ObjectSchema
+                        && !FluentType.nonResourceType((ObjectSchema) parent)));
+    }
+
+    private static void addReference(Set<Schema> references, Schema schema, Map<Schema, Set<Schema>> dependencies) {
+        Schema target = schemaOrElementInCollection(schema);
+        if (target != null) {
+            references.addAll(getReferenceDependencies(target, dependencies));
         }
-        if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
-            // operation requests
-            Set<Schema> requests = codeModel.getOperationGroups()
-                .stream()
-                .flatMap(og -> og.getOperations().stream())
-                .flatMap(o -> o.getRequests().stream())
-                .flatMap(r -> r.getParameters().stream())
-                .map(Parameter::getSchema)
-                .map(SchemaCleanup::schemaOrElementInCollection)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-            schemasNotInUse.removeAll(requests);
-            choicesSchemasNotInUse.removeAll(requests);
-            schemasInUse.addAll(requests);
-        }
-        if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
-            // operation responses
-            Set<Schema> responses
-                = codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).flatMap(o -> {
-                    if (o.getLroMetadata() == null) {
-                        // not LRO operation, or it is LRO but not from TypeSpec
-                        return o.getResponses().stream().map(Response::getSchema);
-                    } else {
-                        // if the operation has LroMetadata, SDK will use its FinalResultType
-                        return Stream.of(o.getLroMetadata().getFinalResultType());
-                    }
-                }).map(SchemaCleanup::schemaOrElementInCollection).filter(Objects::nonNull).collect(Collectors.toSet());
-            schemasNotInUse.removeAll(responses);
-            choicesSchemasNotInUse.removeAll(responses);
-            schemasInUse.addAll(responses);
-        }
-        if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
-            // operation exception
-            Set<Schema> exceptions = codeModel.getOperationGroups()
-                .stream()
-                .flatMap(og -> og.getOperations().stream())
-                .flatMap(o -> o.getExceptions().stream())
-                .map(Response::getSchema)
-                .map(SchemaCleanup::schemaOrElementInCollection)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-            schemasNotInUse.removeAll(exceptions);
-            choicesSchemasNotInUse.removeAll(exceptions);
-            schemasInUse.addAll(exceptions);
-        }
-        if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
-            // parent schema, or parent schema as Dictionary or Array
-            Set<Schema> elementsInParentCollection = schemasInUse.stream().flatMap(s -> {
-                if (s instanceof ObjectSchema) {
-                    ObjectSchema objectSchema = (ObjectSchema) s;
-                    if (objectSchema.getParents() == null || objectSchema.getParents().getAll() == null) {
-                        return Stream.empty();
-                    }
-                    return objectSchema.getParents()
+    }
+
+    /**
+     * A reference keeps its target, the target's modeled parent hierarchy, and their discriminator types alive.
+     * Cache that expansion for this cleanup run; property edges are tracked separately on their owning objects,
+     * rather than recursively expanding every reachable property here.
+     */
+    private static Set<Schema> getReferenceDependencies(Schema schema, Map<Schema, Set<Schema>> dependencies) {
+        return dependencies.computeIfAbsent(schema, target -> {
+            Set<Schema> result = new LinkedHashSet<>();
+            result.add(target);
+            if (target instanceof ObjectSchema) {
+                ObjectSchema object = (ObjectSchema) target;
+                if (object.getParents() != null && object.getParents().getAll() != null) {
+                    object.getParents()
                         .getAll()
                         .stream()
-                        .filter(
-                            p -> p instanceof DictionarySchema || p instanceof ArraySchema || p instanceof ObjectSchema)
-                        .map(SchemaCleanup::schemaOrElementInCollection);
+                        .filter(parent -> parent instanceof ObjectSchema
+                            || parent instanceof ArraySchema
+                            || parent instanceof DictionarySchema)
+                        .map(SchemaCleanup::schemaOrElementInCollection)
+                        .filter(Objects::nonNull)
+                        .forEach(result::add);
                 }
-                return Stream.empty();
-            }).collect(Collectors.toSet());
-            schemasNotInUse.removeAll(elementsInParentCollection);
-            choicesSchemasNotInUse.removeAll(elementsInParentCollection);
-            schemasInUse.addAll(elementsInParentCollection);
+            }
+            // Snapshot the model/parent set before adding discriminator types. The original cleanup includes these
+            // types once; it does not recursively expand newly added discriminators as further dependencies.
+            for (Schema dependency : new ArrayList<>(result)) {
+                if (dependency instanceof ObjectSchema && ((ObjectSchema) dependency).getDiscriminator() != null) {
+                    Schema discriminator = ((ObjectSchema) dependency).getDiscriminator().getProperty().getSchema();
+                    if (discriminator != null) {
+                        result.add(discriminator);
+                    }
+                }
+            }
+            return result;
+        });
+    }
 
-            // discriminators
-            Set<Schema> discriminators = schemasInUse.stream().map(s -> {
-                if (s instanceof ObjectSchema && ((ObjectSchema) s).getDiscriminator() != null) {
-                    return ((ObjectSchema) s).getDiscriminator().getProperty().getSchema();
-                } else {
-                    return null;
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toSet());
-            schemasNotInUse.removeAll(discriminators);
-            choicesSchemasNotInUse.removeAll(discriminators);
-            schemasInUse.addAll(discriminators);
+    private static boolean removeUnused(Schema schema, Set<Schema> removed, String kind) {
+        if (!removed.contains(schema)) {
+            return false;
         }
-
-        AtomicBoolean codeModelModified = new AtomicBoolean(false);
-
-        codeModel.getSchemas().getObjects().removeIf(s -> {
-            boolean unused = schemasNotInUse.contains(s) && !javaNamesForPreserveModel.contains(Utils.getJavaName(s));
-            if (unused) {
-                LOGGER.info("Remove unused object schema '{}'", Utils.getJavaName(s));
-                codeModelModified.set(true);
-            }
-            return unused;
-        });
-
-        codeModel.getSchemas().getSealedChoices().removeIf(s -> {
-            boolean unused
-                = choicesSchemasNotInUse.contains(s) && !javaNamesForPreserveModel.contains(Utils.getJavaName(s));
-            if (unused) {
-                LOGGER.info("Remove unused sealed choice schema '{}'", Utils.getJavaName(s));
-                codeModelModified.set(true);
-            }
-            return unused;
-        });
-
-        codeModel.getSchemas().getChoices().removeIf(s -> {
-            boolean unused
-                = choicesSchemasNotInUse.contains(s) && !javaNamesForPreserveModel.contains(Utils.getJavaName(s));
-            if (unused) {
-                LOGGER.info("Remove unused choice schema '{}'", Utils.getJavaName(s));
-                codeModelModified.set(true);
-            }
-            return unused;
-        });
-
-        return codeModelModified.get();
+        LOGGER.info("Remove unused {} schema '{}'", kind, Utils.getJavaName(schema));
+        return true;
     }
 
     private static Schema schemaOrElementInCollection(Schema schema) {
@@ -209,9 +201,7 @@ public class SchemaCleanup {
             return schemaOrElementInCollection(((ArraySchema) schema).getElementType());
         } else if (schema instanceof DictionarySchema) {
             return schemaOrElementInCollection(((DictionarySchema) schema).getElementType());
-        } else if (schema instanceof ObjectSchema
-            || schema instanceof ChoiceSchema
-            || schema instanceof SealedChoiceSchema) {
+        } else if (schema instanceof ObjectSchema || schema instanceof ChoiceSchema) {
             return schema;
         } else {
             return null;

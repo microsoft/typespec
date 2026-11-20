@@ -19,8 +19,6 @@
     "@astrojs/check": "catalog:",
     "@astrojs/react": "catalog:",
     "@astrojs/starlight": "catalog:",
-    "@docsearch/css": "catalog:",
-    "@docsearch/js": "catalog:",
     "@expressive-code/core": "catalog:",
     "@fluentui/react-components": "catalog:",
     "@fluentui/react-icons": "catalog:",

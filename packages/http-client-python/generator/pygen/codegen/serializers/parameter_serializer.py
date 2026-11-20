@@ -18,6 +18,7 @@ from ..models import (
 )
 from ..models.parameter import _ParameterBase
 from ..models.parameter_list import BodyParameterType
+from ..models.utils import python_string_literal
 
 
 class PopKwargType(Enum):
@@ -119,8 +120,8 @@ class ParameterSerializer:
         retval = ["path_format_arguments = {"]
         retval.extend(
             [
-                '    "{}": {},'.format(
-                    path_parameter.wire_name,
+                "    {}: {},".format(
+                    python_string_literal(path_parameter.wire_name),
                     (
                         f'"" if {path_parameter.full_client_name} is None else "/" + {self.serialize_parameter(path_parameter, serializer_name)}'
                         if path_parameter.optional and isinstance(path_parameter, RequestBuilderParameter)
@@ -155,17 +156,17 @@ class ParameterSerializer:
                 return [
                     """if_match = prep_if_match(etag, match_condition)""",
                     """if if_match is not None:""",
-                    f"""    _headers["{header_name}"] = _SERIALIZER.header("if_match", if_match, "str")""",
+                    f"""    _headers[{python_string_literal(header_name)}] = _SERIALIZER.header("if_match", if_match, "str")""",
                 ]
             return [
                 """if_none_match = prep_if_none_match(etag, match_condition)""",
                 """if if_none_match is not None:""",
-                f"""    _headers["{header_name}"] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
+                f"""    _headers[{python_string_literal(header_name)}] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
             ]
 
-        set_parameter = "_{}['{}'] = {}".format(
+        set_parameter = "_{}[{}] = {}".format(
             kwarg_name,
-            param.wire_name,
+            python_string_literal(param.wire_name, quote="'"),
             self.serialize_parameter(param, serializer_name),
         )
         # When the body is optional, the content-type may legitimately be ``None`` (no body
@@ -231,7 +232,8 @@ class ParameterSerializer:
                     default_value = kwarg.client_default_value_declaration
                 if check_kwarg_dict and (kwarg.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]):
                     kwarg_dict = "headers" if kwarg.location == ParameterLocation.HEADER else "params"
-                    default_value = f"_{kwarg_dict}.pop('{kwarg.wire_name}', {default_value})"
+                    wire_literal = python_string_literal(kwarg.wire_name, quote="'")
+                    default_value = f"_{kwarg_dict}.pop({wire_literal}, {default_value})"
 
                 retval.append(
                     f"{kwarg.client_name}: {type_annotation} = kwargs.pop('{kwarg.client_name}', " + f"{default_value})"

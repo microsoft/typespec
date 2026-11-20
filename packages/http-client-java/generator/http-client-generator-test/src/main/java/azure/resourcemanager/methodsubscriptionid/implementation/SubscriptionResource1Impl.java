@@ -95,9 +95,12 @@ public final class SubscriptionResource1Impl
         azure.resourcemanager.methodsubscriptionid.MethodSubscriptionIdManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.subscriptionId = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "subscriptions");
-        this.subscriptionResource1Name
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "subscriptionResource1s");
+        this.subscriptionId = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.MethodSubscriptionId/subscriptionResource1s/{subscriptionResource1Name}",
+            "subscriptionId");
+        this.subscriptionResource1Name = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.MethodSubscriptionId/subscriptionResource1s/{subscriptionResource1Name}",
+            "subscriptionResource1Name");
     }
 
     public SubscriptionResource1 refresh() {

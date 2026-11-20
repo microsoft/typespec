@@ -88,6 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
+        public bool ResponseAsBool { get; internal set; }
         public string Uri { get; internal set; }
         public string Path { get; internal set; }
         public string? ExternalDocsUrl { get; internal set; }
@@ -121,7 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? generateConvenienceMethod = null,
             string? crossLanguageDefinitionId = null,
             string? ns = null,
-            InputExperimentalDetails? experimental = null)
+            InputExperimentalDetails? experimental = null,
+            bool? responseAsBool = null)
         {
             if (name != null)
             {
@@ -194,6 +196,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (experimental != null)
             {
                 Experimental = experimental;
+            }
+            if (responseAsBool.HasValue)
+            {
+                ResponseAsBool = responseAsBool.Value;
             }
         }
     }

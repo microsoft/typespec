@@ -34,12 +34,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tsptest.armresourceprovider.fluent.AccountResourcesClient;
 import tsptest.armresourceprovider.fluent.ArmClient;
 import tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ChildResourcesInterfacesClient;
 import tsptest.armresourceprovider.fluent.CustomTemplateResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient;
 import tsptest.armresourceprovider.fluent.LroNoBodiesClient;
+import tsptest.armresourceprovider.fluent.MachineResourcesClient;
 import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
 import tsptest.armresourceprovider.fluent.ModelInterfaceSameNamesClient;
 import tsptest.armresourceprovider.fluent.OperationsClient;
@@ -163,6 +165,34 @@ public final class ArmClientImpl implements ArmClient {
     }
 
     /**
+     * The AccountResourcesClient object to access its operations.
+     */
+    private final AccountResourcesClient accountResources;
+
+    /**
+     * Gets the AccountResourcesClient object to access its operations.
+     * 
+     * @return the AccountResourcesClient object.
+     */
+    public AccountResourcesClient getAccountResources() {
+        return this.accountResources;
+    }
+
+    /**
+     * The MachineResourcesClient object to access its operations.
+     */
+    private final MachineResourcesClient machineResources;
+
+    /**
+     * Gets the MachineResourcesClient object to access its operations.
+     * 
+     * @return the MachineResourcesClient object.
+     */
+    public MachineResourcesClient getMachineResources() {
+        return this.machineResources;
+    }
+
+    /**
      * The CustomTemplateResourceInterfacesClient object to access its operations.
      */
     private final CustomTemplateResourceInterfacesClient customTemplateResourceInterfaces;
@@ -280,6 +310,8 @@ public final class ArmClientImpl implements ArmClient {
         this.apiVersion = "2023-11-01";
         this.childResourcesInterfaces = new ChildResourcesInterfacesClientImpl(this);
         this.topLevelArmResourceInterfaces = new TopLevelArmResourceInterfacesClientImpl(this);
+        this.accountResources = new AccountResourcesClientImpl(this);
+        this.machineResources = new MachineResourcesClientImpl(this);
         this.customTemplateResourceInterfaces = new CustomTemplateResourceInterfacesClientImpl(this);
         this.operations = new OperationsClientImpl(this);
         this.childExtensionResourceInterfaces = new ChildExtensionResourceInterfacesClientImpl(this);

@@ -39,11 +39,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             }
         }
 
-        [Test]
-        public void TypeProviderWriter_WriteModel()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("Use \"Current\" instead.\nSee C:\\sdk.")]
+        public void TypeProviderWriter_WriteModel(string? deprecation)
         {
-            var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            var inputModel = InputFactory.Model("TestModel", properties: properties);
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("requiredString", InputPrimitiveType.String, isRequired: true, deprecation: deprecation),
+                RequiredIntProperty
+            };
+            var inputModel = InputFactory.Model("TestModel", properties: properties, deprecation: deprecation);
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
             var modelProvider = new ModelProvider(inputModel);

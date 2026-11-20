@@ -229,7 +229,28 @@ export interface ProtoMethodDeclaration extends ProtoDeclarationCommon {
   name: string;
   input: ProtoRef;
   returns: ProtoRef;
+  /**
+   * The method's options, such as `(google.longrunning.operation_info)`, written in the body of the `rpc`.
+   */
+  options?: ProtoOption[];
 }
+
+/**
+ * An `option` statement, such as a custom option `(google.longrunning.operation_info)`.
+ */
+export interface ProtoOption {
+  /**
+   * The option's name. A custom option (an extension) is written in parentheses.
+   */
+  name: string;
+  value: ProtoOptionValue;
+}
+
+/**
+ * The value of an option: a scalar, or a message literal written in the Protobuf text format, whose fields are written
+ * in insertion order.
+ */
+export type ProtoOptionValue = string | number | boolean | { [field: string]: ProtoOptionValue };
 
 /**
  * A declaration that can fit within the body of a message declaration.
