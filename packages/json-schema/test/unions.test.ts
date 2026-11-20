@@ -14,7 +14,8 @@ describe("emitting unions", () => {
 
     assert.strictEqual(Foo.$id, "Foo.json");
     assert.strictEqual(Foo.$schema, "https://json-schema.org/draft/2020-12/schema");
-    assert.deepStrictEqual(Foo.anyOf, [{ type: "string" }, { type: "boolean" }]);
+    assert.deepStrictEqual(Foo.type, ["string", "boolean"]);
+    assert.strictEqual(Foo.anyOf, undefined);
   });
 
   it("union description carries over", async () => {
@@ -40,7 +41,166 @@ describe("emitting unions", () => {
 
     assert.strictEqual(Foo.$id, "Foo.json");
     assert.strictEqual(Foo.$schema, "https://json-schema.org/draft/2020-12/schema");
-    assert.deepStrictEqual(Foo.anyOf, [{ type: "string" }, { type: "boolean" }]);
+    assert.deepStrictEqual(Foo.type, ["string", "boolean"]);
+    assert.strictEqual(Foo.anyOf, undefined);
+  });
+
+  it("combines nullable property types and preserves defaults", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        optional?: string | null = null;
+        value: string | boolean | integer | numeric | null;
+      }
+    `);
+
+    expect(schemas["Foo.json"].properties).toEqual({
+      optional: { type: ["string", "null"], default: null },
+      value: { type: ["string", "boolean", "integer", "number", "null"] },
+    });
+  });
+
+  it("deduplicates variants with the same JSON Schema type", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        value: string | int64 | decimal;
+      }
+    `);
+
+    expect(schemas["Foo.json"].properties.value).toEqual({ type: "string" });
+  });
+
+  it("combines only bare types in mixed unions", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        value: string | Bar | null | int32 | utcDateTime | 1 | string[];
+      }
+      model Bar {}
+    `);
+
+    expect(schemas["Foo.json"].properties.value).toEqual({
+      anyOf: [
+        { type: ["string", "null"] },
+        { $ref: "Bar.json" },
+        { type: "integer", minimum: -2147483648, maximum: 2147483647 },
+        { type: "string", format: "date-time" },
+        { type: "number", const: 1 },
+        { type: "array", items: { type: "string" } },
+      ],
+    });
+  });
+
+  it("preserves metadata on variants while combining other types", async () => {
+    const schemas = await emitSchema(`
+      union Foo {
+        @doc("documented string")
+        documented: string;
+        @extension("x-kind", "flag")
+        flag: boolean;
+        number: numeric;
+        nothing: null;
+      }
+    `);
+
+    expect(schemas["Foo.json"].anyOf).toEqual([
+      { type: "string", description: "documented string" },
+      { type: "boolean", "x-kind": "flag" },
+      { type: ["number", "null"] },
+    ]);
+  });
+
+  it("preserves overlapping oneOf variants on unions and properties", async () => {
+    const schemas = await emitSchema(`
+      @oneOf
+      union Foo { integer, numeric, null }
+      model Bar {
+        @oneOf
+        value: integer | numeric | null;
+        @oneOf
+        overlapping: string | int64;
+        ordinary: integer | numeric | null;
+      }
+    `);
+
+    const variants = [{ type: "integer" }, { type: "number" }, { type: "null" }];
+    expect(schemas["Foo.json"].oneOf).toEqual(variants);
+    expect(schemas["Bar.json"].properties).toEqual({
+      value: { oneOf: variants },
+      overlapping: { oneOf: [{ type: "string" }, { type: "string" }] },
+      ordinary: { type: ["integer", "number", "null"] },
+    });
+  });
+
+  it("does not combine variants with type extensions", async () => {
+    const schemas = await emitSchema(`
+      union Value {
+        @extension("type", "string")
+        text: string;
+        boolean;
+        null;
+      }
+    `);
+
+    expect(schemas["Value.json"].anyOf).toEqual([
+      { type: "string" },
+      { type: ["boolean", "null"] },
+    ]);
+  });
+
+  it("preserves pending recursive references on variants with extensions", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema model Node { value: Value; }
+      union Value {
+        @extension("type", "object")
+        node: Node;
+        nothing: null;
+      }
+      `,
+      {},
+      { emitNamespace: false },
+    );
+
+    expect(schemas["Node.json"].$defs.Value).toEqual({
+      anyOf: [{ type: "object", $ref: "Node.json" }, { type: "null" }],
+    });
+  });
+
+  it("preserves references to named and recursive unions", async () => {
+    const schemas = await emitSchema(`
+      union Value { string, null, Value[] }
+      model Foo {
+        @oneOf
+        exclusive: Value;
+        ordinary: Value;
+      }
+    `);
+
+    expect(schemas["Value.json"].anyOf).toEqual([
+      { type: ["string", "null"] },
+      { type: "array", items: { $ref: "Value.json" } },
+    ]);
+    expect(schemas["Foo.json"].properties).toEqual({
+      exclusive: { $ref: "Value.json" },
+      ordinary: { $ref: "Value.json" },
+    });
+  });
+
+  it("preserves shared model references from oneOf properties", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        @oneOf
+        exclusive: Bar | string | null;
+        ordinary: Bar | string | null;
+      }
+      model Bar { next?: Bar }
+    `);
+
+    expect(schemas["Foo.json"].properties).toEqual({
+      exclusive: {
+        oneOf: [{ $ref: "Bar.json" }, { type: "string" }, { type: "null" }],
+      },
+      ordinary: { anyOf: [{ $ref: "Bar.json" }, { type: ["string", "null"] }] },
+    });
   });
 
   it("works with references", async () => {
@@ -145,6 +305,33 @@ describe("emitting unions", () => {
 });
 
 describe("union templates", () => {
+  it("combines type arrays from inline union instantiations", async () => {
+    const schemas = await emitSchema(`
+      union U<T> { string, T }
+      model Foo {
+        value: U<boolean | null> | integer;
+      }
+    `);
+
+    expect(schemas["Foo.json"].properties.value).toEqual({
+      type: ["string", "boolean", "null", "integer"],
+    });
+  });
+
+  it("applies property-level oneOf only to the outer inline union", async () => {
+    const schemas = await emitSchema(`
+      union U<T> { string, T }
+      model Foo {
+        @oneOf
+        value: U<boolean | null> | integer;
+      }
+    `);
+
+    expect(schemas["Foo.json"].properties.value).toEqual({
+      oneOf: [{ type: ["string", "boolean", "null"] }, { type: "integer" }],
+    });
+  });
+
   it("can be referenced from a property", async () => {
     const schemas = await emitSchema(
       `

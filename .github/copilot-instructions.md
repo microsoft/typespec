@@ -7,6 +7,10 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 > [!IMPORTANT]
 > **These instructions do NOT apply to the language emitter packages** (`http-client-csharp`, `http-client-java`, `http-client-python`). Those packages are excluded from the pnpm workspace and do not require using pnpm.
 
+## Package design documents
+
+Before implementing or reviewing changes in a package, look for its `DESIGN.md` and other design documents in that package. Read the relevant documents and follow their design decisions, constraints, and explicit non-goals when evaluating changes.
+
 ## Essential Setup and Build Commands
 
 ### Prerequisites and Installation
