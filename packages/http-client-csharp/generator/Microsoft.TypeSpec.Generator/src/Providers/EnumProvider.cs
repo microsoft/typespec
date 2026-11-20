@@ -146,7 +146,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected string[] GetGeneratedValueNames(
             IReadOnlyList<InputEnumTypeValue> inputValues,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            bool normalizeUppercase = false)
         {
             var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
             var normalizedNames = new string[previousNames.Length];
@@ -159,10 +160,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var normalizedName = name.NormalizeCSharpAcronyms();
-                normalizedNames[i] = lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
-                    ? name
-                    : normalizedName;
+                var normalizedName = name;
+                var hasNewUrlRewrite = false;
+                if (normalizeUppercase)
+                {
+                    var identifier = inputValues[i].Name.ToPascalCaseIdentifierName();
+                    normalizedName = identifier.NormalizeCSharpUrlSuffix();
+                    hasNewUrlRewrite = normalizedName != identifier && normalizedName != name;
+                }
+
+                normalizedName = normalizedName.NormalizeCSharpAcronyms();
+                if (lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName))
+                {
+                    normalizedName = name;
+                }
+                else if (hasNewUrlRewrite && !IsCustomizedValueName(normalizedName))
+                {
+                    // A new suffix rewrite can hide a compatible name that differs only in casing or underscores.
+                    var compatibleName = GetBackCompatibleName(name, previousNames, lastContractNames, isExactName: false);
+                    if (compatibleName != name)
+                    {
+                        normalizedName = compatibleName;
+                    }
+                }
+                normalizedNames[i] = normalizedName;
             }
             return normalizedNames;
         }
