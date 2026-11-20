@@ -101,11 +101,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            var proxyAttribute = lastContractBase.Attributes.FirstOrDefault(
-                attribute => attribute.Type.Equals(typeof(PersistableModelProxyAttribute)));
-            return proxyAttribute?.Arguments.FirstOrDefault() is TypeOfExpression { Type: var proxyType }
-                ? proxyType.Name
-                : null;
+            AttributeStatement? proxyAttribute = null;
+            foreach (var attribute in lastContractBase.Attributes)
+            {
+                if (!attribute.Type.Equals(typeof(PersistableModelProxyAttribute)))
+                {
+                    continue;
+                }
+
+                if (proxyAttribute is not null)
+                {
+                    return null;
+                }
+
+                proxyAttribute = attribute;
+            }
+
+            if (proxyAttribute?.Arguments is not [TypeOfExpression { Type: var proxyType }] ||
+                proxyType.Namespace != BuildNamespace())
+            {
+                return null;
+            }
+
+            if (HasUnknownDiscriminatorNameCollision(proxyType.Name))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat unknown discriminator model name '{proxyType.FullyQualifiedName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by another generated or custom type.",
+                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
+                return null;
+            }
+
+            return proxyType.Name;
+        }
+
+        private bool HasUnknownDiscriminatorNameCollision(string name)
+        {
+            var typeFactory = ScmCodeModelGenerator.Instance.TypeFactory;
+            if (typeFactory.IsModelNameUsedByAnotherModel(name, _inputModel))
+            {
+                return true;
+            }
+
+            var expectedFilePath = Path.Combine("src", "Generated", "Models", $"{name}.cs");
+            if (ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums.Any(inputEnum =>
+                    inputEnum.External is null &&
+                    string.Equals(EnumProvider.Create(inputEnum).RelativeFilePath, expectedFilePath, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            var customType = sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), name);
+            if (customType is null)
+            {
+                return false;
+            }
+
+            var defaultName = base.BuildName();
+            return !customType.Attributes.Any(attribute =>
+                attribute.Type.Name == "CodeGenTypeAttribute" &&
+                attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string customName } &&
+                (customName == name || customName == defaultName));
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
