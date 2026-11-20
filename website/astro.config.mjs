@@ -161,6 +161,12 @@ export default defineConfig({
     }),
     react(),
   ],
+  vite: {
+    optimizeDeps: {
+      // Pre-bundling breaks the `?worker` imports used to load Monaco workers.
+      exclude: ["@typespec/playground/vite/workers"],
+    },
+  },
   markdown: {
     // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],
