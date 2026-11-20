@@ -622,6 +622,7 @@ function isExampleValueCompatible(
   }
 }
 
+/** Example strings need explicit escaping for backslashes and supported control characters. */
 function stringLiteralForExample(value: string): string {
   return `"${value
     .replaceAll("\\", "\\\\")
