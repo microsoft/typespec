@@ -381,8 +381,14 @@ export function generateModelProperty(
 
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
+  const hasExamples = prop.decorators.some((decorator) => decorator.name === "example");
   const decorators = generateDecorators(
-    [...prop.decorators, ...getDecoratorsForSchema(prop.schema)],
+    [
+      ...prop.decorators,
+      ...getDecoratorsForSchema(prop.schema, context).filter(
+        (decorator) => decorator.name !== "example" || !hasExamples,
+      ),
+    ],
     isModelReferencedAsMultipartRequestBody
       ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts
       : [],

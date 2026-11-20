@@ -262,6 +262,20 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schemaWithoutRef));
 
+  if ("examples" in schemaWithoutRef) {
+    if (Array.isArray(schemaWithoutRef.examples)) {
+      // Decorators are applied in reverse order, so reverse to preserve the examples array order.
+      for (const example of [...schemaWithoutRef.examples].reverse()) {
+        decorators.push({
+          name: "example",
+          args: [createTSValue(normalizeObjectValueToTSValueExpression(example))],
+        });
+      }
+    } else {
+      context?.logger.warn("Schema examples must be an array. The examples will be ignored.");
+    }
+  }
+
   // Handle readOnly and writeOnly properties
   // These are mutually exclusive - if both are present, emit a warning and ignore both
   const readOnly = schemaWithoutRef.readOnly;
