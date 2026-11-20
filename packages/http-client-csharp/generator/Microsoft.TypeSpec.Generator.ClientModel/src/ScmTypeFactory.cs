@@ -31,6 +31,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal bool IsModelNameUsedByAnotherModel(string name, InputModelType exceptModel)
             => base.HasModelNameCollision(name, exceptModel);
 
+        internal bool TryReserveUnknownDiscriminatorModelName(string name, InputModelType model)
+            => base.TryReserveRestoredModelName(name, model);
+
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;

@@ -88,10 +88,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName()
         {
-            return _inputModel.IsUnknownDiscriminatorModel &&
-                _lastContractUnknownDiscriminatorModelName.Value is { } historicalName
-                ? historicalName
-                : base.BuildName();
+            if (!_inputModel.IsUnknownDiscriminatorModel ||
+                _lastContractUnknownDiscriminatorModelName.Value is not { } historicalName)
+            {
+                return base.BuildName();
+            }
+
+            var generatedName = base.BuildName();
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            return sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), historicalName)?.Name ??
+                sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), generatedName)?.Name ??
+                historicalName;
         }
 
         private string? BuildLastContractUnknownDiscriminatorModelName()
@@ -118,6 +125,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
+            var previousUnknownTypeName = $"{previousUnknownModel.ContainingNamespace}.{previousUnknownModel.Name}";
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.ApiCompatBaseline.IsTypeSuppressed(previousUnknownTypeName))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat unknown discriminator model name '{previousUnknownTypeName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the type is an accepted removal in the ApiCompat baseline.",
+                    BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                return null;
+            }
+
             if (HasUnknownDiscriminatorNameCollision(previousUnknownModel.Name))
             {
                 ScmCodeModelGenerator.Instance.Emitter.Info(
@@ -132,30 +149,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool HasUnknownDiscriminatorNameCollision(string name)
         {
             var typeFactory = ScmCodeModelGenerator.Instance.TypeFactory;
-            if (typeFactory.IsModelNameUsedByAnotherModel(name, _inputModel))
+            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
+            var generatedName = base.BuildName();
+            var customType = sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), name) ??
+                sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), generatedName);
+            var isCustomization = customType?.Attributes.Any(attribute =>
+                    attribute.Type.Name == "CodeGenTypeAttribute" &&
+                    attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string customName } &&
+                    (customName == name || customName == generatedName)) == true;
+            if (customType is not null && !isCustomization)
             {
                 return true;
             }
 
-            var expectedFilePath = Path.Combine("src", "Generated", "Models", $"{name}.cs");
+            var emittedName = customType?.Name ?? name;
+            if (typeFactory.IsModelNameUsedByAnotherModel(emittedName, _inputModel))
+            {
+                return true;
+            }
+
+            var expectedFilePath = Path.Combine("src", "Generated", "Models", $"{emittedName}.cs");
             if (ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums.Any(inputEnum =>
                     inputEnum.External is null &&
                     string.Equals(EnumProvider.Create(inputEnum).RelativeFilePath, expectedFilePath, StringComparison.OrdinalIgnoreCase)))
             {
                 return true;
             }
-            var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
-            var customType = sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), name);
-            if (customType is null)
-            {
-                return false;
-            }
-
-            var defaultName = base.BuildName();
-            return !customType.Attributes.Any(attribute =>
-                attribute.Type.Name == "CodeGenTypeAttribute" &&
-                attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string customName } &&
-                (customName == name || customName == defaultName));
+            return !typeFactory.TryReserveUnknownDiscriminatorModelName(emittedName, _inputModel);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()

@@ -37,14 +37,26 @@ namespace Microsoft.TypeSpec.Generator
         internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
         private IReadOnlyDictionary<InputModelType, string>? _emittedModelNames;
         private IReadOnlyDictionary<InputModelType, string>? _fallbackModelNames;
+        private readonly HashSet<string> _restoredModelNames = new(StringComparer.OrdinalIgnoreCase);
 
         protected bool HasModelNameCollision(string name, InputModelType exceptModel)
         {
             _ = ModelNames;
-            return _emittedModelNames!.Any(model =>
+            return _restoredModelNames.Contains(name) ||
+                _emittedModelNames!.Any(model =>
                     model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase)) ||
                 _fallbackModelNames!.Any(model =>
                     model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        protected bool TryReserveRestoredModelName(string name, InputModelType model)
+        {
+            if (HasModelNameCollision(name, model))
+            {
+                return false;
+            }
+
+            return _restoredModelNames.Add(name);
         }
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
