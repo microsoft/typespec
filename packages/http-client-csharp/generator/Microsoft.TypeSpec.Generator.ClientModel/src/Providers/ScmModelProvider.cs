@@ -96,9 +96,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var generatedName = base.BuildName();
             var sourceInputModel = ScmCodeModelGenerator.Instance.SourceInputModel;
-            return sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), historicalName)?.Name ??
-                sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), generatedName)?.Name ??
-                historicalName;
+            if (sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), historicalName) is not null)
+            {
+                return historicalName;
+            }
+
+            return sourceInputModel.FindForTypeInCurrentCompilation(BuildNamespace(), generatedName) is not null
+                ? generatedName
+                : historicalName;
         }
 
         private string? BuildLastContractUnknownDiscriminatorModelName()

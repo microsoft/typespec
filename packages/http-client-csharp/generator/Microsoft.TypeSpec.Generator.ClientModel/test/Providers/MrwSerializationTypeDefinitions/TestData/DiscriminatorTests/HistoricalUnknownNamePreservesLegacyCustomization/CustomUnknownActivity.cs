@@ -3,7 +3,7 @@
 
 using Microsoft.TypeSpec.Generator.Customizations;
 
-namespace Sample.Models
+namespace Sample.Customizations
 {
     [CodeGenType("UnknownPipelineActivity")]
     public partial class CustomUnknownActivity

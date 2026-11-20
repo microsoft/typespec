@@ -236,6 +236,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 .CreateModel(input.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
 
             Assert.AreEqual("CustomUnknownActivity", unknown.CustomCodeView?.Name);
+            Assert.AreEqual("Sample.Customizations", unknown.CustomCodeView?.Type.Namespace);
+            Assert.IsTrue(unknown.CustomCodeView!.Methods.Any(m => m.Signature.Name == "CustomMethod"));
             Assert.AreEqual("CustomUnknownActivity", unknown.Name);
         }
 
