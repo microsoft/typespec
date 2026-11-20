@@ -101,75 +101,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
-            AttributeStatement? proxyAttribute = null;
-            foreach (var attribute in lastContractBase.Attributes)
-            {
-                if (!attribute.Type.Equals(typeof(PersistableModelProxyAttribute)))
-                {
-                    continue;
-                }
-
-                if (proxyAttribute is not null)
-                {
-                    ScmCodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat unknown discriminator model name for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; expected exactly one {nameof(PersistableModelProxyAttribute)}.",
-                        BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                    return null;
-                }
-
-                proxyAttribute = attribute;
-            }
-
-            if (proxyAttribute is null)
-            {
-                return null;
-            }
-
-            if (proxyAttribute.Arguments is not [TypeOfExpression { Type: var proxyType }])
-            {
-                ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; expected exactly one {nameof(PersistableModelProxyAttribute)} with a resolvable type argument.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            if (proxyType.Namespace != BuildNamespace())
-            {
-                ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{proxyType.FullyQualifiedName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the proxy type is in a different namespace.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            if (ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Any(client =>
-                string.Equals(
-                    ClientProvider.GetNameForCollisionCheck(client).Name,
-                    proxyType.Name,
-                    StringComparison.OrdinalIgnoreCase)))
-            {
-                ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{proxyType.FullyQualifiedName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the name is already used by a generated client.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            if (ScmCodeModelGenerator.Instance.SourceInputModel.ApiCompatBaseline.IsTypeSuppressed(proxyType.FullyQualifiedName))
-            {
-                ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Skipping back-compat unknown discriminator model name '{proxyType.FullyQualifiedName}' for '{lastContractBase.Type.Namespace}.{lastContractBase.Name}'; the proxy type is an accepted removal in the ApiCompat baseline.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNameSkipped);
-                return null;
-            }
-
-            var defaultName = base.BuildName();
-            if (proxyType.Name != defaultName)
-            {
-                ScmCodeModelGenerator.Instance.Emitter.Info(
-                    $"Changed unknown discriminator model name from '{defaultName}' to '{proxyType.Name}' to match the last contract.",
-                    BackCompatibilityChangeCategory.UnknownDiscriminatorModelNamePreserved);
-            }
-
-            return proxyType.Name;
+            var proxyAttribute = lastContractBase.Attributes.FirstOrDefault(
+                attribute => attribute.Type.Equals(typeof(PersistableModelProxyAttribute)));
+            return proxyAttribute?.Arguments.FirstOrDefault() is TypeOfExpression { Type: var proxyType }
+                ? proxyType.Name
+                : null;
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()

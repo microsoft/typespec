@@ -222,21 +222,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
-        public async Task HistoricalUnknownNameDoesNotCollideWithClient()
-        {
-            var input = InputFactory.Model("PipelineActivity", properties:
-                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [input],
-                clients: () => [InputFactory.Client("UnknownActivity", clientNamespace: "Sample.Models", isExactName: true)],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(HistoricalUnknownNameUsedBySerialization)));
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
-
-            Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
-        }
-
-        [Test]
         public void BaseShouldHaveProxyAttribute()
         {
             MockHelpers.LoadMockGenerator();

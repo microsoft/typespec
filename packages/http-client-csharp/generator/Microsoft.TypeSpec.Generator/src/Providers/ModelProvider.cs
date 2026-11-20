@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -509,11 +508,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
-            if (IsUnknownDiscriminatorModel &&
-                base.BuildCustomCodeView(BuildNameWithoutCollisionCheck(), typeNamespace) is { } legacyCustomCodeView)
-            {
-                return legacyCustomCodeView;
-            }
             var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
             return customCodeView ?? BuildModelSuffixFallbackView(
                 typeName,
