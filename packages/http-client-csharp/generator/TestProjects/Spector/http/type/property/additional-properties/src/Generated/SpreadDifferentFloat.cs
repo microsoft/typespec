@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected SpreadDifferentFloat() => throw null;
 
-        internal SpreadDifferentFloat(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SpreadDifferentFloat(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

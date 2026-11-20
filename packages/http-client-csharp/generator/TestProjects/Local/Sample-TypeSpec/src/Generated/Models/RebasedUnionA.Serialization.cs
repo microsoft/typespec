@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializeRebasedUnionA(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RebasedUnionA"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static RebasedUnionA FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<RebasedUnionA>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<RebasedUnionA>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeRebasedUnionA(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<RebasedUnionA>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -170,7 +183,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "a":
-                    return RebasedUnionALeaf.DeserializeRebasedUnionALeaf(discriminator0, options);
+                    return options.ShouldReadThroughProxy<RebasedUnionALeaf>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<RebasedUnionALeaf>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : RebasedUnionALeaf.DeserializeRebasedUnionALeaf(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'Pets'.");
             }

@@ -5,6 +5,7 @@ using System.ClientModel.Primitives;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -18,6 +19,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         private const string WriteBase64UrlStringValueMethodName = "WriteBase64UrlStringValue";
         private const string WriteNumberValueMethodName = "WriteNumberValue";
         private const string WriteObjectValueMethodName = "WriteObjectValue";
+        internal const string ShouldReadThroughProxyMethodName = "ShouldReadThroughProxy";
+        internal const string GetUtf8BytesMethodName = "GetUtf8Bytes";
+        internal const string ToXmlOptionsMethodName = "ToXmlOptions";
         private const string GetCharMethodName = "GetChar";
         private const string GetObjectMethodName = "GetObject";
         private const string GetBytesFromBase64MethodName = "GetBytesFromBase64";
@@ -65,5 +69,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ValueExpression GetChar(this ScopedApi<ModelSerializationExtensionsDefinition> provider, ScopedApi<JsonElement> element)
             => provider.Invoke(GetCharMethodName, [element]);
+
+        public static ScopedApi<bool> ShouldReadThroughProxy(this ScopedApi<ModelReaderWriterOptions> options, CSharpType modelType)
+            => options.Invoke(ShouldReadThroughProxyMethodName, [ModelReaderWriterContextSnippets.Default], [modelType], false).As<bool>();
+
+        public static ScopedApi<ModelReaderWriterOptions> ToWireOptions(ValueExpression modelProxies)
+            => modelProxies.Invoke(ModelSerializationExtensionsDefinition.ToWireOptionsMethodName).As<ModelReaderWriterOptions>();
     }
 }

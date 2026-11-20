@@ -15,14 +15,17 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithStringNextLinkCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to read the pages, including the model proxies configured on the client options. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithStringNextLinkCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithStringNextLinkCollectionResult(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -37,7 +40,7 @@ namespace SampleTypeSpec
                 ClientResult result = GetNextResponse(message);
                 yield return result;
 
-                string nextPageString = ((ListWithStringNextLinkResult)result).Next;
+                string nextPageString = ListWithStringNextLinkResult.FromClientResult(result, _modelReaderWriterOptions).Next;
                 if (string.IsNullOrEmpty(nextPageString))
                 {
                     yield break;
@@ -52,7 +55,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithStringNextLinkResult)page).Next;
+            string nextPage = ListWithStringNextLinkResult.FromClientResult(page, _modelReaderWriterOptions).Next;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));

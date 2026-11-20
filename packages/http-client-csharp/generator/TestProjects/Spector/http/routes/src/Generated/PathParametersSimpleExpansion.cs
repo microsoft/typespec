@@ -13,7 +13,7 @@ namespace Routes._PathParameters.SimpleExpansion
     {
         protected PathParametersSimpleExpansion() => throw null;
 
-        internal PathParametersSimpleExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersSimpleExpansion(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

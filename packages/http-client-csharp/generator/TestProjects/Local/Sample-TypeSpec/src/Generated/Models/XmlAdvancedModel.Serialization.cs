@@ -87,6 +87,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(xmlAdvancedModel, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="XmlAdvancedModel"/> from. </param>
         public static explicit operator XmlAdvancedModel(ClientResult result)
         {
@@ -98,6 +105,24 @@ namespace SampleTypeSpec
             }
 
             return DeserializeXmlAdvancedModel(XElement.Load(stream, LoadOptions.PreserveWhitespace), ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="XmlAdvancedModel"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static XmlAdvancedModel FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<XmlAdvancedModel>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<XmlAdvancedModel>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using Stream stream = response.ContentStream;
+            if (stream == null)
+            {
+                return default;
+            }
+
+            return DeserializeXmlAdvancedModel(XElement.Load(stream, LoadOptions.PreserveWhitespace), options);
         }
 
         /// <param name="writer"> The XML writer. </param>
@@ -499,7 +524,7 @@ namespace SampleTypeSpec
                 }
                 if (localName == "unwrappedItems")
                 {
-                    unwrappedItems.Add(XmlItem.DeserializeXmlItem(child, options));
+                    unwrappedItems.Add(options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(child.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(child, options));
                     continue;
                 }
                 if (localName == "wrappedColors")
@@ -517,19 +542,19 @@ namespace SampleTypeSpec
                     List<XmlItem> array = new List<XmlItem>();
                     foreach (var e in child.Elements("Item"))
                     {
-                        array.Add(XmlItem.DeserializeXmlItem(e, options));
+                        array.Add(options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(e.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(e, options));
                     }
                     items = array;
                     continue;
                 }
                 if (localName == "nestedModel")
                 {
-                    nestedModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
+                    nestedModel = options.ShouldReadThroughProxy<XmlNestedModel>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlNestedModel>(child.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlNestedModel.DeserializeXmlNestedModel(child, options);
                     continue;
                 }
                 if (localName == "optionalNestedModel")
                 {
-                    optionalNestedModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
+                    optionalNestedModel = options.ShouldReadThroughProxy<XmlNestedModel>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlNestedModel>(child.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlNestedModel.DeserializeXmlNestedModel(child, options);
                     continue;
                 }
                 if (localName == "metadata")
@@ -604,7 +629,7 @@ namespace SampleTypeSpec
                 }
                 if (localName == "anotherModel" && ns == anotherModelNs)
                 {
-                    anotherModel = XmlNestedModel.DeserializeXmlNestedModel(child, options);
+                    anotherModel = options.ShouldReadThroughProxy<XmlNestedModel>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlNestedModel>(child.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlNestedModel.DeserializeXmlNestedModel(child, options);
                     continue;
                 }
                 if (localName == "modelsWithNamespaces")
@@ -612,14 +637,14 @@ namespace SampleTypeSpec
                     List<XmlModelWithNamespace> array = new List<XmlModelWithNamespace>();
                     foreach (var e in child.Elements(modelsWithNamespacesNs + "XmlModelWithNamespace"))
                     {
-                        array.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(e, options));
+                        array.Add(options.ShouldReadThroughProxy<XmlModelWithNamespace>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlModelWithNamespace>(e.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlModelWithNamespace.DeserializeXmlModelWithNamespace(e, options));
                     }
                     modelsWithNamespaces = array;
                     continue;
                 }
                 if (localName == "unwrappedModelsWithNamespaces")
                 {
-                    unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
+                    unwrappedModelsWithNamespaces.Add(options.ShouldReadThroughProxy<XmlModelWithNamespace>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlModelWithNamespace>(child.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
                     continue;
                 }
                 if (localName == "listOfListFoo")
@@ -630,7 +655,7 @@ namespace SampleTypeSpec
                         List<XmlItem> list = new List<XmlItem>();
                         foreach (var item in e.Elements())
                         {
-                            list.Add(XmlItem.DeserializeXmlItem(item, options));
+                            list.Add(options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(item, options));
                         }
                         array.Add(list);
                     }
@@ -642,7 +667,7 @@ namespace SampleTypeSpec
                     Dictionary<string, XmlItem> dictionary = new Dictionary<string, XmlItem>();
                     foreach (var e in child.Elements())
                     {
-                        dictionary.Add(e.Name.LocalName, XmlItem.DeserializeXmlItem(e, options));
+                        dictionary.Add(e.Name.LocalName, options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(e.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(e, options));
                     }
                     dictionaryFoo = dictionary;
                     continue;
@@ -655,7 +680,7 @@ namespace SampleTypeSpec
                         Dictionary<string, XmlItem> dict = new Dictionary<string, XmlItem>();
                         foreach (var item in e.Elements())
                         {
-                            dict.Add(item.Name.LocalName, XmlItem.DeserializeXmlItem(item, options));
+                            dict.Add(item.Name.LocalName, options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(item, options));
                         }
                         dictionary.Add(e.Name.LocalName, dict);
                     }
@@ -670,7 +695,7 @@ namespace SampleTypeSpec
                         List<XmlItem> list = new List<XmlItem>();
                         foreach (var item in e.Elements())
                         {
-                            list.Add(XmlItem.DeserializeXmlItem(item, options));
+                            list.Add(options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(item, options));
                         }
                         dictionary.Add(e.Name.LocalName, list);
                     }
@@ -685,7 +710,7 @@ namespace SampleTypeSpec
                         Dictionary<string, XmlItem> dict = new Dictionary<string, XmlItem>();
                         foreach (var item in e.Elements())
                         {
-                            dict.Add(item.Name.LocalName, XmlItem.DeserializeXmlItem(item, options));
+                            dict.Add(item.Name.LocalName, options.ShouldReadThroughProxy<XmlItem>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<XmlItem>(item.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : XmlItem.DeserializeXmlItem(item, options));
                         }
                         array.Add(dict);
                     }

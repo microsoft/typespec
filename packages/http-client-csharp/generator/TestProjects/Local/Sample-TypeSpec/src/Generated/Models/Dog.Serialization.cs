@@ -71,12 +71,32 @@ namespace SampleTypeSpec
             return BinaryContent.Create(dog, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal new BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Dog"/> from. </param>
         public static explicit operator Dog(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializeDog(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Dog"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static new Dog FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<Dog>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<Dog>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeDog(document.RootElement, options);
         }
 
         /// <param name="writer"> The JSON writer. </param>

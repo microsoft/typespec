@@ -494,8 +494,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // the sub-client caching field should not be present
             var fields = parentClientProvider!.Fields;
-            Assert.AreEqual(1, fields.Count);
-            Assert.AreEqual("_endpoint", fields[0].Name);
+            CollectionAssert.AreEqual(new[] { "_endpoint", "_modelReaderWriterOptions" }, fields.Select(f => f.Name));
 
             var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
             Assert.IsNull(cachingField);

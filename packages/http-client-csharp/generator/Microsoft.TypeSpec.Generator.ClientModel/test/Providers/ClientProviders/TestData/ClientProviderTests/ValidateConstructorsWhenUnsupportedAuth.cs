@@ -28,6 +28,7 @@ namespace Sample
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
+            _modelReaderWriterOptions = options.ModelProxies.ToWireOptions();
         }
 
         internal TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)

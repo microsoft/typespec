@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializeLifecycleModel(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="LifecycleModel"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static LifecycleModel FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<LifecycleModel>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<LifecycleModel>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeLifecycleModel(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<LifecycleModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -155,7 +168,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    preview = PreviewDetails.DeserializePreviewDetails(prop.Value, options);
+                    preview = options.ShouldReadThroughProxy<PreviewDetails>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<PreviewDetails>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : PreviewDetails.DeserializePreviewDetails(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("choice"u8))

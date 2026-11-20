@@ -3,6 +3,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -32,6 +33,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
+
+        public override bool SupportsModelProxies => true;
+
+        // Copies ClientPipelineOptions.ModelProxies into the client's options; creating the pipeline freezes them.
+        public override ValueExpression GetModelReaderWriterOptions(ValueExpression clientOptions)
+            => ModelSerializationExtensionsSnippets.ToWireOptions(clientOptions.Property(nameof(ClientPipelineOptions.ModelProxies)));
 
         public override MethodBodyStatement[] CreateMessage(
             HttpRequestOptionsApi requestOptions,

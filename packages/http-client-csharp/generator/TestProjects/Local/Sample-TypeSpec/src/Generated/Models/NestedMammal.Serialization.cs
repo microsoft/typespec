@@ -69,6 +69,19 @@ namespace SampleTypeSpec
             return DeserializeNestedMammal(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="NestedMammal"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static NestedMammal FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<NestedMammal>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<NestedMammal>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeNestedMammal(document.RootElement, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<NestedMammal>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -173,7 +186,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy<ExperimentalUnionCat>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ExperimentalUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'NestedPets'.");
             }
@@ -221,7 +234,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy<ExperimentalUnionCat>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<ExperimentalUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : ExperimentalUnionCat.DeserializeExperimentalUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'CollisionPets'.");
             }

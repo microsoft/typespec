@@ -1082,9 +1082,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // in the no auth case, the ctor no longer has the credentail parameter therefore here we expect 2 parameters.
+            // in the no auth case, the ctor no longer has the credentail parameter therefore here we expect the pipeline, model reader writer options, and endpoint parameters.
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(2, ctorParams?.Count);
+            Assert.AreEqual(3, ctorParams?.Count);
+            Assert.AreEqual("modelReaderWriterOptions", ctorParams?[1].Name);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1105,9 +1106,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when there is only one approach of auth, we still have 2 parameters in the ctor because we should not have auth parameter in sub-client
+            // when there is only one approach of auth, we still have 3 parameters in the ctor because we should not have auth parameter in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(2, ctorParams?.Count);
+            Assert.AreEqual(3, ctorParams?.Count);
+            Assert.AreEqual("modelReaderWriterOptions", ctorParams?[1].Name);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1127,13 +1129,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when we have both auths, we still have 2 parameters in the ctor, because we should not have auth parameters in sub-client
+            // when we have both auths, we still have 3 parameters in the ctor, because we should not have auth parameters in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(2, ctorParams?.Count);
+            Assert.AreEqual(3, ctorParams?.Count);
+            Assert.AreEqual("modelReaderWriterOptions", ctorParams?[1].Name);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
             Assert.IsNotNull(mockingConstructor);
+        }
+
+        // Pipelines whose client options don't carry model proxies, such as Azure.Core's, keep the cast operators and the
+        // shared wire options.
+        [Test]
+        public void ClientWithoutModelProxiesKeepsCastConversions()
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "List",
+                InputFactory.Operation("List", responses: [InputFactory.OperationResponse([200], page)]),
+                pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var updateMethod = InputFactory.BasicServiceMethod(
+                "Update",
+                InputFactory.Operation(
+                    "Update",
+                    parameters: [InputFactory.BodyParameter("body", item, isRequired: true)],
+                    responses: [InputFactory.OperationResponse([200], item)]),
+                parameters: [InputFactory.MethodParameter("body", item, isRequired: true, location: InputRequestLocation.Body)],
+                response: InputFactory.ServiceMethodResponse(item, null));
+            var parent = InputFactory.Client("ParentClient", methods: [listMethod, updateMethod]);
+            var child = InputFactory.Client("ChildClient", parent: parent, initializedBy: InputClientInitializedBy.Parent);
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [item, page],
+                clients: () => [parent, child],
+                clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
+
+            var typeProviders = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var parentClient = typeProviders.OfType<ClientProvider>().Single(c => c.Name == "ParentClient");
+            Assert.IsNull(parentClient.ModelReaderWriterOptionsField);
+            var collectionResults = typeProviders.OfType<CollectionResultDefinition>().ToArray();
+            Assert.AreEqual(4, collectionResults.Length);
+
+            var parentCode = new TypeProviderWriter(parentClient).Write().Content;
+            StringAssert.Contains("this.Update(body, cancellationToken.ToRequestOptions())", parentCode);
+            StringAssert.Contains("(global::Sample.Models.Item)result", parentCode);
+            StringAssert.Contains("new global::Sample.ChildClient(Pipeline, _endpoint)", parentCode);
+            foreach (var code in collectionResults.Select(c => new TypeProviderWriter(c).Write().Content).Append(parentCode))
+            {
+                StringAssert.DoesNotContain("_modelReaderWriterOptions", code);
+                StringAssert.DoesNotContain("FromClientResult", code);
+                StringAssert.DoesNotContain("ToWireOptions", code);
+            }
         }
 
         /// <summary>

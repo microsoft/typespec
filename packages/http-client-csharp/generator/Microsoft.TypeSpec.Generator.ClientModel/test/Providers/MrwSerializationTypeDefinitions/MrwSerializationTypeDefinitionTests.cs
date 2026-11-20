@@ -22,14 +22,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     internal class MrwSerializationTypeDefinitionTests
     {
-        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel, bool isRootInput = true, bool isRootOutput = true)
+        internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel, bool isRootInput = true, bool isRootOutput = true, ClientPipelineApi? clientPipelineApi = null)
         {
             MockHelpers.LoadMockGenerator();
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel],
                 createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                clientPipelineApi: clientPipelineApi);
             if (isRootInput)
             {
                 generator.Object.TypeFactory.RootInputModels.Add(inputModel);
@@ -1526,7 +1527,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             // Create a model that supports both JSON and XML
             var inputModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var (model, serialization) = CreateModelAndSerialization(inputModel, clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
 
             // Verify the ToBinaryContent method is generated
             var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
@@ -1544,7 +1545,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             // Create a model that supports only JSON
             var inputModel = InputFactory.Model("JsonOnlyModel", usage: InputModelTypeUsage.Json);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var (model, serialization) = CreateModelAndSerialization(inputModel, clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
 
             // Verify the ToBinaryContent method is NOT generated
             var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
@@ -1552,6 +1553,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
 
             Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for JSON-only models");
+            Assert.IsFalse(serialization.Methods.Any(m => m.Signature.Name == "FromClientResult"),
+                "FromClientResult should not be generated when the client options don't carry model proxies");
         }
 
         [Test]
@@ -1559,7 +1562,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             // Create a model that supports only XML
             var inputModel = InputFactory.Model("XmlOnlyModel", usage: InputModelTypeUsage.Xml);
-            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var (model, serialization) = CreateModelAndSerialization(inputModel, clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
 
             // Verify the ToBinaryContent method is NOT generated
             var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
@@ -1567,6 +1570,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
 
             Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for XML-only models");
+        }
+
+        // Clients convert request bodies and responses with the options built from their configured model proxies,
+        // which the cast operators can't take.
+        [TestCase(InputModelTypeUsage.Json)]
+        [TestCase(InputModelTypeUsage.Xml)]
+        [TestCase(InputModelTypeUsage.Json | InputModelTypeUsage.Xml)]
+        public void ModelProxyConversionsTakeClientOptions(InputModelTypeUsage usage)
+        {
+            var inputModel = InputFactory.Model("TestModel", usage: usage);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var conversions = serialization.Methods
+                .Where(m => m.Signature.Name is "ToBinaryContent" or "FromClientResult")
+                .ToArray();
+            Assert.AreEqual(2, conversions.Length);
+            Assert.IsTrue(conversions.All(m => m.Signature.Parameters[^1].Type.Equals(typeof(ModelReaderWriterOptions))));
+
+            using var writer = new CodeWriter();
+            foreach (var conversion in conversions)
+            {
+                writer.WriteMethod(conversion);
+            }
+            Assert.AreEqual(Helpers.GetExpectedFromFile(usage.ToString().Replace(", ", ",")), writer.ToString(false));
+        }
+
+        [Test]
+        public void DerivedModelProxyConversionsHideBaseConversions()
+        {
+            var baseModel = InputFactory.Model("BaseModel");
+            var derivedModel = InputFactory.Model("DerivedModel", baseModel: baseModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseModel, derivedModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
+            generator.Object.TypeFactory.RootInputModels.UnionWith([baseModel, derivedModel]);
+            generator.Object.TypeFactory.RootOutputModels.UnionWith([baseModel, derivedModel]);
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel)!;
+            var conversions = derived.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single().Methods
+                .Where(m => m.Signature.Name is "ToBinaryContent" or "FromClientResult")
+                .ToArray();
+
+            Assert.AreEqual(2, conversions.Length);
+            Assert.IsTrue(conversions.All(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.New)));
         }
 
         [Test]

@@ -15,7 +15,7 @@ namespace Streaming.Sse._Protocol.Data
     {
         protected ProtocolData() => throw null;
 
-        internal ProtocolData(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ProtocolData(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

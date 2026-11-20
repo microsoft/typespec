@@ -15,20 +15,38 @@ namespace Sample
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, string token, object filter, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, token, filter, options);
+            return new global::Sample.TestClientGetItemsCollectionResult(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                token,
+                filter,
+                options);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, string token, object filter, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, token, filter, options);
+            return new global::Sample.TestClientGetItemsAsyncCollectionResult(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                token,
+                filter,
+                options);
         }
 
 #pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize, string token, object filter, global::System.Threading.CancellationToken cancellationToken)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, token, filter, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsCollectionResultOfT(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                token,
+                filter,
+                cancellationToken.ToRequestOptions());
         }
 #pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
 
@@ -36,7 +54,13 @@ namespace Sample
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize, string token, object filter, global::System.Threading.CancellationToken cancellationToken)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, token, filter, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                token,
+                filter,
+                cancellationToken.ToRequestOptions());
         }
 #pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
 
@@ -70,22 +94,46 @@ namespace Sample
 
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, object filter, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, default, filter, options);
+            return new global::Sample.TestClientGetItemsCollectionResult(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                default,
+                filter,
+                options);
         }
 
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, object filter, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, default, filter, options);
+            return new global::Sample.TestClientGetItemsAsyncCollectionResult(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                default,
+                filter,
+                options);
         }
 
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize = default, object filter = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, default, filter, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsCollectionResultOfT(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                default,
+                filter,
+                cancellationToken.ToRequestOptions());
         }
 
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize = default, object filter = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, default, filter, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(
+                this,
+                _modelReaderWriterOptions,
+                maxPageSize,
+                default,
+                filter,
+                cancellationToken.ToRequestOptions());
         }
     }
 }

@@ -16,14 +16,17 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to read the pages, including the model proxies configured on the client options. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -38,7 +41,7 @@ namespace SampleTypeSpec
                 ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                nextPageUri = ((ListWithNextLinkResult)result).Next;
+                nextPageUri = ListWithNextLinkResult.FromClientResult(result, _modelReaderWriterOptions).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
@@ -52,7 +55,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResult)page).Next;
+            Uri nextPage = ListWithNextLinkResult.FromClientResult(page, _modelReaderWriterOptions).Next;
             if (nextPage != null)
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
@@ -68,7 +71,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithNextLinkResult)page).Things)
+            foreach (Thing item in ListWithNextLinkResult.FromClientResult(page, _modelReaderWriterOptions).Things)
             {
                 yield return item;
                 await Task.Yield();

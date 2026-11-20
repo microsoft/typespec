@@ -148,6 +148,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MultipartForm
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // Pipelines whose client options don't carry model proxies keep writing model parts with the wire options.
+        [Test]
+        public void TestSerialization_WithoutModelProxies_UsesWireOptions()
+        {
+            var addressModel = InputFactory.Model("address", properties: [InputFactory.Property("city", InputPrimitiveType.String)]);
+            var inputModel = MultipartModel(
+                "JsonPartRequest",
+                [
+                    NonFilePartProperty("address", addressModel, defaultContentTypes: ["application/json"]),
+                    NonFilePartProperty("addresses", InputFactory.Array(addressModel), defaultContentTypes: ["application/json"])
+                ]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clientPipelineApi: ClientPipelineWithoutModelProxies.Instance);
+            var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            var actual = new TypeProviderWriter(new MultipartFormDataSerializationDefinition(inputModel, model)).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         [Test]
         public void TestSerialization_AllPrimitiveParts()
         {

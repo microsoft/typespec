@@ -7,6 +7,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -17,14 +18,16 @@ namespace SampleTypeSpec
     internal static partial class BinaryContentHelper
     {
         /// <param name="enumerable"></param>
-        public static BinaryContent FromEnumerable<T>(IEnumerable<T> enumerable)
+        /// <param name="options"></param>
+        public static BinaryContent FromEnumerable<T>(IEnumerable<T> enumerable, ModelReaderWriterOptions options = null)
             where T : notnull
         {
+            options ??= ModelSerializationExtensions.WireOptions;
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
             content.JsonWriter.WriteStartArray();
             foreach (var item in enumerable)
             {
-                content.JsonWriter.WriteObjectValue(item, ModelSerializationExtensions.WireOptions);
+                content.JsonWriter.WriteObjectValue(item, options);
             }
             content.JsonWriter.WriteEndArray();
 
@@ -60,15 +63,17 @@ namespace SampleTypeSpec
         }
 
         /// <param name="span"></param>
-        public static BinaryContent FromEnumerable<T>(ReadOnlySpan<T> span)
+        /// <param name="options"></param>
+        public static BinaryContent FromEnumerable<T>(ReadOnlySpan<T> span, ModelReaderWriterOptions options = null)
             where T : notnull
         {
+            options ??= ModelSerializationExtensions.WireOptions;
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
             content.JsonWriter.WriteStartArray();
             int i = 0;
             for (; i < span.Length; i++)
             {
-                content.JsonWriter.WriteObjectValue(span[i], ModelSerializationExtensions.WireOptions);
+                content.JsonWriter.WriteObjectValue(span[i], options);
             }
             content.JsonWriter.WriteEndArray();
 
@@ -76,15 +81,17 @@ namespace SampleTypeSpec
         }
 
         /// <param name="dictionary"></param>
-        public static BinaryContent FromDictionary<TValue>(IDictionary<string, TValue> dictionary)
+        /// <param name="options"></param>
+        public static BinaryContent FromDictionary<TValue>(IDictionary<string, TValue> dictionary, ModelReaderWriterOptions options = null)
             where TValue : notnull
         {
+            options ??= ModelSerializationExtensions.WireOptions;
             Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
             content.JsonWriter.WriteStartObject();
             foreach (var item in dictionary)
             {
                 content.JsonWriter.WritePropertyName(item.Key);
-                content.JsonWriter.WriteObjectValue(item.Value, ModelSerializationExtensions.WireOptions);
+                content.JsonWriter.WriteObjectValue(item.Value, options);
             }
             content.JsonWriter.WriteEndObject();
 
@@ -146,9 +153,11 @@ namespace SampleTypeSpec
         /// <param name="enumerable"></param>
         /// <param name="rootNameHint"></param>
         /// <param name="childNameHint"></param>
-        public static BinaryContent FromEnumerable<T>(IEnumerable<T> enumerable, string rootNameHint, string childNameHint)
+        /// <param name="options"></param>
+        public static BinaryContent FromEnumerable<T>(IEnumerable<T> enumerable, string rootNameHint, string childNameHint, ModelReaderWriterOptions options = null)
             where T : notnull
         {
+            options ??= ModelSerializationExtensions.WireOptions;
             using (MemoryStream stream = new MemoryStream(256))
             {
                 using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
@@ -156,7 +165,7 @@ namespace SampleTypeSpec
                     writer.WriteStartElement(rootNameHint);
                     foreach (var item in enumerable)
                     {
-                        writer.WriteObjectValue(item, ModelSerializationExtensions.WireOptions, childNameHint);
+                        writer.WriteObjectValue(item, options, childNameHint);
                     }
                     writer.WriteEndElement();
                 }

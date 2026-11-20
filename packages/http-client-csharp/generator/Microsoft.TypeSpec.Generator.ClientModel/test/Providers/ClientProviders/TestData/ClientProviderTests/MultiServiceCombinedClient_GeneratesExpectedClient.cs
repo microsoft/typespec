@@ -13,6 +13,7 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions = global::Sample.ModelSerializationExtensions.WireOptions;
         private readonly string _serviceAApiVersion;
         private readonly string _serviceBApiVersion;
 
@@ -39,6 +40,7 @@ namespace Sample
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
             }
+            _modelReaderWriterOptions = options.ModelProxies.ToWireOptions();
             _serviceAApiVersion = options.ServiceAApiVersion;
             _serviceBApiVersion = options.ServiceBApiVersion;
         }

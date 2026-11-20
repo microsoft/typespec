@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected XmlErrorValue() => throw null;
 
-        internal XmlErrorValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal XmlErrorValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

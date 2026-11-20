@@ -1,3 +1,4 @@
+options ??= global::Sample.ModelSerializationExtensions.WireOptions;
 using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStream(256))
 {
     using (global::System.Xml.XmlWriter writer = global::System.Xml.XmlWriter.Create(stream, global::Sample.ModelSerializationExtensions.XmlWriterSettings))
@@ -5,7 +6,7 @@ using (global::System.IO.MemoryStream stream = new global::System.IO.MemoryStrea
         writer.WriteStartElement(rootNameHint);
         foreach (var item in enumerable)
         {
-            writer.WriteObjectValue<T>(item, global::Sample.ModelSerializationExtensions.WireOptions, childNameHint);
+            writer.WriteObjectValue<T>(item, options, childNameHint);
         }
         writer.WriteEndElement();
     }

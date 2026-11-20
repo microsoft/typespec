@@ -15,7 +15,7 @@ namespace _Type.Dictionary
     {
         protected RecursiveModelValue() => throw null;
 
-        internal RecursiveModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal RecursiveModelValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

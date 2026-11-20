@@ -71,12 +71,32 @@ namespace SampleTypeSpec
             return BinaryContent.Create(directUnionPet, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DirectUnionPet"/> from. </param>
         public static explicit operator DirectUnionPet(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializeDirectUnionPet(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DirectUnionPet"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static DirectUnionPet FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<DirectUnionPet>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<DirectUnionPet>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeDirectUnionPet(document.RootElement, options);
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -218,7 +238,7 @@ namespace SampleTypeSpec
             switch (discriminator.GetString())
             {
                 case "cat":
-                    return DirectUnionCat.DeserializeDirectUnionCat(discriminator0, options);
+                    return options.ShouldReadThroughProxy<DirectUnionCat>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<DirectUnionCat>(discriminator0.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : DirectUnionCat.DeserializeDirectUnionCat(discriminator0, options);
                 default:
                     throw new JsonException("Unknown discriminator value for union 'DirectPets'.");
             }

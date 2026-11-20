@@ -14,7 +14,7 @@ namespace Encode.Duration._Property
     {
         protected Property() => throw null;
 
-        internal Property(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Property(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
