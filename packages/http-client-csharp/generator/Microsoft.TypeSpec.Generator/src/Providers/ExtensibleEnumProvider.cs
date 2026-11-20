@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -20,7 +19,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    public partial class ExtensibleEnumProvider : EnumProvider
+    public class ExtensibleEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
@@ -43,19 +42,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private readonly FieldProvider _valueField;
-
-        private protected override string NormalizeValueName(string inputName, string generatedName)
-        {
-            // Use the input name to find words before ToIdentifierName removes separators.
-            var name = UppercaseWords().Replace(inputName, static match => match.Value[..1] + match.Value[1..].ToLowerInvariant());
-            return base.NormalizeValueName(inputName, name == inputName ? generatedName : name.ToIdentifierName().NormalizeCSharpUrlSuffix());
-        }
-
-        [GeneratedRegex("""
-            (?<!\p{Lu})\p{Lu}{3,}(?=\p{Lu}\p{Ll}|[^\p{L}\p{M}\p{N}]|$) # Long uppercase runs, e.g. HTTP in HTTPStatus
-            | (?<![\p{L}\p{M}\p{N}])\p{Lu}{2}(?![\p{L}\p{M}\p{N}])    # Standalone two-letter words, e.g. OR
-            """, RegexOptions.IgnorePatternWhitespace)]
-        private static partial Regex UppercaseWords();
 
         private protected override bool IsCustomizedValueName(string name)
         {

@@ -1315,14 +1315,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("snake_case_value", fields[1].Name);
         }
 
-        [TestCase("AND", false, "And")]
-        [TestCase("OR", false, "Or")]
-        [TestCase("NOT_FOUND", false, "NotFound")]
-        [TestCase("HTTPStatus", false, "HttpStatus")]
-        [TestCase("CallbackURL", false, "CallbackUri")]
-        [TestCase("AND", true, "AND")]
-        [TestCase("snake_case_value", true, "snake_case_value")]
-        public void BuildEnumType_ExtensibleStringEnum_MemberCasing(string name, bool isExactName, string expectedName)
+        // Validates that an IsExactName-marked value on an extensible string-based enum preserves
+        // its exact-case name (skipping .ToIdentifierName()) on both the generated field (with
+        // the `Value` suffix appended) and the generated public property.
+        [TestCase]
+        public void BuildEnumType_ExtensibleStringEnum_IsExactNameValuePreserved()
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
@@ -1333,7 +1330,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 enumValues,
                 isExtensible: true);
             enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
-            enumValues.Add(InputFactory.EnumMember.String(name, name, enumType, isExactName: isExactName));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
 
             var enumProvider = EnumProvider.Create(enumType);
             var fields = enumProvider.Fields;
@@ -1343,12 +1340,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(3, fields.Count);
             Assert.AreEqual("_value", fields[0].Name);
             Assert.AreEqual("OneValue", fields[1].Name);
-            Assert.AreEqual(expectedName + "Value", fields[2].Name);
-            Assert.AreEqual(name, ((LiteralExpression)fields[2].InitializationValue!).Literal);
+            // exact-name value: name preserved verbatim, with the `Value` suffix appended
+            Assert.AreEqual("snake_case_valueValue", fields[2].Name);
 
             Assert.AreEqual(2, properties.Count);
             Assert.AreEqual("One", properties[0].Name);
-            Assert.AreEqual(expectedName, properties[1].Name);
+            Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
+        [TestCase("AND", false, "And")]
+        [TestCase("OR", false, "Or")]
+        [TestCase("NOT_FOUND", false, "NotFound")]
+        [TestCase("HTTPStatus", false, "HttpStatus")]
+        [TestCase("CallbackURL", false, "CallbackUri")]
+        [TestCase("AND", true, "AND")]
+        public void BuildEnumType_ExtensibleStringEnum_MemberCasing(string name, bool isExactName, string expectedName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(string));
+
+            var values = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum("MockInputEnum", InputPrimitiveType.String, values, isExtensible: true);
+            values.Add(InputFactory.EnumMember.String(name, name, input, isExactName: isExactName));
+
+            var provider = EnumProvider.Create(input);
+            var member = provider.EnumValues.Single();
+
+            Assert.AreEqual(expectedName, provider.Properties.Single().Name);
+            Assert.AreEqual(expectedName + "Value", member.Field.Name);
+            Assert.AreEqual(name, ((LiteralExpression)member.Field.InitializationValue!).Literal);
         }
 
         [TestCase(false, "CallbackUrl", false, "CallbackUri")]

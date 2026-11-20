@@ -4,12 +4,21 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.TypeSpec.Generator.Input.Extensions
 {
     public static class StringExtensions
     {
+        private static readonly Regex _uppercaseWords = new("""
+            (?<!\p{Lu})\p{Lu}{3,}(?=\p{Lu}\p{Ll}|[^\p{L}\p{M}\p{N}]|$) # Long uppercase runs, e.g. HTTP in HTTPStatus
+            | (?<![\p{L}\p{M}\p{N}])\p{Lu}{2}(?![\p{L}\p{M}\p{N}])    # Standalone two-letter words, e.g. OR
+            """, RegexOptions.IgnorePatternWhitespace);
+
+        public static string NormalizeUppercaseWords(this string name) =>
+            _uppercaseWords.Replace(name, static match => match.Value[..1] + match.Value[1..].ToLowerInvariant());
+
         private static bool IsWordSeparator(char c, bool preserveUnderscores = false)
             => !SyntaxFacts.IsIdentifierPartCharacter(c) || (!preserveUnderscores && c == '_');
 

@@ -150,6 +150,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
             var normalizedNames = new string[previousNames.Length];
+            // An extensible input can also have a fixed view used by custom code.
+            bool normalizeUppercase = IsExtensible && this is ExtensibleEnumProvider;
             for (int i = 0; i < previousNames.Length; i++)
             {
                 var name = previousNames[i];
@@ -159,16 +161,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var normalizedName = NormalizeValueName(inputValues[i].Name, name);
+                var inputName = inputValues[i].Name;
+                var pascalName = normalizeUppercase ? inputName.NormalizeUppercaseWords() : inputName;
+                var normalizedName = (pascalName == inputName ? name : pascalName.ToIdentifierName().NormalizeCSharpUrlSuffix())
+                    .NormalizeCSharpAcronyms();
                 normalizedNames[i] = lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
                     ? name
                     : normalizedName;
             }
             return normalizedNames;
         }
-
-        private protected virtual string NormalizeValueName(string inputName, string generatedName) =>
-            generatedName.NormalizeCSharpAcronyms();
 
         private protected virtual bool IsCustomizedValueName(string name) =>
             GetMemberSuppressionAttributes().Any(a => a.ConstructorArguments.Length > 0 &&
