@@ -125,6 +125,33 @@ public class CodeFormatterUtilTests {
         assertEquals(formatted, CodeFormatterUtil.formatCode(Map.of("Example.java", formatted)).get(0));
     }
 
+    @Test
+    public void sortsImportsWithoutRetainingBlankLinesBetweenThem() {
+        String source = String.join("\n", "package test;", "import reactor.core.publisher.Mono;", "",
+            "import java.time.Duration;", "import java.time.OffsetDateTime;", "",
+            "class Example { Mono<Duration> value; OffsetDateTime time; }", "");
+
+        String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+        assertTrue(formatted.contains(
+            "import java.time.Duration;\nimport java.time.OffsetDateTime;\n" + "import reactor.core.publisher.Mono;"));
+        assertEquals(formatted, CodeFormatterUtil.formatCode(Map.of("Example.java", formatted)).get(0));
+    }
+
+    @Test
+    public void preservesCommentsBetweenSortedImports() {
+        String source = String.join("\r\n", "package test;", "import java.util.Set;", "", "import java.time.Instant;",
+            "", "// Retain this comment.", "import java.util.List;", "",
+            "class Example { List<String> list; Set<String> set; }", "");
+
+        String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+        assertTrue(formatted.contains("// Retain this comment."));
+        assertTrue(formatted.contains("import java.util.List;"));
+        assertTrue(formatted.contains("import java.util.Set;"));
+        assertFalse(formatted.contains("import java.time.Instant;"));
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("importUsageCases")
     public void removesOnlyUnusedImports(String description, String source, List<String> expectedImports) {
@@ -180,6 +207,22 @@ public class CodeFormatterUtilTests {
                     "    /** @throws Problem when the call fails */", "    void call() {}", "}"),
                 List.of("import com.example.Argument;", "import com.example.Owner;", "import com.example.Problem;",
                     "import com.example.Useful;")),
+            Arguments.of("Javadoc separated from declarations by blank lines retains imports",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "/** {@link List} */", "", "class Example {", "    /** {@link Set} */", "", "    @Deprecated",
+                    "    void call() {}", "}"),
+                List.of("import java.util.List;", "import java.util.Set;")),
+            Arguments.of("nested Javadoc links retain imports except inside code and literal tags",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "import java.time.Instant;", "import java.util.Map;", "/**",
+                    " * {@summary Uses {@link List} and {@linkplain Map}.}",
+                    " * {@code {@link Set}} and {@literal {@link Instant}}.", " */", "class Example {}"),
+                List.of("import java.util.List;", "import java.util.Map;")),
+            Arguments.of("nested Javadoc links in block tags and labels retain imports",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "import java.util.Map;", "/** {@link Map a {@link Set}} */", "class Example {",
+                    "    /** @return {@summary Uses {@link List}} */", "    Object call() { return null; }", "}"),
+                List.of("import java.util.List;", "import java.util.Map;", "import java.util.Set;")),
             Arguments.of("Javadoc parameter types include arrays and varargs but not qualified selectors",
                 String.join("\n", "package test;", "import com.example.Owner;", "import com.example.Parameter;",
                     "import com.example.ArrayElement;", "import java.util.List;", "/**",
@@ -247,6 +290,20 @@ public class CodeFormatterUtilTests {
         assertFalse(formatted.contains("import java.util.Set;"));
         assertTrue(formatted.contains("uses Service;"));
         assertTrue(formatted.contains("provides Service with Provider;"));
+    }
+
+    @Test
+    public void preservesPackageAndModuleJavadocSeparatedByBlankLines() {
+        String packageInfo
+            = String.join("\n", "/** {@link List} */", "", "package test;", "import java.util.List;", "");
+        String moduleInfo = String.join("\n", "import java.util.Set;", "/** {@link Set} */", "", "module test {}", "");
+
+        assertTrue(CodeFormatterUtil.formatCode(Map.of("package-info.java", packageInfo))
+            .get(0)
+            .contains("import java.util.List;"));
+        assertTrue(CodeFormatterUtil.formatCode(Map.of("module-info.java", moduleInfo))
+            .get(0)
+            .contains("import java.util.Set;"));
     }
 
     @Test

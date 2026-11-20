@@ -11,7 +11,9 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
@@ -23,16 +25,16 @@ import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
+import com.github.javaparser.ast.modules.ModuleDeclaration;
 import com.github.javaparser.ast.modules.ModuleProvidesDirective;
 import com.github.javaparser.ast.modules.ModuleUsesDirective;
+import com.github.javaparser.ast.nodeTypes.NodeWithJavadoc;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.description.JavadocDescription;
-import com.github.javaparser.javadoc.description.JavadocDescriptionElement;
-import com.github.javaparser.javadoc.description.JavadocInlineTag;
 import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
 import com.github.javaparser.printer.configuration.imports.DefaultImportOrderingStrategy;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
@@ -130,7 +132,9 @@ public final class CodeFormatterUtil {
                         // Without attribution information, retain Javadoc-only imports conservatively.
                         if (comment instanceof JavadocComment
                             && (comment.getCommentedNode().isPresent()
-                                || !parser.getParserConfiguration().isAttributeComments())) {
+                                || !parser.getParserConfiguration().isAttributeComments()
+                                || precedesDocumentedDeclaration(comment, compilationUnit, file.getValue(),
+                                    parser.getParserConfiguration().getTabSize()))) {
                             collectJavadocReferences(((JavadocComment) comment).parse(), parser, usedNames);
                         }
                     }
@@ -149,6 +153,28 @@ public final class CodeFormatterUtil {
             throw new IllegalStateException("JavaParser encountered errors:\n" + errors);
         }
         return prepared;
+    }
+
+    private static boolean precedesDocumentedDeclaration(Comment comment, CompilationUnit compilationUnit,
+        String source, int tabSize) {
+        List<Integer> starts = lineStarts(source);
+        int commentEnd = sourceOffset(source, starts, comment.getEnd().orElseThrow(), tabSize) + 1;
+        int next = commentEnd;
+        while (next < source.length() && Character.isWhitespace(source.charAt(next))) {
+            next++;
+        }
+        for (Node node : compilationUnit.findAll(Node.class,
+            candidate -> candidate instanceof NodeWithJavadoc
+                || candidate instanceof PackageDeclaration
+                || candidate instanceof ModuleDeclaration)) {
+            if (node.getBegin().isPresent()) {
+                int begin = sourceOffset(source, starts, node.getBegin().get(), tabSize);
+                if (begin == next) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -228,6 +254,25 @@ public final class CodeFormatterUtil {
             ImportDeclaration declaration = imports.get(i);
             int start = sourceOffset(file, lineStarts, declaration.getBegin().orElseThrow(), tabSize);
             int end = sourceOffset(file, lineStarts, declaration.getEnd().orElseThrow(), tabSize) + 1;
+            if (i + 1 < imports.size()) {
+                int nextStart = sourceOffset(file, lineStarts, imports.get(i + 1).getBegin().orElseThrow(), tabSize);
+                String gap = file.substring(end, nextStart);
+                if (gap.trim().isEmpty()) {
+                    int newline = 0;
+                    while (newline < gap.length() && gap.charAt(newline) != '\r' && gap.charAt(newline) != '\n') {
+                        newline++;
+                    }
+                    if (newline < gap.length()) {
+                        int afterNewline = end + newline + 1;
+                        if (gap.charAt(newline) == '\r'
+                            && newline + 1 < gap.length()
+                            && gap.charAt(newline + 1) == '\n') {
+                            afterNewline++;
+                        }
+                        updated.delete(afterNewline, nextStart);
+                    }
+                }
+            }
             if (retained[i]) {
                 updated.replace(start, end, importToString(sorted.get(nextImport--)));
             } else {
@@ -337,15 +382,39 @@ public final class CodeFormatterUtil {
 
     private static void collectInlineReferences(JavadocDescription description, JavaParser parser,
         Set<String> usedNames) {
-        for (JavadocDescriptionElement element : description.getElements()) {
-            if (element instanceof JavadocInlineTag) {
-                JavadocInlineTag tag = (JavadocInlineTag) element;
-                if (tag.getType() == JavadocInlineTag.Type.LINK
-                    || tag.getType() == JavadocInlineTag.Type.LINKPLAIN
-                    || tag.getType() == JavadocInlineTag.Type.VALUE) {
-                    collectReference(tag.getContent(), parser, usedNames);
+        // JavaParser splits nested inline tags at the first closing brace.
+        collectInlineReferences(description.toText(), parser, usedNames);
+    }
+
+    private static void collectInlineReferences(String text, JavaParser parser, Set<String> usedNames) {
+        int start = 0;
+        while ((start = text.indexOf("{@", start)) >= 0) {
+            int depth = 1;
+            int end = start + 2;
+            while (end < text.length() && depth > 0) {
+                char character = text.charAt(end++);
+                if (character == '{') {
+                    depth++;
+                } else if (character == '}') {
+                    depth--;
                 }
             }
+            if (depth != 0) {
+                return;
+            }
+            int nameEnd = start + 2;
+            while (nameEnd < end - 1 && !Character.isWhitespace(text.charAt(nameEnd))) {
+                nameEnd++;
+            }
+            String name = text.substring(start + 2, nameEnd);
+            String content = text.substring(nameEnd, end - 1);
+            if (name.equals("link") || name.equals("linkplain") || name.equals("value")) {
+                collectReference(content, parser, usedNames);
+            }
+            if (!name.equals("code") && !name.equals("literal") && !name.equals("snippet")) {
+                collectInlineReferences(content, parser, usedNames);
+            }
+            start = end;
         }
     }
 
