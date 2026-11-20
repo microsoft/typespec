@@ -3797,7 +3797,14 @@ export type LinterRuleDiagnosticReportWithoutTarget<
 export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
-> = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
+> = LinterRuleDiagnosticReportWithoutTarget<T, M> & {
+  target: DiagnosticTarget | typeof NoTarget;
+  /**
+   * Project node to report at when `target` is declared in a library, overriding the
+   * node the linter would otherwise find (template argument, spread, `is` or intersection operand).
+   */
+  useSite?: DiagnosticTarget;
+};
 
 /** Library definition enriched with diagnostic, state-key, and tracing helpers by {@link createTypeSpecLibrary}. */
 export interface TypeSpecLibrary<
