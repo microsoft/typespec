@@ -750,8 +750,12 @@ async function createProgram(
     const emitFunction = entrypoint.esmExports.$onEmit;
     const libDefinition = library.definition;
 
+    let emitterOptionsKey = metadata.name ?? emitterNameOrPath;
+    if (!Object.hasOwn(emittersOptions, emitterOptionsKey) && library.module.type === "module") {
+      emitterOptionsKey = library.module.manifest.name;
+    }
     let { "emitter-output-dir": emitterOutputDir, ...emitterOptions } =
-      emittersOptions[metadata.name ?? emitterNameOrPath] ?? {};
+      emittersOptions[emitterOptionsKey] ?? {};
     if (emitterOutputDir === undefined) {
       emitterOutputDir = [options.outputDir, metadata.name].filter(isDefined).join("/");
     }
@@ -767,7 +771,7 @@ async function createProgram(
           options.configFile?.file
             ? {
                 kind: "path-target",
-                path: ["options", emitterNameOrPath],
+                path: ["options", emitterOptionsKey],
                 script: options.configFile.file,
               }
             : NoTarget,
@@ -837,7 +841,10 @@ async function createProgram(
       };
     }
 
-    return computeModuleMetadata(module);
+    return {
+      ...computeModuleMetadata(module),
+      name: libDefinition?.name ?? module.manifest.name,
+    };
   }
 
   function computeModuleMetadata(module: ResolvedModule): ModuleLibraryMetadata {
