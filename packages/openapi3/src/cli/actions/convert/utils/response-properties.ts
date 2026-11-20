@@ -71,6 +71,12 @@ export function isScalarBody(
     schema.type === "number" ||
     schema.type === "integer" ||
     schema.type === "boolean" ||
+    (Array.isArray(schema.type) &&
+      schema.type.some((type) => ["string", "number", "integer", "boolean"].includes(type))) ||
+    [schema.const, ...(schema.enum ?? [])].some(
+      (value) =>
+        typeof value === "string" || typeof value === "number" || typeof value === "boolean",
+    ) ||
     (schema.anyOf ?? schema.oneOf ?? []).some((s) => isScalarBody(s, context, new Set(seen)))
   );
 }

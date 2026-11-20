@@ -165,6 +165,7 @@ function generateExampleValue(
   if ("$ref" in schema) {
     const resolved = context.getSchemaByRef(schema.$ref);
     if (!resolved) return invalid();
+    if (value === null && getTypeSpecKind(resolved) === "model") return invalid();
     const expression = generateExampleValue(
       value,
       resolved,
@@ -228,6 +229,9 @@ function generateExampleValue(
     let properties: Record<string, Refable<SupportedOpenAPISchema>> = {
       ...schema.properties,
     };
+    const indexers: Refable<SupportedOpenAPISchema>[] = [];
+    if (typeof schema.additionalProperties === "object") indexers.push(schema.additionalProperties);
+    let allowsAdditionalProperties = !!schema.additionalProperties;
     const required = new Set(schema.required);
     const collect = (s: Refable<SupportedOpenAPISchema>, seen = new Set<string>()): void => {
       if ("$ref" in s) {
@@ -238,15 +242,26 @@ function generateExampleValue(
         return collect(resolved, seen);
       }
       properties = { ...properties, ...s.properties };
+      if (s.additionalProperties) {
+        allowsAdditionalProperties = true;
+        if (typeof s.additionalProperties === "object") indexers.push(s.additionalProperties);
+      }
       for (const key of s.required ?? []) required.add(key);
       for (const member of s.allOf ?? []) collect(member, new Set(seen));
     };
     for (const member of schema.allOf) collect(member);
+    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+      for (const item of Object.values(value)) {
+        const expressions = indexers.map((indexer) => convert(item, indexer));
+        if (new Set(expressions).size > 1) return invalid();
+      }
+    }
     return convert(value, {
       ...schema,
       allOf: undefined,
       properties,
       required: [...required],
+      additionalProperties: indexers[0] ?? allowsAdditionalProperties,
     } as SupportedOpenAPISchema);
   }
 
@@ -313,8 +328,13 @@ function generateExampleValue(
       (schema.maximum !== undefined && value > schema.maximum)
     )
       return invalid();
-    const primitive = getTypeSpecPrimitiveFromSchema(schema);
+    const primitive = getTypeSpecPrimitiveFromSchema({
+      ...schema,
+      type: type === "number" || type === "integer" ? type : undefined,
+    });
     if (primitive === "duration" || primitive === "utcDateTime") return invalid();
+    if (primitive === "float32" && Math.abs(value) > 3.4e38) return invalid();
+    if (primitive === "safeint" && !Number.isSafeInteger(value)) return invalid();
     const integer = /^(u?)int(8|16|32|64)$/.exec(primitive ?? "");
     if (integer) {
       const bits = BigInt(integer[2]);

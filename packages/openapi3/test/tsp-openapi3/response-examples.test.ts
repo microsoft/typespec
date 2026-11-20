@@ -503,6 +503,112 @@ describe("response media type examples", () => {
     });
   });
 
+  it("keeps scalar default examples separate from concrete responses", async () => {
+    const schema: OpenAPI3Schema = { type: "string" };
+    const { responses } = await roundTrip(
+      document({
+        "200": response({ schema, example: "success" }),
+        default: response({ schema, example: "fallback" }),
+      }),
+    );
+    expect(responses["200"].content["application/json"].example).toBe("success");
+    expect(responses.default.content["application/json"].example).toBe("fallback");
+  });
+
+  it.each([
+    ["enum", { enum: ["demo"] }],
+    ["const", { const: "demo" }],
+  ])("preserves JSON media type for an untyped %s", async (_, schema) => {
+    const { responses } = await roundTrip(
+      document({ "200": response({ schema: schema as OpenAPI3Schema, example: "demo" }) }),
+    );
+    expect(responses["200"].content["application/json"].example).toBe("demo");
+  });
+
+  it("imports examples of intersections with referenced record schemas", async () => {
+    const { responses } = await roundTrip(
+      document(
+        {
+          "200": response({
+            schema: { allOf: [{ $ref: "#/components/schemas/Bag" }] },
+            example: { a: 1 },
+          }),
+        },
+        { schemas: { Bag: { type: "object", additionalProperties: { type: "integer" } } } },
+      ),
+    );
+    expect(responses["200"].content["application/json"].example).toEqual({ a: 1 });
+  });
+
+  it("checks inherited record values and retains valid examples", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { responses } = await roundTrip(
+        document(
+          {
+            "200": response({
+              schema: { allOf: [{ $ref: "#/components/schemas/Bag" }] },
+              examples: { invalid: { value: { a: "wrong" } }, valid: { value: { a: 1 } } },
+            }),
+          },
+          { schemas: { Bag: { type: "object", additionalProperties: { type: "integer" } } } },
+        ),
+      );
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("invalid"));
+      expect(responses["200"].content["application/json"].examples).toEqual({
+        valid: { summary: "valid", value: { a: 1 } },
+      });
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it.each([
+    ["float32 maximum", { type: "number", format: "float" }, 3.4e38],
+    ["float32 minimum", { type: "number", format: "float" }, -3.4e38],
+    ["safeint maximum", { type: "integer", format: "double-int" }, Number.MAX_SAFE_INTEGER],
+    ["safeint minimum", { type: "integer", format: "double-int" }, Number.MIN_SAFE_INTEGER],
+    ["nullable int32 maximum", { type: ["integer", "null"], format: "int32" }, 2 ** 31 - 1],
+  ] as const)("preserves %s", async (_, schema, value) => {
+    const { responses } = await roundTrip(
+      document({ "201": response({ schema: schema as OpenAPI3Schema, example: value }) }),
+    );
+    expect(responses["201"].content["application/json"].example).toBe(value);
+  });
+
+  it("skips null examples for referenced components generated as non-nullable models", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { code, responses } = await roundTrip(
+        document(
+          {
+            "200": response({
+              schema: { $ref: "#/components/schemas/Payload" },
+              examples: { invalid: { value: null }, valid: { value: { name: "demo" } } },
+            }),
+          },
+          {
+            schemas: {
+              Payload: {
+                anyOf: [
+                  { type: "object", properties: { name: { type: "string" } } },
+                  { type: "null" } as unknown as OpenAPI3Schema,
+                ],
+              },
+            },
+          },
+        ),
+      );
+      expect(code.match(/@opExample\(/g)).toHaveLength(1);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("invalid"));
+      expect(responses["200"].content["application/json"].examples).toEqual({
+        valid: { summary: "valid", value: { name: "demo" } },
+      });
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it("does not mistake a referenced payload statusCode for the response discriminator", async () => {
     const { responses } = await roundTrip(
       document(
@@ -563,6 +669,9 @@ describe("response media type examples", () => {
   it.each([
     ["an out-of-range int32", { type: "integer", format: "int32" }, 2 ** 32],
     ["an out-of-range int64", { type: "integer", format: "int64" }, 2 ** 63],
+    ["an out-of-range float", { type: "number", format: "float" }, 3.4e40],
+    ["an out-of-range safeint", { type: "integer", format: "double-int" }, 2 ** 53],
+    ["an out-of-range nullable int32", { type: ["integer", "null"], format: "int32" }, 2 ** 32],
     [
       "a scalar for an inferred object",
       { properties: { name: { type: "string" } } },
