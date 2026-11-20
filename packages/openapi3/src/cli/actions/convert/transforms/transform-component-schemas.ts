@@ -372,7 +372,9 @@ function getModelPropertiesFromObjectSchema(
   return modelProperties;
 }
 
-function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataTypes["kind"] {
+export function getTypeSpecKind(
+  schema: Refable<SupportedOpenAPISchema>,
+): TypeSpecDataTypes["kind"] {
   if ("$ref" in schema) {
     return "alias";
   }

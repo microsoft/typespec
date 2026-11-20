@@ -185,6 +185,15 @@ function findResponseForExample(
       const contentTypeProp = response.properties.find((x) => x.kind === "contentType");
       const statusCodeProp = response.properties.find((x) => x.kind === "statusCode");
 
+      if (
+        statusCode === undefined &&
+        statusCodeProp &&
+        !statusCodeProp.property.optional &&
+        statusCodeResponse.statusCodes !== "*"
+      ) {
+        continue;
+      }
+
       const statusCodeMatch =
         statusCode && statusCodeProp && isStatusCodeIn(statusCode, statusCodeResponse.statusCodes);
       const contentTypeMatch = contentType && response.body?.contentTypes.includes(contentType);
