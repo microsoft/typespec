@@ -78,6 +78,7 @@ import type {
   TypeInfoProvider,
   TypeSpecLibrary,
   TypeSpecScriptNode,
+  TypeTarget,
 } from "./types.js";
 import { NoTarget, SymbolFlags } from "./types.js";
 
@@ -1069,9 +1070,11 @@ async function createProgram(
     return false;
   }
 
-  function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
+  function getNode(
+    target: Node | Entity | Sym | TemplateInstanceTarget | TypeTarget,
+  ): Node | undefined {
     if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
-      // TemplateInstanceTarget
+      // TemplateInstanceTarget or TypeTarget
       if (!("declarations" in target)) {
         return target.node;
       }

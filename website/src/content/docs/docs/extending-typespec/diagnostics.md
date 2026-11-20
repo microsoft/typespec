@@ -113,6 +113,27 @@ reportDiagnostic(program, {
 });
 ```
 
+### Target the right syntax
+
+A type used as a target is reported where that type is declared. That's rarely what you want for a type reached from another one: `target: op.returnType` points at the declaration of the returned model, or at nothing useful for `never`.
+
+`typeTarget` starts from a type and follows edges to the syntax that expresses them in that type's declaration:
+
+```ts
+import { typeTarget } from "@typespec/compiler";
+
+// `never` in `op getUser(): never`
+reportDiagnostic(program, { code: "no-never", target: typeTarget(program, op, "returnType") });
+
+// `string` in `name: string`
+reportDiagnostic(program, { code: "no-string", target: typeTarget(program, prop, "type") });
+
+// Chain edges with `pipe` and `property`: `uuid` in `w: Wrapper<uuid>`
+const target = typeTarget(program, prop, "type").property("value")?.pipe("type");
+```
+
+Paths go through spreads, `model is`, `op is`, intersections and template arguments. When a path enters a declaration from another package, the target stays on the last syntax in the root's package: the spread, the `is` reference, the intersection operand or the template argument that brought it in. The declaration of the reached type is reported as related information.
+
 ### Collect diagnostics
 
 When attempting to report a diagnostic in an accessor, a good practice is not to report the diagnostic to the program directly, but return a tuple to let the user decide what to do.
