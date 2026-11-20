@@ -9,6 +9,8 @@ export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 /** Enum representation: a single `enum` schema or annotated `const` alternatives for OpenAPI 3.1 and later. */
 export type EnumStrategy = "default" | "annotated";
+/** Namespace qualification for schema and reusable parameter component keys. */
+export type ComponentNameStrategy = "fqn" | "name-only";
 /** User-supplied emitter configuration; omitted settings are normalized by `resolveOptions`. */
 export interface OpenAPI3EmitterOptions {
   /**
@@ -117,6 +119,22 @@ export interface OpenAPI3EmitterOptions {
       };
 
   /**
+   * Naming strategy for schema and reusable parameter component keys.
+   * `fqn` preserves current service-relative namespace qualification; `name-only` omits namespaces.
+   * Friendly names override namespace qualification. Separators join namespace and parameter-property
+   * segments, not punctuation within identifiers or friendly names.
+   * @default fqn
+   */
+  "component-name-strategy"?:
+    | ComponentNameStrategy
+    | {
+        /** Namespace qualification strategy. */
+        kind: ComponentNameStrategy;
+        /** Separator between namespace and parameter-property segments; defaults to `"."`. May be empty. */
+        separator?: string;
+      };
+
+  /**
    * How to emit TypeSpec enums.
    *
    *  - `default`: Emit as a single schema using the `enum` keyword.
@@ -147,6 +165,17 @@ const operationIdStrategySchema = {
     " - `parent-container`: Uses the parent namespace and operation name to generate the ID.",
     " - `fqn`: Uses the fully qualified name of the operation to generate the ID.",
     " - `explicit-only`: Only use explicitly defined operation IDs.",
+  ].join("\n"),
+} as const;
+
+const componentNameStrategySchema = {
+  type: "string",
+  enum: ["fqn", "name-only"],
+  default: "fqn",
+  description: [
+    "Naming strategy for schema and reusable parameter component keys.",
+    "`fqn` preserves service-relative namespace qualification; `name-only` omits namespaces.",
+    "Friendly names override namespace qualification. Operation IDs and HTTP names are unchanged.",
   ].join("\n"),
 } as const;
 
@@ -287,6 +316,26 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
               type: "string",
               nullable: true,
               description: "Separator used to join segment in the operation name.",
+            },
+          },
+          required: ["kind"],
+        },
+      ],
+    } as any,
+    "component-name-strategy": {
+      oneOf: [
+        componentNameStrategySchema,
+        {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            kind: componentNameStrategySchema,
+            separator: {
+              type: "string",
+              nullable: true,
+              default: ".",
+              description:
+                "Separator between namespace and parameter-property segments. May be empty. Does not replace punctuation within identifiers or friendly names.",
             },
           },
           required: ["kind"],

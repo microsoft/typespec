@@ -89,16 +89,19 @@ export function getOpenAPITypeName(
  * @param type Type with the name to check
  * @param name Name to check
  * @param existing Existing map of name
+ * @param messageId - Whether to report a duplicate type name or parameter key.
  */
 export function checkDuplicateTypeName(
   program: Program,
   type: Type,
   name: string,
   existing: Record<string, unknown> | undefined,
+  messageId: "default" | "parameter" = "default",
 ) {
   if (existing && existing[name]) {
     reportDiagnostic(program, {
       code: "duplicate-type-name",
+      messageId,
       format: {
         value: name,
       },
@@ -124,16 +127,7 @@ export function getParameterKey(
     key += `.${property.name}`;
   }
 
-  if (existingParams[key]) {
-    reportDiagnostic(program, {
-      code: "duplicate-type-name",
-      messageId: "parameter",
-      format: {
-        value: key,
-      },
-      target: property,
-    });
-  }
+  checkDuplicateTypeName(program, property, key, existingParams, "parameter");
 
   return key;
 }
