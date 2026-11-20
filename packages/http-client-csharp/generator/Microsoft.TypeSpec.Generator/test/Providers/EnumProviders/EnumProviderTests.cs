@@ -1366,40 +1366,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("snake_case_value", properties[1].Name);
         }
 
-        [TestCase("AND", false, "And")]
-        [TestCase("OR", false, "Or")]
-        [TestCase("NOT_FOUND", false, "NotFound")]
-        [TestCase("FooOR", false, "FooOR")]
-        [TestCase("ORfoo", false, "ORfoo")]
-        [TestCase("Foo_OR", false, "FooOr")]
-        [TestCase("OR_foo", false, "OrFoo")]
-        [TestCase("ORFoo", false, "ORFoo")]
-        [TestCase("FooHTTP", false, "FooHTTP")]
-        [TestCase("HTTPStatus", false, "HTTPStatus")]
-        [TestCase("HTTP2", false, "Http2")]
-        [TestCase("HTTP_2", false, "Http2")]
-        [TestCase("UTF8", false, "Utf8")]
-        [TestCase("HTTP2foo", false, "HTTP2foo")]
-        [TestCase("HTTP2", true, "HTTP2")]
-        [TestCase("IOStream", false, "IOStream")]
-        [TestCase("CallbackURL", false, "CallbackURL")]
-        [TestCase("CALLBACKURL", false, "Callbackurl")]
-        [TestCase("CALLBACK_URL", false, "CallbackUri")]
-        [TestCase("AND", true, "AND")]
-        public void BuildEnumType_ExtensibleStringEnum_MemberCasing(string name, bool isExactName, string expectedName)
+        [Test]
+        public void BuildEnumType_ExtensibleStringEnum_MemberCasing()
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(string));
 
+            var members = new (string Name, bool IsExactName)[]
+            {
+                ("AND", false),
+                ("OR", false),
+                ("NOT_FOUND", false),
+                ("FooOR", false),
+                ("ORfoo", false),
+                ("Foo_OR", false),
+                ("OR_foo", false),
+                ("ORFoo", false),
+                ("FooHTTP", false),
+                ("HTTPStatus", false),
+                ("HTTP2", false),
+                ("UTF8", false),
+                ("HTTP2foo", false),
+                ("HTTP2", true),
+                ("IOStream", false),
+                ("CallbackURL", false),
+                ("CALLBACKURL", false),
+                ("CALLBACK_URL", false),
+                ("AND", true),
+            };
             var values = new List<InputEnumTypeValue>();
             var input = InputFactory.Enum("MockInputEnum", InputPrimitiveType.String, values, isExtensible: true);
-            values.Add(InputFactory.EnumMember.String(name, name, input, isExactName: isExactName));
+            foreach (var member in members)
+            {
+                values.Add(InputFactory.EnumMember.String(member.Name, member.Name, input, isExactName: member.IsExactName));
+            }
 
             var provider = EnumProvider.Create(input);
-            var member = provider.EnumValues.Single();
+            var content = new TypeProviderWriter(provider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
 
-            Assert.AreEqual(expectedName, provider.Properties.Single().Name);
-            Assert.AreEqual(expectedName + "Value", member.Field.Name);
-            Assert.AreEqual(name, ((LiteralExpression)member.Field.InitializationValue!).Literal);
+        [Test]
+        public void BuildEnumType_ExtensibleStringEnum_UnderscoredNumericSuffixCasing()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(string));
+            var input = InputFactory.StringEnum("MockInputEnum", [("HTTP_2", "HTTP_2")], isExtensible: true);
+
+            var provider = EnumProvider.Create(input);
+
+            Assert.AreEqual("Http2", provider.Properties.Single().Name);
+            Assert.AreEqual("HTTP_2", ((LiteralExpression)provider.EnumValues.Single().Field.InitializationValue!).Literal);
         }
 
         [TestCase(false, "CallbackUrl", false, "CallbackUri")]
