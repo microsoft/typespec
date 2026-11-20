@@ -4,7 +4,12 @@ import type * as ts from "@alloy-js/typescript";
 import type { ModelProperty, Value } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
-import type { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
+import type {
+  AuthenticationReference,
+  HttpAuth,
+  HttpProperty,
+  OAuth2FlowType,
+} from "@typespec/http";
 import type * as cl from "@typespec/http-client";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
@@ -16,20 +21,18 @@ export function buildClientParameters(
   const { $ } = useTsp();
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
-  const params = parameters.flatMap(
-    (param) => {
-      const descriptor = buildClientParameterDescriptor(param, suffixRefkey);
-      if (!descriptor) {
-        return [];
-      }
+  const descriptors = parameters.flatMap((param) => {
+    const descriptor = buildClientParameterDescriptor(client, param, suffixRefkey);
+    return descriptor ? [{ descriptor, isCredential: $.modelProperty.isCredential(param) }] : [];
+  });
 
-      if (!descriptor.optional) {
-        return [descriptor];
-      }
-
-      return [];
-    },
-    {} as Record<string, ts.ParameterDescriptor>,
+  // Optional parameters are passed through the options bag, except for the credential, which stays
+  // positional. It goes after the required parameters so the signature remains valid. Only the auth
+  // credential gets this exception: an optional server URL parameter that happens to be named
+  // `credential` is still read from the options bag by the client context.
+  const params = descriptors.filter((d) => !d.descriptor.optional).map((d) => d.descriptor);
+  params.push(
+    ...descriptors.filter((d) => d.descriptor.optional && d.isCredential).map((d) => d.descriptor),
   );
 
   if (!params.some((p) => p.name === "options")) {
@@ -45,6 +48,7 @@ export function buildClientParameters(
 }
 
 function buildClientParameterDescriptor(
+  client: cl.Client,
   modelProperty: ModelProperty,
   suffixRefkey: Refkey,
 ): ts.ParameterDescriptor | undefined {
@@ -56,13 +60,14 @@ function buildClientParameterDescriptor(
       return undefined;
     }
 
+    const allowsAnonymous = clientAllowsAnonymousAccess(client, authSchemes);
     const credentialType = Array.from(
       new Set(authSchemes.filter((s) => s.type !== "noAuth").map((s) => getCredentialType(s))),
     );
     return {
       name: "credential",
       refkey: refkey(modelProperty, suffixRefkey),
-      optional: modelProperty.optional,
+      optional: modelProperty.optional || allowsAnonymous,
       type: mapJoin(
         () => credentialType,
         (t) => t,
@@ -72,6 +77,35 @@ function buildClientParameterDescriptor(
   }
 
   return buildParameterDescriptor(modelProperty, suffixRefkey);
+}
+
+/**
+ * Whether every operation of the client can be called without credentials, i.e. `NoAuth` is one of
+ * the alternatives in the auth union that applies to each of them. The credential schemes are
+ * collected service-wide, so a `noAuth` scheme alone is not enough: an operation in a nested
+ * namespace using `@useAuth(NoAuth)` must not make the credential optional for the other operations.
+ *
+ * Each operation's auth already falls back to its interface or namespace auth, so the service default
+ * only applies when no operation resolved any auth. Checking it otherwise would keep the credential
+ * required when every operation overrides the service auth with a union that includes `NoAuth`.
+ */
+function clientAllowsAnonymousAccess(client: cl.Client, authSchemes: HttpAuth[]): boolean {
+  const { $ } = useTsp();
+  if (!authSchemes.some((s) => s.type === "noAuth")) {
+    return false;
+  }
+
+  const auth = $.client.getAuth(client);
+  const effectiveAuth =
+    auth.operationsAuth.size > 0 ? [...auth.operationsAuth.values()] : [auth.defaultAuth];
+  return effectiveAuth.every(allowsAnonymousAccess);
+}
+
+function allowsAnonymousAccess(reference: AuthenticationReference): boolean {
+  return (
+    reference.options.length === 0 ||
+    reference.options.some((option) => option.all.every((ref) => ref.kind === "noAuth"))
+  );
 }
 
 const oauth2FlowRefs: Record<OAuth2FlowType, Refkey> = {
