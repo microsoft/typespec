@@ -1286,6 +1286,8 @@ function createOAPIEmitter(
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
     }
 
+    const oai3Examples = examples && getExampleOrExamples(program, examples);
+
     // Check if this is a stream response (only for responses)
     if (sseModule && isResponseContent) {
       // Use getStreamMetadata to check if this is a stream response
@@ -1309,13 +1311,12 @@ function createOAPIEmitter(
             (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
           );
           if (Object.keys(mediaType).length > 0) {
-            return mediaType;
+            return { ...mediaType, ...oai3Examples };
           }
         }
       }
     }
 
-    const oai3Examples = examples && getExampleOrExamples(program, examples);
     switch (body.bodyKind) {
       case "single":
         return {
