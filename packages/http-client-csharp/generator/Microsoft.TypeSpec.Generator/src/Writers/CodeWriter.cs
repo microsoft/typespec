@@ -439,6 +439,9 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         public void WriteParameter(ParameterProvider parameter)
+            => WriteParameter(parameter, includeDefault: true);
+
+        private void WriteParameter(ParameterProvider parameter, bool includeDefault)
         {
             for (int i = 0; i < parameter.Attributes.Count; i++)
             {
@@ -459,7 +462,7 @@ namespace Microsoft.TypeSpec.Generator
             AppendRawIf("params ", parameter.IsParams);
 
             Append($"{parameter.Type} {parameter.AsVariable().Declaration}");
-            if (parameter.DefaultValue != null)
+            if (includeDefault && parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
                 parameter.DefaultValue.Write(this);
@@ -894,7 +897,8 @@ namespace Microsoft.TypeSpec.Generator
 
             for (int i = 0; i < methodBase.Parameters.Count; i++)
             {
-                WriteParameter(methodBase.Parameters[i]);
+                WriteParameter(methodBase.Parameters[i],
+                    includeDefault: methodBase is not ConstructorSignature || !methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
                 if (i != methodBase.Parameters.Count - 1)
                 {
                     AppendRaw(", ");

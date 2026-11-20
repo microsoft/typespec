@@ -416,6 +416,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(isRef, parameter.IsRef);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ValidatePartialConstructorDeclarations(bool useWorkspace)
+        {
+            MockHelpers.LoadMockGenerator(sharedSourceDirectories: [Helpers.GetAssetFileOrDirectoryPath(false)]);
+            var compilation = useWorkspace
+                ? await (await GeneratedCodeWorkspace.Create(isCustomCodeProject: true)).GetCompilationAsync()
+                : await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var constructors = provider.Constructors;
+            Assert.AreEqual(4, constructors.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Partial,
+                constructors.Single(c => c.Signature.Parameters.Count == 0).Signature.Modifiers);
+            foreach (var constructor in constructors.Where(c => c.Signature.Parameters.Count > 0))
+            {
+                Assert.IsFalse(constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+            }
+        }
+
         [Test]
         public async Task ValidatePartialMethodIsDetected()
         {

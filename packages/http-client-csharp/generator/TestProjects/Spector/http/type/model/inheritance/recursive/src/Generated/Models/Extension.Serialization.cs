@@ -23,7 +23,7 @@ namespace _Type.Model.Inheritance.Recursive
 
         string IPersistableModel<Extension>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Extension extension) => throw null;
+        public static implicit operator BinaryContent(Extension @extension) => throw null;
 
         public static explicit operator Extension(ClientResult result) => throw null;
 
