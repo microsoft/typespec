@@ -22,7 +22,11 @@ public class MetadataTests {
         MetadataClient client = new MetadataClientBuilder().buildClient();
         SyncPoller<ContentAnalysisStatus, ContentAnalysisResult> poller = client.beginAnalyzeWithUsage("analyzer-1");
 
-        PollResponse<ContentAnalysisStatus> response = poller.waitForCompletion();
+        PollResponse<ContentAnalysisStatus> response = poller.poll();
+        Assertions.assertEquals(LongRunningOperationStatus.IN_PROGRESS, response.getStatus());
+        Assertions.assertEquals(Map.of("input", 10), response.getValue().getUsage().getTokens());
+
+        response = poller.waitForCompletion();
         Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.getStatus());
         Assertions.assertEquals("usage-123", response.getValue().getId());
         Assertions.assertEquals(1, response.getValue().getUsage().getDocumentPagesBasic());

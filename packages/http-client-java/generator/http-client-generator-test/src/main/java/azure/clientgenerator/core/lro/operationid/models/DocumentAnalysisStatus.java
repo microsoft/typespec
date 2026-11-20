@@ -4,6 +4,7 @@
 
 package azure.clientgenerator.core.lro.operationid.models;
 
+import azure.clientgenerator.core.lro.operationid.implementation.OperationIdPollingStrategy;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
@@ -28,6 +29,17 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
      */
     @Generated
     private DocumentAnalysisResult result;
+
+    /**
+     * The operation ID from the polling URL, set by the polling strategy after deserialization.
+     */
+    @Generated
+    private String lroOperationId;
+
+    static {
+        OperationIdPollingStrategy.setOperationIdAccessor(DocumentAnalysisStatus.class,
+            (model, operationId) -> model.lroOperationId = operationId);
+    }
 
     /**
      * Creates an instance of DocumentAnalysisStatus class.
@@ -57,6 +69,17 @@ public final class DocumentAnalysisStatus implements JsonSerializable<DocumentAn
     @Generated
     public DocumentAnalysisResult getResult() {
         return this.result;
+    }
+
+    /**
+     * Get the ID of the long-running operation, from the polling URL.
+     * 
+     * @return the ID of the long-running operation, or null if unavailable. The poll result is available when a status
+     * response with a body has been received.
+     */
+    @Generated
+    public String getOperationId() {
+        return this.lroOperationId;
     }
 
     /**
