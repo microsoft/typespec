@@ -268,6 +268,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual("UnknownPipelineActivity", model.DerivedModels.Single(m => m.IsUnknownDiscriminatorModel).Name);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task RejectedHistoricalNameReservesFallbackBeforeOtherRestoration(bool reverseOrder)
+        {
+            var pipeline = InputFactory.Model("PipelineActivity", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var job = InputFactory.Model("JobDetails", properties:
+                [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)]);
+            var collision = InputFactory.Model("UnknownActivity", isExactName: true);
+            InputModelType[] models = reverseOrder
+                ? [job, collision, pipeline]
+                : [pipeline, job, collision];
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => models,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var pipelineUnknown = factory.CreateModel(pipeline.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+            var jobUnknown = factory.CreateModel(job.DiscriminatedSubtypes.Values.Single(m => m.IsUnknownDiscriminatorModel))!;
+
+            Assert.AreEqual("UnknownPipelineActivity", pipelineUnknown.Name);
+            Assert.AreEqual("UnknownJobDetails", jobUnknown.Name);
+            Assert.AreNotEqual(pipelineUnknown.Name, jobUnknown.Name);
+        }
+
         [Test]
         public void BaseShouldHaveProxyAttribute()
         {

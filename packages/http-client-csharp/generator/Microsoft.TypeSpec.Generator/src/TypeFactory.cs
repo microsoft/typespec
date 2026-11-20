@@ -36,12 +36,15 @@ namespace Microsoft.TypeSpec.Generator
         private IReadOnlyDictionary<InputModelType, string>? _modelNames;
         internal IReadOnlyDictionary<InputModelType, string> ModelNames => _modelNames ??= BuildModelNames();
         private IReadOnlyDictionary<InputModelType, string>? _emittedModelNames;
+        private IReadOnlyDictionary<InputModelType, string>? _fallbackModelNames;
 
         protected bool HasModelNameCollision(string name, InputModelType exceptModel)
         {
             _ = ModelNames;
             return _emittedModelNames!.Any(model =>
-                model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase));
+                    model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase)) ||
+                _fallbackModelNames!.Any(model =>
+                    model.Key != exceptModel && string.Equals(model.Value, name, StringComparison.OrdinalIgnoreCase));
         }
 
         protected virtual IEnumerable<(string Name, string Namespace, string OriginalName)> GetReservedModelTypeNames() => [];
@@ -96,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator
 
             var result = new Dictionary<InputModelType, string>();
             var emittedModelNames = new Dictionary<InputModelType, string>();
+            var fallbackModelNames = candidates.ToDictionary(candidate => candidate.Key, candidate => candidate.Value.Name);
             foreach (var (model, candidate) in candidates)
             {
                 // A direct input takes precedence over an implicit suffix match for the same mapping.
@@ -123,6 +127,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             _emittedModelNames = emittedModelNames;
+            _fallbackModelNames = fallbackModelNames;
             return result;
         }
 
