@@ -288,7 +288,7 @@ function fromSdkModelType(
   return diagnostics.wrap(inputModelType);
 }
 
-function fromSdkModelProperty(
+export function fromSdkModelProperty(
   sdkContext: CSharpEmitterContext,
   sdkProperty: SdkModelPropertyType,
   sdkModel: SdkModelType,

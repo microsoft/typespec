@@ -1,0 +1,546 @@
+{
+  "name": "LroFixture",
+  "apiVersions": [],
+  "enums": [
+    {
+      "$id": "1",
+      "kind": "enum",
+      "name": "MonitorStatus",
+      "apiVersions": [],
+      "crossLanguageDefinitionId": "LroFixture.Monitor.status.anonymous",
+      "valueType": {
+        "$id": "2",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "values": [
+        {
+          "$id": "3",
+          "kind": "enumvalue",
+          "name": "Running",
+          "value": "Running",
+          "valueType": {
+            "$ref": "2"
+          },
+          "enumType": {
+            "$ref": "1"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "$id": "4",
+          "kind": "enumvalue",
+          "name": "Succeeded",
+          "value": "Succeeded",
+          "valueType": {
+            "$ref": "2"
+          },
+          "enumType": {
+            "$ref": "1"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "$id": "5",
+          "kind": "enumvalue",
+          "name": "Failed",
+          "value": "Failed",
+          "valueType": {
+            "$ref": "2"
+          },
+          "enumType": {
+            "$ref": "1"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "$id": "6",
+          "kind": "enumvalue",
+          "name": "Canceled",
+          "value": "Canceled",
+          "valueType": {
+            "$ref": "2"
+          },
+          "enumType": {
+            "$ref": "1"
+          },
+          "decorators": [],
+          "isExactName": false
+        }
+      ],
+      "namespace": "LroFixture",
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Output,Json,LroPolling,LroFinalEnvelope",
+      "decorators": [],
+      "isExactName": false
+    }
+  ],
+  "constants": [
+    {
+      "$id": "7",
+      "kind": "constant",
+      "name": "GetStatusAccept",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "8",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    }
+  ],
+  "models": [
+    {
+      "$id": "9",
+      "kind": "model",
+      "name": "Monitor",
+      "apiVersions": [],
+      "namespace": "LroFixture",
+      "crossLanguageDefinitionId": "LroFixture.Monitor",
+      "usage": "Output,Json,LroPolling,LroFinalEnvelope",
+      "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Monitor"
+        }
+      },
+      "isExactName": false,
+      "baseModel": {
+        "$id": "10",
+        "kind": "model",
+        "name": "BaseMonitor",
+        "apiVersions": [],
+        "namespace": "LroFixture",
+        "crossLanguageDefinitionId": "LroFixture.BaseMonitor",
+        "usage": "Output,Json,LroPolling,LroFinalEnvelope",
+        "decorators": [],
+        "serializationOptions": {
+          "json": {
+            "name": "BaseMonitor"
+          }
+        },
+        "isExactName": false,
+        "properties": [
+          {
+            "$id": "11",
+            "kind": "property",
+            "name": "jobId",
+            "originalName": "id",
+            "apiVersions": [],
+            "serializedName": "job_id",
+            "type": {
+              "$id": "12",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+            },
+            "optional": false,
+            "readOnly": false,
+            "discriminator": false,
+            "flatten": false,
+            "decorators": [],
+            "crossLanguageDefinitionId": "LroFixture.BaseMonitor.id",
+            "serializationOptions": {
+              "json": {
+                "name": "job_id"
+              }
+            },
+            "isHttpMetadata": false,
+            "isExactName": false
+          }
+        ]
+      },
+      "properties": [
+        {
+          "$id": "13",
+          "kind": "property",
+          "name": "status",
+          "apiVersions": [],
+          "serializedName": "status",
+          "type": {
+            "$ref": "1"
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "LroFixture.Monitor.status",
+          "serializationOptions": {
+            "json": {
+              "name": "status"
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        },
+        {
+          "$id": "14",
+          "kind": "property",
+          "name": "result",
+          "apiVersions": [],
+          "serializedName": "result",
+          "type": {
+            "$id": "15",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": true,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "LroFixture.Monitor.result",
+          "serializationOptions": {
+            "json": {
+              "name": "result"
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        }
+      ]
+    },
+    {
+      "$ref": "10"
+    }
+  ],
+  "clients": [
+    {
+      "$id": "16",
+      "kind": "client",
+      "name": "LroFixtureClient",
+      "isExactName": false,
+      "namespace": "LroFixture",
+      "methods": [
+        {
+          "$id": "17",
+          "kind": "basic",
+          "name": "getStatus",
+          "isExactName": false,
+          "accessibility": "public",
+          "apiVersions": [],
+          "operation": {
+            "$id": "18",
+            "name": "getStatus",
+            "isExactName": false,
+            "accessibility": "public",
+            "parameters": [
+              {
+                "$id": "19",
+                "kind": "path",
+                "name": "id",
+                "serializedName": "jobId",
+                "type": {
+                  "$id": "20",
+                  "kind": "string",
+                  "name": "string",
+                  "crossLanguageDefinitionId": "TypeSpec.string",
+                  "decorators": []
+                },
+                "isApiVersion": false,
+                "explode": false,
+                "style": "simple",
+                "allowReserved": false,
+                "skipUrlEncoding": false,
+                "optional": false,
+                "scope": "Method",
+                "decorators": [],
+                "readOnly": false,
+                "crossLanguageDefinitionId": "LroFixture.getStatus.id",
+                "methodParameterSegments": [
+                  {
+                    "$id": "21",
+                    "kind": "method",
+                    "name": "id",
+                    "serializedName": "jobId",
+                    "type": {
+                      "$id": "22",
+                      "kind": "string",
+                      "name": "string",
+                      "crossLanguageDefinitionId": "TypeSpec.string",
+                      "decorators": []
+                    },
+                    "location": "Path",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Method",
+                    "crossLanguageDefinitionId": "LroFixture.getStatus.id",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              },
+              {
+                "$id": "23",
+                "kind": "header",
+                "name": "accept",
+                "serializedName": "Accept",
+                "type": {
+                  "$ref": "7"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": false,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "LroFixture.getStatus.accept",
+                "methodParameterSegments": [
+                  {
+                    "$id": "24",
+                    "kind": "method",
+                    "name": "accept",
+                    "serializedName": "Accept",
+                    "type": {
+                      "$ref": "7"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "LroFixture.getStatus.accept",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              }
+            ],
+            "responses": [
+              {
+                "statusCodes": [
+                  200
+                ],
+                "bodyType": {
+                  "$ref": "9"
+                },
+                "headers": [],
+                "isErrorResponse": false,
+                "contentTypes": [
+                  "application/json"
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
+              }
+            ],
+            "httpMethod": "GET",
+            "uri": "{endpoint}",
+            "path": "/jobs/{jobId}/status",
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "LroFixture.getStatus",
+            "decorators": [],
+            "namespace": "LroFixture"
+          },
+          "parameters": [
+            {
+              "$ref": "21"
+            },
+            {
+              "$ref": "24"
+            }
+          ],
+          "response": {
+            "type": {
+              "$ref": "9"
+            }
+          },
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "LroFixture.getStatus"
+        },
+        {
+          "$id": "25",
+          "kind": "lro",
+          "name": "begin",
+          "isExactName": false,
+          "accessibility": "internal",
+          "apiVersions": [],
+          "operation": {
+            "$id": "26",
+            "name": "begin",
+            "isExactName": false,
+            "accessibility": "internal",
+            "parameters": [],
+            "responses": [
+              {
+                "statusCodes": [
+                  202
+                ],
+                "headers": [
+                  {
+                    "name": "location",
+                    "nameInResponse": "Operation-Location",
+                    "type": {
+                      "$id": "27",
+                      "kind": "url",
+                      "name": "ResourceLocation",
+                      "crossLanguageDefinitionId": "TypeSpec.Rest.ResourceLocation",
+                      "baseType": {
+                        "$id": "28",
+                        "kind": "url",
+                        "name": "url",
+                        "crossLanguageDefinitionId": "TypeSpec.url",
+                        "decorators": []
+                      },
+                      "decorators": []
+                    }
+                  }
+                ],
+                "isErrorResponse": false,
+                "serializationOptions": {}
+              }
+            ],
+            "httpMethod": "POST",
+            "uri": "{endpoint}",
+            "path": "/jobs",
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "LroFixture.begin",
+            "decorators": [],
+            "namespace": "LroFixture"
+          },
+          "parameters": [],
+          "response": {
+            "type": {
+              "$id": "29",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+            },
+            "resultSegments": [
+              "result"
+            ]
+          },
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "LroFixture.begin",
+          "lroMetadata": {
+            "finalStateVia": 3,
+            "finalResponse": {
+              "statusCodes": [
+                200
+              ],
+              "bodyType": {
+                "$ref": "9"
+              }
+            },
+            "resultPath": "result",
+            "operationId": [
+              {
+                "$id": "30",
+                "kind": "path",
+                "source": {
+                  "location": "ResponseHeader",
+                  "property": {
+                    "$id": "31",
+                    "kind": "property",
+                    "name": "location",
+                    "apiVersions": [],
+                    "serializedName": "Operation-Location",
+                    "type": {
+                      "$id": "32",
+                      "kind": "url",
+                      "name": "ResourceLocation",
+                      "crossLanguageDefinitionId": "TypeSpec.Rest.ResourceLocation",
+                      "baseType": {
+                        "$id": "33",
+                        "kind": "url",
+                        "name": "url",
+                        "crossLanguageDefinitionId": "TypeSpec.url",
+                        "decorators": []
+                      },
+                      "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "LroFixture..anonymous.location",
+                    "serializationOptions": {},
+                    "isHttpMetadata": true,
+                    "isExactName": false
+                  }
+                },
+                "pathParameter": {
+                  "$ref": "19"
+                },
+                "pollingPath": "/jobs/{jobId}/status"
+              },
+              {
+                "$id": "34",
+                "kind": "property",
+                "property": {
+                  "$ref": "11"
+                },
+                "propertySegments": [
+                  {
+                    "$ref": "11"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "parameters": [
+        {
+          "$id": "35",
+          "kind": "endpoint",
+          "name": "endpoint",
+          "serializedName": "endpoint",
+          "doc": "Service host",
+          "type": {
+            "$id": "36",
+            "kind": "url",
+            "name": "endpoint",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+          },
+          "isApiVersion": false,
+          "optional": false,
+          "scope": "Client",
+          "isEndpoint": true,
+          "serverUrlTemplate": "{endpoint}",
+          "skipUrlEncoding": false,
+          "readOnly": false,
+          "crossLanguageDefinitionId": "LroFixture.endpoint",
+          "isExactName": false
+        }
+      ],
+      "initializedBy": 1,
+      "decorators": [],
+      "crossLanguageDefinitionId": "LroFixture",
+      "apiVersions": [],
+      "isMultiServiceClient": false
+    }
+  ]
+}

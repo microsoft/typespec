@@ -27,6 +27,7 @@ import {
   getHttpOperationParameter,
   getParamAlias,
   getResponseAsBool,
+  getSdkModelWithDiagnostics,
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
@@ -38,9 +39,11 @@ import {
   getDeprecated,
   isErrorModel,
   NoTarget,
+  resolveEncodedName,
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
+import { getHeaderFieldName, isBody, isBodyRoot } from "@typespec/http";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -54,17 +57,21 @@ import type {
   InputLongRunningPagingServiceMethod,
   InputLongRunningServiceMetadata,
   InputLongRunningServiceMethod,
+  InputLroOperationIdMetadata,
+  InputLroOperationIdPropertyMetadata,
   InputNextLink,
   InputPagingServiceMetadata,
   InputPagingServiceMethod,
   InputServiceMethod,
   InputServiceMethodResponse,
 } from "../type/input-service-method.js";
+import { InputOperationLinkLocation } from "../type/input-service-method.js";
 import type {
   InputBodyParameter,
   InputHeaderParameter,
   InputHttpParameter,
   InputMethodParameter,
+  InputModelProperty,
   InputPathParameter,
   InputQueryParameter,
   InputStreamingType,
@@ -79,7 +86,7 @@ import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
-import { fromSdkType } from "./type-converter.js";
+import { fromSdkModelProperty, fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
 
 export function fromSdkServiceMethod(
@@ -135,7 +142,7 @@ export function fromSdkServiceMethod(
         ),
       );
       lroServiceMethod.lroMetadata = diagnostics.pipe(
-        loadLongRunningMetadata(sdkContext, sdkMethod),
+        loadLongRunningMetadata(sdkContext, sdkMethod, rootApiVersions),
       );
       method = lroServiceMethod;
       break;
@@ -150,7 +157,7 @@ export function fromSdkServiceMethod(
         ),
       );
       lroPagingMethod.lroMetadata = diagnostics.pipe(
-        loadLongRunningMetadata(sdkContext, sdkMethod),
+        loadLongRunningMetadata(sdkContext, sdkMethod, rootApiVersions),
       );
       lroPagingMethod.pagingMetadata = diagnostics.pipe(
         loadPagingServiceMetadata(sdkContext, sdkMethod, rootApiVersions, uri, namespace),
@@ -723,8 +730,172 @@ export function fromMethodParameter(
 function loadLongRunningMetadata(
   sdkContext: CSharpEmitterContext,
   method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  rootApiVersions: string[],
 ): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
+  const metadata = method.lroMetadata;
+  const step = metadata.statusMonitorStep;
+  const pollingOperation =
+    step?.kind === "nextOperationLink" ? step.operation : step?.target.operation;
+  let pollingMethod: SdkServiceMethod<SdkHttpOperation> | undefined;
+  if (pollingOperation && metadata.operationId?.length) {
+    const pollingClient = sdkContext.getClientForOperation(pollingOperation.__raw.operation);
+    const clients = [...sdkContext.sdkPackage.clients];
+    for (let index = 0; index < clients.length; index++) {
+      const client = clients[index];
+      if (client.__raw === pollingClient) {
+        pollingMethod = client.methods.find(
+          (candidate) => candidate.operation.__raw.operation === pollingOperation.__raw.operation,
+        );
+        break;
+      }
+      clients.push(...(client.children ?? []));
+    }
+  }
+  const reportInvalidSelection = (message: string) => {
+    diagnostics.add(
+      createDiagnostic({
+        code: "general-error",
+        format: { message: `Invalid LRO metadata for '${method.name}': ${message}` },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
+  };
+
+  const convertProperty = (sdkProperty: SdkModelPropertyType) => {
+    const property = diagnostics.pipe(
+      fromSdkModelProperty(sdkContext, sdkProperty, metadata.pollingInfo.responseModel),
+    );
+    // TCGC omits serialization options when the polling model is not otherwise emitted.
+    if (property && property.serializedName === undefined && sdkProperty.__raw) {
+      property.serializedName = resolveEncodedName(
+        sdkContext.program,
+        sdkProperty.__raw,
+        "application/json",
+      );
+    }
+    return property;
+  };
+
+  const convertSelection = (entry: {
+    property: SdkModelPropertyType;
+    propertySegments: SdkModelPropertyType[];
+  }): Pick<InputLroOperationIdPropertyMetadata, "property" | "propertySegments"> | undefined => {
+    if (!entry.property || !entry.propertySegments?.length) {
+      reportInvalidSelection("a selected property must have a nonempty property path.");
+      return undefined;
+    }
+
+    const property = convertProperty(entry.property);
+    if (!property) {
+      reportInvalidSelection("a selected property could not be converted.");
+      return undefined;
+    }
+
+    const propertySegments: InputModelProperty[] = [];
+    for (const segment of entry.propertySegments) {
+      const converted = convertProperty(segment);
+      if (!converted) {
+        reportInvalidSelection("a selected property path could not be converted.");
+        return undefined;
+      }
+      propertySegments.push(converted);
+    }
+    return { property, propertySegments };
+  };
+
+  const operationId: InputLroOperationIdMetadata[] = [];
+  for (const entry of metadata.operationId ?? []) {
+    if (entry.kind === "property") {
+      const selection = convertSelection(entry);
+      if (selection) {
+        operationId.push({ kind: "property", ...selection });
+      }
+      continue;
+    }
+
+    if (entry.kind !== "path") {
+      reportInvalidSelection("the operation ID has an unsupported selection kind.");
+      continue;
+    }
+
+    if (!pollingOperation?.path || !entry.pathParameter || entry.pathParameter.kind !== "path") {
+      reportInvalidSelection(
+        "the operation ID requires a linked polling operation and path parameter.",
+      );
+      continue;
+    }
+
+    // TCGC constructs a separate polling operation for LRO metadata. Use the actual
+    // client method's parameter when it is exposed so its cached input is shared.
+    const sdkPollingOperation = pollingMethod?.operation ?? pollingOperation;
+    const sdkPathParameters = sdkPollingOperation.parameters.filter(
+      (parameter) =>
+        parameter.kind === "path" &&
+        parameter.crossLanguageDefinitionId === entry.pathParameter.crossLanguageDefinitionId,
+    );
+    if (sdkPathParameters.length !== 1) {
+      reportInvalidSelection(
+        "the operation ID path parameter must uniquely match a polling operation parameter.",
+      );
+      continue;
+    }
+    const pathParameter = diagnostics.pipe(
+      fromParameter(sdkContext, sdkPathParameters[0], rootApiVersions),
+    );
+    if (!pathParameter || pathParameter.kind !== "path") {
+      reportInvalidSelection("the operation ID path parameter could not be converted.");
+      continue;
+    }
+
+    if (!entry.source?.property) {
+      reportInvalidSelection("the operation ID polling link must have a source property.");
+      continue;
+    }
+
+    const source = entry.source.property;
+    const rawSource = source.__raw;
+    if (!rawSource?.model) {
+      reportInvalidSelection("the operation ID polling link must have a source model property.");
+      continue;
+    }
+
+    let location: InputOperationLinkLocation;
+    switch (entry.source.location) {
+      case "ResponseHeader":
+        location = InputOperationLinkLocation.ResponseHeader;
+        break;
+      case "ResponseBody":
+        location =
+          isBody(sdkContext.program, rawSource) || isBodyRoot(sdkContext.program, rawSource)
+            ? InputOperationLinkLocation.Self
+            : InputOperationLinkLocation.ResponseBody;
+        break;
+      case "Self":
+        location = InputOperationLinkLocation.Self;
+        break;
+      default:
+        reportInvalidSelection("the operation ID has an unsupported polling link location.");
+        continue;
+    }
+
+    const sourceModel = diagnostics.pipe(getSdkModelWithDiagnostics(sdkContext, rawSource.model));
+    const convertedSource = diagnostics.pipe(fromSdkModelProperty(sdkContext, source, sourceModel));
+    if (!convertedSource) {
+      reportInvalidSelection("the operation ID polling link property could not be converted.");
+      continue;
+    }
+    const sourceProperty =
+      location === InputOperationLinkLocation.ResponseHeader
+        ? { ...convertedSource, serializedName: getHeaderFieldName(sdkContext.program, rawSource) }
+        : convertedSource;
+    operationId.push({
+      kind: "path",
+      source: { location, property: sourceProperty },
+      pathParameter,
+      pollingPath: pollingOperation.path,
+    });
+  }
 
   return diagnostics.wrap({
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
@@ -740,6 +911,7 @@ function loadLongRunningMetadata(
           : undefined,
     } as OperationResponse,
     resultPath: method.lroMetadata.finalResultPath,
+    operationId: metadata.operationId ? operationId : undefined,
   });
 }
 
