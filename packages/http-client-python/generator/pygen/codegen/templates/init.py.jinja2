@@ -14,12 +14,18 @@ from {{ code_model.get_relative_import_path(serialize_namespace, module_name="_v
 
 __version__ = VERSION
 {% endif %}
+{% if code_model.has_lro_metadata and serialize_namespace == code_model.namespace + ('.aio' if async_mode else '') %}
+from {{ '..' if async_mode else '.' }}_polling import {{ 'Async' if async_mode else '' }}MetadataLROPoller
+{% endif %}
 
 {{ keywords.patch_imports(try_except=True) }}
 __all__ = [
     {% for client in clients %}
     {{ keywords.escape_str(client.name) }},
     {% endfor %}
+    {% if code_model.has_lro_metadata and serialize_namespace == code_model.namespace + ('.aio' if async_mode else '') %}
+    "{{ 'Async' if async_mode else '' }}MetadataLROPoller",
+    {% endif %}
 ]
 {{ keywords.extend_all }}
 

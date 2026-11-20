@@ -1106,7 +1106,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 deserialize_code.append("deserialized = self._deserialize(")
                 serialization_type = response.serialization_type(serialize_namespace=self.serialize_namespace)
                 deserialize_code.append(f"    '{serialization_type}',{pylint_disable}")
-                deserialize_code.append(" pipeline_response.http_response")
+                deserialize_input = (
+                    f"response.json(){response.result_property}"
+                    if response.result_property
+                    else "pipeline_response.http_response"
+                )
+                deserialize_code.append(f"    {deserialize_input}")
                 deserialize_code.append(")")
             elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
@@ -1850,6 +1855,33 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
 
     def return_lro_poller(self, builder: LROOperationType) -> list[str]:
         retval = []
+        metadata_argument = "lro_metadata=lro_metadata," if builder.lro_metadata else ""
+        if builder.lro_metadata:
+            retval.extend(["lro_metadata = _LroMetadata(", "    status_metadata={"])
+            for name, path in builder.status_metadata:
+                retval.append(f"        {name!r}: {path!r},")
+            deserialize = "value"
+            if (builder.status_metadata or builder.operation_id_path) and builder.status_monitor_type:
+                if self.code_model.options["models-mode"] == "msrest":
+                    serialization_type = builder.status_monitor_type.serialization_type(
+                        serialize_namespace=self.serialize_namespace
+                    )
+                    deserialize = f"self._deserialize({serialization_type!r}, value)"
+                elif self.code_model.options["models-mode"] == "dpg" and not self.code_model.generate_typeddict_only:
+                    annotation = builder.status_monitor_type.type_annotation(
+                        serialize_namespace=self.serialize_namespace, is_operation_file=True
+                    )
+                    deserialize = f"_deserialize({annotation}, value)"
+            retval.extend(
+                [
+                    "    },",
+                    f"    deserialize_monitor=lambda value: {deserialize},",
+                    f"    operation_id_path={builder.operation_id_path!r},",
+                    f"    operation_id_uri={builder.lro_metadata.get('operationIdUri')!r},",
+                    f"    initial_response_is_monitor={builder.lro_metadata['initialResponseIsMonitor']!r},",
+                    ")",
+                ]
+            )
         lro_options_str = (
             "lro_options={'final-state-via': '" + builder.lro_options["final-state-via"] + "'},"
             if builder.lro_options
@@ -1867,6 +1899,7 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
                 + f"= cast({builder.get_base_polling_method(self.async_mode)}, "
                 f"{builder.get_polling_method(self.async_mode)}(",
                 "        lro_delay,",
+                f"        {metadata_argument}",
                 f"        {lro_options_str}",
                 f"        {path_format_arguments_str}",
                 "        **kwargs",
@@ -1883,10 +1916,23 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
         retval.append("        polling_method=polling_method,")
         retval.append("        continuation_token=cont_token,")
         retval.append("        client=self._client,")
-        retval.append("        deserialization_callback=get_long_running_output")
+        retval.append("        deserialization_callback=get_long_running_output" + ("," if metadata_argument else ""))
+        if metadata_argument:
+            retval.append(f"        {metadata_argument}")
         retval.append("    )")
         retval.append(f"return {builder.get_poller_with_response_type(self.async_mode)}(")
-        retval.append("    self._client, raw_result, get_long_running_output, polling_method  # type: ignore")
+        if metadata_argument:
+            retval.extend(
+                [
+                    "    self._client,",
+                    "    raw_result,  # type: ignore",
+                    "    get_long_running_output,",
+                    "    polling_method,",
+                    f"    {metadata_argument}",
+                ]
+            )
+        else:
+            retval.append("    self._client, raw_result, get_long_running_output, polling_method  # type: ignore")
         retval.append("    )")
         return retval
 
