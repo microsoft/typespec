@@ -79,7 +79,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "enum",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema, context),
+      decorators: getDecoratorsForSchema(
+        schema,
+        context,
+        context.getRefName(`#/components/schemas/${name}`, [context.rootNamespace]),
+      ),
       doc: schema.description,
       schema,
     };
@@ -152,7 +156,12 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
-    let decorators = [...getDecoratorsForSchema(schema, context), ...unionMetadata.decorators];
+    let decorators = [
+      ...getDecoratorsForSchema(schema, context),
+      ...unionMetadata.decorators.filter(
+        (decorator) => decorator.name !== "example" || !("examples" in schema),
+      ),
+    ];
 
     // Check if this is an SSE event schema - if so, replace @oneOf with @events
     const schemaRef = `#/components/schemas/${name}`;
@@ -176,7 +185,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
 
   /**
    * Extracts meaningful description and decorators from union members.
-   * Handles anyOf/oneOf with null, and type arrays like ["string", "null"].
+   * Handles anyOf/oneOf with null.
    */
   function extractUnionMetadata(schema: SupportedOpenAPISchema): {
     description?: string;
@@ -202,19 +211,6 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       }
     }
 
-    // Handle type array scenarios like type: ["string", "null"]
-    if (Array.isArray(schema.type)) {
-      const nonNullTypes = schema.type.filter((t) => t !== "null");
-      // If we have exactly one non-null type, this is essentially a nullable version of that type
-      // The schema itself should contain the relevant constraints/description for the non-null type
-      if (nonNullTypes.length === 1) {
-        // Create a schema without the null type to extract decorators for the non-null part
-        const nonNullSchema = { ...schema, type: nonNullTypes[0] };
-        return { decorators: getDecoratorsForSchema(nonNullSchema, context) };
-        // The description should already be on the main schema, so we don't override it here
-      }
-    }
-
     return { decorators: [] };
   }
 
@@ -227,7 +223,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "scalar",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema, context),
+      decorators: getDecoratorsForSchema(
+        schema,
+        context,
+        context.getRefName(`#/components/schemas/${name}`, [context.rootNamespace]),
+      ),
       doc: schema.description,
       schema: "$ref" in schema ? {} : schema,
     });
@@ -340,6 +340,9 @@ function unwrapSingleAnyOfOneOf(
         ...(schema as object),
         ...member,
         description: member.description || schema.description,
+        ...("examples" in schema && schema.examples !== undefined
+          ? { examples: schema.examples }
+          : {}),
         anyOf: undefined,
         oneOf: undefined,
       };
