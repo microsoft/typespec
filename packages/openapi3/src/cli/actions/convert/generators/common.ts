@@ -16,3 +16,28 @@ export function stringLiteral(value: string): string {
   // Avoid double-escaping backslashes in the process
   return `"${value.replaceAll(/(?:([^\\])"|^")/gi, '$1\\"').replaceAll(/(?:([^\\])\$\{|^\$\{)/gi, "$1\\${")}"`;
 }
+import type { SupportedOpenAPISchema } from "../../../../types.js";
+
+export function getStringType(schema: SupportedOpenAPISchema): string {
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    return "bytes";
+  }
+
+  switch (schema.format) {
+    case "binary":
+    case "byte":
+      return "bytes";
+    case "date":
+      return "plainDate";
+    case "date-time":
+      return "utcDateTime";
+    case "time":
+      return "plainTime";
+    case "duration":
+      return "duration";
+    case "uri":
+      return "url";
+    default:
+      return "string";
+  }
+}

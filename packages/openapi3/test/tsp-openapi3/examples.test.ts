@@ -266,7 +266,7 @@ describe("import schema examples", () => {
     ).toEqual([{ name: "response example" }]);
   });
 
-  it("round-trips examples on inline string request and response bodies", async () => {
+  it.each([false, true])("round-trips inline string bodies (const: %s)", async (isConst) => {
     const input = documentFor({});
     input.paths = {
       "/pets": {
@@ -276,7 +276,11 @@ describe("import schema examples", () => {
             required: true,
             content: {
               "application/json": {
-                schema: { type: "string", examples: ["request example"] },
+                schema: {
+                  type: "string",
+                  ...(isConst && { const: "request example" }),
+                  examples: ["request example"],
+                },
               },
             },
           },
@@ -285,7 +289,11 @@ describe("import schema examples", () => {
               description: "Created",
               content: {
                 "application/json": {
-                  schema: { type: "string", examples: ["response example"] },
+                  schema: {
+                    type: "string",
+                    ...(isConst && { const: "response example" }),
+                    examples: ["response example"],
+                  },
                 },
               },
             },
@@ -295,6 +303,10 @@ describe("import schema examples", () => {
     } as OpenAPIDocument3_2["paths"];
 
     const code = await convertOpenAPI3Document(input);
+    if (isConst) {
+      expect(code).toMatch(/union \w+ \{\s*"request example",?\s*\}/);
+      expect(code).toMatch(/union \w+ \{\s*"response example",?\s*\}/);
+    }
     const output = await emitOpenAPI(code);
     const requestContent = output.paths["/pets"].post.requestBody.content as Record<string, any>;
     const responseContent = output.paths["/pets"].post.responses["200"].content as Record<
@@ -307,8 +319,8 @@ describe("import schema examples", () => {
     expect(examplesForSchema(responseSchema, output)).toEqual(["response example"]);
   });
 
-  it("preserves backslashes in nested schema examples", async () => {
-    const examples = [{ path: "C:\\temp" }];
+  it("preserves backslashes, interpolation syntax, and control characters in nested examples", async () => {
+    const examples = [{ path: 'C:\\temp\\${name}"\r\n\t\b\f\u0000\u001f' }];
     const code = await convertOpenAPI3Document(
       documentFor({
         type: "object",
@@ -316,6 +328,65 @@ describe("import schema examples", () => {
         examples,
       }),
     );
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
+  it.each([
+    ["date-time", "utcDateTime", "2026-11-20T16:00:00Z"],
+    ["date", "plainDate", "2026-11-20"],
+    ["time", "plainTime", "16:00:00"],
+    ["duration", "duration", "PT1H"],
+  ])("round-trips nullable %s examples through %s", async (format, scalar, value) => {
+    const examples = [value, null];
+    const code = await convertOpenAPI3Document(
+      documentFor({ type: ["string", "null"], format, examples }),
+    );
+    expect(code).toContain(`${scalar}.fromISO("${value}")`);
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
+  it("uses enum members for inherited properties and null-first unions", async () => {
+    const input = documentFor({
+      allOf: [{ $ref: "#/components/schemas/Base" }],
+      examples: [{ color: "red" }],
+    });
+    Object.assign(input.components!.schemas!, {
+      Color: { type: "string", enum: ["red", "blue"] },
+      Base: {
+        type: "object",
+        properties: { color: { $ref: "#/components/schemas/Color" } },
+      },
+      Choice: {
+        anyOf: [{ type: "null" }, { $ref: "#/components/schemas/Color" }],
+        examples: [null, "red"],
+      },
+    });
+    const code = await convertOpenAPI3Document(input);
+    expect(code).toContain("#{ color: Pets.Color.red }");
+    expect(code).toContain("@example(Pets.Color.red)");
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual([{ color: "red" }]);
+    expect(output.components.schemas.Choice.examples).toEqual([null, "red"]);
+  });
+
+  it("uses required properties to select the matching example object variant", async () => {
+    const examples = [{ b: "2026-11-20T16:00:00Z" }];
+    const code = await convertOpenAPI3Document(
+      documentFor({
+        anyOf: [
+          { type: "object", properties: { a: { type: "string" } }, required: ["a"] },
+          {
+            type: "object",
+            properties: { b: { type: "string", format: "date-time" } },
+            required: ["b"],
+          },
+        ],
+        examples,
+      }),
+    );
+    expect(code).toContain('b: utcDateTime.fromISO("2026-11-20T16:00:00Z")');
     const output = await emitOpenAPI(code);
     expect(output.components.schemas.Pet.examples).toEqual(examples);
   });

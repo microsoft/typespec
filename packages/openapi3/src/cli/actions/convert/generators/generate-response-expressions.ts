@@ -246,10 +246,14 @@ function generateResponseExpressions({
     // Attempt to emit just the Body or an intersection of Body & MappedResponse
     // if there aren't any custom headers.
     const bodySchema = content.schema;
+    const referencedBody =
+      bodySchema && "$ref" in bodySchema ? context.getSchemaByRef(bodySchema.$ref) : undefined;
+    // Keep a hoisted literal union as the body; HTTP otherwise treats its variants as responses.
+    const isLiteralBody = referencedBody?.const !== undefined;
     if (bodySchema && mediaType === "application/json" && !headers.length) {
       // Scenario 3 - have a mapped status code and body schema is a ref using application/json - intersection!
       // Example: CreatedResponse & Widget
-      if ("$ref" in bodySchema && statusCodeMetadata.httpLibModel) {
+      if ("$ref" in bodySchema && statusCodeMetadata.httpLibModel && !isLiteralBody) {
         return `${statusCodeMetadata.httpLibModel} & ${context.generateTypeFromRefableSchema(
           bodySchema,
           operationScope,
@@ -260,7 +264,7 @@ function generateResponseExpressions({
       // Example: Body<string>
       if (statusCodeMetadata.literalStatusCode === 200) {
         const body = context.generateTypeFromRefableSchema(bodySchema, operationScope);
-        if ("$ref" in bodySchema) {
+        if ("$ref" in bodySchema && !isLiteralBody) {
           return body;
         }
         return `Body<${body}>`;

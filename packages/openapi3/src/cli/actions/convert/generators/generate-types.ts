@@ -11,6 +11,7 @@ import {
   normalizeObjectValueToTSValueExpression,
 } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
+import { getStringType } from "./common.js";
 import { generateDecorators } from "./generate-decorators.js";
 
 export class SchemaToExpressionGenerator {
@@ -641,41 +642,6 @@ function getNumberType(schema: SupportedOpenAPISchema): string {
       // Could be either 'float' or 'numeric' - add FIXME?
       return "numeric";
   }
-}
-
-function getStringType(schema: SupportedOpenAPISchema): string {
-  const format = schema.format ?? "";
-
-  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
-  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
-    return "bytes";
-  }
-
-  let type = "string";
-  switch (format) {
-    case "binary":
-    case "byte":
-      type = "bytes";
-      break;
-    case "date":
-      type = "plainDate";
-      break;
-    case "date-time":
-      // Can be 'offsetDateTime' or 'utcDateTime' - needs FIXME or union?
-      type = "utcDateTime";
-      break;
-    case "time":
-      type = "plainTime";
-      break;
-    case "duration":
-      type = "duration";
-      break;
-    case "uri":
-      type = "url";
-      break;
-  }
-
-  return type;
 }
 
 function getEnum(schemaEnum: (string | number | boolean | null)[]): string {

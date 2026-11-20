@@ -89,7 +89,9 @@ function hoistInlineBodyExampleSchemas(
         name = `__OpenAPIExampleBody${nextSchemaIndex++}`;
       } while (name in schemas);
 
-      schemas[name] = schema;
+      // A literal cannot be the base of a scalar, but can be a named union variant.
+      schemas[name] =
+        schema.const === undefined ? schema : { ...schema, anyOf: [{ const: schema.const }] };
       mediaType.schema = { $ref: `#/components/schemas/${name}` };
     }
   }

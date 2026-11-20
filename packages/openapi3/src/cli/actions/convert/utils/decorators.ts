@@ -8,8 +8,9 @@ import type {
   OpenAPISchema3_1,
   OpenAPISchema3_2,
   Refable,
+  SupportedOpenAPISchema,
 } from "../../../../types.js";
-import { stringLiteral } from "../generators/common.js";
+import { getStringType, stringLiteral } from "../generators/common.js";
 import type { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 import type { Context } from "./context.js";
 
@@ -461,21 +462,17 @@ function getExampleValueExpression(
   const typeName = isRef
     ? context?.getRefName(schema.$ref, [context.rootNamespace])
     : exampleTargetType;
+  const nullable =
+    Array.isArray(effectiveSchema.type) ||
+    ("nullable" in effectiveSchema && effectiveSchema.nullable);
 
   if (
     typeName &&
+    !nullable &&
     effectiveSchema.type === "string" &&
     effectiveSchema.enum?.includes(value as string)
   ) {
     return `${typeName}.${printIdentifier(String(value), "disallow-reserved")}`;
-  }
-
-  if (
-    typeof value === "string" &&
-    effectiveSchema.type === "string" &&
-    effectiveSchema.format === "date-time"
-  ) {
-    return `${typeName ?? "utcDateTime"}.fromISO(${stringLiteralForExample(value)})`;
   }
 
   const unionMembers = effectiveSchema.anyOf ?? effectiveSchema.oneOf;
@@ -488,6 +485,23 @@ function getExampleValueExpression(
     }
   }
 
+  if (
+    typeof value === "string" &&
+    effectiveSchema.const === undefined &&
+    !effectiveSchema.enum &&
+    (effectiveSchema.type === "string" ||
+      (Array.isArray(effectiveSchema.type) && effectiveSchema.type.includes("string")))
+  ) {
+    const scalar = getStringType(effectiveSchema);
+    switch (scalar) {
+      case "utcDateTime":
+      case "plainDate":
+      case "plainTime":
+      case "duration":
+        return `${(!nullable && typeName) || scalar}.fromISO(${stringLiteralForExample(value)})`;
+    }
+  }
+
   if (Array.isArray(value)) {
     const itemSchema = effectiveSchema.items;
     return `#[${value
@@ -496,11 +510,10 @@ function getExampleValueExpression(
   }
 
   if (typeof value === "object") {
-    const properties = effectiveSchema.properties ?? {};
     return `#{${Object.entries(value)
       .map(([key, propertyValue]) => {
         const propertySchema =
-          properties[key] ??
+          findExamplePropertySchema(effectiveSchema, key, context) ??
           (typeof effectiveSchema.additionalProperties === "object"
             ? effectiveSchema.additionalProperties
             : {});
@@ -514,6 +527,30 @@ function getExampleValueExpression(
   }
 
   return typeof value === "string" ? stringLiteralForExample(value) : JSON.stringify(value);
+}
+
+function findExamplePropertySchema(
+  schema: Refable<SupportedOpenAPISchema>,
+  key: string,
+  context?: Context,
+  visited = new Set<Refable<SupportedOpenAPISchema>>(),
+): Refable<SupportedOpenAPISchema> | undefined {
+  if (visited.has(schema)) return undefined;
+  visited.add(schema);
+
+  if ("$ref" in schema) {
+    const target = context?.getSchemaByRef(schema.$ref);
+    return target && findExamplePropertySchema(target, key, context, visited);
+  }
+
+  if (schema.properties && Object.hasOwn(schema.properties, key)) {
+    return schema.properties[key];
+  }
+  for (const member of schema.allOf ?? []) {
+    const property = findExamplePropertySchema(member, key, context, visited);
+    if (property) return property;
+  }
+  return undefined;
 }
 
 function isExampleValueCompatible(
@@ -548,6 +585,8 @@ function isExampleValueCompatible(
   }
 
   switch (schema.type) {
+    case "null":
+      return false;
     case "array":
       return (
         Array.isArray(value) &&
@@ -558,6 +597,7 @@ function isExampleValueCompatible(
       return (
         typeof value === "object" &&
         !Array.isArray(value) &&
+        (schema.required ?? []).every((key) => Object.hasOwn(value, key)) &&
         Object.entries(value).every(([key, propertyValue]) => {
           const propertySchema =
             schema.properties?.[key] ??
@@ -583,7 +623,13 @@ function isExampleValueCompatible(
 }
 
 function stringLiteralForExample(value: string): string {
-  return JSON.stringify(value).replaceAll("${", "\\${");
+  return `"${value
+    .replaceAll("\\", "\\\\")
+    .replaceAll('"', '\\"')
+    .replaceAll("${", "\\${")
+    .replaceAll("\r", "\\r")
+    .replaceAll("\n", "\\n")
+    .replaceAll("\t", "\\t")}"`;
 }
 
 export function getDirectivesForSchema(
