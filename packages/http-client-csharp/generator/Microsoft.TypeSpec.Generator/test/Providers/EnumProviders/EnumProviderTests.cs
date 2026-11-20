@@ -1184,13 +1184,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Other", enumType.Properties[1].Name);
         }
 
-        [Test]
-        public async Task BackCompat_ExtensibleEnumUrlSuffixPreservesUnderscoredName()
+        [TestCase("CallbackURL")]
+        [TestCase("CALLBACK_URL")]
+        public async Task BackCompat_ExtensibleEnumUrlSuffixPreservesUnderscoredName(string inputName)
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: _ => typeof(string),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var input = InputFactory.StringEnum("mockInputEnum", [("CallbackURL", "callback-url")], isExtensible: true);
+            var input = InputFactory.StringEnum("mockInputEnum", [(inputName, "callback-url")], isExtensible: true);
 
             var enumType = EnumProvider.Create(input);
             enumType.EnsureBuilt();
@@ -1373,15 +1374,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("Foo_OR", false, "FooOr")]
         [TestCase("OR_foo", false, "OrFoo")]
         [TestCase("ORFoo", false, "ORFoo")]
-        [TestCase("FooHTTP", false, "FooHttp")]
-        [TestCase("HTTPStatus", false, "HttpStatus")]
+        [TestCase("FooHTTP", false, "FooHTTP")]
+        [TestCase("HTTPStatus", false, "HTTPStatus")]
         [TestCase("HTTP2", false, "Http2")]
         [TestCase("HTTP_2", false, "Http2")]
         [TestCase("UTF8", false, "Utf8")]
         [TestCase("HTTP2foo", false, "HTTP2foo")]
         [TestCase("HTTP2", true, "HTTP2")]
         [TestCase("IOStream", false, "IOStream")]
-        [TestCase("CallbackURL", false, "CallbackUri")]
+        [TestCase("CallbackURL", false, "CallbackURL")]
+        [TestCase("CALLBACKURL", false, "Callbackurl")]
+        [TestCase("CALLBACK_URL", false, "CallbackUri")]
         [TestCase("AND", true, "AND")]
         public void BuildEnumType_ExtensibleStringEnum_MemberCasing(string name, bool isExactName, string expectedName)
         {

@@ -12,9 +12,10 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
     public static class StringExtensions
     {
         private static readonly Regex _uppercaseWords = new("""
-            (?<!\p{Lu})(?!IPV[46](?![\p{L}\p{M}\p{N}]))              # Preserve IPV4 and IPV6
-            \p{Lu}{3,}(?=\p{Lu}\p{Ll}|\p{N}*(?![\p{L}\p{M}\p{N}])) # Long uppercase runs, e.g. HTTP in HTTPStatus or HTTP2
-            | (?<![\p{L}\p{M}\p{N}])\p{Lu}{2}(?![\p{L}\p{M}\p{N}])    # Standalone two-letter words, e.g. OR
+            (?<![\p{L}\p{M}\p{N}])                  # Start of a whole word
+            (?!IPV[46](?![\p{L}\p{M}\p{N}]))        # Preserve IPV4 and IPV6
+            (?:\p{Lu}{3,}\p{N}*|\p{Lu}{2})          # Uppercase words such as HTTP2 or OR
+            (?![\p{L}\p{M}\p{N}])                   # End of a whole word
             """, RegexOptions.IgnorePatternWhitespace);
 
         public static string ToPascalCaseIdentifierName(this string name) =>
