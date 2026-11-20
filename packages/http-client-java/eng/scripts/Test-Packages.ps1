@@ -21,7 +21,7 @@ Push-Location $packageRoot
 try {
     if ($UnitTests) {
         Invoke-LoggedCommand "npm run typecheck"
-        Invoke-LoggedCommand "npm run test"
+        Invoke-LoggedCommand "npm run test:emitter --registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ -- --reporter=default --reporter=junit"
         Write-Host "Emitter unit tests passed"
 
         Write-Host "Current PATH: $env:PATH"
