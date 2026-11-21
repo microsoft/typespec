@@ -18,6 +18,14 @@ export type CompileResult = {
    * through `program.host.readFile("./tsp-output/" + name)` rather than resolving the names as paths.
    */
   readonly outputFiles: string[];
+  /**
+   * Text of {@link outputFiles} from the compilation that produced those names.
+   * Present after a successful emission, and on a later failed compilation that
+   * kept the previous file list, so every retained file can be shown after
+   * `tsp-output` is cleared. Multi-file snapshots are size-limited; omitted
+   * names were dropped to stay within that budget.
+   */
+  readonly outputFileContents?: ReadonlyMap<string, string>;
 };
 /** Distinguish an exception from a returned program by checking for `internalCompilerError`. */
 export type CompilationState = CompileResult | CompilationCrashed;
@@ -36,6 +44,11 @@ export interface OutputViewerProps {
    * through `program.host.readFile("./tsp-output/" + name)` rather than resolving the names as paths.
    */
   readonly outputFiles: string[];
+  /**
+   * Text of {@link outputFiles} from the compilation that produced those names.
+   * Use it when `program.host.readFile` can no longer read `tsp-output`.
+   */
+  readonly outputFileContents?: ReadonlyMap<string, string>;
   /** Playground-owned state shared with program viewers; the playground supplies `{}` when no state is stored. */
   readonly viewerState?: Record<string, any>;
   /** Request replacement of the viewer-state record; merge any entries that should be retained. */

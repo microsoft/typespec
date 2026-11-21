@@ -168,6 +168,7 @@ const OutputViewInternal: FunctionComponent<{
           <viewer.render
             program={compilationResult.program}
             outputFiles={compilationResult.outputFiles}
+            outputFileContents={compilationResult.outputFileContents}
             viewerState={viewerState}
             onViewerStateChange={onViewerStateChange}
             onRevealSource={onRevealSource}

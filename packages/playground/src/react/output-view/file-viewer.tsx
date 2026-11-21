@@ -1,6 +1,6 @@
 import { FolderListRegular } from "@fluentui/react-icons";
 import { Pane, SplitPane } from "@typespec/react-components";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FileBreadcrumb } from "../breadcrumb/index.js";
 import { FileOutput } from "../file-output/file-output.js";
 import { FileTreeExplorer } from "../file-tree/index.js";
@@ -13,6 +13,7 @@ import style from "./output-view.module.css";
 const FileViewerComponent = ({
   program,
   outputFiles,
+  outputFileContents,
   fileViewers,
 }: OutputViewerProps & {
   fileViewers: Record<string, FileOutputViewer>;
@@ -28,20 +29,18 @@ const FileViewerComponent = ({
     [outputFiles],
   );
 
-  const lastContentsRef = useRef(new Map<string, string>());
-
   const loadOutputFile = useCallback(
     async (path: string) => {
       try {
         const contents = await program.host.readFile("./tsp-output/" + path);
-        lastContentsRef.current.set(path, contents.text);
         setContent(contents.text);
       } catch {
         // Failed compilations keep the previous file list after tsp-output was emptied.
-        setContent(lastContentsRef.current.get(path) ?? "");
+        // The snapshot is every file from that compilation, not only files opened since.
+        setContent(outputFileContents?.get(path) ?? "");
       }
     },
-    [program.host],
+    [outputFileContents, program.host],
   );
 
   useEffect(() => {
