@@ -6,6 +6,7 @@
 import pytest
 import pytest_asyncio
 from routes.aio import RoutesClient
+from routes.models import ExpandParameters
 
 
 @pytest_asyncio.fixture
@@ -17,6 +18,14 @@ async def client():
 @pytest.mark.asyncio
 async def test_fixed(client: RoutesClient):
     await client.fixed()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("expansion", ["query_expansion", "query_continuation"])
+@pytest.mark.parametrize("style", ["standard", "explode"])
+async def test_query_parameters_model(client: RoutesClient, expansion: str, style: str):
+    operation = getattr(getattr(client.query_parameters, expansion), style)
+    await operation.model(param=ExpandParameters(field="status", value="active"))
 
 
 @pytest.mark.asyncio
