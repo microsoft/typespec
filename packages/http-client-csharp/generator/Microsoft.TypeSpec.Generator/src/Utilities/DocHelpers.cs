@@ -16,6 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private static readonly Regex BoldItalicRegex = new Regex(@"\*\*\*([^*]+?)\*\*\*", RegexOptions.Compiled);
         private static readonly Regex BoldRegex = new Regex(@"\*\*([^*]+?)\*\*", RegexOptions.Compiled);
         private static readonly Regex ItalicRegex = new Regex(@"(?<!\*)\*([^*]+?)\*(?!\*)", RegexOptions.Compiled);
+        private const char CodeSpanDelimiter = '`';
 
         public static string? GetDescription(string? summary, string? doc)
         {
@@ -144,10 +145,51 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Converts inline markdown (bold and italic) to XML tags.
+        /// Converts inline markdown (bold and italic) to XML tags, leaving the content of code spans (`code`) literal.
         /// Handles: **bold**, ***bold italic***, *italic*
         /// </summary>
         private static string ConvertInlineMarkdown(string text)
+        {
+            if (string.IsNullOrEmpty(text) || text.IndexOf(CodeSpanDelimiter) < 0)
+            {
+                return ConvertEmphasis(text);
+            }
+
+            var result = new StringBuilder(text.Length);
+            var pendingText = new StringBuilder();
+            var position = 0;
+
+            while (position < text.Length)
+            {
+                var delimiterStart = text.IndexOf(CodeSpanDelimiter, position);
+                if (delimiterStart < 0)
+                {
+                    pendingText.Append(text, position, text.Length - position);
+                    break;
+                }
+
+                var delimiterLength = GetDelimiterLength(text, delimiterStart);
+                var codeSpanEnd = FindCodeSpanEnd(text, delimiterStart + delimiterLength, delimiterLength);
+                if (codeSpanEnd < 0)
+                {
+                    pendingText.Append(text, position, delimiterStart + delimiterLength - position);
+                    position = delimiterStart + delimiterLength;
+                    continue;
+                }
+
+                pendingText.Append(text, position, delimiterStart - position);
+                result.Append(ConvertEmphasis(pendingText.ToString()));
+                pendingText.Clear();
+                result.Append(text, delimiterStart, codeSpanEnd - delimiterStart);
+                position = codeSpanEnd;
+            }
+
+            result.Append(ConvertEmphasis(pendingText.ToString()));
+
+            return result.ToString();
+        }
+
+        private static string ConvertEmphasis(string text)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -296,6 +338,40 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             return endIndex;
+        }
+
+        private static int GetDelimiterLength(string text, int start)
+        {
+            var end = start;
+            while (end < text.Length && text[end] == CodeSpanDelimiter)
+            {
+                end++;
+            }
+
+            return end - start;
+        }
+
+        private static int FindCodeSpanEnd(string text, int searchStart, int delimiterLength)
+        {
+            var position = searchStart;
+            while (position < text.Length)
+            {
+                if (text[position] != CodeSpanDelimiter)
+                {
+                    position++;
+                    continue;
+                }
+
+                var runLength = GetDelimiterLength(text, position);
+                if (runLength == delimiterLength)
+                {
+                    return position + runLength;
+                }
+
+                position += runLength;
+            }
+
+            return -1;
         }
     }
 }
