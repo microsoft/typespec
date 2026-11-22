@@ -97,18 +97,31 @@ it("does not keep a partial snapshot when a later file cannot be read", async ()
   expect(reads).toEqual(["./tsp-output/a.yaml", "./tsp-output/b.yaml"]);
 });
 
-it("keeps the previous snapshot when a newer emission cannot be read", () => {
+it("keeps the previous file list and snapshot together when a newer emission cannot be read", () => {
   const retained = {
     outputFiles: ["a.yaml"],
     outputFileContents: new Map([["a.yaml", "previous"]]),
   };
 
-  const resolved = resolveDisplayedOutput(compiled(["a.yaml"], false), retained, undefined);
+  const unresolved = resolveDisplayedOutput(
+    compiled(["a.yaml", "b.yaml"], false),
+    retained,
+    undefined,
+  );
 
-  expect(resolved.isOutputStale).toBe(false);
-  expect(resolved.retained.outputFiles).toEqual(["a.yaml"]);
-  expect(resolved.retained.outputFileContents.get("a.yaml")).toBe("previous");
-  expect(snapshotText(resolved.displayed, "a.yaml")).toBeUndefined();
+  expect(unresolved.isOutputStale).toBe(false);
+  expect(unresolved.retained.outputFiles).toEqual(["a.yaml"]);
+  expect(unresolved.retained.outputFileContents.get("a.yaml")).toBe("previous");
+  expect(unresolved.retained.outputFileContents.has("b.yaml")).toBe(false);
+  expect(unresolved.displayed).toMatchObject({ outputFiles: ["a.yaml", "b.yaml"] });
+  expect(snapshotText(unresolved.displayed, "a.yaml")).toBeUndefined();
+
+  const failed = resolveDisplayedOutput(compiled([], true), unresolved.retained, undefined);
+
+  expect(failed.isOutputStale).toBe(true);
+  expect(failed.displayed).toMatchObject({ outputFiles: ["a.yaml"] });
+  expect(snapshotText(failed.displayed, "a.yaml")).toBe("previous");
+  expect(snapshotText(failed.displayed, "b.yaml")).toBeUndefined();
 });
 
 it("does not restore output when the failed compile is the first compile", () => {

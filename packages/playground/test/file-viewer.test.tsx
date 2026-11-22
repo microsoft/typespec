@@ -81,22 +81,34 @@ it("shows snapshot text for an emitted file that was never opened", async () => 
   await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("never-opened"));
 });
 
-it("prefers text still on disk over the snapshot", async () => {
-  const files = { "a.yaml": "a1", "b.yaml": "from-disk" };
+it("prefers snapshot text over text currently in tsp-output", async () => {
+  const files = { "a.yaml": "from-disk-a", "b.yaml": "from-disk-b" };
   const failing = { current: false };
   const program = createProgram(files, failing);
   render(
     renderOutput(
       program,
       new Map([
-        ["a.yaml", "a1"],
-        ["b.yaml", "from-snapshot"],
+        ["a.yaml", "from-snapshot-a"],
+        ["b.yaml", "from-snapshot-b"],
       ]),
     ),
   );
 
-  await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("a1"));
+  await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("from-snapshot-a"));
   fireEvent.click(screen.getByRole("tab", { name: "b.yaml" }));
 
-  await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("from-disk"));
+  await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("from-snapshot-b"));
+});
+
+it("reads the host for a file the snapshot does not contain", async () => {
+  const files = { "a.yaml": "from-disk-a", "b.yaml": "from-disk-b" };
+  const failing = { current: false };
+  const program = createProgram(files, failing);
+  render(renderOutput(program, new Map([["a.yaml", "from-snapshot-a"]])));
+
+  await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("from-snapshot-a"));
+  fireEvent.click(screen.getByRole("tab", { name: "b.yaml" }));
+
+  await waitFor(() => expect(screen.getByTestId("output")).toHaveTextContent("from-disk-b"));
 });

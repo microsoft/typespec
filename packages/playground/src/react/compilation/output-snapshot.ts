@@ -102,11 +102,14 @@ export function resolveDisplayedOutput(
     return { displayed, retained, isOutputStale: true };
   }
 
+  // A partial read must not pair this emission's filenames with the previous
+  // emission's text. Keep that older file list and snapshot together until a
+  // full read replaces both.
   const nextRetained: RetainedOutput =
-    state.outputFiles.length > 0
+    state.outputFiles.length > 0 && snapshot
       ? {
           outputFiles: [...state.outputFiles],
-          outputFileContents: snapshot ?? retained.outputFileContents,
+          outputFileContents: snapshot,
         }
       : retained;
 

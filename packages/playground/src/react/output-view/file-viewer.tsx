@@ -31,13 +31,19 @@ const FileViewerComponent = ({
 
   const loadOutputFile = useCallback(
     async (path: string) => {
+      // tsp-output is shared with the next compile, which clears it before writing.
+      // Snapshot text is the consistent copy for this file list; read the host only
+      // for names the snapshot does not contain.
+      const snapshotted = outputFileContents?.get(path);
+      if (snapshotted !== undefined) {
+        setContent(snapshotted);
+        return;
+      }
       try {
         const contents = await program.host.readFile("./tsp-output/" + path);
         setContent(contents.text);
       } catch {
-        // Failed compilations keep the previous file list after tsp-output was emptied.
-        // The snapshot is every file from that compilation, not only files opened since.
-        setContent(outputFileContents?.get(path) ?? "");
+        setContent("");
       }
     },
     [outputFileContents, program.host],
