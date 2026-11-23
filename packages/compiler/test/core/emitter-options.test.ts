@@ -152,6 +152,27 @@ describe("subpath export emitters", () => {
     strictEqual(context.options["asset-dir"], "/package-assets");
   });
 
+  it("prefers the subpath key over the package name when both are configured", async () => {
+    const [context, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter": {
+        "emitter-output-dir": "/from-package",
+        "asset-dir": "/package-assets",
+        "max-files": 1,
+      },
+      "@org/fake-emitter/typescript": {
+        "emitter-output-dir": "/from-subpath",
+        "asset-dir": "/subpath-assets",
+        "max-files": 10,
+      },
+    });
+
+    expectDiagnosticEmpty(diagnostics);
+    ok(context, "Emit context should have been set.");
+    strictEqual(context.emitterOutputDir, "/from-subpath");
+    strictEqual(context.options["asset-dir"], "/subpath-assets");
+    strictEqual(context.options["max-files"], 10);
+  });
+
   it("uses the subpath specifier for the default output directory", async () => {
     const [context, diagnostics] = await runSubpathEmitter({}, { outputDir: "/out" });
 
@@ -188,6 +209,48 @@ describe("subpath export emitters", () => {
     ok(location, "Diagnostic should have a source location.");
     const snippet = location.file.text.slice(location.pos, location.end);
     ok(snippet.includes("max-files"), "Diagnostic should target the package-name option value.");
+  });
+
+  it("targets diagnostics at the subpath key when both keys are configured", async () => {
+    const configYaml = [
+      "options:",
+      '  "@org/fake-emitter":',
+      "    max-files: 1",
+      '  "@org/fake-emitter/typescript":',
+      '    max-files: "not a number"',
+      "",
+    ].join("\n");
+    const [configFile] = parseYaml(configYaml);
+    const [, diagnostics] = await runSubpathEmitter(
+      {
+        "@org/fake-emitter": {
+          "max-files": 1,
+        },
+        "@org/fake-emitter/typescript": {
+          "max-files": "not a number",
+        },
+      },
+      {
+        configFile: {
+          projectRoot: ".",
+          diagnostics: [],
+          outputDir: "tsp-output",
+          file: configFile,
+        },
+      },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-schema",
+      message: "Schema violation: must be number (/max-files)",
+    });
+    const location = getSourceLocation(diagnostics[0].target);
+    ok(location, "Diagnostic should have a source location.");
+    strictEqual(
+      location.pos,
+      configYaml.lastIndexOf("max-files"),
+      "Diagnostic should target the option under the subpath key.",
+    );
   });
 });
 
