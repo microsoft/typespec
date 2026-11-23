@@ -37,6 +37,25 @@ function examplesForSchema(schema: any, document: any) {
   return schema.examples;
 }
 
+describe("import schema patterns", () => {
+  it.each([String.raw`^\d+$`, String.raw`^\\\w+"` + "${value}$"])(
+    "round-trips pattern %s on scalars and properties",
+    async (pattern) => {
+      const input = documentFor({});
+      input.components = {
+        schemas: {
+          Pet: { type: "string", pattern },
+          Container: { type: "object", properties: { value: { type: "string", pattern } } },
+        },
+      };
+      const code = await convertOpenAPI3Document(input);
+      const output = await emitOpenAPI(code);
+      expect(output.components.schemas.Pet.pattern).toEqual(pattern);
+      expect(output.components.schemas.Container.properties.value.pattern).toEqual(pattern);
+    },
+  );
+});
+
 describe("import schema examples", () => {
   it("creates example decorators in reverse order without mutating the input", () => {
     const schema: OpenAPISchema3_2 = {

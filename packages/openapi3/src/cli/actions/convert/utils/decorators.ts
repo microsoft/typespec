@@ -856,7 +856,7 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   }
 
   if (typeof schema.pattern === "string") {
-    decorators.push({ name: "pattern", args: [escapeRegex(schema.pattern)] });
+    decorators.push({ name: "pattern", args: [schema.pattern] });
   }
 
   if (typeof schema.format === "string" && !knownStringFormats.has(schema.format)) {
@@ -872,8 +872,4 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   }
 
   return decorators;
-}
-
-function escapeRegex(str: string) {
-  return str.replace(/\\/g, "\\\\");
 }
