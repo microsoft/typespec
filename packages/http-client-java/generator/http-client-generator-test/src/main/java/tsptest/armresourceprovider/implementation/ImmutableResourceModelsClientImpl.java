@@ -305,7 +305,8 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
-        return beginCreateOrUpdate(resourceGroupName, configurationName, properties).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, configurationName, properties));
     }
 
     /**
@@ -323,6 +324,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, configurationName, properties, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, configurationName, properties, context));
     }
 }

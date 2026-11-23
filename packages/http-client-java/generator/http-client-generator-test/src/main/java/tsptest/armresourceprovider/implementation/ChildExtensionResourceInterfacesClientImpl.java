@@ -444,8 +444,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildExtensionResourceInner createOrUpdate(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceInner resource) {
-        return beginCreateOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource));
     }
 
     /**
@@ -464,8 +464,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildExtensionResourceInner createOrUpdate(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource, context));
     }
 
     /**
@@ -698,7 +698,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName) {
-        beginDelete(resourceUri, topLevelArmResourceName, childExtensionResourceName).getFinalResult();
+        this.client
+            .getLroFinalResultOrError(beginDelete(resourceUri, topLevelArmResourceName, childExtensionResourceName));
     }
 
     /**
@@ -715,7 +716,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
         Context context) {
-        beginDelete(resourceUri, topLevelArmResourceName, childExtensionResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceUri, topLevelArmResourceName, childExtensionResourceName, context));
     }
 
     /**

@@ -401,8 +401,8 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
     public void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
-        beginDelete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)
-            .getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch));
     }
 
     /**
@@ -420,7 +420,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName, String ifMatch,
         String ifNoneMatch, Context context) {
-        beginDelete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch, context)
-            .getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch, context));
     }
 }

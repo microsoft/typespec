@@ -32,9 +32,19 @@ export type PolymorphicModelsStrategy = "ignore" | "oneOf" | "anyOf";
 export interface JSONSchemaEmitterOptions {
   /**
    * Serialize the schema as either yaml or json.
-   * @defaultValue yaml it not specified infer from the `output-file` extension
+   * @defaultValue yaml
    */
   "file-type"?: FileType;
+
+  /**
+   * File name template for each schema. Supports `{name}` for the declaration name
+   * and `{ext}` for the extension selected by `file-type`.
+   * Directory separators and `#` are not allowed; use `emitter-output-dir` for the output directory.
+   * Also determines implicit schema ids and references. Does not change the bundle
+   * file name, which is controlled by `bundleId`.
+   * @defaultValue `{name}.{ext}`
+   */
+  "file-name"?: string;
 
   /**
    * How to handle 64-bit integers on the wire. Options are:
@@ -93,6 +103,18 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
       enum: ["yaml", "json"],
       nullable: true,
       description: "Serialize the schema as either yaml or json.",
+    },
+    "file-name": {
+      type: "string",
+      nullable: true,
+      default: "{name}.{ext}",
+      description: [
+        "File name template for each schema. Supports `{name}` for the declaration name",
+        "and `{ext}` for the extension selected by `file-type`.",
+        "Directory separators and `#` are not allowed; use `emitter-output-dir` for the output directory.",
+        "Also determines implicit schema ids and references. Does not change the bundle",
+        "file name, which is controlled by `bundleId`.",
+      ].join("\n"),
     },
     "int64-strategy": {
       type: "string",
@@ -155,6 +177,22 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
   diagnostics: {
+    "invalid-file-name": {
+      severity: "error",
+      messages: {
+        default:
+          "The 'file-name' option must not contain directory separators. Use 'emitter-output-dir' to configure the output directory.",
+        empty:
+          "The 'file-name' option must resolve to a non-empty file name other than '.' or '..'. Use '{name}' and '{ext}' as placeholders.",
+        fragment: "The 'file-name' option must not contain '#', which is a URI fragment delimiter.",
+      },
+    },
+    "duplicate-output-file": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple schemas emit to the same file "${"file"}". Configure 'file-name' to produce unique filenames.`,
+      },
+    },
     "invalid-prefix-items": {
       severity: "error",
       messages: {

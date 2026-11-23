@@ -415,7 +415,8 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ManagementGroupChildResourceInner createOrUpdate(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner resource) {
-        return beginCreateOrUpdate(managementGroupId, managementGroupChildResourceName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(managementGroupId, managementGroupChildResourceName, resource));
     }
 
     /**
@@ -433,8 +434,8 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ManagementGroupChildResourceInner createOrUpdate(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner resource, Context context) {
-        return beginCreateOrUpdate(managementGroupId, managementGroupChildResourceName, resource, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(managementGroupId, managementGroupChildResourceName, resource, context));
     }
 
     /**

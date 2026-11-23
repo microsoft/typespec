@@ -482,7 +482,8 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelTrackedResourceInner createOrReplace(String resourceGroupName, String topLevelTrackedResourceName,
         TopLevelTrackedResourceInner resource) {
-        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, resource).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, resource));
     }
 
     /**
@@ -500,7 +501,8 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelTrackedResourceInner createOrReplace(String resourceGroupName, String topLevelTrackedResourceName,
         TopLevelTrackedResourceInner resource, Context context) {
-        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, resource, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, resource, context));
     }
 
     /**
@@ -670,7 +672,8 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelTrackedResourceInner update(String resourceGroupName, String topLevelTrackedResourceName,
         TopLevelTrackedResourceInner properties) {
-        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, properties).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginUpdate(resourceGroupName, topLevelTrackedResourceName, properties));
     }
 
     /**
@@ -688,7 +691,8 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelTrackedResourceInner update(String resourceGroupName, String topLevelTrackedResourceName,
         TopLevelTrackedResourceInner properties, Context context) {
-        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, properties, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginUpdate(resourceGroupName, topLevelTrackedResourceName, properties, context));
     }
 
     /**
@@ -824,7 +828,7 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelTrackedResourceName) {
-        beginDelete(resourceGroupName, topLevelTrackedResourceName).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelTrackedResourceName));
     }
 
     /**
@@ -839,7 +843,7 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, Context context) {
-        beginDelete(resourceGroupName, topLevelTrackedResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelTrackedResourceName, context));
     }
 
     /**

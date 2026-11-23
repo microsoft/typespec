@@ -52,6 +52,12 @@ describe("implicit ids", () => {
         code: "@typespec/json-schema/duplicate-id",
         message: `There are multiple types with the same id "Foo.json".`,
       },
+      {
+        code: "@typespec/json-schema/duplicate-output-file",
+      },
+      {
+        code: "@typespec/json-schema/duplicate-output-file",
+      },
     ]);
   });
 });
