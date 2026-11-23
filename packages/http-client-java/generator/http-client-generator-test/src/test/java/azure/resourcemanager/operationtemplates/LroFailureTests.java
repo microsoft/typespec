@@ -175,6 +175,28 @@ public class LroFailureTests {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void successfullyCompletedStatusWithErrorStillThrowsForBothCompletionOverloads() {
+        OperationTemplatesClientImpl client = client(200, FAILED_BODY, "Azure-AsyncOperation");
+        PollResult<OrderInner> result
+            = new PollResult<>(new PollResult.Error("Polling failed.", 400, new HttpHeaders(), ERROR_BODY));
+
+        SyncPoller<PollResult<OrderInner>, OrderInner> poller = Mockito.mock(SyncPoller.class);
+        Mockito.when(poller.waitForCompletion())
+            .thenReturn(new PollResponse<>(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, result));
+        assertServiceError(
+            Assertions.assertThrows(ManagementException.class, () -> client.getLroFinalResultOrError(poller)), 400);
+        Mockito.verify(poller, Mockito.never()).getFinalResult();
+
+        AsyncPollResponse<PollResult<OrderInner>, OrderInner> response = Mockito.mock(AsyncPollResponse.class);
+        Mockito.when(response.getStatus()).thenReturn(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED);
+        Mockito.when(response.getValue()).thenReturn(result);
+        assertServiceError(Assertions.assertThrows(ManagementException.class,
+            () -> client.getLroFinalResultOrError(response).block(Duration.ofSeconds(10))), 400);
+        Mockito.verify(response, Mockito.never()).getFinalResult();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void asyncCompletionStillPropagatesServiceError() {
         AsyncPollResponse<PollResult<OrderInner>, OrderInner> response = Mockito.mock(AsyncPollResponse.class);
         Mockito.when(response.getStatus()).thenReturn(LongRunningOperationStatus.FAILED);
