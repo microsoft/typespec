@@ -1,6 +1,6 @@
 import { FolderListRegular } from "@fluentui/react-icons";
 import { Pane, SplitPane } from "@typespec/react-components";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileBreadcrumb } from "../breadcrumb/index.js";
 import { FileOutput } from "../file-output/file-output.js";
 import { FileTreeExplorer } from "../file-tree/index.js";
@@ -28,10 +28,18 @@ const FileViewerComponent = ({
     [outputFiles],
   );
 
+  const lastContentsRef = useRef(new Map<string, string>());
+
   const loadOutputFile = useCallback(
     async (path: string) => {
-      const contents = await program.host.readFile("./tsp-output/" + path);
-      setContent(contents.text);
+      try {
+        const contents = await program.host.readFile("./tsp-output/" + path);
+        lastContentsRef.current.set(path, contents.text);
+        setContent(contents.text);
+      } catch {
+        // Failed compilations keep the previous file list after tsp-output was emptied.
+        setContent(lastContentsRef.current.get(path) ?? "");
+      }
     },
     [program.host],
   );

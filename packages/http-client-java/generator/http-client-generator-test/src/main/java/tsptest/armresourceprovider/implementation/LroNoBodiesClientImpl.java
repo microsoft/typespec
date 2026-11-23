@@ -263,7 +263,8 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName,
         ResourceLroNoBody resource) {
-        return beginCreateOrUpdate(resourceGroupName, resourceLroNoBodyName, resource).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, resourceLroNoBodyName, resource));
     }
 
     /**
@@ -281,7 +282,8 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName,
         ResourceLroNoBody resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, resourceLroNoBodyName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, resourceLroNoBodyName, resource, context));
     }
 
     /**
@@ -423,7 +425,7 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName) {
-        return beginAction(resourceGroupName, resourceLroNoBodyName).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginAction(resourceGroupName, resourceLroNoBodyName));
     }
 
     /**
@@ -439,6 +441,6 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName, Context context) {
-        return beginAction(resourceGroupName, resourceLroNoBodyName, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginAction(resourceGroupName, resourceLroNoBodyName, context));
     }
 }

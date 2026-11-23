@@ -417,7 +417,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner createOrUpdate(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource) {
-        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceUri, extensionsResourceName, resource));
     }
 
     /**
@@ -435,7 +435,8 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner createOrUpdate(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceUri, extensionsResourceName, resource, context));
     }
 
     /**
