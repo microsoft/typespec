@@ -447,8 +447,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner createOrReplace(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner resource) {
-        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource));
     }
 
     /**
@@ -467,8 +467,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner createOrReplace(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner resource, Context context) {
-        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource,
-            context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName,
+            nextedProxyResourceName, resource, context));
     }
 
     /**
@@ -644,8 +644,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner update(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner properties) {
-        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties));
     }
 
     /**
@@ -664,8 +664,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner update(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner properties, Context context) {
-        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties, context));
     }
 
     /**
@@ -817,7 +817,8 @@ public final class NestedsClientImpl implements NestedsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName) {
-        beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName));
     }
 
     /**
@@ -834,7 +835,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
         Context context) {
-        beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context));
     }
 
     /**
