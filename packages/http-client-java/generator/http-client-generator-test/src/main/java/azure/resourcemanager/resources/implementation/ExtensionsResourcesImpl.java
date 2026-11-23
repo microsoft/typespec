@@ -64,21 +64,7 @@ public final class ExtensionsResourcesImpl implements ExtensionsResources {
     }
 
     public ExtensionsResource getById(String id) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String extensionsResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "extensionsResourceName");
-        if (extensionsResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'extensionsResources'.", id)));
-        }
-        return this.getWithResponse(resourceUri, extensionsResourceName, Context.NONE).getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<ExtensionsResource> getByIdWithResponse(String id, Context context) {
@@ -100,21 +86,7 @@ public final class ExtensionsResourcesImpl implements ExtensionsResources {
     }
 
     public void deleteById(String id) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String extensionsResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "extensionsResourceName");
-        if (extensionsResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'extensionsResources'.", id)));
-        }
-        this.deleteByResourceGroupWithResponse(resourceUri, extensionsResourceName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public Response<Void> deleteByIdWithResponse(String id, Context context) {

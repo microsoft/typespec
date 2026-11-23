@@ -101,28 +101,7 @@ public final class SkusImpl implements Skus {
     }
 
     public SkuResource getRootById(String id) {
-        String providerNamespace = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
-            "providerNamespace");
-        if (providerNamespace == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'providerRegistrations'.", id)));
-        }
-        String resourceType = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
-            "resourceType");
-        if (resourceType == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'resourcetypeRegistrations'.", id)));
-        }
-        String sku = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
-            "sku");
-        if (sku == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'skus'.", id)));
-        }
-        return this.getRootWithResponse(providerNamespace, resourceType, sku, Context.NONE).getValue();
+        return this.getRootByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<SkuResource> getRootByIdWithResponse(String id, Context context) {
@@ -151,28 +130,7 @@ public final class SkusImpl implements Skus {
     }
 
     public void deleteRootById(String id) {
-        String providerNamespace = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
-            "providerNamespace");
-        if (providerNamespace == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'providerRegistrations'.", id)));
-        }
-        String resourceType = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
-            "resourceType");
-        if (resourceType == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'resourcetypeRegistrations'.", id)));
-        }
-        String sku = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/TspTest.ArmLegacy/providerRegistrations/{providerNamespace}/resourcetypeRegistrations/{resourceType}/skus/{sku}",
-            "sku");
-        if (sku == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'skus'.", id)));
-        }
-        this.deleteRootWithResponse(providerNamespace, resourceType, sku, Context.NONE);
+        this.deleteRootByIdWithResponse(id, Context.NONE);
     }
 
     public Response<Void> deleteRootByIdWithResponse(String id, Context context) {

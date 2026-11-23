@@ -70,29 +70,7 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
     }
 
     public ChildExtensionResource getById(String id) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "topLevelArmResourceName");
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
-        String childExtensionResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "childExtensionResourceName");
-        if (childExtensionResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
-        }
-        return this.getWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<ChildExtensionResource> getByIdWithResponse(String id, Context context) {
@@ -121,28 +99,7 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
     }
 
     public void deleteById(String id) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "topLevelArmResourceName");
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
-        String childExtensionResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "childExtensionResourceName");
-        if (childExtensionResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
-        }
-        this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public void deleteByIdWithResponse(String id, Context context) {

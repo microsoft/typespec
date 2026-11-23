@@ -193,16 +193,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
         return getByResourceGroupWithResponseAsync(resourceGroupName).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a SingletonTrackedResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SingletonTrackedResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
         Context context) {
@@ -211,15 +202,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
             this.client.getSubscriptionId(), resourceGroupName, accept, context);
     }
 
-    /**
-     * Get a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a SingletonTrackedResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SingletonTrackedResourceInner getByResourceGroup(String resourceGroupName) {
         return getByResourceGroupWithResponse(resourceGroupName, Context.NONE).getValue();
@@ -261,10 +244,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName,
         SingletonTrackedResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, resource, Context.NONE);
     }
 
     /**
@@ -308,37 +288,14 @@ public final class SingletonsClientImpl implements SingletonsClient {
             this.client.getContext());
     }
 
-    /**
-     * Create a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<SingletonTrackedResourceInner>, SingletonTrackedResourceInner>
         beginCreateOrUpdate(String resourceGroupName, SingletonTrackedResourceInner resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, resource);
-        return this.client.<SingletonTrackedResourceInner, SingletonTrackedResourceInner>getLroResult(response,
-            SingletonTrackedResourceInner.class, SingletonTrackedResourceInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, resource, Context.NONE);
     }
 
-    /**
-     * Create a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<SingletonTrackedResourceInner>, SingletonTrackedResourceInner>
         beginCreateOrUpdate(String resourceGroupName, SingletonTrackedResourceInner resource, Context context) {
@@ -365,33 +322,14 @@ public final class SingletonsClientImpl implements SingletonsClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SingletonTrackedResourceInner createOrUpdate(String resourceGroupName,
         SingletonTrackedResourceInner resource) {
-        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, resource));
+        return createOrUpdate(resourceGroupName, resource, Context.NONE);
     }
 
-    /**
-     * Create a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SingletonTrackedResourceInner createOrUpdate(String resourceGroupName,
         SingletonTrackedResourceInner resource, Context context) {
@@ -437,18 +375,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
         return updateWithResponseAsync(resourceGroupName, properties).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SingletonTrackedResourceInner> updateWithResponse(String resourceGroupName,
         SingletonTrackedResourceInner properties, Context context) {
@@ -458,16 +385,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
             this.client.getSubscriptionId(), resourceGroupName, contentType, accept, properties, context);
     }
 
-    /**
-     * Update a SingletonTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SingletonTrackedResourceInner update(String resourceGroupName, SingletonTrackedResourceInner properties) {
         return updateWithResponse(resourceGroupName, properties, Context.NONE).getValue();
@@ -521,11 +439,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<SingletonTrackedResourceInner> listByResourceGroupSinglePage(String resourceGroupName) {
-        final String accept = "application/json";
-        Response<SingletonTrackedResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByResourceGroupSinglePage(resourceGroupName, Context.NONE);
     }
 
     /**
@@ -548,33 +462,13 @@ public final class SingletonsClientImpl implements SingletonsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List SingletonTrackedResource resources by resource group.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a SingletonTrackedResource list operation as paginated response with
-     * {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<SingletonTrackedResourceInner> listByResourceGroup(String resourceGroupName) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName),
-            nextLink -> listByResourceGroupNextSinglePage(nextLink));
+        return listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
-    /**
-     * List SingletonTrackedResource resources by resource group.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a SingletonTrackedResource list operation as paginated response with
-     * {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<SingletonTrackedResourceInner> listByResourceGroup(String resourceGroupName, Context context) {
         return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, context),
@@ -613,11 +507,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<SingletonTrackedResourceInner> listByResourceGroupNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<SingletonTrackedResourceListResult> res
-            = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByResourceGroupNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

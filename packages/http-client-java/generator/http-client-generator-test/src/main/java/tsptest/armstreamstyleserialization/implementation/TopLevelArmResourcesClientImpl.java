@@ -146,35 +146,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> updateWithResponse(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.updateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept,
-            properties, Context.NONE);
+        return updateWithResponse(resourceGroupName, topLevelArmResourceName, properties, Context.NONE);
     }
 
     /**
@@ -246,39 +218,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             this.client.getContext());
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties) {
-        Response<BinaryData> response = updateWithResponse(resourceGroupName, topLevelArmResourceName, properties);
-        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
-            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, Context.NONE);
+        return beginUpdate(resourceGroupName, topLevelArmResourceName, properties, Context.NONE);
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties,
@@ -308,36 +255,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties) {
-        return this.client
-            .getLroFinalResultOrError(beginUpdate(resourceGroupName, topLevelArmResourceName, properties));
+        return update(resourceGroupName, topLevelArmResourceName, properties, Context.NONE);
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties, Context context) {

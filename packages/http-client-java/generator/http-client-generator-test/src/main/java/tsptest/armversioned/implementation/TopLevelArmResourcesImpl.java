@@ -134,26 +134,9 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     }
 
     public TopLevelArmResource getById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelArmResourcePropertiesName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}",
-            "topLevelArmResourcePropertiesName");
-        if (topLevelArmResourcePropertiesName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
         String localNextLink = null;
         String localNewHeader = null;
-        return this
-            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localNextLink,
-                localNewHeader, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, localNextLink, localNewHeader, Context.NONE).getValue();
     }
 
     public Response<TopLevelArmResource> getByIdWithResponse(String id, String nextLink, String newHeader,
@@ -177,24 +160,9 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     }
 
     public void deleteById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelArmResourcePropertiesName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}",
-            "topLevelArmResourcePropertiesName");
-        if (topLevelArmResourcePropertiesName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
         String localParameter = null;
         String localNewParameter = null;
-        this.deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localParameter, localNewParameter,
-            Context.NONE);
+        this.deleteByIdWithResponse(id, localParameter, localNewParameter, Context.NONE);
     }
 
     public Response<Void> deleteByIdWithResponse(String id, String parameter, String newParameter, Context context) {

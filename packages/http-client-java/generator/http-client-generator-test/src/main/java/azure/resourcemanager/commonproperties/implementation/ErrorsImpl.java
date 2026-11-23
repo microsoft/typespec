@@ -45,22 +45,7 @@ public final class ErrorsImpl implements Errors {
     }
 
     public ConfidentialResource getById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/confidentialResources/{confidentialResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String confidentialResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/confidentialResources/{confidentialResourceName}",
-            "confidentialResourceName");
-        if (confidentialResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'confidentialResources'.", id)));
-        }
-        return this.getByResourceGroupWithResponse(resourceGroupName, confidentialResourceName, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<ConfidentialResource> getByIdWithResponse(String id, Context context) {

@@ -202,20 +202,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Create a Assessment.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param assessmentName The name of the Assessment.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<AssessmentInner> createOrReplaceWithResponse(String resourceGroupName, String projectName,
         String assessmentName, AssessmentInner resource, Context context) {
@@ -226,18 +213,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             resource, context);
     }
 
-    /**
-     * Create a Assessment.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param assessmentName The name of the Assessment.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public AssessmentInner createOrReplace(String resourceGroupName, String projectName, String assessmentName,
         AssessmentInner resource) {
@@ -283,18 +259,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a Assessment.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param assessmentName The name of the Assessment.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Assessment along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<AssessmentInner> getWithResponse(String resourceGroupName, String projectName,
         String assessmentName, Context context) {
@@ -303,17 +268,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             resourceGroupName, projectName, assessmentName, accept, context);
     }
 
-    /**
-     * Get a Assessment.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param assessmentName The name of the Assessment.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Assessment.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public AssessmentInner get(String resourceGroupName, String projectName, String assessmentName) {
         return getWithResponse(resourceGroupName, projectName, assessmentName, Context.NONE).getValue();
@@ -370,12 +325,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<AssessmentInner> listByProjectSinglePage(String resourceGroupName, String projectName) {
-        final String accept = "application/json";
-        Response<AssessmentListResult> res
-            = service.listByProjectSync(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, projectName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByProjectSinglePage(resourceGroupName, projectName, Context.NONE);
     }
 
     /**
@@ -400,33 +350,13 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List Assessment resources by Project.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a Assessment list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<AssessmentInner> listByProject(String resourceGroupName, String projectName) {
-        return new PagedIterable<>(() -> listByProjectSinglePage(resourceGroupName, projectName),
-            nextLink -> listByProjectNextSinglePage(nextLink));
+        return listByProject(resourceGroupName, projectName, Context.NONE);
     }
 
-    /**
-     * List Assessment resources by Project.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a Assessment list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<AssessmentInner> listByProject(String resourceGroupName, String projectName, Context context) {
         return new PagedIterable<>(() -> listByProjectSinglePage(resourceGroupName, projectName, context),
@@ -472,18 +402,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param assessmentName The name of the Assessment.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DownloadUrlInner> downloadUrlWithResponse(String resourceGroupName, String projectName,
         String assessmentName, Context context) {
@@ -492,17 +411,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
             this.client.getSubscriptionId(), resourceGroupName, projectName, assessmentName, accept, context);
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param projectName The name of the Project.
-     * @param assessmentName The name of the Assessment.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DownloadUrlInner downloadUrl(String resourceGroupName, String projectName, String assessmentName) {
         return downloadUrlWithResponse(resourceGroupName, projectName, assessmentName, Context.NONE).getValue();
@@ -539,11 +448,7 @@ public final class AssessmentsClientImpl implements AssessmentsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<AssessmentInner> listByProjectNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<AssessmentListResult> res
-            = service.listByProjectNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByProjectNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

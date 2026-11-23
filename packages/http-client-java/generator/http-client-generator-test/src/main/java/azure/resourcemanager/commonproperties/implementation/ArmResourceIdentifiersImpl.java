@@ -46,22 +46,7 @@ public final class ArmResourceIdentifiersImpl implements ArmResourceIdentifiers 
     }
 
     public ArmResourceIdentifierResource getById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/armResourceIdentifierResources/{armResourceIdentifierResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String armResourceIdentifierResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/armResourceIdentifierResources/{armResourceIdentifierResourceName}",
-            "armResourceIdentifierResourceName");
-        if (armResourceIdentifierResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String.format(
-                "The resource ID '%s' is not valid. Missing path segment 'armResourceIdentifierResources'.", id)));
-        }
-        return this.getByResourceGroupWithResponse(resourceGroupName, armResourceIdentifierResourceName, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<ArmResourceIdentifierResource> getByIdWithResponse(String id, Context context) {

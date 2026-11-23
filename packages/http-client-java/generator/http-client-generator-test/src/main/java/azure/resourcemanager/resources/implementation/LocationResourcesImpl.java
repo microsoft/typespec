@@ -63,21 +63,7 @@ public final class LocationResourcesImpl implements LocationResources {
     }
 
     public LocationResource getById(String id) {
-        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
-            "location");
-        if (location == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
-        }
-        String locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
-            "locationResourceName");
-        if (locationResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'locationResources'.", id)));
-        }
-        return this.getWithResponse(location, locationResourceName, Context.NONE).getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<LocationResource> getByIdWithResponse(String id, Context context) {
@@ -99,21 +85,7 @@ public final class LocationResourcesImpl implements LocationResources {
     }
 
     public void deleteById(String id) {
-        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
-            "location");
-        if (location == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
-        }
-        String locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
-            "locationResourceName");
-        if (locationResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'locationResources'.", id)));
-        }
-        this.deleteByResourceGroupWithResponse(location, locationResourceName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public Response<Void> deleteByIdWithResponse(String id, Context context) {

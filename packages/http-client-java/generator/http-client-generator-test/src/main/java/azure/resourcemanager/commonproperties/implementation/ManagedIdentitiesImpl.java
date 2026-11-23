@@ -46,22 +46,7 @@ public final class ManagedIdentitiesImpl implements ManagedIdentities {
     }
 
     public ManagedIdentityTrackedResource getById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/managedIdentityTrackedResources/{managedIdentityTrackedResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String managedIdentityTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/managedIdentityTrackedResources/{managedIdentityTrackedResourceName}",
-            "managedIdentityTrackedResourceName");
-        if (managedIdentityTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String.format(
-                "The resource ID '%s' is not valid. Missing path segment 'managedIdentityTrackedResources'.", id)));
-        }
-        return this.getByResourceGroupWithResponse(resourceGroupName, managedIdentityTrackedResourceName, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<ManagedIdentityTrackedResource> getByIdWithResponse(String id, Context context) {
