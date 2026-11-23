@@ -25,13 +25,19 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.extensi
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
 import io.clientcore.core.serialization.json.JsonReader;
@@ -45,6 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -290,6 +297,118 @@ public class FluentClientMethodContextTests {
                     Assertions.assertTrue(syncSource.contains("Async("), syncSource);
                 }
             }
+        }
+    }
+
+    @Test
+    public void collectionForwardsSimpleRequestsToMatchingResponseOverloads() {
+        useSettings(true);
+        for (boolean returnsVoid : List.of(false, true)) {
+            Operation operation = operation(false, false);
+            operation.getExtensions().setXmsLongRunningOperation(false);
+            if (returnsVoid) {
+                operation.getResponses().get(0).setSchema(null);
+            }
+            List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation);
+            String source = writeCollection(methods);
+            String invocation = "this.createWithResponse(id, Context.NONE)" + (returnsVoid ? ";" : ".getValue();");
+            Assertions.assertTrue(source.contains(invocation), source);
+            List<ClientMethod> withoutResponse = methods.stream()
+                .filter(method -> method.getType() != ClientMethodType.SimpleSyncRestResponse)
+                .collect(Collectors.toList());
+            String fallback = writeCollection(withoutResponse);
+            Assertions.assertFalse(fallback.contains(invocation), fallback);
+            Assertions.assertTrue(fallback.contains("this.serviceClient().create(id)"), fallback);
+        }
+    }
+
+    @Test
+    public void collectionMatchesOptionalAndHistoricalResponseSignaturesExactly() {
+        useSettings(true);
+        Operation operation = operation(false, true);
+        operation.getExtensions().setXmsLongRunningOperation(false);
+        operation.getRequests().get(0).getParameters().get(1).setRequired(true);
+        List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation);
+        ClientMethod requiredOnly = find(methods, ClientMethodType.SimpleSync, false, true);
+        ClientMethod response = find(methods, ClientMethodType.SimpleSyncRestResponse, true, false);
+        ClientMethod historicalResponse = methods.stream()
+            .filter(method -> method.getType() == ClientMethodType.SimpleSyncRestResponse
+                && method.getParametersDeclaration().equals("String id, String filter, Context context"))
+            .findFirst()
+            .orElseThrow();
+        String source = writeCollection(List.of(requiredOnly, response, historicalResponse));
+        Assertions.assertTrue(source.contains("this.createWithResponse(id, filter, Context.NONE).getValue()"), source);
+        String mismatch = writeCollection(List.of(requiredOnly, response));
+        Assertions.assertFalse(mismatch.contains("this.createWithResponse("), mismatch);
+        Assertions.assertTrue(mismatch.contains("this.serviceClient().create(id, filter)"), mismatch);
+    }
+
+    @Test
+    public void collectionPreservesNonResponseCollectionConversions() {
+        useSettings(true);
+        Operation operation = operation(false, false);
+        operation.getExtensions().setXmsLongRunningOperation(false);
+        ArraySchema values = new ArraySchema();
+        values.setLanguage(languages("WidgetValues"));
+        values.setType(Schema.AllSchemaTypes.ARRAY);
+        values.setElementType(stringSchema());
+        operation.getResponses().get(0).setSchema(values);
+        String source = writeCollection(map(new FluentClientMethodMapper(), operation));
+        Assertions.assertFalse(source.contains("this.createWithResponse(id, Context.NONE).getValue()"), source);
+        Assertions.assertTrue(source.contains("this.serviceClient().create(id)"), source);
+    }
+
+    @Test
+    public void collectionPreservesNullableResourceModelConversion() {
+        useSettings(true);
+        Operation operation = operation(false, false);
+        operation.getExtensions().setXmsLongRunningOperation(false);
+        List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation);
+        ClassType innerType = new ClassType.Builder()
+            .packageName(JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getFluentModelsSubpackage()))
+            .name("WidgetInner")
+            .build();
+        ClientMethod value = find(methods, ClientMethodType.SimpleSync, false, false).newBuilder()
+            .returnValue(new ReturnValue("the widget", innerType))
+            .build();
+        ClientMethod response = find(methods, ClientMethodType.SimpleSyncRestResponse, true, false).newBuilder()
+            .returnValue(new ReturnValue("the response", GenericType.response(innerType)))
+            .build();
+        String source = writeCollection(List.of(value, response));
+        Assertions.assertFalse(source.contains("this.createWithResponse(id, Context.NONE).getValue()"), source);
+        Assertions.assertTrue(source.contains("this.serviceClient().create(id)"), source);
+        Assertions.assertTrue(source.contains("return null;"), source);
+    }
+
+    @Test
+    public void collectionForwardsPagingOnlyWhenContextBehaviorMatches() {
+        for (boolean syncStack : List.of(false, true)) {
+            useSettings(syncStack);
+            String source = writeCollection(map(new FluentClientMethodMapper(), operation(true, false)));
+            Assertions.assertEquals(syncStack, source.contains("return this.list(id, Context.NONE);"), source);
+            if (!syncStack) {
+                Assertions.assertTrue(source.contains("this.serviceClient().list(id)"), source);
+            }
+        }
+    }
+
+    private static String writeCollection(List<ClientMethod> methods) {
+        Client previousClient = FluentStatic.getClient();
+        Client client = new Client.Builder().models(List.of()).responseModels(List.of()).build();
+        FluentStatic.setClient(client);
+        try {
+            MethodGroupClient group = new MethodGroupClient.Builder().packageName("com.azure.resourcemanager.mock")
+                .className("WidgetsClientImpl")
+                .interfaceName("WidgetsClient")
+                .clientMethods(methods)
+                .build();
+            JavaFile file = new JavaFile("WidgetsImpl.java");
+            List<FluentCollectionMethod> generatedMethods = new FluentResourceCollection(group).getMethodsForTemplate();
+            file.publicFinalClass("WidgetsImpl", javaClass -> generatedMethods
+                .forEach(method -> method.getImplementationMethodTemplate(generatedMethods).writeMethod(javaClass)));
+            return file.getContents().toString();
+        } finally {
+            FluentStatic.setClient(previousClient);
         }
     }
 

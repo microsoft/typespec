@@ -46,20 +46,12 @@ public final class NonResourceOperationsImpl implements NonResourceOperations {
     }
 
     public Response<NonResource> getByIdWithResponse(String id, Context context) {
-        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String location = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}",
-            "location");
-        if (location == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
-        }
-        String parameter = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "location", "locations", LOGGER);
+        String parameter = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}",
-            "parameter");
-        if (parameter == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'otherParameters'.", id)));
-        }
+            "parameter", "otherParameters", LOGGER);
         return this.getWithResponse(location, parameter, context);
     }
 

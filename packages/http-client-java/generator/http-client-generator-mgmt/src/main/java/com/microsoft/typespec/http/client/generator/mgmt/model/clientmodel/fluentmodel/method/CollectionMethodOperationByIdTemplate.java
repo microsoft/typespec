@@ -130,10 +130,12 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                 // init path parameters from resource id
                 pathParameters.forEach(p -> {
                     String urlSegmentName = urlSegmentNameByParameterName.get(p.getSerializedName());
-                    String valueFromIdText
-                        = String.format("%1$s.getValueFromIdByParameterName(%2$s, \"%3$s\", \"%4$s\")",
-                            ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.METHOD_PARAMETER_NAME_ID,
-                            urlPathSegments.getPath(), p.getSerializedName());
+                    String segmentNameForErrorPrompt
+                        = urlSegmentName.isEmpty() ? p.getSerializedName() : urlSegmentName;
+                    String valueFromIdText = String.format(
+                        "%1$s.getRequiredValueFromIdByParameterName(%2$s, \"%3$s\", \"%4$s\", \"%5$s\", LOGGER)",
+                        ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.METHOD_PARAMETER_NAME_ID,
+                        urlPathSegments.getPath(), p.getSerializedName(), segmentNameForErrorPrompt);
                     LocalVariable var = localVariables.getLocalVariableByMethodParameter(p.getClientMethodParameter());
                     // need additional conversion from String to LocalVariable.variableType
                     boolean needsLocalVar = var.getVariableType() != ClassType.STRING;
@@ -141,15 +143,6 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                     block
                         .line(String.format("%1$s %2$s = %3$s;", ClassType.STRING.getName(), varName, valueFromIdText));
 
-                    String segmentNameForErrorPrompt
-                        = urlSegmentName.isEmpty() ? p.getSerializedName() : urlSegmentName;
-                    block.ifBlock(String.format("%1$s == null", varName), ifBlock -> {
-                        String errorMessageExpr = String.format(
-                            "String.format(\"The resource ID '%%s' is not valid. Missing path segment '%1$s'.\", %2$s)",
-                            segmentNameForErrorPrompt, ModelNaming.METHOD_PARAMETER_NAME_ID);
-                        ifBlock.line(String.format(
-                            "throw LOGGER.logExceptionAsError(new IllegalArgumentException(%1$s));", errorMessageExpr));
-                    });
                     if (needsLocalVar) {
                         // currently this works only for UUID or Enum
                         block.line(String.format("%1$s %2$s = %3$s.fromString(%4$s);", var.getVariableType().toString(),

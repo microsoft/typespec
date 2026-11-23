@@ -52,7 +52,7 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsImpl
     }
 
     public void deleteByResourceGroup(String subscriptionId, String subscriptionResourceName) {
-        this.serviceClient().delete(subscriptionId, subscriptionResourceName);
+        this.deleteByResourceGroupWithResponse(subscriptionId, subscriptionResourceName, Context.NONE);
     }
 
     public SubscriptionResource getById(String id) {
@@ -60,20 +60,12 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsImpl
     }
 
     public Response<SubscriptionResource> getByIdWithResponse(String id, Context context) {
-        String subscriptionId = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String subscriptionId = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.MethodSubscriptionId/subscriptionResources/{subscriptionResourceName}",
-            "subscriptionId");
-        if (subscriptionId == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'subscriptions'.", id)));
-        }
-        String subscriptionResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "subscriptionId", "subscriptions", LOGGER);
+        String subscriptionResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.MethodSubscriptionId/subscriptionResources/{subscriptionResourceName}",
-            "subscriptionResourceName");
-        if (subscriptionResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'subscriptionResources'.", id)));
-        }
+            "subscriptionResourceName", "subscriptionResources", LOGGER);
         return this.getWithResponse(subscriptionId, subscriptionResourceName, context);
     }
 
@@ -82,20 +74,12 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsImpl
     }
 
     public Response<Void> deleteByIdWithResponse(String id, Context context) {
-        String subscriptionId = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String subscriptionId = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.MethodSubscriptionId/subscriptionResources/{subscriptionResourceName}",
-            "subscriptionId");
-        if (subscriptionId == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'subscriptions'.", id)));
-        }
-        String subscriptionResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "subscriptionId", "subscriptions", LOGGER);
+        String subscriptionResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.MethodSubscriptionId/subscriptionResources/{subscriptionResourceName}",
-            "subscriptionResourceName");
-        if (subscriptionResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'subscriptionResources'.", id)));
-        }
+            "subscriptionResourceName", "subscriptionResources", LOGGER);
         return this.deleteByResourceGroupWithResponse(subscriptionId, subscriptionResourceName, context);
     }
 

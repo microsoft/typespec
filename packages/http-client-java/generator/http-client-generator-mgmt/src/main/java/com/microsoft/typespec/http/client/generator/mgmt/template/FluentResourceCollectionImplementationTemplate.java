@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
@@ -48,7 +49,8 @@ public class FluentResourceCollectionImplementationTemplate
         javaFile.declareImport(imports);
 
         List<MethodTemplate> methodTemplates = new ArrayList<>();
-        collection.getMethodsForTemplate().forEach(p -> methodTemplates.add(p.getImplementationMethodTemplate()));
+        List<FluentCollectionMethod> methods = collection.getMethodsForTemplate();
+        methods.forEach(p -> methodTemplates.add(p.getImplementationMethodTemplate(methods)));
         methodTemplates.addAll(collection.getAdditionalMethods());
 
         javaFile.publicFinalClass(String.format("%1$s implements %2$s", collection.getImplementationType().getName(),

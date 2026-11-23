@@ -49,7 +49,7 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public void deleteByResourceGroup(String resourceGroupName, String topLevelArmResourceName) {
-        this.serviceClient().delete(resourceGroupName, topLevelArmResourceName);
+        this.delete(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
     public void delete(String resourceGroupName, String topLevelArmResourceName, Context context) {
@@ -57,8 +57,7 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName) {
-        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().listByResourceGroup(resourceGroupName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+        return this.listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
     public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName, Context context) {
@@ -68,8 +67,7 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public PagedIterable<TopLevelArmResource> list() {
-        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list();
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+        return this.list(Context.NONE);
     }
 
     public PagedIterable<TopLevelArmResource> list(Context context) {
@@ -78,12 +76,7 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public Result action(String resourceGroupName, String topLevelArmResourceName) {
-        ResultInner inner = this.serviceClient().action(resourceGroupName, topLevelArmResourceName);
-        if (inner != null) {
-            return new ResultImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.action(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
     public Result action(String resourceGroupName, String topLevelArmResourceName, Context context) {
@@ -101,7 +94,7 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public BinaryData publishXml(String resourceGroupName, String topLevelArmResourceName) {
-        return this.serviceClient().publishXml(resourceGroupName, topLevelArmResourceName);
+        return this.publishXmlWithResponse(resourceGroupName, topLevelArmResourceName, Context.NONE).getValue();
     }
 
     public TopLevelArmResource getById(String id) {
@@ -109,20 +102,12 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public Response<TopLevelArmResource> getByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String topLevelArmResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}",
-            "topLevelArmResourceName");
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
+            "topLevelArmResourceName", "topLevelArmResources", LOGGER);
         return this.getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourceName, context);
     }
 
@@ -131,20 +116,12 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     }
 
     public void deleteByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String topLevelArmResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}",
-            "topLevelArmResourceName");
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
+            "topLevelArmResourceName", "topLevelArmResources", LOGGER);
         this.delete(resourceGroupName, topLevelArmResourceName, context);
     }
 

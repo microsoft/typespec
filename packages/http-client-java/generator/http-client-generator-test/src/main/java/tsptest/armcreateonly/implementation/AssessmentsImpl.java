@@ -46,8 +46,7 @@ public final class AssessmentsImpl implements Assessments {
     }
 
     public PagedIterable<Assessment> listByProject(String resourceGroupName, String projectName) {
-        PagedIterable<AssessmentInner> inner = this.serviceClient().listByProject(resourceGroupName, projectName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new AssessmentImpl(inner1, this.manager()));
+        return this.listByProject(resourceGroupName, projectName, Context.NONE);
     }
 
     public PagedIterable<Assessment> listByProject(String resourceGroupName, String projectName, Context context) {
@@ -78,27 +77,15 @@ public final class AssessmentsImpl implements Assessments {
     }
 
     public Response<Assessment> getByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmCreateOnly/projects/{projectName}/assessments/{assessmentName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String projectName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String projectName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmCreateOnly/projects/{projectName}/assessments/{assessmentName}",
-            "projectName");
-        if (projectName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'projects'.", id)));
-        }
-        String assessmentName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "projectName", "projects", LOGGER);
+        String assessmentName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmCreateOnly/projects/{projectName}/assessments/{assessmentName}",
-            "assessmentName");
-        if (assessmentName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'assessments'.", id)));
-        }
+            "assessmentName", "assessments", LOGGER);
         return this.getWithResponse(resourceGroupName, projectName, assessmentName, context);
     }
 

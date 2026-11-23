@@ -114,11 +114,7 @@ public final class CustomTemplateResourceImpl
     }
 
     public CustomTemplateResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getCustomTemplateResourceInterfaces()
-            .createOrUpdate(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
-                createIfNoneMatch, Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public CustomTemplateResource create(Context context) {
@@ -143,10 +139,7 @@ public final class CustomTemplateResourceImpl
     }
 
     public CustomTemplateResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getCustomTemplateResourceInterfaces()
-            .updateLongRunning(resourceGroupName, customTemplateResourceName, updateProperties, Context.NONE);
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public CustomTemplateResource apply(Context context) {

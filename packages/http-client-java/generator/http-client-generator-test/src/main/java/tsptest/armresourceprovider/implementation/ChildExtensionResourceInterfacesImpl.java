@@ -47,7 +47,7 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
     }
 
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName) {
-        this.serviceClient().delete(resourceUri, topLevelArmResourceName, childExtensionResourceName);
+        this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE);
     }
 
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
@@ -57,9 +57,7 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
 
     public PagedIterable<ChildExtensionResource> listByTopLevelArmResource(String resourceUri,
         String topLevelArmResourceName) {
-        PagedIterable<ChildExtensionResourceInner> inner
-            = this.serviceClient().listByTopLevelArmResource(resourceUri, topLevelArmResourceName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new ChildExtensionResourceImpl(inner1, this.manager()));
+        return this.listByTopLevelArmResource(resourceUri, topLevelArmResourceName, Context.NONE);
     }
 
     public PagedIterable<ChildExtensionResource> listByTopLevelArmResource(String resourceUri,
@@ -74,27 +72,15 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
     }
 
     public Response<ChildExtensionResource> getByIdWithResponse(String id, Context context) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceUri = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceUri", "resourceUri", LOGGER);
+        String topLevelArmResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "topLevelArmResourceName");
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
-        String childExtensionResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "topLevelArmResourceName", "topLevelArmResources", LOGGER);
+        String childExtensionResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "childExtensionResourceName");
-        if (childExtensionResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
-        }
+            "childExtensionResourceName", "childExtensionResources", LOGGER);
         return this.getWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
     }
 
@@ -103,27 +89,15 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
     }
 
     public void deleteByIdWithResponse(String id, Context context) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceUri = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String topLevelArmResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceUri", "resourceUri", LOGGER);
+        String topLevelArmResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "topLevelArmResourceName");
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
-        }
-        String childExtensionResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "topLevelArmResourceName", "topLevelArmResources", LOGGER);
+        String childExtensionResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
-            "childExtensionResourceName");
-        if (childExtensionResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
-        }
+            "childExtensionResourceName", "childExtensionResources", LOGGER);
         this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
     }
 

@@ -53,7 +53,7 @@ public final class MixedSubscriptionPlacementResourceGroupResourceOperationsImpl
     }
 
     public void deleteByResourceGroup(String resourceGroupName, String resourceGroupResourceName) {
-        this.serviceClient().delete(resourceGroupName, resourceGroupResourceName);
+        this.deleteByResourceGroupWithResponse(resourceGroupName, resourceGroupResourceName, Context.NONE);
     }
 
     public ResourceGroupResource getById(String id) {
@@ -61,20 +61,12 @@ public final class MixedSubscriptionPlacementResourceGroupResourceOperationsImpl
     }
 
     public Response<ResourceGroupResource> getByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.MethodSubscriptionId/resourceGroupResources/{resourceGroupResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String resourceGroupResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String resourceGroupResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.MethodSubscriptionId/resourceGroupResources/{resourceGroupResourceName}",
-            "resourceGroupResourceName");
-        if (resourceGroupResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'resourceGroupResources'.", id)));
-        }
+            "resourceGroupResourceName", "resourceGroupResources", LOGGER);
         return this.getByResourceGroupWithResponse(resourceGroupName, resourceGroupResourceName, context);
     }
 
@@ -83,20 +75,12 @@ public final class MixedSubscriptionPlacementResourceGroupResourceOperationsImpl
     }
 
     public Response<Void> deleteByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.MethodSubscriptionId/resourceGroupResources/{resourceGroupResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String resourceGroupResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String resourceGroupResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.MethodSubscriptionId/resourceGroupResources/{resourceGroupResourceName}",
-            "resourceGroupResourceName");
-        if (resourceGroupResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'resourceGroupResources'.", id)));
-        }
+            "resourceGroupResourceName", "resourceGroupResources", LOGGER);
         return this.deleteByResourceGroupWithResponse(resourceGroupName, resourceGroupResourceName, context);
     }
 

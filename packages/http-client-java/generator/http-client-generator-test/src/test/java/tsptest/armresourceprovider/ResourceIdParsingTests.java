@@ -26,8 +26,12 @@ public class ResourceIdParsingTests {
         + "\",\"name\":\"farm\",\"type\":\"TspTest.ArmResourceProvider/topLevelArmResources\",\"location\":\"eastus\"}";
     private final AtomicReference<HttpRequest> request = new AtomicReference<>();
     private final AtomicReference<String> responseId = new AtomicReference<>(ID);
+    private final AtomicReference<Object> invocationContext = new AtomicReference<>();
     private final ArmResourceProviderManager manager
-        = ArmResourceProviderManager.authenticate(new HttpPipelineBuilder().httpClient(httpRequest -> {
+        = ArmResourceProviderManager.authenticate(new HttpPipelineBuilder().policies((context, next) -> {
+            invocationContext.set(context.getData("forwarding-context").orElse(null));
+            return next.process();
+        }).httpClient(httpRequest -> {
             request.set(httpRequest);
             boolean delete = httpRequest.getHttpMethod() == HttpMethod.DELETE;
             String resource = RESOURCE_JSON.replace(ID, responseId.get());
@@ -109,6 +113,25 @@ public class ResourceIdParsingTests {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> manager.topLevelArmResourceInterfaces().deleteById(ID.substring(0, ID.lastIndexOf('/'))));
         Assertions.assertNull(request.get());
+    }
+
+    @Test
+    public void lifecycleOverloadsPreserveResourceStateAndContext() {
+        TopLevelArmResource resource = manager.topLevelArmResourceInterfaces().getById(ID);
+        Assertions.assertSame(resource, resource.refresh());
+        assertRequest(HttpMethod.GET, ID);
+        Assertions.assertNull(invocationContext.get());
+        Assertions.assertSame(resource, resource.refresh(new Context("forwarding-context", "refresh")));
+        assertRequest(HttpMethod.GET, ID);
+        Assertions.assertEquals("refresh", invocationContext.get());
+        Assertions.assertSame(resource, resource.update().withTags(Map.of("test", "value")).apply());
+        assertRequest(HttpMethod.PATCH, ID);
+        Assertions.assertNull(invocationContext.get());
+        Assertions.assertSame(resource,
+            resource.update().withTags(Map.of("test", "value")).apply(new Context("forwarding-context", "apply")));
+        assertRequest(HttpMethod.PATCH, ID);
+        Assertions.assertEquals("apply", invocationContext.get());
+        Assertions.assertEquals(ID, resource.id());
     }
 
     private void assertWrapperRequests(TopLevelArmResource resource) {

@@ -80,6 +80,10 @@ abstract public class FluentBaseMethod extends FluentMethod {
 
         this.implementationMethodTemplate
             = MethodTemplate.builder().methodSignature(this.getImplementationMethodSignature()).method(block -> {
+                if (parameters.isEmpty()) {
+                    block.methodReturn("this." + name + "(Context.NONE)");
+                    return;
+                }
                 if (initLocalVariables) {
                     for (LocalVariable var : resourceLocalVariables.getLocalVariablesMap().values()) {
                         if (var.getParameterLocation() == RequestParameterLocation.QUERY) {

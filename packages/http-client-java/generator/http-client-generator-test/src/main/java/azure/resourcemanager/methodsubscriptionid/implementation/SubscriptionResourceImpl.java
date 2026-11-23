@@ -49,11 +49,7 @@ public final class SubscriptionResourceImpl
     private String subscriptionResourceName;
 
     public SubscriptionResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getMixedSubscriptionPlacementSubscriptionResourceOperations()
-            .putWithResponse(subscriptionId, subscriptionResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public SubscriptionResource create(Context context) {
@@ -76,11 +72,7 @@ public final class SubscriptionResourceImpl
     }
 
     public SubscriptionResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getMixedSubscriptionPlacementSubscriptionResourceOperations()
-            .putWithResponse(subscriptionId, subscriptionResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public SubscriptionResource apply(Context context) {
@@ -104,11 +96,7 @@ public final class SubscriptionResourceImpl
     }
 
     public SubscriptionResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getMixedSubscriptionPlacementSubscriptionResourceOperations()
-            .getWithResponse(subscriptionId, subscriptionResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public SubscriptionResource refresh(Context context) {

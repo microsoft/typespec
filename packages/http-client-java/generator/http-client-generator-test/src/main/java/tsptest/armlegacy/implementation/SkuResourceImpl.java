@@ -85,11 +85,7 @@ public final class SkuResourceImpl implements SkuResource, SkuResource.Definitio
     }
 
     public SkuResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getSkus()
-            .createRootWithResponse(providerNamespace, resourceType, sku, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public SkuResource create(Context context) {
@@ -107,11 +103,7 @@ public final class SkuResourceImpl implements SkuResource, SkuResource.Definitio
     }
 
     public SkuResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getSkus()
-            .getRootWithResponse(providerNamespace, resourceType, sku, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public SkuResource refresh(Context context) {

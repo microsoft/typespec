@@ -8,6 +8,7 @@ import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
 import com.azure.core.http.rest.PagedResponseBase;
+import com.azure.core.util.logging.ClientLogger;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Function;
@@ -56,6 +57,16 @@ final class ResourceManagerUtils {
             }
         }
         return idIndex < idStart ? value : null;
+    }
+
+    static String getRequiredValueFromIdByParameterName(String id, String pathTemplate, String parameterName,
+        String segmentName, ClientLogger logger) {
+        String value = getValueFromIdByParameterName(id, pathTemplate, parameterName);
+        if (value == null) {
+            throw logger.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment '%s'.", id, segmentName)));
+        }
+        return value;
     }
 
     static <T, S> PagedIterable<S> mapPage(PagedIterable<T> pageIterable, Function<T, S> mapper) {

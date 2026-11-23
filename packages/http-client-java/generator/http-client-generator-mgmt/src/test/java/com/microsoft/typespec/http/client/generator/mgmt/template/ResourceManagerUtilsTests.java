@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.azure.core.util.logging.ClientLogger;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
@@ -23,8 +24,10 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentConstructorByInner;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethodType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.tools.ToolProvider;
@@ -40,9 +44,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@Isolated("Fluent generation uses shared settings")
 public class ResourceManagerUtilsTests {
     private static final String TEMPLATE = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}"
         + "/providers/Microsoft.Test/services/{serviceResourceName}";
@@ -58,7 +64,8 @@ public class ResourceManagerUtilsTests {
     public static void compileGeneratedHelper() throws Exception {
         new TestUtils.MockFluentGen();
         JavaFile file = new JavaFile("ResourceManagerUtils.java");
-        ResourceManagerUtilsTemplate.getInstance().write(file);
+        ResourceManagerUtilsTemplate.getInstance()
+            .write(EnumSet.allOf(ResourceManagerUtilsTemplate.UtilityMethod.class), file);
         Path source = compilationDirectory.resolve("ResourceManagerUtils.java");
         Files.writeString(source, file.getContents().toString());
         compile(source);
@@ -92,6 +99,61 @@ public class ResourceManagerUtilsTests {
 
     private static String value(String id, String template, String parameter) throws Exception {
         return (String) parse.invoke(null, id, template, parameter);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "", "getValueFromIdByParameterName", "getRequiredValueFromIdByParameterName", "mapPage" })
+    public void emitsOnlyReferencedUtilities(String method, @TempDir Path directory) throws Exception {
+        FluentJavaPackage javaPackage = new FluentJavaPackage(new TestUtils.MockFluentGen());
+        JavaFile caller = new JavaFile("Caller.java");
+        caller.line(method.isEmpty()
+            ? "class Caller {}"
+            : "class Caller { void call() { ResourceManagerUtils." + method + "(); } }");
+        javaPackage.getJavaFiles().add(caller);
+        javaPackage.addResourceManagerUtils();
+        var helper = javaPackage.getJavaFiles()
+            .stream()
+            .filter(file -> file.getFilePath().endsWith("ResourceManagerUtils.java"))
+            .findFirst();
+        if (method.isEmpty()) {
+            Assertions.assertTrue(helper.isEmpty());
+            return;
+        }
+        String source = helper.orElseThrow().getContents().toString();
+        boolean required = method.equals("getRequiredValueFromIdByParameterName");
+        Assertions.assertEquals(!method.equals("mapPage"), source.contains("String getValueFromIdByParameterName("));
+        Assertions.assertEquals(required, source.contains("String getRequiredValueFromIdByParameterName("));
+        Assertions.assertEquals(method.equals("mapPage"), source.contains("PagedIterable<S> mapPage("));
+        Assertions.assertEquals(method.equals("mapPage"), source.contains("class PagedIterableImpl"));
+        Assertions.assertEquals(required, source.contains("import com.azure.core.util.logging.ClientLogger;"));
+        Path file = directory.resolve("ResourceManagerUtils.java");
+        Files.writeString(file, source);
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int result = ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, "-classpath",
+                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+                directory.toString(), file.toString());
+        Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void requiredParameterPreservesValuesAndValidationErrors() throws Exception {
+        Method required = classLoader.loadClass("ResourceManagerUtils")
+            .getDeclaredMethod("getRequiredValueFromIdByParameterName", String.class, String.class, String.class,
+                String.class, ClientLogger.class);
+        required.setAccessible(true);
+        ClientLogger logger = new ClientLogger(ResourceManagerUtilsTests.class);
+        Assertions.assertEquals("farm", required.invoke(null, ID, TEMPLATE, "serviceResourceName", "services", logger));
+        for (String id : new String[] { null, ID.replace("Microsoft.Test", "Other"), ID + "/extra" }) {
+            InvocationTargetException error = Assertions.assertThrows(InvocationTargetException.class,
+                () -> required.invoke(null, id, TEMPLATE, "resourceGroupName", "resourceGroups", logger));
+            Assertions.assertInstanceOf(IllegalArgumentException.class, error.getCause());
+            Assertions.assertEquals("The resource ID '" + id + "' is not valid. Missing path segment 'resourceGroups'.",
+                error.getCause().getMessage());
+        }
+        String tenantTemplate = "/{scope}/providers/Microsoft.Authorization/roleAssignments/{name}";
+        Assertions.assertEquals("", required.invoke(null, "/providers/Microsoft.Authorization/roleAssignments/item",
+            tenantTemplate, "scope", "scope", logger));
     }
 
     @Test

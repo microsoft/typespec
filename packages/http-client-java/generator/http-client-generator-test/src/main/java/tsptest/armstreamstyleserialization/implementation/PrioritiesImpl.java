@@ -29,7 +29,7 @@ public final class PrioritiesImpl implements Priorities {
     }
 
     public Priority setPriority(Priority priority) {
-        return this.serviceClient().setPriority(priority);
+        return this.setPriorityWithResponse(priority, Context.NONE).getValue();
     }
 
     private PrioritiesClient serviceClient() {
