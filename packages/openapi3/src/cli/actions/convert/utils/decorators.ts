@@ -440,25 +440,30 @@ export function getExampleDecoratorsForSchema(
   }
 
   // Decorators are applied in reverse order, so reverse to preserve the examples array order.
-  return [...schemaWithoutRef.examples].reverse().map((example) => ({
-    name: "example",
-    args: [createTSValue(getExampleValueExpression(example, schema, context, exampleTargetType))],
-  }));
+  const decorators: TypeSpecDecorator[] = [];
+  for (const example of [...schemaWithoutRef.examples].reverse()) {
+    const expression = getExampleValueExpression(example, schema, context, exampleTargetType);
+    if (expression !== undefined) {
+      decorators.push({ name: "example", args: [createTSValue(expression)] });
+    }
+  }
+  return decorators;
 }
 
 function getExampleValueExpression(
   value: unknown,
-  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  schema: Refable<SupportedOpenAPISchema>,
   context?: Context,
   exampleTargetType?: string,
-): string {
+  refs: ReadonlySet<string> = new Set(),
+): string | undefined {
   if (value === null) return "null";
 
   const isRef = "$ref" in schema;
   const referencedSchema = isRef ? context?.getSchemaByRef(schema.$ref) : undefined;
-  const effectiveSchema = referencedSchema
-    ? ({ ...referencedSchema, ...schema } as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2)
-    : (schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2);
+  const effectiveSchema: SupportedOpenAPISchema = isRef
+    ? { ...referencedSchema, ...schema }
+    : schema;
   const typeName = isRef
     ? context?.getRefName(schema.$ref, [context.rootNamespace])
     : exampleTargetType;
@@ -477,53 +482,97 @@ function getExampleValueExpression(
 
   const unionMembers = effectiveSchema.anyOf ?? effectiveSchema.oneOf;
   if (unionMembers) {
+    const activeRefs = isRef ? new Set([...refs, schema.$ref]) : refs;
     const matchingMember = unionMembers.find((member) =>
-      isExampleValueCompatible(value, member, context),
+      isExampleValueCompatible(value, member, context, activeRefs),
     );
     if (matchingMember) {
-      return getExampleValueExpression(value, matchingMember, context);
+      return getExampleValueExpression(value, matchingMember, context, undefined, activeRefs);
     }
   }
 
-  if (
-    typeof value === "string" &&
-    effectiveSchema.const === undefined &&
-    !effectiveSchema.enum &&
-    (effectiveSchema.type === "string" ||
-      (Array.isArray(effectiveSchema.type) && effectiveSchema.type.includes("string")))
-  ) {
-    const scalar = getStringType(effectiveSchema);
-    switch (scalar) {
-      case "utcDateTime":
-      case "plainDate":
-      case "plainTime":
-      case "duration":
-        return `${(!nullable && typeName) || scalar}.fromISO(${stringLiteralForExample(value)})`;
+  if (effectiveSchema.const === undefined && !effectiveSchema.enum) {
+    const types = Array.isArray(effectiveSchema.type)
+      ? effectiveSchema.type
+      : [effectiveSchema.type];
+    if (typeof value === "string" && types.includes("string")) {
+      const scalar = getStringType(effectiveSchema);
+      switch (scalar) {
+        case "utcDateTime":
+        case "plainDate":
+        case "plainTime":
+        case "duration":
+          return scalarExampleFromISO((!nullable && typeName) || scalar, value);
+        case "bytes":
+          context?.logger.warn("Schema example contains a bytes value and will be ignored.");
+          return undefined;
+      }
+    } else if (typeof value === "number") {
+      const encoding = effectiveSchema["x-ms-duration"];
+      if (
+        (types.includes("integer") || types.includes("number")) &&
+        (encoding === "seconds" || encoding === "milliseconds")
+      ) {
+        const seconds = encoding === "milliseconds" ? value / 1000 : value;
+        const magnitude = Math.abs(seconds);
+        const decimal = magnitude.toLocaleString("en-US", {
+          useGrouping: false,
+          maximumFractionDigits: 9,
+        });
+        if (
+          magnitude > Number.MAX_SAFE_INTEGER ||
+          Math.abs(Number(decimal) - magnitude) > magnitude * Number.EPSILON
+        ) {
+          context?.logger.warn(
+            "Schema example contains an unrepresentable duration and will be ignored.",
+          );
+          return undefined;
+        }
+        return scalarExampleFromISO(
+          (!nullable && typeName) || "duration",
+          `${seconds < 0 ? "-" : ""}PT${decimal}S`,
+        );
+      }
+      if (types.includes("integer") && effectiveSchema.format === "unixtime") {
+        const date = new Date(value * 1000);
+        if (Number.isNaN(date.getTime())) {
+          context?.logger.warn(
+            "Schema example contains an out-of-range Unix timestamp and will be ignored.",
+          );
+          return undefined;
+        }
+        return scalarExampleFromISO((!nullable && typeName) || "utcDateTime", date.toISOString());
+      }
     }
   }
 
   if (Array.isArray(value)) {
-    const itemSchema = effectiveSchema.items;
-    return `#[${value
-      .map((item) => getExampleValueExpression(item, itemSchema ?? {}, context))
-      .join(", ")}]`;
+    const items: string[] = [];
+    for (const item of value) {
+      const expression = getExampleValueExpression(item, effectiveSchema.items ?? {}, context);
+      if (expression === undefined) return undefined;
+      items.push(expression);
+    }
+    return `#[${items.join(", ")}]`;
   }
 
   if (typeof value === "object") {
-    return `#{${Object.entries(value)
-      .map(([key, propertyValue]) => {
-        const propertySchema =
-          findExamplePropertySchema(effectiveSchema, key, context) ??
-          (typeof effectiveSchema.additionalProperties === "object"
-            ? effectiveSchema.additionalProperties
-            : {});
-        return `${printIdentifier(key, "disallow-reserved")}: ${getExampleValueExpression(
-          propertyValue,
-          propertySchema,
-          context,
-        )}`;
-      })
-      .join(", ")}}`;
+    const properties: string[] = [];
+    for (const [key, propertyValue] of Object.entries(value)) {
+      const propertySchema =
+        findExamplePropertySchema(effectiveSchema, key, context) ??
+        (typeof effectiveSchema.additionalProperties === "object"
+          ? effectiveSchema.additionalProperties
+          : {});
+      const expression = getExampleValueExpression(propertyValue, propertySchema, context);
+      if (expression === undefined) return undefined;
+      properties.push(`${printIdentifier(key, "disallow-reserved")}: ${expression}`);
+    }
+    return `#{${properties.join(", ")}}`;
+  }
+
+  function scalarExampleFromISO(scalar: string, value: string): string {
+    return `${scalar}.fromISO(${stringLiteralForExample(value)})`;
   }
 
   return typeof value === "string" ? stringLiteralForExample(value) : JSON.stringify(value);
@@ -555,60 +604,67 @@ function findExamplePropertySchema(
 
 function isExampleValueCompatible(
   value: unknown,
-  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  schema: Refable<SupportedOpenAPISchema>,
   context?: Context,
+  refs: ReadonlySet<string> = new Set(),
 ): boolean {
-  if (value === null) {
-    return "$ref" in schema
-      ? isExampleValueCompatible(value, context?.getSchemaByRef(schema.$ref) ?? {}, context)
-      : (schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2).type === "null" ||
-          ("type" in schema && Array.isArray(schema.type) && schema.type.includes("null"));
-  }
-
   if ("$ref" in schema) {
+    if (refs.has(schema.$ref)) return false;
     const referencedSchema = context?.getSchemaByRef(schema.$ref);
-    return referencedSchema ? isExampleValueCompatible(value, referencedSchema, context) : true;
+    return (
+      !referencedSchema ||
+      isExampleValueCompatible(value, referencedSchema, context, new Set([...refs, schema.$ref]))
+    );
   }
 
   if (schema.const !== undefined && schema.const !== value) return false;
   if (schema.enum && !schema.enum.includes(value as never)) return false;
 
   const unionMembers = schema.anyOf ?? schema.oneOf;
-  if (unionMembers) {
-    return unionMembers.some((member) => isExampleValueCompatible(value, member, context));
+  if (
+    (unionMembers &&
+      !unionMembers.some((member) => isExampleValueCompatible(value, member, context, refs))) ||
+    (schema.allOf &&
+      !schema.allOf.every((member) => isExampleValueCompatible(value, member, context, refs)))
+  ) {
+    return false;
   }
 
-  if (Array.isArray(schema.type)) {
-    return schema.type.some((type) =>
-      isExampleValueCompatible(value, { ...schema, type } as OpenAPI3Schema, context),
+  if (value === null && "nullable" in schema && schema.nullable) return true;
+
+  const types = Array.isArray(schema.type) ? schema.type : [schema.type];
+  if (!types.some((type) => isExampleTypeCompatible(value, type))) return false;
+
+  // Inspect nested values independently: a recursive schema can recur at a different value.
+  if (Array.isArray(value) && schema.items) {
+    const items = schema.items;
+    return value.every((item) => isExampleValueCompatible(item, items, context));
+  }
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return (
+      (schema.required ?? []).every((key) => Object.hasOwn(value, key)) &&
+      Object.entries(value).every(([key, propertyValue]) => {
+        const propertySchema =
+          schema.properties && Object.hasOwn(schema.properties, key)
+            ? schema.properties[key]
+            : schema.additionalProperties;
+        return typeof propertySchema === "object"
+          ? isExampleValueCompatible(propertyValue, propertySchema, context)
+          : propertySchema !== false;
+      })
     );
   }
+  return true;
+}
 
-  switch (schema.type) {
+function isExampleTypeCompatible(value: unknown, type: string | undefined): boolean {
+  switch (type) {
     case "null":
-      return false;
+      return value === null;
     case "array":
-      return (
-        Array.isArray(value) &&
-        (!schema.items ||
-          value.every((item) => isExampleValueCompatible(item, schema.items!, context)))
-      );
+      return Array.isArray(value);
     case "object":
-      return (
-        typeof value === "object" &&
-        !Array.isArray(value) &&
-        (schema.required ?? []).every((key) => Object.hasOwn(value, key)) &&
-        Object.entries(value).every(([key, propertyValue]) => {
-          const propertySchema =
-            schema.properties?.[key] ??
-            (typeof schema.additionalProperties === "object"
-              ? schema.additionalProperties
-              : undefined);
-          return (
-            !propertySchema || isExampleValueCompatible(propertyValue, propertySchema, context)
-          );
-        })
-      );
+      return value !== null && typeof value === "object" && !Array.isArray(value);
     case "string":
       return typeof value === "string";
     case "boolean":

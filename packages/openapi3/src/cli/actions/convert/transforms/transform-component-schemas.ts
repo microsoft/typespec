@@ -125,9 +125,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...("$ref" in effectiveSchema
-          ? []
-          : getModelPropertiesFromObjectSchema(effectiveSchema, context)),
+        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema)),
         ...allOfDetails.properties,
       ],
       additionalProperties:
@@ -256,7 +254,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     for (const member of schema.allOf) {
       // inline-schemas treated as normal objects with properties
       if (!("$ref" in member)) {
-        details.properties.push(...getModelPropertiesFromObjectSchema(member, context));
+        details.properties.push(...getModelPropertiesFromObjectSchema(member));
         continue;
       }
 
@@ -309,6 +307,10 @@ function unwrapSingleAnyOfOneOf(
   schema: Refable<SupportedOpenAPISchema>,
 ): Refable<SupportedOpenAPISchema> {
   if ("$ref" in schema) return schema;
+  // Unwrapping drops the null variant, so it would invalidate a null example.
+  if ("examples" in schema && Array.isArray(schema.examples) && schema.examples.includes(null)) {
+    return schema;
+  }
   const unionMembers = schema.anyOf || schema.oneOf;
   if (!unionMembers) {
     return schema;
@@ -352,10 +354,10 @@ function unwrapSingleAnyOfOneOf(
   return schema;
 }
 
-function getModelPropertiesFromObjectSchema(
-  { properties, required = [] }: SupportedOpenAPISchema,
-  context: Context,
-): TypeSpecModelProperty[] {
+function getModelPropertiesFromObjectSchema({
+  properties,
+  required = [],
+}: SupportedOpenAPISchema): TypeSpecModelProperty[] {
   if (!properties) return [];
 
   const modelProperties: TypeSpecModelProperty[] = [];
@@ -368,14 +370,16 @@ function getModelPropertiesFromObjectSchema(
       schema: property,
       isOptional: !required.includes(name),
       directives: [...getDirectivesForSchema(property)],
-      decorators: [...getDecoratorsForSchema(property, context)],
+      decorators: [],
     });
   }
 
   return modelProperties;
 }
 
-function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataTypes["kind"] {
+export function getTypeSpecKind(
+  schema: Refable<SupportedOpenAPISchema>,
+): TypeSpecDataTypes["kind"] {
   if ("$ref" in schema) {
     return "alias";
   }
@@ -389,34 +393,7 @@ function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataT
     ("nullable" in schema && schema.nullable) ||
     (Array.isArray(schema.type) && schema.type.includes("null"))
   ) {
-    // Check if anyOf/oneOf has a single meaningful inline object schema
-    const unionMembers = schema.anyOf || schema.oneOf;
-    if (unionMembers) {
-      const meaningfulInlineMembers = unionMembers.filter((member) => {
-        // Exclude $ref members and null types
-        if ("$ref" in member) return false;
-        if (!("type" in member)) return false;
-        // In OpenAPI 3.1, type can be "null" (JsonSchemaType includes "null")
-        // In OpenAPI 3.0, nullable is used instead, but we still check type here for consistency
-        return (member as any).type !== "null";
-      });
-
-      // Check if there are any $ref members in the union alongside the inline members
-      const hasRefMembers = unionMembers.some((member) => "$ref" in member);
-
-      // If there's exactly one meaningful inline member AND it's an object type
-      // AND there are no $ref members alongside it, treat it as a model.
-      // If $ref members are present, the schema is truly a union (e.g. $ref + object).
-      if (meaningfulInlineMembers.length === 1 && !hasRefMembers) {
-        const member = meaningfulInlineMembers[0];
-        // Only unwrap if the member is an object schema
-        if (!("$ref" in member) && (member.type === "object" || member.properties)) {
-          return "model";
-        }
-      }
-    }
-
-    return "union";
+    return unwrapSingleAnyOfOneOf(schema) === schema ? "union" : "model";
   } else if (
     schema.type === "object" ||
     (schema.properties && Object.keys(schema.properties).length > 0) ||

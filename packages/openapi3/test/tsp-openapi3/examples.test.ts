@@ -211,6 +211,19 @@ describe("import schema examples", () => {
     expect(output.components.schemas.Pet.examples).toEqual(examples);
   });
 
+  it("round-trips null and object examples on a nullable object union", async () => {
+    const examples = [null, { name: "Fluffy" }];
+    const code = await convertOpenAPI3Document(
+      documentFor({
+        anyOf: [{ type: "object", properties: { name: { type: "string" } } }, { type: "null" }],
+        examples,
+      }),
+    );
+    expect(code).toContain("union Pet");
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
   it("round-trips examples on inline request and response body schemas", async () => {
     const input = documentFor({});
     input.paths = {
@@ -319,6 +332,142 @@ describe("import schema examples", () => {
     expect(examplesForSchema(responseSchema, output)).toEqual(["response example"]);
   });
 
+  it("round-trips examples on JSON responses with explicit and implicit bodies", async () => {
+    const input = documentFor({});
+    const schemas: Record<string, OpenAPISchema3_2> = {
+      "200": { type: ["string", "null"], examples: [null, "ok"] },
+      "201": { type: "string", examples: ["ok"] },
+      "202": { type: "string", enum: ["ok", "pending"], examples: ["ok"] },
+      "400": { type: "array", items: { type: "string" }, examples: [["ok"]] },
+      "404": {
+        type: "object",
+        properties: { name: { type: "string" } },
+        examples: [{ name: "Fluffy" }],
+      },
+    };
+    input.paths = {
+      "/pets": {
+        get: {
+          operationId: "getPet",
+          responses: Object.fromEntries(
+            Object.entries(schemas).map(([status, schema]) => [
+              status,
+              { description: "Response", content: { "application/json": { schema } } },
+            ]),
+          ),
+        },
+      },
+    };
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    for (const [status, schema] of Object.entries(schemas)) {
+      expect(
+        examplesForSchema(
+          output.paths["/pets"].get.responses[status].content["application/json"].schema,
+          output,
+        ),
+      ).toEqual(schema.examples);
+    }
+  });
+
+  it("keeps request body examples next to a reference separate from the component examples", async () => {
+    const input = documentFor({ type: "string", examples: ["component"] });
+    input.paths = {
+      "/pets": {
+        post: {
+          operationId: "createPet",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Pet", examples: ["request"] },
+              },
+            },
+          },
+          responses: { "204": { description: "No content" } },
+        },
+      },
+    };
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    expect(output.components.schemas.Pet.examples).toEqual(["component"]);
+    expect(
+      examplesForSchema(
+        output.paths["/pets"].post.requestBody.content["application/json"].schema,
+        output,
+      ),
+    ).toEqual(["request"]);
+  });
+
+  it("emits type-safe examples on response headers that reference enums", async () => {
+    const input = documentFor({ type: "string", enum: ["red", "blue"] });
+    const schema = { $ref: "#/components/schemas/Pet", examples: ["red"] };
+    input.paths = {
+      "/pets": {
+        get: {
+          operationId: "getPet",
+          responses: {
+            "200": {
+              description: "Response",
+              headers: {
+                "X-Color": { schema },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const code = await convertOpenAPI3Document(input);
+    expect(code.match(/@example\([^)]*\)/g)).toEqual(["@example(Pets.Pet.red)"]);
+    await emitOpenAPI(code);
+  });
+
+  it("warns and omits unsupported bytes examples, including inside composite examples", async () => {
+    const input = documentFor({
+      type: "object",
+      properties: { data: { type: "string", format: "byte", examples: ["YQ=="] } },
+      examples: [{ data: "YQ==" }, {}],
+    });
+    Object.assign(input.components!.schemas!, {
+      Packet: { type: "string", contentEncoding: "base64", examples: ["YQ=="] },
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+      expect(output.components.schemas.Pet.examples).toEqual([{}]);
+      expect(output.components.schemas.Pet.properties.data).not.toHaveProperty("examples");
+      expect(output.components.schemas.Packet).not.toHaveProperty("examples");
+      expect(warn).toHaveBeenCalledTimes(3);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("bytes"));
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("round-trips numeric encodings on scalars and nested object examples", async () => {
+    const examples = [{ timestamp: -1, seconds: 1.5, milliseconds: -1500 }];
+    const input = documentFor({
+      type: "object",
+      properties: {
+        timestamp: { $ref: "#/components/schemas/Timestamp" },
+        seconds: { type: "number", format: "double", "x-ms-duration": "seconds" },
+        milliseconds: { type: "integer", "x-ms-duration": "milliseconds" },
+      },
+      examples,
+    });
+    Object.assign(input.components!.schemas!, {
+      Timestamp: { type: "integer", format: "unixtime", examples: [0] },
+      Duration: { type: "integer", "x-ms-duration": "milliseconds", examples: [1500] },
+    });
+
+    const code = await convertOpenAPI3Document(input);
+    const output = await emitOpenAPI(code);
+    expect(output.components.schemas.Timestamp.examples).toEqual([0]);
+    expect(output.components.schemas.Duration.examples).toEqual([1500]);
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
   it("preserves backslashes, interpolation syntax, and control characters in nested examples", async () => {
     const examples = [{ path: 'C:\\temp\\${name}"\r\n\t\b\f\u0000\u001f' }];
     const code = await convertOpenAPI3Document(
@@ -389,6 +538,37 @@ describe("import schema examples", () => {
     expect(code).toContain('b: utcDateTime.fromISO("2026-11-20T16:00:00Z")');
     const output = await emitOpenAPI(code);
     expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
+  it("checks required properties inherited through allOf before selecting a union variant", async () => {
+    const examples = [{ b: "2026-11-20T16:00:00Z" }];
+    const input = documentFor({
+      anyOf: [{ $ref: "#/components/schemas/Composed" }, { $ref: "#/components/schemas/Other" }],
+      examples,
+    });
+    Object.assign(input.components!.schemas!, {
+      Composed: { allOf: [{ $ref: "#/components/schemas/Base" }] },
+      Base: { type: "object", properties: { a: { type: "string" } }, required: ["a"] },
+      Other: {
+        type: "object",
+        properties: { b: { type: "string", format: "date-time" } },
+        required: ["b"],
+      },
+    });
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+  });
+
+  it("checks other union variants when a composed reference is circular", () => {
+    const schema: OpenAPISchema3_2 = {
+      anyOf: [{ $ref: "#/components/schemas/Pet" }, { type: "string", format: "date" }],
+      examples: ["2026-11-20"],
+    };
+    const context = createContext(documentFor({ allOf: [{ $ref: "#/components/schemas/Pet" }] }));
+    expect(generateDecorators(getDecoratorsForSchema(schema, context))).toEqual([
+      '@example(plainDate.fromISO("2026-11-20"))',
+    ]);
   });
 
   it("preserves outer examples without merging nullable union member examples", async () => {

@@ -84,9 +84,13 @@ function generateRequestBodyParameters(
 
   const definitions: string[] = [];
 
-  // Generate the content-type header if defined content-types is not just 'application/json'
+  // Keep the declared media type when HTTP might infer a different one for an example body.
   const contentTypes = requestBodies.map((r) => r.contentType);
-  if (!supportsOnlyJson(contentTypes)) {
+  const hasReferencedBodyExamples = requestBodies.some(({ schema }) => {
+    const referenced = schema && "$ref" in schema && context.getSchemaByRef(schema.$ref);
+    return referenced && "examples" in referenced;
+  });
+  if (!supportsOnlyJson(contentTypes) || hasReferencedBodyExamples) {
     definitions.push(`@header contentType: ${contentTypes.map((c) => `"${c}"`).join(" | ")}`);
   }
 

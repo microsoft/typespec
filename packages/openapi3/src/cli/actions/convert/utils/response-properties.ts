@@ -2,7 +2,6 @@ import type { OpenAPI3Header, OpenAPI3Schema, Refable } from "../../../../types.
 import type { TypeSpecDecorator, TypeSpecModelProperty } from "../interfaces.js";
 import type { Context } from "./context.js";
 import { convertHeaderName } from "./convert-header-name.js";
-import { getDecoratorsForSchema } from "./decorators.js";
 
 export type LiteralStatusCode = `${number}`;
 export type WildcardStatusCode = "1XX" | "2XX" | "3XX" | "4XX" | "5XX";
@@ -68,7 +67,7 @@ export function convertHeaderToProperty(
 
   return {
     name: normalizedName,
-    decorators: [headerDecorator, ...(header.schema ? getDecoratorsForSchema(header.schema) : [])],
+    decorators: [headerDecorator],
     doc: props.header.description ?? header.description ?? header.schema?.description,
     isOptional: !header.required,
     schema: header.schema ?? {},

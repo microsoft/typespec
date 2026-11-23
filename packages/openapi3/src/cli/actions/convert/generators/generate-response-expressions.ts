@@ -1,5 +1,6 @@
 import type { OpenAPI3MediaType, OpenAPI3Response, Refable } from "../../../../types.js";
 import type { TypeSpecModelProperty, TypeSpecOperation } from "../interfaces.js";
+import { getTypeSpecKind } from "../transforms/transform-component-schemas.js";
 import type { Context } from "../utils/context.js";
 import type { StatusCodes } from "../utils/response-properties.js";
 import {
@@ -248,12 +249,16 @@ function generateResponseExpressions({
     const bodySchema = content.schema;
     const referencedBody =
       bodySchema && "$ref" in bodySchema ? context.getSchemaByRef(bodySchema.$ref) : undefined;
-    // Keep a hoisted literal union as the body; HTTP otherwise treats its variants as responses.
-    const isLiteralBody = referencedBody?.const !== undefined;
+    // Intersections and implicit bodies don't preserve non-model response body types.
+    const isModelBody =
+      referencedBody &&
+      getTypeSpecKind(referencedBody) === "model" &&
+      referencedBody.type !== "array" &&
+      !referencedBody.items;
     if (bodySchema && mediaType === "application/json" && !headers.length) {
       // Scenario 3 - have a mapped status code and body schema is a ref using application/json - intersection!
       // Example: CreatedResponse & Widget
-      if ("$ref" in bodySchema && statusCodeMetadata.httpLibModel && !isLiteralBody) {
+      if (isModelBody && statusCodeMetadata.httpLibModel) {
         return `${statusCodeMetadata.httpLibModel} & ${context.generateTypeFromRefableSchema(
           bodySchema,
           operationScope,
@@ -262,12 +267,12 @@ function generateResponseExpressions({
       // Scenario 4 - 200 status code and using application/json - return just the body
       // Example: Widget
       // Example: Body<string>
-      if (statusCodeMetadata.literalStatusCode === 200) {
+      if (
+        statusCodeMetadata.literalStatusCode === 200 &&
+        (isModelBody || !referencedBody || !("examples" in referencedBody))
+      ) {
         const body = context.generateTypeFromRefableSchema(bodySchema, operationScope);
-        if ("$ref" in bodySchema && !isLiteralBody) {
-          return body;
-        }
-        return `Body<${body}>`;
+        return isModelBody ? body : `Body<${body}>`;
       }
     }
 
@@ -278,8 +283,11 @@ function generateResponseExpressions({
     }
     modelExpressionProps.push(...headers);
 
-    // application/json is default contentType so can ignore it
-    if (mediaType !== "application/json") {
+    // HTTP may infer a non-JSON content type for referenced scalar bodies.
+    if (
+      mediaType !== "application/json" ||
+      (referencedBody && !isModelBody && "examples" in referencedBody)
+    ) {
       modelExpressionProps.push({
         name: "contentType",
         decorators: [{ name: "header", args: [] }],

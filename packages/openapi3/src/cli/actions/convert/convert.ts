@@ -77,7 +77,6 @@ function hoistInlineBodyExampleSchemas(
       if (
         !schema ||
         typeof schema !== "object" ||
-        "$ref" in schema ||
         !("examples" in schema) ||
         (Array.isArray(schema.examples) && schema.examples.length === 0)
       ) {
@@ -89,9 +88,15 @@ function hoistInlineBodyExampleSchemas(
         name = `__OpenAPIExampleBody${nextSchemaIndex++}`;
       } while (name in schemas);
 
-      // A literal cannot be the base of a scalar, but can be a named union variant.
-      schemas[name] =
-        schema.const === undefined ? schema : { ...schema, anyOf: [{ const: schema.const }] };
+      if ("$ref" in schema) {
+        // Keep usage examples separate from examples on the referenced component.
+        const { $ref, ...siblings } = schema;
+        schemas[name] = { ...siblings, anyOf: [{ $ref }] };
+      } else {
+        // A literal cannot be the base of a scalar, but can be a named union variant.
+        schemas[name] =
+          schema.const === undefined ? schema : { ...schema, anyOf: [{ const: schema.const }] };
+      }
       mediaType.schema = { $ref: `#/components/schemas/${name}` };
     }
   }
