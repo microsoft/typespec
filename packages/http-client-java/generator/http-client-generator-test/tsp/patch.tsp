@@ -22,6 +22,10 @@ model Resource {
   name: string;
 
   description?: string;
+
+  @visibility(Lifecycle.Read, Lifecycle.Update)
+  state: string;
+
   map: Record<InnerModel>;
   longValue?: int64;
   intValue?: int32;

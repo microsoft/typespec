@@ -316,7 +316,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public OrderInner createOrReplace(String resourceGroupName, String orderName, OrderInner resource) {
-        return beginCreateOrReplace(resourceGroupName, orderName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrReplace(resourceGroupName, orderName, resource));
     }
 
     /**
@@ -334,7 +334,8 @@ public final class LroesClientImpl implements LroesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public OrderInner createOrReplace(String resourceGroupName, String orderName, OrderInner resource,
         Context context) {
-        return beginCreateOrReplace(resourceGroupName, orderName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrReplace(resourceGroupName, orderName, resource, context));
     }
 
     /**
@@ -487,7 +488,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExportResultInner export(String resourceGroupName, String orderName, ExportRequest body) {
-        return beginExport(resourceGroupName, orderName, body).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginExport(resourceGroupName, orderName, body));
     }
 
     /**
@@ -504,7 +505,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExportResultInner export(String resourceGroupName, String orderName, ExportRequest body, Context context) {
-        return beginExport(resourceGroupName, orderName, body, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginExport(resourceGroupName, orderName, body, context));
     }
 
     /**
@@ -634,7 +635,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String orderName) {
-        beginDelete(resourceGroupName, orderName).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, orderName));
     }
 
     /**
@@ -649,7 +650,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String orderName, Context context) {
-        beginDelete(resourceGroupName, orderName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, orderName, context));
     }
 
     /**
@@ -789,7 +790,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<ExportResultInner> exportArray(ExportRequest body) {
-        return beginExportArray(body).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginExportArray(body));
     }
 
     /**
@@ -804,7 +805,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<ExportResultInner> exportArray(ExportRequest body, Context context) {
-        return beginExportArray(body, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginExportArray(body, context));
     }
 
     /**
@@ -942,7 +943,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CostReportInner getLro(String scope, String operationId) {
-        return beginGetLro(scope, operationId).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginGetLro(scope, operationId));
     }
 
     /**
@@ -958,7 +959,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CostReportInner getLro(String scope, String operationId, Context context) {
-        return beginGetLro(scope, operationId, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginGetLro(scope, operationId, context));
     }
 
     private static final TypeReference<List<ExportResultInner>> TYPE_REFERENCE_LIST_EXPORT_RESULT_INNER

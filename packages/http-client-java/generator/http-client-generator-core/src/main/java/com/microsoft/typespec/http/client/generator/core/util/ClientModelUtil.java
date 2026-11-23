@@ -98,6 +98,7 @@ public class ClientModelUtil {
                     .serviceClient(serviceClient)
                     .apiMetadata(new ApiMetadata.Builder()
                         .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client))
+                        .experimental(SchemaUtil.getExperimental(client))
                         .build());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()

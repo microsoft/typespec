@@ -245,6 +245,7 @@ words:
   - pyright
   - pyrightconfig
   - pytest
+  - pytokens
   - pytyped
   - pyyaml
   - rcfile

@@ -221,7 +221,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             IType classType = clientMethod.getMethodPageDetails().getLroIntermediateType();
             // get final result
             function.line(String.format(
-                "%1$s lroPageableResult = this.client.<%1$s, %1$s>getLroResult(res, %1$s.class, %1$s.class, %3$s).getFinalResult();",
+                "%1$s lroPageableResult = %2$s.getLroFinalResultOrError(%2$s.<%1$s, %1$s>getLroResult(res, %1$s.class, %1$s.class, %3$s));",
                 classType, clientMethod.getClientReference(), contextInParameters ? "context" : "Context.NONE"));
             // return line
             String nextLink = clientMethod.getMethodPageDetails().nonNullNextLink()
@@ -289,7 +289,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
-            String line = String.format("%s(%s).getFinalResult()",
+            String line = String.format("%s.getLroFinalResultOrError(%s(%s))", clientMethod.getClientReference(),
                 MethodNamer.getLroBeginMethodName(restAPIMethod.getName()), clientMethod.getArgumentList());
             if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
                 function.methodReturn(line);
@@ -341,7 +341,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         boolean contextInParameters = contextInParameters(clientMethod);
 
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
-        typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
             function.line(String.format("Response<BinaryData> response = %s(%s);",
                 MethodNamer.getSimpleRestResponseMethodName(restAPIMethod.getName()), clientMethod.getArgumentList()));

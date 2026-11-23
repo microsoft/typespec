@@ -22,6 +22,7 @@ import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.AsyncPollResponse;
 import com.azure.core.util.polling.LongRunningOperationStatus;
+import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.SerializerAdapter;
@@ -34,12 +35,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tsptest.armresourceprovider.fluent.AccountResourcesClient;
 import tsptest.armresourceprovider.fluent.ArmClient;
 import tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ChildResourcesInterfacesClient;
 import tsptest.armresourceprovider.fluent.CustomTemplateResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient;
 import tsptest.armresourceprovider.fluent.LroNoBodiesClient;
+import tsptest.armresourceprovider.fluent.MachineResourcesClient;
 import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
 import tsptest.armresourceprovider.fluent.ModelInterfaceSameNamesClient;
 import tsptest.armresourceprovider.fluent.OperationsClient;
@@ -163,6 +166,34 @@ public final class ArmClientImpl implements ArmClient {
     }
 
     /**
+     * The AccountResourcesClient object to access its operations.
+     */
+    private final AccountResourcesClient accountResources;
+
+    /**
+     * Gets the AccountResourcesClient object to access its operations.
+     * 
+     * @return the AccountResourcesClient object.
+     */
+    public AccountResourcesClient getAccountResources() {
+        return this.accountResources;
+    }
+
+    /**
+     * The MachineResourcesClient object to access its operations.
+     */
+    private final MachineResourcesClient machineResources;
+
+    /**
+     * Gets the MachineResourcesClient object to access its operations.
+     * 
+     * @return the MachineResourcesClient object.
+     */
+    public MachineResourcesClient getMachineResources() {
+        return this.machineResources;
+    }
+
+    /**
      * The CustomTemplateResourceInterfacesClient object to access its operations.
      */
     private final CustomTemplateResourceInterfacesClient customTemplateResourceInterfaces;
@@ -280,6 +311,8 @@ public final class ArmClientImpl implements ArmClient {
         this.apiVersion = "2023-11-01";
         this.childResourcesInterfaces = new ChildResourcesInterfacesClientImpl(this);
         this.topLevelArmResourceInterfaces = new TopLevelArmResourceInterfacesClientImpl(this);
+        this.accountResources = new AccountResourcesClientImpl(this);
+        this.machineResources = new MachineResourcesClientImpl(this);
         this.customTemplateResourceInterfaces = new CustomTemplateResourceInterfacesClientImpl(this);
         this.operations = new OperationsClientImpl(this);
         this.childExtensionResourceInterfaces = new ChildExtensionResourceInterfacesClientImpl(this);
@@ -344,6 +377,24 @@ public final class ArmClientImpl implements ArmClient {
     }
 
     /**
+     * Waits for completion and gets the final result, or throws an error.
+     * 
+     * @param poller the synchronous poller.
+     * @param <T> type of poll result.
+     * @param <U> type of final result.
+     * @return the final result.
+     * @throws ManagementException if the long running operation fails.
+     */
+    public <T, U> U getLroFinalResultOrError(SyncPoller<PollResult<T>, U> poller) {
+        PollResponse<PollResult<T>> response = poller.waitForCompletion();
+        ManagementException exception = getLroException(response.getStatus(), response.getValue());
+        if (exception != null) {
+            throw exception;
+        }
+        return poller.getFinalResult();
+    }
+
+    /**
      * Gets the final result, or an error, based on last async poll response.
      * 
      * @param response the last async poll response.
@@ -352,17 +403,25 @@ public final class ArmClientImpl implements ArmClient {
      * @return the final result, or an error.
      */
     public <T, U> Mono<U> getLroFinalResultOrError(AsyncPollResponse<PollResult<T>, U> response) {
-        if (response.getStatus() != LongRunningOperationStatus.SUCCESSFULLY_COMPLETED) {
+        ManagementException exception = getLroException(response.getStatus(), response.getValue());
+        if (exception != null) {
+            return Mono.error(exception);
+        }
+        return response.getFinalResult();
+    }
+
+    private ManagementException getLroException(LongRunningOperationStatus status, PollResult<?> result) {
+        PollResult.Error lroError = result == null ? null : result.getError();
+        if (status != LongRunningOperationStatus.SUCCESSFULLY_COMPLETED || lroError != null) {
             String errorMessage;
             ManagementError managementError = null;
             HttpResponse errorResponse = null;
-            PollResult.Error lroError = response.getValue().getError();
             if (lroError != null) {
                 errorResponse = new HttpResponseImpl(lroError.getResponseStatusCode(), lroError.getResponseHeaders(),
                     lroError.getResponseBody());
 
-                errorMessage = response.getValue().getError().getMessage();
-                String errorBody = response.getValue().getError().getResponseBody();
+                errorMessage = lroError.getMessage();
+                String errorBody = lroError.getResponseBody();
                 if (errorBody != null) {
                     // try to deserialize error body to ManagementError
                     try {
@@ -381,12 +440,11 @@ public final class ArmClientImpl implements ArmClient {
             }
             if (managementError == null) {
                 // fallback to default ManagementError
-                managementError = new ManagementError(response.getStatus().toString(), errorMessage);
+                managementError = new ManagementError(status.toString(), errorMessage);
             }
-            return Mono.error(new ManagementException(errorMessage, errorResponse, managementError));
-        } else {
-            return response.getFinalResult();
+            return new ManagementException(errorMessage, errorResponse, managementError);
         }
+        return null;
     }
 
     private static final class HttpResponseImpl extends HttpResponse {

@@ -3,7 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -12,24 +16,199 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.api.parallel.ResourceLock;
 
+@Isolated
 @ResourceLock("ClientModels")
 public class ConvenienceMethodTemplateBaseTests {
+
+    @AfterEach
+    public void restoreSettings() {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+        Mappers.setFactory(new DefaultMapperFactory());
+        Templates.setFactory(new DefaultTemplateFactory());
+    }
+
+    @Test
+    public void validatesOnlyParametersPresentInHistoricalOverload() {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "client-side-validations".equals(key) ? (T) Boolean.TRUE : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        ClientMethodParameter retained = new ClientMethodParameter.Builder().name("existing")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("body")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethod full = new ClientMethod.Builder().name("operation")
+            .type(ClientMethodType.SimpleSyncRestResponse)
+            .parameters(List.of(retained, added))
+            .requiredNullableParameterExpressions(List.of())
+            .validateExpressions(Map.of("body", "body.validate()", "existing", "existing.validate()",
+                "this.client.getOptions()", "this.client.getOptions().validate()"))
+            .build();
+        for (boolean historical : List.of(false, true)) {
+            ClientMethod method = historical
+                ? full.newBuilder().parameters(List.of(retained)).overloadedClientMethod(full).build()
+                : full;
+            JavaFileContents contents = new JavaFileContents();
+
+            ClientMethodTemplate.addValidations(new JavaBlock(contents), method, JavaSettings.getInstance());
+
+            String output = contents.toString();
+            Assertions.assertEquals(!historical, output.contains("body.validate()"), output);
+            Assertions.assertTrue(output.contains("existing.validate()"), output);
+            Assertions.assertTrue(output.contains("this.client.getOptions().validate()"), output);
+        }
+    }
+
+    @Test
+    public void reservesParametersOmittedByVersioning() {
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("nextLink")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter retained = new ClientMethodParameter.Builder().name("nextLink1")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethod full = new ClientMethod.Builder().name("list")
+            .type(ClientMethodType.PagingAsync)
+            .parameters(List.of(added, retained))
+            .build();
+        ClientMethod historical = full.newBuilder().parameters(List.of(retained)).overloadedClientMethod(full).build();
+
+        Assertions.assertEquals("nextLink2", ClientMethodTemplateBase.availablePagingVariableName("nextLink",
+            ClientMethodTemplateBase.pagingVariableNames(historical)));
+    }
+
+    @Test
+    public void doesNotInitializeUnusedVersionedParametersInDelegatingMethods() {
+        ClientMethodParameter required = new ClientMethodParameter.Builder().name("name")
+            .wireType(ClassType.STRING)
+            .required(true)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter retained = new ClientMethodParameter.Builder().name("existing")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter added = new ClientMethodParameter.Builder().name("newHeader")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethod full = new ClientMethod.Builder().name("operation")
+            .type(ClientMethodType.SimpleSync)
+            .parameters(List.of(required, retained, added))
+            .returnValue(new ReturnValue("The result.", ClassType.STRING))
+            .methodVisibility(JavaVisibility.Public)
+            .build();
+        ClientMethod historical
+            = full.newBuilder().parameters(List.of(required, retained)).overloadedClientMethod(full).build();
+        JavaFileContents contents = new JavaFileContents();
+
+        ClientMethodTemplate.getInstance()
+            .generateSyncMethod(historical, new JavaClass(contents), JavaSettings.getInstance());
+
+        Assertions.assertFalse(contents.toString().contains("final String newHeader"), contents.toString());
+        Assertions.assertTrue(contents.toString().contains("operationAsync(name, existing)"), contents.toString());
+
+        JavaFileContents minimumOverload = new JavaFileContents();
+        ClientMethodTemplate.addOptionalVariables(new JavaBlock(minimumOverload),
+            full.newBuilder().onlyRequiredParameters(true).build());
+        Assertions.assertTrue(minimumOverload.toString().contains("final String existing = null;"));
+        Assertions.assertTrue(minimumOverload.toString().contains("final String newHeader = null;"));
+    }
+
+    @Test
+    public void initializesOnlyVersionedParametersReferencedByNextPage() {
+        ClientMethodParameter addedHeader = new ClientMethodParameter.Builder().name("newHeader")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter addedQuery = new ClientMethodParameter.Builder().name("nextLink")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .build();
+        ClientMethodParameter nextLink = new ClientMethodParameter.Builder().name("nextLink")
+            .wireType(ClassType.STRING)
+            .required(true)
+            .annotations(List.of())
+            .build();
+        for (boolean sync : List.of(false, true)) {
+            for (boolean forwardHeader : List.of(false, true)) {
+                ClientMethod next = new ClientMethod.Builder().name("listNext")
+                    .parameters(forwardHeader ? List.of(nextLink, addedHeader) : List.of(nextLink))
+                    .proxyMethod(new ProxyMethod.Builder().name("listNext").build())
+                    .build();
+                ClientMethod full = new ClientMethod.Builder().name("list")
+                    .type(sync ? ClientMethodType.PagingSync : ClientMethodType.PagingAsync)
+                    .parameters(List.of(addedHeader, addedQuery))
+                    .proxyMethod(
+                        new ProxyMethod.Builder().name("list").parameters(List.of()).allParameters(List.of()).build())
+                    .returnValue(new ReturnValue("The items.",
+                        sync ? GenericType.pagedIterable(ClassType.STRING) : GenericType.pagedFlux(ClassType.STRING)))
+                    .methodVisibility(JavaVisibility.Public)
+                    .methodPageDetails(new MethodPageDetails(List.of(),
+                        List.of(new ModelPropertySegment(null,
+                            new ClientModelProperty.Builder().name("nextLink")
+                                .serializedName("nextLink")
+                                .wireType(ClassType.STRING)
+                                .clientType(ClassType.STRING)
+                                .build())),
+                        next, null, null, null, null))
+                    .build();
+                ClientMethod historical = full.newBuilder().parameters(List.of()).overloadedClientMethod(full).build();
+                JavaFileContents contents = new JavaFileContents();
+                if (sync) {
+                    ClientMethodTemplate.getInstance()
+                        .generatePagingPlainSync(historical, new JavaClass(contents), JavaSettings.getInstance());
+                } else {
+                    ClientMethodTemplate.getInstance()
+                        .generatePagingAsync(historical, new JavaClass(contents), JavaSettings.getInstance());
+                }
+
+                String output = contents.toString();
+                Assertions.assertEquals(forwardHeader, output.contains("final String newHeader = null;"), output);
+                Assertions.assertFalse(output.contains("final String nextLink = null;"), output);
+                Assertions.assertTrue(output.contains("listNextSinglePage"), output);
+            }
+        }
+    }
 
     @Test
     public void unwrapsMonoResponse() {
@@ -121,6 +300,56 @@ public class ConvenienceMethodTemplateBaseTests {
     }
 
     @Test
+    public void optionalByteHeadersAndQueriesUseBase64() {
+        useFlavor("azure");
+        for (boolean async : List.of(false, true)) {
+            for (RequestParameterLocation location : List.of(RequestParameterLocation.HEADER,
+                RequestParameterLocation.QUERY)) {
+                String output = renderByteParameter(async, location, ArrayType.BYTE_ARRAY, false, null, null);
+                Assertions.assertTrue(output.contains("if (data != null)"), output);
+                Assertions.assertTrue(output.contains("Base64Util.encodeToString(data)"), output);
+            }
+        }
+    }
+
+    @Test
+    public void optionalBase64UrlHeadersAndQueriesKeepUrlEncoding() {
+        useFlavor("azure");
+        for (RequestParameterLocation location : List.of(RequestParameterLocation.HEADER,
+            RequestParameterLocation.QUERY)) {
+            String output = renderByteParameter(false, location, ClassType.BASE_64_URL, false, null, null);
+            Assertions.assertTrue(output.contains(ClassType.BASE_64_URL.getName() + ".encode(data)"), output);
+        }
+    }
+
+    @Test
+    public void byteHeaderCollectionsAndExplodedQueriesImportBase64() {
+        useFlavor("azure");
+        Set<String> imports = new HashSet<>();
+        String header = renderByteParameter(false, RequestParameterLocation.HEADER, new MapType(ArrayType.BYTE_ARRAY),
+            false, "x-ms-meta-", imports);
+        Assertions.assertTrue(header.contains("Base64Util.encodeToString(value)"), header);
+        Assertions.assertTrue(imports.contains("com.azure.core.util.Base64Util"), imports.toString());
+
+        imports.clear();
+        String query = renderByteParameter(false, RequestParameterLocation.QUERY, new ListType(ArrayType.BYTE_ARRAY),
+            true, null, imports);
+        Assertions.assertTrue(query.contains("Base64Util.encodeToString(paramItemValue)"), query);
+        Assertions.assertTrue(imports.contains("com.azure.core.util.Base64Util"), imports.toString());
+    }
+
+    @Test
+    public void clientCoreByteParametersUseJdkBase64() {
+        useFlavor("unbranded");
+        Set<String> imports = new HashSet<>();
+        String output
+            = renderByteParameter(false, RequestParameterLocation.QUERY, ArrayType.BYTE_ARRAY, false, null, imports);
+        Assertions.assertTrue(output.contains("requestContext = requestContext.toBuilder().addQueryParam(\"data\", "
+            + "data == null ? null : Base64.getEncoder().encodeToString(data), false).build();"), output);
+        Assertions.assertTrue(imports.contains("java.util.Base64"), imports.toString());
+    }
+
+    @Test
     public void optionalMultipartTextFieldsPreserveNull() {
         for (IType type : List.of(ClassType.BOOLEAN, ClassType.INTEGER, ClassType.LONG, ClassType.DOUBLE)) {
             String getter = type == ClassType.BOOLEAN ? "isValue" : "getValue";
@@ -151,6 +380,75 @@ public class ConvenienceMethodTemplateBaseTests {
     public void multipartStringsKeepDirectSerialization() {
         Assertions.assertTrue(renderMultipartConversion(ClassType.STRING, false)
             .contains(".serializeTextField(\"value\", body.getValue())"));
+    }
+
+    private static void useFlavor(String flavor) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("flavor".equals(key)) {
+                    return (T) flavor;
+                }
+                if ("data-plane".equals(key) || "enable-sync-stack".equals(key)) {
+                    return (T) Boolean.TRUE;
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+    }
+
+    private static String renderByteParameter(boolean async, RequestParameterLocation location, IType wireType,
+        boolean explode, String headerPrefix, Set<String> imports) {
+        JavaSettings settings = JavaSettings.getInstance();
+        ProxyMethodParameter proxyParameter = new ProxyMethodParameter.Builder().name("data")
+            .requestParameterName(location == RequestParameterLocation.HEADER ? "Content-MD5" : "data")
+            .requestParameterLocation(location)
+            .rawType(wireType)
+            .wireType(wireType)
+            .clientType(wireType.getClientType())
+            .headerCollectionPrefix(headerPrefix)
+            .explode(explode)
+            .build();
+        ProxyMethod proxyMethod = new ProxyMethod.Builder().name("send")
+            .httpMethod(HttpMethod.GET)
+            .returnType(ClassType.VOID)
+            .parameters(List.of())
+            .allParameters(List.of(proxyParameter))
+            .responseBodyType(ClassType.BINARY_DATA)
+            .rawResponseBodyType(ClassType.VOID)
+            .responseContentTypes(Set.of("application/json"))
+            .build();
+        ClientMethodParameter parameter = new ClientMethodParameter.Builder().name("data")
+            .annotations(List.of())
+            .requestParameterLocation(location)
+            .wireType(wireType)
+            .build();
+        IType protocolReturnType = GenericType.response(ClassType.BINARY_DATA);
+        ClientMethod protocolMethod = new ClientMethod.Builder().name("sendWithResponse")
+            .parameters(List.of(settings.isAzureV1()
+                ? ClientMethodParameter.REQUEST_OPTIONS_PARAMETER
+                : ClientMethodParameter.REQUEST_CONTEXT_PARAMETER))
+            .proxyMethod(proxyMethod)
+            .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
+            .returnValue(new ReturnValue("response", async ? GenericType.mono(protocolReturnType) : protocolReturnType))
+            .build();
+        ClientMethod convenienceMethod = new ClientMethod.Builder().name("send")
+            .parameters(List.of(parameter))
+            .parameterTransformations(new ParameterTransformations(List.of()))
+            .proxyMethod(proxyMethod)
+            .type(async ? ClientMethodType.SimpleAsync : ClientMethodType.SimpleSync)
+            .returnValue(new ReturnValue("response", async ? GenericType.mono(ClassType.VOID) : ClassType.VOID))
+            .build();
+        JavaFileContents contents = new JavaFileContents();
+        ConvenienceMethodTemplateBase template
+            = async ? Templates.getConvenienceAsyncMethodTemplate() : Templates.getConvenienceSyncMethodTemplate();
+        template.writeMethodImplementation(protocolMethod, convenienceMethod, new JavaBlock(contents), new HashSet<>());
+        if (imports != null) {
+            template.addImports(imports, List.of(new ConvenienceMethod(protocolMethod, List.of(convenienceMethod))));
+        }
+        return contents.toString();
     }
 
     private static String renderMultipartConversion(IType type, boolean required) {

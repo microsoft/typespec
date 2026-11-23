@@ -206,7 +206,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
+    private SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName, NginxConfigurationRequest properties) {
         Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, configurationName, properties);
         return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
@@ -305,7 +305,8 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
-        return beginCreateOrUpdate(resourceGroupName, configurationName, properties).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, configurationName, properties));
     }
 
     /**
@@ -323,6 +324,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, configurationName, properties, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, configurationName, properties, context));
     }
 }

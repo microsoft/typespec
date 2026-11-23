@@ -322,7 +322,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties) {
-        return beginUpdate(resourceGroupName, topLevelArmResourceName, properties).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginUpdate(resourceGroupName, topLevelArmResourceName, properties));
     }
 
     /**
@@ -340,7 +341,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties, Context context) {
-        return beginUpdate(resourceGroupName, topLevelArmResourceName, properties, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginUpdate(resourceGroupName, topLevelArmResourceName, properties, context));
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourcesClientImpl.class);

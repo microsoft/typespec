@@ -103,6 +103,14 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 | `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
 | `pnpm tsp-integration`      | Run integration tests against external repos using local package changes                                                                                  |
 
+### Test transform caching
+
+The shared Vitest configuration caches transformed modules in `node_modules/.vitest-cache` to speed up subsequent local test runs. The first run populates the cache.
+
+To run without the transform cache, use `pnpm test --fsModuleCache=false`. To clear Vitest's caches, run `pnpm exec vitest --clearCache`.
+
+The cache is disabled by default when `CI` or `TF_BUILD` is set, including GitHub Actions and Azure Pipelines. CI jobs would need to persist the cache directory between runs to benefit from it.
+
 ### Verbose test logging
 
 Tests sometimes log extra info using `logVerboseTestOutput` To see
@@ -354,6 +362,18 @@ version: "X.Y.0"
 See existing release notes for examples.
 
 # Pull request
+
+## AI-assisted contributions
+
+We welcome contributions developed with AI assistance. These tools do not replace your judgment or change our expectations for contribution quality. The following applies to code, tests, documentation, issues, and review discussions.
+
+- **Own and understand your contribution.** Review every change before submitting it. Understand the surrounding code and be prepared to explain why your approach is correct in your own words. You remain responsible for the correctness, maintainability, and licensing of everything you submit.
+- **Validate before requesting review.** Run the relevant builds, tests, lint, and formatting checks locally, including after review-driven changes. Add focused regression tests where appropriate, and investigate CI failures rather than leaving them for reviewers to diagnose. Do not weaken tests or update snapshots merely to make checks pass. State which checks you ran and explain any validation you could not perform. Use a draft PR for work in progress or to ask for help with a blocker.
+- **Engage with review yourself.** Understand the concern behind a comment before changing code. AI may help implement a fix, but you must decide whether it addresses the problem and preserves existing behavior, then review and validate the result. Simply forwarding review comments to an AI tool and submitting its response is not sufficient. The substance of your replies must be your own; translation and grammar assistance are welcome. Ask for clarification or explain your reasoning when you disagree.
+- **Keep changes and communication focused.** Remove unrelated edits, unnecessary abstractions, and redundant tests. Keep descriptions and replies concise, technically accurate, and specific to the contribution.
+- **Disclose substantive AI assistance.** Briefly describe how AI tools were used when they produced substantial portions of the contribution. Routine completion, spelling, grammar, or translation assistance does not require disclosure. For example: "AI drafted the implementation and regression test; I reviewed both and ran the package tests."
+
+Maintainers may pause review or close contributions that have not been validated, cannot be explained by their author, or repeatedly fail to engage meaningfully with feedback. These expectations apply regardless of the tools used.
 
 ## Trigger TypeSpec Playground Try It build
 

@@ -10,6 +10,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     public class PropertyWireInformation : WireInformation
     {
         public bool IsRequired { get; }
+        public bool IsRequiredInConstructor { get; }
         public bool IsReadOnly { get; }
         public bool IsNullable { get; }
         public bool IsDiscriminator { get; }
@@ -17,11 +18,13 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsApiVersion { get; }
         internal FormattableString? Description { get; }
         public SerializationOptions? SerializationOptions { get; }
+        public InputType? InputType { get; }
 
         public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, bool isHttpMetadata, bool isApiVersion)
             : base(serializationFormat, serializedName)
         {
             IsRequired = isRequired;
+            IsRequiredInConstructor = isRequired;
             IsReadOnly = isReadOnly;
             IsNullable = isNullable;
             IsDiscriminator = isDiscriminator;
@@ -38,7 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
             InputModelProperty? modelProperty = inputProperty as InputModelProperty;
+            InputType = inputProperty.Type;
             IsRequired = inputProperty.IsRequired;
+            IsRequiredInConstructor = modelProperty?.IsRequiredInConstructor ?? inputProperty.IsRequired;
             IsReadOnly = inputProperty.IsReadOnly;
             IsHttpMetadata = modelProperty != null && modelProperty.IsHttpMetadata;
             IsNullable = inputProperty.Type is InputNullableType;

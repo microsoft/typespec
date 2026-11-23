@@ -123,6 +123,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         }
 
+        [Test]
+        public void JsonPatch_CollectionPathPropagatesToChildPatch(
+            [Values("children[{0}]", "nestedChildren[{0}][{0}]")] string collectionPath,
+            [Values(0, 12)] int index,
+            [Values(false, true)] bool setThroughParent)
+        {
+            var children = Enumerable.Range(0, index + 1).Select(i => new AnotherDynamicModel($"child-{i}")).ToList();
+            var model = new NullableDynamicModel
+            {
+                Children = children,
+                NestedChildren = Enumerable.Range(0, index + 1).Select(_ => (IList<AnotherDynamicModel>)children.ToList()).ToList()
+            };
+            var child = children[index];
+            var path = Encoding.UTF8.GetBytes($"$.{string.Format(collectionPath, index)}.description");
+            string expectedValue = setThroughParent ? "updated" : "original";
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            child.Patch.Set("$.description"u8, "original");
+            if (setThroughParent)
+            {
+                model.Patch.Set(path, expectedValue);
+            }
+
+            Assert.That(model.Patch.TryGetValue(path, out string? parentValue), Is.True);
+            Assert.That(parentValue, Is.EqualTo(expectedValue));
+            Assert.That(child.Patch.TryGetValue("$.description"u8, out string? childValue), Is.True);
+            Assert.That(childValue, Is.EqualTo(expectedValue));
+            if (index > 0)
+            {
+                Assert.That(children[0].Patch.TryGetValue("$.description"u8, out string? _), Is.False);
+            }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
         [TestCase("modelValue", "J")]
         [TestCase("modelValue", "W")]
         [TestCase("children", "J")]

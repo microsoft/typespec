@@ -1,6 +1,7 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert from "assert";
 import { it } from "vitest";
-import { emitSchema } from "./utils.js";
+import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 it("works with declarations", async () => {
   const schemas = await emitSchema(`
@@ -106,6 +107,20 @@ it("works with prefixItems", async () => {
     required: ["x"],
   });
   assert.deepStrictEqual(Bar.properties.x.prefixItems[2], { $ref: "Foo.json" });
+});
+
+it("rejects an array type as the prefixItems argument", async () => {
+  const [, diagnostics] = await emitSchemaWithDiagnostics(`
+    model Person {
+      @prefixItems(string[])
+      names: string[];
+    }
+  `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/json-schema/invalid-prefix-items",
+    message: "@prefixItems requires a tuple of types.",
+  });
 });
 
 it("accepts a visibility transform", async () => {

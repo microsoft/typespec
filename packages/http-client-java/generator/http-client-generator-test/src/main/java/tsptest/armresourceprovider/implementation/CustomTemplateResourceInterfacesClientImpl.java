@@ -247,7 +247,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdate(
+    private SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource,
         String ifMatch, String ifNoneMatch) {
         Response<BinaryData> response
@@ -364,8 +364,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         CustomTemplateResourceInner resource) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
-        return beginCreateOrUpdate(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch));
     }
 
     /**
@@ -385,8 +385,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CustomTemplateResourceInner createOrUpdate(String resourceGroupName, String customTemplateResourceName,
         CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch,
-            context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, customTemplateResourceName,
+            resource, ifMatch, ifNoneMatch, context));
     }
 
     /**
@@ -557,7 +557,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CustomTemplateResourceInner updateLongRunning(String resourceGroupName, String customTemplateResourceName,
         CustomTemplateResourcePatch properties) {
-        return beginUpdateLongRunning(resourceGroupName, customTemplateResourceName, properties).getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginUpdateLongRunning(resourceGroupName, customTemplateResourceName, properties));
     }
 
     /**
@@ -575,7 +576,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CustomTemplateResourceInner updateLongRunning(String resourceGroupName, String customTemplateResourceName,
         CustomTemplateResourcePatch properties, Context context) {
-        return beginUpdateLongRunning(resourceGroupName, customTemplateResourceName, properties, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginUpdateLongRunning(resourceGroupName, customTemplateResourceName, properties, context));
     }
 }

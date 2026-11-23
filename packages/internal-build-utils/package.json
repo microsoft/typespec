@@ -1,6 +1,6 @@
 {
   "name": "@typespec/internal-build-utils",
-  "version": "0.87.0",
+  "version": "0.88.0",
   "private": true,
   "author": "Microsoft Corporation",
   "description": "Internal library to TypeSpec providing helpers to build.",
@@ -52,7 +52,6 @@
     "@types/yargs": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "chokidar": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

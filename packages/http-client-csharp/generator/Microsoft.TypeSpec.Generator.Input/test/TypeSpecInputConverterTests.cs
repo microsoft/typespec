@@ -10,6 +10,118 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("Use \"Current\" instead.\nSee C:\\sdk.")]
+        public void LoadsPropertyDeprecationMetadata(string? message)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "value",
+                      {{(message is not null ? $"\"deprecation\": {JsonSerializer.Serialize(message)}," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(message, property.Deprecation);
+        }
+
+        [Test]
+        public void LoadsContinuationTokenMarker(
+            [Values("query", "header", "path", "body", "method", "endpoint")] string kind,
+            [Values(null, false, true)] bool? isContinuationToken)
+        {
+            var json = $$"""
+                {
+                  "$id": "token",
+                  "kind": "{{kind}}",
+                  "name": "token",
+                  "serializedName": "token",
+                  "type": { "kind": "string" },
+                  "scope": "method",
+                  "location": "query",
+                  "contentTypes": ["application/json"],
+                  "defaultContentType": "application/json",
+                  {{(isContinuationToken.HasValue ? $"\"isContinuationToken\": {isContinuationToken.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "optional": true
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new InputParameterConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+
+            var parameter = JsonSerializer.Deserialize<InputParameter>(json, options)!;
+
+            Assert.AreEqual(isContinuationToken ?? false, parameter.IsContinuationToken);
+            parameter.Update(isContinuationToken: true);
+            parameter.Update();
+            Assert.IsTrue(parameter.IsContinuationToken);
+            parameter.Update(isContinuationToken: false);
+            Assert.IsFalse(parameter.IsContinuationToken);
+        }
+
+        [TestCase(null)]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsConstructorRequirednessSeparately(bool? requiredInConstructor)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "value", "optional": false,
+                      {{(requiredInConstructor.HasValue ? $"\"requiredInConstructor\": {requiredInConstructor.Value.ToString().ToLowerInvariant()}," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(requiredInConstructor, property.IsRequiredInConstructor);
+            Assert.IsTrue(property.IsRequired);
+        }
+
+        [TestCase(null)]
+        [TestCase("value")]
+        public void LoadsOriginalPropertyNameIndependentlyOfWireAndClientNames(string? originalName)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Resource",
+                    "properties": [{
+                      "$id": "property", "name": "renamedValue", "serializedName": "wireValue",
+                      {{(originalName is not null ? $"\"originalName\": \"{originalName}\"," : "")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }]
+                }
+                """;
+            var property = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single();
+
+            Assert.AreEqual(originalName ?? "renamedValue", property.OriginalName);
+            Assert.AreEqual("renamedValue", property.Name);
+            Assert.AreEqual("wireValue", property.SerializedName);
+        }
+
         [TestCase(null, false)]
         [TestCase(false, false)]
         [TestCase(true, true)]
@@ -1238,11 +1350,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             // Find the base model (should not have @dynamicModel decorator)
             var baseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModel");
             Assert.IsNotNull(baseModel);
-            Assert.IsFalse(baseModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsFalse(baseModel!.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
 
             var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModel");
             Assert.IsNotNull(derivedModel);
-            Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
             Assert.IsTrue(derivedModel.IsDynamicModel);
 
             // Verify that the base model is not marked as dynamic
@@ -1347,9 +1459,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNotNull(childModel.DiscriminatorValue, "Child model should have a discriminator value");
 
             // Only the child has the @dynamicModel decorator
-            Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
-            Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
-            Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
+            Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
+            Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("Azure.ClientGenerator.Core.@dynamicModel")));
 
             // Verify all models in the chain are marked as dynamic due to discriminated inheritance
             Assert.IsTrue(childModel.IsDynamicModel);

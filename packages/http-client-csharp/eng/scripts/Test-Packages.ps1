@@ -41,6 +41,10 @@ try {
             # test the generator
             Invoke-LoggedCommand "dotnet test ./generator -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
 
+            Invoke-LoggedCommand "dotnet test ./playground-server.Tests -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
+
+            Invoke-LoggedCommand "node --test ./playground-server.Tests/install-azure-generators.node-test.mjs ./playground-server.Tests/deploy.node-test.mjs" -GroupOutput
+
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }
         finally {
@@ -57,9 +61,6 @@ try {
 
         Write-Host "Setting up workspace" -ForegroundColor Cyan
         Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
-
-        Write-Host "Regenerating extern signatures" -ForegroundColor Cyan
-        Invoke-LoggedCommand "npm run gen-extern-signature" -GroupOutput
 
         Invoke-LoggedCommand "npm run build && npm run regen-docs" -GroupOutput
         # run E2E Test for TypeSpec emitter

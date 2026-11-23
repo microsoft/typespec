@@ -3,12 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.prototype;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -27,19 +29,23 @@ public class MethodTemplate {
 
     private final Consumer<JavaJavadocComment> comment;
     private final Consumer<JavaBlock> method;
+    private final ApiMetadata apiMetadata;
 
     private MethodTemplate(Set<String> imports, JavaVisibility visibility, List<JavaModifier> modifiers,
-        String methodSignature, Consumer<JavaJavadocComment> comment, Consumer<JavaBlock> method) {
+        String methodSignature, Consumer<JavaJavadocComment> comment, Consumer<JavaBlock> method,
+        ApiMetadata apiMetadata) {
         this.imports = imports;
         this.visibility = visibility;
         this.modifiers = modifiers;
         this.methodSignature = methodSignature;
         this.comment = comment;
         this.method = method;
+        this.apiMetadata = apiMetadata;
     }
 
     public final void addImportsTo(Set<String> imports) {
         imports.addAll(this.imports);
+        ExperimentalAnnotationUtil.addImportsTo(imports, apiMetadata);
     }
 
     public final void writeMethod(JavaClass javaClass) {
@@ -50,6 +56,7 @@ public class MethodTemplate {
     }
 
     public final void writeMethodWithoutJavadoc(JavaClass javaClass) {
+        ExperimentalAnnotationUtil.write(javaClass, apiMetadata);
         javaClass.method(visibility, modifiers, methodSignature, method);
     }
 
@@ -58,6 +65,7 @@ public class MethodTemplate {
             if (comment != null) {
                 javaInterface.javadocComment(comment);
             }
+            ExperimentalAnnotationUtil.write(javaInterface, apiMetadata);
             javaInterface.publicMethod(methodSignature);
         }
     }
@@ -76,6 +84,7 @@ public class MethodTemplate {
         private final List<JavaModifier> modifiers = new ArrayList<>();
         private String methodSignature;
         private Consumer<JavaJavadocComment> comment = null;
+        private ApiMetadata apiMetadata;
         private Consumer<JavaBlock> method = m -> {
         };
 
@@ -112,9 +121,14 @@ public class MethodTemplate {
             return this;
         }
 
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
+            return this;
+        }
+
         public MethodTemplate build() {
             Objects.requireNonNull(methodSignature);
-            return new MethodTemplate(imports, visibility, modifiers, methodSignature, comment, method);
+            return new MethodTemplate(imports, visibility, modifiers, methodSignature, comment, method, apiMetadata);
         }
     }
 }

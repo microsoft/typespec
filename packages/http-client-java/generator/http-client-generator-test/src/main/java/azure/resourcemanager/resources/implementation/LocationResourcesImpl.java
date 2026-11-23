@@ -63,12 +63,16 @@ public final class LocationResourcesImpl implements LocationResources {
     }
 
     public LocationResource getById(String id) {
-        String location = ResourceManagerUtils.getValueFromIdByName(id, "locations");
+        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "location");
         if (location == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
         }
-        String locationResourceName = ResourceManagerUtils.getValueFromIdByName(id, "locationResources");
+        String locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "locationResourceName");
         if (locationResourceName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locationResources'.", id)));
@@ -77,12 +81,16 @@ public final class LocationResourcesImpl implements LocationResources {
     }
 
     public Response<LocationResource> getByIdWithResponse(String id, Context context) {
-        String location = ResourceManagerUtils.getValueFromIdByName(id, "locations");
+        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "location");
         if (location == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
         }
-        String locationResourceName = ResourceManagerUtils.getValueFromIdByName(id, "locationResources");
+        String locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "locationResourceName");
         if (locationResourceName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locationResources'.", id)));
@@ -91,12 +99,16 @@ public final class LocationResourcesImpl implements LocationResources {
     }
 
     public void deleteById(String id) {
-        String location = ResourceManagerUtils.getValueFromIdByName(id, "locations");
+        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "location");
         if (location == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
         }
-        String locationResourceName = ResourceManagerUtils.getValueFromIdByName(id, "locationResources");
+        String locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "locationResourceName");
         if (locationResourceName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locationResources'.", id)));
@@ -105,12 +117,16 @@ public final class LocationResourcesImpl implements LocationResources {
     }
 
     public Response<Void> deleteByIdWithResponse(String id, Context context) {
-        String location = ResourceManagerUtils.getValueFromIdByName(id, "locations");
+        String location = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "location");
         if (location == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locations'.", id)));
         }
-        String locationResourceName = ResourceManagerUtils.getValueFromIdByName(id, "locationResources");
+        String locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "locationResourceName");
         if (locationResourceName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'locationResources'.", id)));

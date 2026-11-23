@@ -17,7 +17,7 @@ configuration:
               branch: main
           - isActivitySender:
               user: dependabot[bot]
-              issueAuthor: true
+              issueAuthor: false
         then:
           - approvePullRequest:
               comment: "Approved automatically for a Dependabot update."

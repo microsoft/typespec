@@ -17,6 +17,7 @@ import type {
   TemplatedType,
   Type,
   TypeMapper,
+  TypeRefType,
   UnknownType,
   Value,
   VoidType,
@@ -158,28 +159,28 @@ export function isDeclaredType(type: Type): boolean {
  * Resolve if the type is a template type declaration(Non initialized template type).
  */
 export function isTemplateDeclaration(
-  type: TemplatedType,
+  type: Type,
 ): type is TemplatedType & { node: TemplateDeclarationNode } {
   if (type.node === undefined) {
     return false;
   }
   const node = type.node as TemplateDeclarationNode;
-  return (
+  return Boolean(
     node.templateParameters &&
     node.templateParameters.length > 0 &&
-    type.templateMapper === undefined
+    (type as TemplatedType).templateMapper === undefined,
   );
 }
 
 /**
  * Resolve if the type was created from a template type or is a template type declaration.
  */
-export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
+export function isTemplateDeclarationOrInstance(type: Type): boolean {
   if (type.node === undefined) {
     return false;
   }
   const node = type.node as TemplateDeclarationNode;
-  return node.templateParameters && node.templateParameters.length > 0;
+  return Boolean(node.templateParameters && node.templateParameters.length > 0);
 }
 
 /**
@@ -243,4 +244,15 @@ export function getFullyQualifiedSymbolName(
   } else {
     return name;
   }
+}
+
+/** Determines whether a type uses the standard type-reference declaration. */
+export function isTypeRefType(program: Program, type: Type): type is TypeRefType {
+  return (
+    type.kind === "Scalar" &&
+    type.name === "TypeRef" &&
+    type.node !== undefined &&
+    type.node ===
+      program.getGlobalNamespaceType().namespaces.get("TypeSpec")?.scalars.get("TypeRef")?.node
+  );
 }

@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
@@ -19,6 +20,7 @@ public class FluentResourceModelInterfaceUpdateTemplate implements IJavaTemplate
         FluentMethod updateMethod = resourceUpdate.getUpdateMethod();
 
         interfaceBlock.javadocComment(updateMethod::writeJavadoc);
+        ExperimentalAnnotationUtil.write(interfaceBlock, updateMethod.getApiMetadata());
         interfaceBlock.publicMethod(updateMethod.getInterfaceMethodSignature());
 
         List<UpdateStage> updateStages = resourceUpdate.getUpdateStages();
@@ -40,6 +42,7 @@ public class FluentResourceModelInterfaceUpdateTemplate implements IJavaTemplate
             List<FluentMethod> applyMethods = resourceUpdate.getApplyMethods();
             applyMethods.forEach(method -> {
                 block1.javadocComment(method::writeJavadoc);
+                ExperimentalAnnotationUtil.write(block1, method.getApiMetadata());
                 block1.publicMethod(method.getInterfaceMethodSignature());
             });
         });
@@ -57,6 +60,7 @@ public class FluentResourceModelInterfaceUpdateTemplate implements IJavaTemplate
                 block1.interfaceBlock(interfaceSignature, block2 -> {
                     for (FluentMethod method : stage.getMethods()) {
                         block2.javadocComment(method::writeJavadoc);
+                        ExperimentalAnnotationUtil.write(block2, method.getApiMetadata());
                         block2.publicMethod(method.getInterfaceMethodSignature());
                     }
                 });

@@ -13,7 +13,7 @@ extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
     BinSkimSettings:
-      analyzeTargetGlob: +:file|**/*.dll;+:file|**/*.exe;-:f|**/tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
+      analyzeTargetGlob: +:file|**/*.dll;+:file|**/*.exe
     stages:
       - stage: InitStage
         displayName: Initialize
@@ -25,10 +25,10 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - task: NodeTool@0
+              - task: UseNode@1
                 displayName: Install Node.js
                 inputs:
-                  versionSpec: 22.x
+                  version: 26.x
 
               - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 

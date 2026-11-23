@@ -42,6 +42,7 @@ public class FluentActionMethod extends FluentMethod {
         super(model, type);
 
         this.collectionMethod = collectionMethod;
+        this.apiMetadata = collectionMethod.getInnerClientMethod().getApiMetadata();
         this.name = collectionMethod.getMethodName();
         this.description = collectionMethod.getDescription();
 

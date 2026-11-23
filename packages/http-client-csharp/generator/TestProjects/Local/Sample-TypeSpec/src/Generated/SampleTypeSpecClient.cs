@@ -42,6 +42,8 @@ namespace SampleTypeSpec
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
+        private UnionExtends _cachedUnionExtends;
+        private ConstructorRequirements _cachedConstructorRequirements;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -2126,6 +2128,39 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] ReceiveResponseEvents
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<AsyncStreamingResult<SseItem<BinaryData>>> ReceiveResponseEventsAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReceiveResponseEventsRequest(options);
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> ReceiveResponseEvents. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<AsyncStreamingResult<SseItem<ResponseStreamEvent>>> ReceiveResponseEventsAsync(CancellationToken cancellationToken = default)
+        {
+            using PipelineMessage message = CreateReceiveResponseEventsRequest(cancellationToken.ToRequestOptions());
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateSse<ResponseStreamEvent>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (eventType, data) => eventType switch
+            {
+                "response.created" => ModelReaderWriter.Read<ResponseStreamCreated>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default),
+                "response.output_text.delta" => ModelReaderWriter.Read<ResponseStreamTextDelta>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default),
+                _ => ModelReaderWriter.Read<ResponseStreamEvent>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default)
+            }, null, cancellationToken);
+        }
+
+        /// <summary>
         /// [Protocol Method] ReceiveExperimentalJsonLines
         /// <list type="bullet">
         /// <item>
@@ -2359,6 +2394,18 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(notebook, nameof(notebook));
 
             return new Notebooks(Pipeline, _modelReaderWriterOptions, _endpoint, notebook);
+        }
+
+        /// <summary> Initializes a new instance of UnionExtends. </summary>
+        public virtual UnionExtends GetUnionExtendsClient()
+        {
+            return Volatile.Read(ref _cachedUnionExtends) ?? Interlocked.CompareExchange(ref _cachedUnionExtends, new UnionExtends(Pipeline, _endpoint), null) ?? _cachedUnionExtends;
+        }
+
+        /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
+        public virtual ConstructorRequirements GetConstructorRequirementsClient()
+        {
+            return Volatile.Read(ref _cachedConstructorRequirements) ?? Interlocked.CompareExchange(ref _cachedConstructorRequirements, new ConstructorRequirements(Pipeline, _endpoint), null) ?? _cachedConstructorRequirements;
         }
     }
 }
