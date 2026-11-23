@@ -4,6 +4,8 @@
 
 This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for Visual Studio.
 
+The latest version of the extension requires Visual Studio 2026 (18.0) or later.
+
 ## Features
 
 - Live diagnostic reporting

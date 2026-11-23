@@ -4,6 +4,8 @@ title: Visual Studio Extension
 
 ## Installation
 
+The latest version of the extension requires Visual Studio 2026 (18.0) or later.
+
 Install the extension via the Visual Studio extension manager from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs).
 
 ## Configure
