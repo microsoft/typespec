@@ -93,6 +93,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     context: Context,
     schema: Refable<SupportedOpenAPISchema>,
   ): void {
+    if ("$ref" in schema) return;
     const { name, scope } = getScopeAndName(rawName);
 
     // Unwrap single anyOf/oneOf members to get the actual schema
@@ -121,9 +122,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...("$ref" in effectiveSchema
-          ? []
-          : getModelPropertiesFromObjectSchema(effectiveSchema, context)),
+        ...getModelPropertiesFromObjectSchema(effectiveSchema, context),
         ...allOfDetails.properties,
       ],
       additionalProperties:
@@ -305,10 +304,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
  * returns that member's schema merged with any properties from the parent schema.
  * Otherwise, returns the original schema.
  */
-function unwrapSingleAnyOfOneOf(
-  schema: Refable<SupportedOpenAPISchema>,
-): Refable<SupportedOpenAPISchema> {
-  if ("$ref" in schema) return schema;
+export function unwrapSingleAnyOfOneOf(schema: SupportedOpenAPISchema): SupportedOpenAPISchema {
   const unionMembers = schema.anyOf || schema.oneOf;
   if (!unionMembers) {
     return schema;
@@ -320,7 +316,7 @@ function unwrapSingleAnyOfOneOf(
     if (!("type" in member)) return false;
     // In OpenAPI 3.1, type can be "null" (JsonSchemaType includes "null")
     // In OpenAPI 3.0, nullable is used instead, but we still check type here for consistency
-    return (member as any).type !== "null";
+    return member.type !== "null";
   });
 
   // Check if there are any $ref members in the union alongside the inline members
@@ -388,34 +384,7 @@ export function getTypeSpecKind(
     ("nullable" in schema && schema.nullable) ||
     (Array.isArray(schema.type) && schema.type.includes("null"))
   ) {
-    // Check if anyOf/oneOf has a single meaningful inline object schema
-    const unionMembers = schema.anyOf || schema.oneOf;
-    if (unionMembers) {
-      const meaningfulInlineMembers = unionMembers.filter((member) => {
-        // Exclude $ref members and null types
-        if ("$ref" in member) return false;
-        if (!("type" in member)) return false;
-        // In OpenAPI 3.1, type can be "null" (JsonSchemaType includes "null")
-        // In OpenAPI 3.0, nullable is used instead, but we still check type here for consistency
-        return (member as any).type !== "null";
-      });
-
-      // Check if there are any $ref members in the union alongside the inline members
-      const hasRefMembers = unionMembers.some((member) => "$ref" in member);
-
-      // If there's exactly one meaningful inline member AND it's an object type
-      // AND there are no $ref members alongside it, treat it as a model.
-      // If $ref members are present, the schema is truly a union (e.g. $ref + object).
-      if (meaningfulInlineMembers.length === 1 && !hasRefMembers) {
-        const member = meaningfulInlineMembers[0];
-        // Only unwrap if the member is an object schema
-        if (!("$ref" in member) && (member.type === "object" || member.properties)) {
-          return "model";
-        }
-      }
-    }
-
-    return "union";
+    return unwrapSingleAnyOfOneOf(schema) === schema ? "union" : "model";
   } else if (
     schema.type === "object" ||
     (schema.properties && Object.keys(schema.properties).length > 0) ||

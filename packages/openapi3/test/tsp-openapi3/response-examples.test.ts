@@ -563,6 +563,141 @@ describe("response media type examples", () => {
     }
   });
 
+  it("round-trips control characters in example values, titles, and descriptions", async () => {
+    const controls = String.fromCharCode(0, 1, 8, 12, 31);
+    const value = `\\${controls}\r\n\t"\${literal}`;
+    const { responses } = await roundTrip(
+      document({
+        "200": response({
+          schema: { type: "string" },
+          examples: { [controls]: { value, description: value } },
+        }),
+      }),
+    );
+    expect(responses["200"].content["application/json"].examples).toEqual({
+      [controls]: { summary: controls, value, description: value },
+    });
+  });
+
+  it("skips values for a component generated as a scalar with no base", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { code } = await roundTrip(
+        document(
+          {
+            "200": response({
+              schema: { $ref: "#/components/schemas/Payload" },
+              examples: { text: { value: "hello" }, nil: { value: null } },
+            }),
+          },
+          { schemas: { Payload: {} } },
+        ),
+      );
+      expect(code).toContain("scalar Payload;");
+      expect(code).not.toContain("@opExample");
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("'text'"));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("'nil'"));
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it.each(["anyOf", "oneOf"])(
+    "checks parent requirements on an unwrapped %s model",
+    async (keyword) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        const valid = { name: "demo" };
+        const { responses } = await roundTrip(
+          document(
+            {
+              "200": response({
+                schema: { $ref: "#/components/schemas/Payload" },
+                examples: { invalid: { value: {} }, valid: { value: valid } },
+              }),
+            },
+            {
+              schemas: {
+                Payload: {
+                  required: ["name"],
+                  [keyword]: [{ type: "object", properties: { name: { type: "string" } } }],
+                },
+              },
+            },
+          ),
+        );
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("'invalid'"));
+        expect(responses["200"].content["application/json"].examples).toEqual({
+          valid: { summary: "valid", value: valid },
+        });
+      } finally {
+        warn.mockRestore();
+      }
+    },
+  );
+
+  it.each([false, true])(
+    "skips omitted inline allOf indexers (component: %s)",
+    async (component) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        const schema: OpenAPI3Schema = {
+          allOf: [{ type: "object", additionalProperties: { type: "integer" } }],
+        };
+        const { code } = await roundTrip(
+          document(
+            {
+              "200": response({
+                schema: component ? { $ref: "#/components/schemas/Payload" } : schema,
+                examples: { invalid: { value: { a: 1 } }, valid: { value: {} } },
+              }),
+            },
+            { schemas: component ? { Payload: schema } : undefined },
+          ),
+        );
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("'invalid'"));
+        expect(code.match(/@opExample\(/g)).toHaveLength(1);
+        expect(code).toContain('title: "valid"');
+      } finally {
+        warn.mockRestore();
+      }
+    },
+  );
+
+  it("skips both exclusive numeric endpoints while retaining interior examples", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { responses } = await roundTrip(
+        document(
+          {
+            "200": response({
+              schema: { $ref: "#/components/schemas/Payload" },
+              examples: { lower: { value: 0 }, upper: { value: 2 }, valid: { value: 1 } },
+            }),
+          },
+          {
+            schemas: {
+              Payload: {
+                type: "integer",
+                minimum: 0,
+                maximum: 2,
+                exclusiveMinimum: true,
+                exclusiveMaximum: true,
+              },
+            },
+          },
+        ),
+      );
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("'lower'"));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("'upper'"));
+      expect(responses["200"].content["application/json"].examples).toEqual({
+        valid: { summary: "valid", value: 1 },
+      });
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it.each([
     ["float32 maximum", { type: "number", format: "float" }, 3.4e38],
     ["float32 minimum", { type: "number", format: "float" }, -3.4e38],

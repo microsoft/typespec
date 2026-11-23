@@ -6,7 +6,10 @@ import type {
   SupportedOpenAPISchema,
 } from "../../../../types.js";
 import type { TypeSpecModelProperty } from "../interfaces.js";
-import { getTypeSpecKind } from "../transforms/transform-component-schemas.js";
+import {
+  getTypeSpecKind,
+  unwrapSingleAnyOfOneOf,
+} from "../transforms/transform-component-schemas.js";
 import type { Context } from "../utils/context.js";
 import { isValidLiteralStatusCode } from "../utils/response-properties.js";
 import { getTypeSpecPrimitiveFromSchema } from "./generate-types.js";
@@ -143,9 +146,15 @@ function isContentType(property: TypeSpecModelProperty): boolean {
   );
 }
 
-/** JSON escaping plus TypeSpec's additional string-interpolation escaping. */
 function quote(value: string): string {
-  return JSON.stringify(value).replaceAll("${", "\\${");
+  // Other control characters are accepted literally; TypeSpec has no JSON-style escapes for them.
+  return `"${value
+    .replaceAll("\\", "\\\\")
+    .replaceAll('"', '\\"')
+    .replaceAll("\r", "\\r")
+    .replaceAll("\n", "\\n")
+    .replaceAll("\t", "\\t")
+    .replaceAll("${", "\\${")}"`;
 }
 
 function generateExampleValue(
@@ -155,6 +164,7 @@ function generateExampleValue(
   context: Context,
   depth = 0,
   scalarName?: string,
+  componentModel = false,
 ): string {
   const invalid = () => {
     throw new Error("payload cannot be represented in the generated response type.");
@@ -163,16 +173,22 @@ function generateExampleValue(
   const convert = (v: unknown, s: Refable<SupportedOpenAPISchema>) =>
     generateExampleValue(v, s, scope, context, depth + 1);
   if ("$ref" in schema) {
-    const resolved = context.getSchemaByRef(schema.$ref);
+    const resolved = context.getByRef<Refable<SupportedOpenAPISchema>>(schema.$ref);
     if (!resolved) return invalid();
-    if (value === null && getTypeSpecKind(resolved) === "model") return invalid();
+    if ("$ref" in resolved) return convert(value, resolved);
+    const kind = getTypeSpecKind(resolved);
+    if (value === null && kind === "model") return invalid();
+    if (kind === "scalar" && context.generateTypeFromRefableSchema(resolved, scope) === "unknown") {
+      return invalid();
+    }
     const expression = generateExampleValue(
       value,
-      resolved,
+      kind === "model" ? unwrapSingleAnyOfOneOf(resolved) : resolved,
       scope,
       context,
       depth + 1,
-      getTypeSpecKind(resolved) === "scalar" ? context.getRefName(schema.$ref, scope) : undefined,
+      kind === "scalar" ? context.getRefName(schema.$ref, scope) : undefined,
+      kind === "model",
     );
     // String enums become nominal TypeSpec enums, not string literal unions.
     if (
@@ -225,31 +241,41 @@ function generateExampleValue(
     return invalid();
   }
   if (schema.allOf?.length) {
-    // Object intersections combine their properties and required lists.
-    let properties: Record<string, Refable<SupportedOpenAPISchema>> = {
-      ...schema.properties,
-    };
+    let properties: Record<string, Refable<SupportedOpenAPISchema>> = {};
     const indexers: Refable<SupportedOpenAPISchema>[] = [];
-    if (typeof schema.additionalProperties === "object") indexers.push(schema.additionalProperties);
-    let allowsAdditionalProperties = !!schema.additionalProperties;
-    const required = new Set(schema.required);
-    const collect = (s: Refable<SupportedOpenAPISchema>, seen = new Set<string>()): void => {
-      if ("$ref" in s) {
-        if (seen.has(s.$ref)) return invalid();
-        seen.add(s.$ref);
-        const resolved = context.getSchemaByRef(s.$ref);
-        if (!resolved) return invalid();
-        return collect(resolved, seen);
-      }
+    let allowsAdditionalProperties = false;
+    const required = new Set(componentModel ? undefined : schema.required);
+    const collectProperties = (s: SupportedOpenAPISchema) => {
+      if (!s.properties) return;
       properties = { ...properties, ...s.properties };
+      for (const key of s.required ?? []) required.add(key);
+    };
+    const collectModel = (s: SupportedOpenAPISchema, seen: Set<string>) => {
+      collectProperties(s);
       if (s.additionalProperties) {
         allowsAdditionalProperties = true;
         if (typeof s.additionalProperties === "object") indexers.push(s.additionalProperties);
       }
-      for (const key of s.required ?? []) required.add(key);
-      for (const member of s.allOf ?? []) collect(member, new Set(seen));
+      for (const member of s.allOf ?? []) collectMember(member, seen);
     };
-    for (const member of schema.allOf) collect(member);
+    const collectMember = (s: Refable<SupportedOpenAPISchema>, seen: Set<string>): void => {
+      if ("$ref" in s) {
+        if (seen.has(s.$ref)) return invalid();
+        const resolved = context.getByRef<Refable<SupportedOpenAPISchema>>(s.$ref);
+        if (!resolved) return invalid();
+        const next = new Set(seen).add(s.$ref);
+        return "$ref" in resolved
+          ? collectMember(resolved, next)
+          : collectModel(unwrapSingleAnyOfOneOf(resolved), next);
+      }
+      // Inline allOf members contribute only declared properties, not indexers or nested allOfs.
+      collectProperties(s);
+    };
+    if (componentModel) {
+      collectModel(schema, new Set());
+    } else {
+      for (const member of schema.allOf) collectMember(member, new Set());
+    }
     if (value !== null && typeof value === "object" && !Array.isArray(value)) {
       for (const item of Object.values(value)) {
         const expressions = indexers.map((indexer) => convert(item, indexer));
@@ -258,6 +284,7 @@ function generateExampleValue(
     }
     return convert(value, {
       ...schema,
+      type: "object",
       allOf: undefined,
       properties,
       required: [...required],
@@ -323,9 +350,14 @@ function generateExampleValue(
   if (typeof value === "number" && Number.isFinite(value)) {
     if (type && type !== "number" && type !== "integer") return invalid();
     if (type === "integer" && !Number.isInteger(value)) return invalid();
+    const { minimum, maximum, exclusiveMinimum, exclusiveMaximum } = schema;
     if (
-      (schema.minimum !== undefined && value < schema.minimum) ||
-      (schema.maximum !== undefined && value > schema.maximum)
+      (minimum !== undefined &&
+        (value < minimum || (exclusiveMinimum === true && value === minimum))) ||
+      (maximum !== undefined &&
+        (value > maximum || (exclusiveMaximum === true && value === maximum))) ||
+      (typeof exclusiveMinimum === "number" && value <= exclusiveMinimum) ||
+      (typeof exclusiveMaximum === "number" && value >= exclusiveMaximum)
     )
       return invalid();
     const primitive = getTypeSpecPrimitiveFromSchema({
