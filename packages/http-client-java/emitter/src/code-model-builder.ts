@@ -2816,7 +2816,7 @@ export class CodeModelBuilder {
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseBodyIsFile = Boolean(unknownResponseBody);
+      responseBodyIsFile = bodyType.encode === "bytes" || Boolean(unknownResponseBody);
     }
 
     let response: Response;
@@ -3485,6 +3485,13 @@ export class CodeModelBuilder {
 
     // xml
     if (type.serializationOptions.xml) {
+      if (type.additionalProperties) {
+        reportDiagnostic(this.program, {
+          code: "xml-additional-properties-not-supported",
+          format: { modelName: type.name ?? name },
+          target: rawModelType ?? NoTarget,
+        });
+      }
       objectSchema.serialization = objectSchema.serialization ?? {};
       objectSchema.serialization.xml = getXmlSerializationFormat(type);
     }

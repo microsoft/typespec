@@ -72,6 +72,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         final List<Integer> expectedStatusCodes = getExpectedResponseStatusCodes(operation);
         builder.responseExpectedStatusCodes(expectedStatusCodes);
+        builder.responseBodylessStatusCodes(getBodylessResponseStatusCodes(operation));
         builder.responseHeaders(getResponseHeaders(operation, settings));
         buildExpectedResponseFields(operation, settings, builder);
         buildUnexpectedResponseExceptionFields(builder, operation, expectedStatusCodes, settings);
@@ -131,6 +132,23 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             .flatMap(r -> r.getProtocol().getHttp().getStatusCodes().stream())
             .map(s -> s.replace("'", ""))
             .map(Integer::parseInt)
+            .sorted()
+            .collect(Collectors.toList());
+    }
+
+    private static List<Integer> getBodylessResponseStatusCodes(Operation operation) {
+        Set<String> bodyStatusCodes = operation.getResponses()
+            .stream()
+            .filter(response -> response.getSchema() != null || Boolean.TRUE.equals(response.getBinary()))
+            .flatMap(response -> response.getProtocol().getHttp().getStatusCodes().stream())
+            .collect(Collectors.toSet());
+        return operation.getResponses()
+            .stream()
+            .filter(response -> response.getSchema() == null && !Boolean.TRUE.equals(response.getBinary()))
+            .flatMap(response -> response.getProtocol().getHttp().getStatusCodes().stream())
+            .filter(status -> !bodyStatusCodes.contains(status))
+            .map(status -> Integer.parseInt(status.replace("'", "")))
+            .distinct()
             .sorted()
             .collect(Collectors.toList());
     }

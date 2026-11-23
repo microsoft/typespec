@@ -153,6 +153,78 @@ describe("ARM internal access", () => {
   });
 });
 
+describe("XML storage responses", () => {
+  async function build(namespace: string) {
+    const entrypoint = fileURLToPath(new URL("./fixtures/xml-storage-test.tsp", import.meta.url));
+    const sourceFile = createSourceFile(
+      `import "./xml-storage.tsp";\n@@service(XmlStorage.${namespace});`,
+      entrypoint,
+    );
+    const isEntrypoint = (path: string) => resolvePath(path) === resolvePath(entrypoint);
+    const host: CompilerHost = {
+      ...NodeHost,
+      readFile: (path) =>
+        isEntrypoint(path) ? Promise.resolve(sourceFile) : NodeHost.readFile(path),
+      stat: (path) =>
+        isEntrypoint(path)
+          ? Promise.resolve({ isDirectory: () => false, isFile: () => true })
+          : NodeHost.stat(path),
+      realpath: (path) =>
+        isEntrypoint(path) ? Promise.resolve(entrypoint) : NodeHost.realpath(path),
+    };
+    const program = await compile(host, entrypoint, { noEmit: true });
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure", "dev-options": {} },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    return { program, model };
+  }
+
+  it("preserves raw mixed-content bytes without changing encoded bytes", async () => {
+    const { program, model } = await build("Responses");
+    expectDiagnosticEmpty(program.diagnostics);
+    const operations = model.clients.flatMap((client) =>
+      client.operationGroups.flatMap((group) => group.operations ?? []),
+    );
+    const arrow = operations.find((operation) => operation.language.default.name === "getArrow")!;
+    expect(arrow.responses![0]).toMatchObject({
+      binary: true,
+      protocol: { http: { knownMediaType: KnownMediaType.Binary } },
+    });
+    for (const [name, format] of [
+      ["getBase64", "byte"],
+      ["getBase64Url", "base64url"],
+    ]) {
+      const response = operations.find((operation) => operation.language.default.name === name)!
+        .responses![0];
+      expect(response).toMatchObject({ schema: { type: SchemaType.ByteArray, format } });
+    }
+  });
+
+  it("diagnoses XML records before generating invalid Java", async () => {
+    const { program } = await build("Records");
+    expectDiagnostics(program.diagnostics, [
+      {
+        code: "@typespec/http-client-java/xml-additional-properties-not-supported",
+        message: /XML additional properties.*Configuration/,
+      },
+    ]);
+  });
+
+  it.each(["AlternateRecords", "JsonRecords"])("supports %s", async (namespace) => {
+    const { program } = await build(namespace);
+    expectDiagnosticEmpty(program.diagnostics);
+  });
+});
+
 describe("advanced versioning", () => {
   it.each([true, false])("preserves parameter additions only when enabled=%s", async (enabled) => {
     const program = await compile(

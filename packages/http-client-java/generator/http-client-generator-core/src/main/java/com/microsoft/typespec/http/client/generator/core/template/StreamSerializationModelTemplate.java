@@ -1365,9 +1365,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     // with
                     // their XML value.
                     propertiesManager
-                        .forEachSuperXmlElement(element -> initializeLocalVariable(methodBlock, element, true));
+                        .forEachSuperXmlElement(element -> initializeLocalVariable(methodBlock, element, true, true));
                     propertiesManager
-                        .forEachXmlElement(element -> initializeLocalVariable(methodBlock, element, false));
+                        .forEachXmlElement(element -> initializeLocalVariable(methodBlock, element, false, true));
                 } else {
                     propertiesManager.forEachSuperRequiredProperty(property -> {
                         if (property.isConstant()) {
@@ -1400,6 +1400,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         private void initializeLocalVariable(JavaBlock methodBlock, ClientModelProperty property, boolean fromSuper) {
+            initializeLocalVariable(methodBlock, property, fromSuper, false);
+        }
+
+        private void initializeLocalVariable(JavaBlock methodBlock, ClientModelProperty property, boolean fromSuper,
+            boolean isXml) {
             if (includePropertyInConstructor(property, settings) && !settings.isDisableRequiredJsonAnnotation()) {
                 // Required properties need an additional boolean variable to indicate they've been found.
                 methodBlock.line("boolean " + property.getName() + "Found = false;");
@@ -1413,6 +1418,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             IType type = getDeserializationType(property, fromSuper);
             String defaultValue
                 = property.isPolymorphicDiscriminator() ? property.getDefaultValue() : type.defaultValueExpression();
+            if (isXml && !property.isRequired() && !property.isXmlWrapper() && type instanceof IterableType) {
+                defaultValue = "new ArrayList<>()";
+            }
             methodBlock.line(type + " " + property.getName() + " = " + defaultValue + ";");
         }
 

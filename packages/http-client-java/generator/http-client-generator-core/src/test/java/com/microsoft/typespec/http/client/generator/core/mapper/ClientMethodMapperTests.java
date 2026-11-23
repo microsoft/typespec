@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BooleanSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
@@ -361,6 +362,22 @@ public class ClientMethodMapperTests {
         convenienceApi.setResponse(null);
         Assertions.assertEquals(ClassType.STRING,
             ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+    }
+
+    @Test
+    public void bodylessSuccessResponsesUseNullableConvenienceTypes() {
+        Operation operation = operationWithNoDesc();
+        operation.getRequests().get(0).getProtocol().getHttp().setMethod(HttpMethod.GET.name());
+        BooleanSchema schema = new BooleanSchema();
+        schema.setType(Schema.AllSchemaTypes.BOOLEAN);
+        operation.getResponses().get(0).setSchema(schema);
+        Assertions.assertEquals(PrimitiveType.BOOLEAN,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+        operation.setResponses(List.of(operation.getResponses().get(0), new Response()));
+        Assertions.assertEquals(ClassType.BOOLEAN,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, true, true).getSyncReturnType());
     }
 
     @Test

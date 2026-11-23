@@ -132,7 +132,18 @@ public final class ClientMethodsReturnDescription {
             return createForPageable(operation, isProtocolMethod, settings);
         }
 
-        final IType responseBodyType = getResponseBodyType(operation, isProtocolMethod, settings);
+        IType responseBodyType = getResponseBodyType(operation, isProtocolMethod, settings);
+        if (!isProtocolMethod
+            && settings.isAzureV1()
+            && responseBodyType != PrimitiveType.VOID
+            && operation.getResponses()
+                .stream()
+                .anyMatch(response -> response.getSchema() != null || Boolean.TRUE.equals(response.getBinary()))
+            && operation.getResponses()
+                .stream()
+                .anyMatch(response -> response.getSchema() == null && !Boolean.TRUE.equals(response.getBinary()))) {
+            responseBodyType = responseBodyType.asNullable();
+        }
 
         if (responseBodyType == ClassType.INPUT_STREAM) {
             return createForInputStream(operation, isProtocolMethod, isCustomHeaderIgnored, settings);
