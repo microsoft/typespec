@@ -6,6 +6,7 @@ import { resolvePath } from "../../src/core/path-utils.js";
 import type { EmitContext, Enum, Model, ObjectValue, Program } from "../../src/index.js";
 import { emitFile, getLocationContext, navigateProgram } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { t } from "../../src/testing/marked-template.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 import { createTester } from "../../src/testing/tester.js";
@@ -316,6 +317,17 @@ it("reuses parsed library files across compilations", async () => {
   const script = first.program.sourceFiles.get(stdPath);
   expect(script).toBeDefined();
   expect(second.program.sourceFiles.get(stdPath)).toBe(script);
+});
+
+it("preserves local duplicate diagnostics across compilations", async () => {
+  const tester = await Tester.createInstance();
+  for (let i = 0; i < 2; i++) {
+    expectDiagnostics(await tester.diagnose("model A<T, T> {}"), [
+      { code: "duplicate-symbol", message: 'Duplicate name: "T"' },
+      { code: "duplicate-symbol", message: 'Duplicate name: "T"' },
+    ]);
+  }
+  expectDiagnosticEmpty(await tester.diagnose("model A<T> {}"));
 });
 
 describe("emitter", () => {

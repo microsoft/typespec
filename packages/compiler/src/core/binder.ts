@@ -101,11 +101,15 @@ export function createSymbolTable(source?: SymbolTable): SymbolTable {
   return new SymbolTable(source);
 }
 
+// Recheck only scopes with binding errors when reusing an already-bound script.
+const duplicateLocalsByFile = new WeakMap<TypeSpecScriptNode, readonly SymbolTable[]>();
+
 export function createBinder(program: Program): Binder {
   let currentFile: TypeSpecScriptNode;
   let parentNode: Node | undefined;
   let fileNamespace: NamespaceStatementNode | undefined;
   let scope: ScopeNode;
+  let duplicateLocals: SymbolTable[] | undefined;
 
   return {
     bindSourceFile,
@@ -295,6 +299,9 @@ export function createBinder(program: Program): Binder {
 
   function bindSourceFile(script: TypeSpecScriptNode) {
     if (script.locals !== undefined) {
+      for (const locals of duplicateLocalsByFile.get(script) ?? []) {
+        program.reportDuplicateSymbols(locals);
+      }
       return;
     }
 
@@ -304,7 +311,12 @@ export function createBinder(program: Program): Binder {
     fileNamespace = undefined;
     currentFile = script;
     scope = script;
+    duplicateLocals = [];
     bindNode(script);
+    if (duplicateLocals.length > 0) {
+      duplicateLocalsByFile.set(script, duplicateLocals);
+    }
+    duplicateLocals = undefined;
   }
 
   function bindNode(node: Node) {
@@ -398,6 +410,9 @@ export function createBinder(program: Program): Binder {
       visitChildren(node, bindNode);
 
       if ("locals" in node) {
+        if (node.locals && node.locals.duplicates.size > 0) {
+          duplicateLocals?.push(node.locals);
+        }
         program.reportDuplicateSymbols(node.locals);
       }
 

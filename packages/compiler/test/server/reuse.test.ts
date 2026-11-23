@@ -3,7 +3,11 @@ import { it } from "vitest";
 import { visitChildren } from "../../src/core/parser.js";
 import type { SymbolTable } from "../../src/core/types.js";
 import type { Program } from "../../src/index.js";
-import { expectDiagnosticEmpty, resolveVirtualPath } from "../../src/testing/index.js";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  resolveVirtualPath,
+} from "../../src/testing/index.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { mutate } from "../../src/utils/misc.js";
 
@@ -48,6 +52,24 @@ it("reuses unchanged files", async () => {
   expectNotSameProgram(oldResult.program, newResult.program);
   expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
   expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
+});
+
+it("preserves local duplicate diagnostics in reused files", async () => {
+  const host = await createTestServerHost();
+  host.addOrUpdateDocument("other.tsp", "model A<T, T> {}");
+
+  for (let i = 0; i < 2; i++) {
+    const document = host.addOrUpdateDocument("main.tsp", `import "./other.tsp"; // ${i}`);
+    const result = await host.server.compile(document, undefined, {
+      skipCache: true,
+      mode: "full",
+    });
+    ok(result);
+    expectDiagnostics(result.program.diagnostics, [
+      { code: "duplicate-symbol", message: 'Duplicate name: "T"' },
+      { code: "duplicate-symbol", message: 'Duplicate name: "T"' },
+    ]);
+  }
 });
 
 it("reuses cache when no change: core/full on core", async () => {
