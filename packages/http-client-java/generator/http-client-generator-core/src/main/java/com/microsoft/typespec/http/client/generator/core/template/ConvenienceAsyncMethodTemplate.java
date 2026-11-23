@@ -183,6 +183,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
             }
         } else {
             String bodylessResponseCondition = getBodylessResponseCondition(protocolMethod);
+            // Check status before FluxUtil::toMono discards the response metadata. A bodyless success becomes
+            // Mono.empty() rather than attempting to deserialize an empty XML/JSON payload.
             if (protocolResponseBodyType == ClassType.BINARY_DATA
                 && responseBodyType != ClassType.BINARY_DATA
                 && responseBodyType.asNullable() != ClassType.VOID

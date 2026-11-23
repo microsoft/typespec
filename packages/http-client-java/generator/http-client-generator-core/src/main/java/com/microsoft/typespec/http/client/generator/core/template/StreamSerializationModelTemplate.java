@@ -1418,6 +1418,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             IType type = getDeserializationType(property, fromSuper);
             String defaultValue
                 = property.isPolymorphicDiscriminator() ? property.getDefaultValue() : type.defaultValueExpression();
+            // Constructor-based XML deserialization appends unwrapped elements to locals, not initialized fields.
+            // Optional lists have no lazy null check, and should remain empty when no matching elements occur.
             if (isXml && !property.isRequired() && !property.isXmlWrapper() && type instanceof IterableType) {
                 defaultValue = "new ArrayList<>()";
             }

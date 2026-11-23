@@ -133,6 +133,9 @@ public final class ClientMethodsReturnDescription {
         }
 
         IType responseBodyType = getResponseBodyType(operation, isProtocolMethod, settings);
+        // Azure V1 convenience methods return null for a declared bodyless success (e.g. 200: int32 | 204: void).
+        // When successes include both a body (schema or binary) and no body, box primitives so null is representable.
+        // Protocol methods retain their raw response types; all-void operations need no boxing.
         if (!isProtocolMethod
             && settings.isAzureV1()
             && responseBodyType != PrimitiveType.VOID

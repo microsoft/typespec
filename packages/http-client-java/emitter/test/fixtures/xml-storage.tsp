@@ -95,9 +95,33 @@ namespace AlternateRecords {
   op query(@header contentType: "application/xml", @body body: Query): void;
 }
 
+namespace InlineRecords {
+  model Query {
+    configuration?: Record<unknown>;
+    nullableConfiguration?: Record<unknown> | null;
+  }
+
+  @post
+  op query(@header contentType: "application/xml", @body body: Query): void;
+}
+
+namespace TypedRecords {
+  model Query {
+    configuration?: Record<string>;
+  }
+
+  @post
+  op query(@header contentType: "application/xml", @body body: Query): void;
+}
+
 namespace JsonRecords {
   model Configuration is Record<unknown>;
 
+  model Query {
+    configuration?: Configuration;
+    inlineConfiguration?: Record<unknown>;
+  }
+
   @post
-  op query(@body body: Configuration): void;
+  op query(@body body: Query): void;
 }

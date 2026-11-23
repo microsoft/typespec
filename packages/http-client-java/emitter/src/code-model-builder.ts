@@ -2811,7 +2811,8 @@ export class CodeModelBuilder {
       // check for File
       responseBodyIsFile = true;
     } else if (bodyType && bodyType.kind === "bytes") {
-      // check for bytes + unknown content-type
+      // TCGC encode "bytes" means raw binary, unlike JSON bytes encoded as "base64"/"base64url".
+      // Preserve raw bytes even when another offered content type is recognized (e.g. Arrow | XML).
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
@@ -3557,6 +3558,16 @@ export class CodeModelBuilder {
 
     // xml
     if (modelProperty.serializationOptions.xml) {
+      if (
+        nonNullType.kind === "dict" &&
+        getNonNullSdkType(nonNullType.valueType).kind === "unknown"
+      ) {
+        reportDiagnostic(this.program, {
+          code: "xml-additional-properties-not-supported",
+          format: { modelName: modelProperty.__raw?.model?.name ?? modelProperty.name },
+          target: modelProperty.__raw ?? NoTarget,
+        });
+      }
       // property.serializedName is set via getPropertySerializedName
 
       // "serialization" is set to the property in TypeSpec emitter, not in the schema

@@ -219,7 +219,21 @@ describe("XML storage responses", () => {
     ]);
   });
 
-  it.each(["AlternateRecords", "JsonRecords"])("supports %s", async (namespace) => {
+  it("diagnoses inline XML records with unknown values", async () => {
+    const { program } = await build("InlineRecords");
+    expectDiagnostics(program.diagnostics, [
+      {
+        code: "@typespec/http-client-java/xml-additional-properties-not-supported",
+        message: /XML additional properties.*Query/,
+      },
+      {
+        code: "@typespec/http-client-java/xml-additional-properties-not-supported",
+        message: /XML additional properties.*Query/,
+      },
+    ]);
+  });
+
+  it.each(["AlternateRecords", "TypedRecords", "JsonRecords"])("supports %s", async (namespace) => {
     const { program } = await build(namespace);
     expectDiagnosticEmpty(program.diagnostics);
   });
