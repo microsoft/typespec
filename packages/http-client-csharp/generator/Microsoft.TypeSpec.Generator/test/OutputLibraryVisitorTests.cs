@@ -1,9 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -295,6 +300,509 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task ConstructorAccessedByAnotherProviderIsPreservedForVisitor()
+        {
+            var model = new MutableConstructorModelProvider();
+            model.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                    Snippet.Throw(Snippet.Null), model),
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Internal, []),
+                    Snippet.Throw(Snippet.Null), model)
+            ];
+            var referencingType = new ConstructorAccessingTypeProvider(model);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(referencingType, model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+            model.Update(reset: true);
+
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            Assert.That(model.CustomCodeView, Is.Not.Null);
+            Assert.That(model.GeneratedConstructors, Has.Count.EqualTo(2), "Both constructors should be available before visitors run");
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            var customConstructor = model.CustomCodeView!.Constructors.Single();
+            Assert.That(customConstructor.Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
+            Assert.That(model.Constructors, Has.Count.EqualTo(2));
+            var publicConstructor = model.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
+            Assert.That(publicConstructor.Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+        }
+
+        [Test]
+        public async Task ConstructorIsPreservedBetweenVisitorsUntilSignatureChanges()
+        {
+            var model = new MutableConstructorModelProvider();
+            model.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                    Snippet.Throw(Snippet.Null), model)
+            ];
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+            model.Update(reset: true);
+
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            Assert.That(model.CustomCodeView, Is.Not.Null);
+            Assert.That(model.GeneratedConstructors, Has.Count.EqualTo(1));
+            new MethodVisitor().VisitLibrary(generator.Object.OutputLibrary);
+            new TestFilterVisitor().VisitLibrary(generator.Object.OutputLibrary);
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
+            Assert.That(model.Constructors, Has.Count.EqualTo(1));
+            Assert.That(model.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+        }
+
+        [Test]
+        public async Task GenerationPreservesConstructorThroughDiscoveryAndVisitors()
+        {
+            var model = new MutableConstructorModelProvider();
+            model.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                    Snippet.Throw(Snippet.Null), model)
+            ];
+            var referencingType = new ConstructorAccessingTypeProvider(model);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(referencingType, model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+            model.Update(reset: true);
+            generator.Object.AddVisitor(new MethodVisitor());
+            generator.Object.AddVisitor(new TestFilterVisitor());
+
+            await new CSharpGen().ExecuteAsync();
+
+            Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
+            Assert.That(model.Constructors, Has.Count.EqualTo(1));
+            Assert.That(model.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task FinalFilteringPreservesDistinctConstructorSignatures(bool nestedNullableValue)
+        {
+            var model = new MutableConstructorModelProvider();
+            var initialType = nestedNullableValue ? typeof(List<int>) : typeof(int);
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", initialType)]),
+                Snippet.Throw(Snippet.Null), model);
+            model.ConstructorProviders = [generated];
+            var parameterType = nestedNullableValue ? "System.Collections.Generic.List<int>" : "int";
+            var customCode = $"namespace Test {{ public partial class TestName {{ public TestName({parameterType} value) {{ }} }} }}";
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+            model.Update(reset: true);
+
+            Assert.That(model.Constructors, Is.Empty);
+            new ChangeConstructorSignatureVisitor(nestedNullableValue).VisitLibrary(generator.Object.OutputLibrary);
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(model.Constructors.Single(), Is.SameAs(generated));
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(BinaryData).Assembly.Location).Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create("DistinctConstructors",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(model).Write().Content), CSharpSyntaxTree.ParseText(customCode)],
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        [Test]
+        public async Task CustomConstructorMatchesParameterFromCustomizedNullableNestedEnumProperty()
+        {
+            const string customCode = "namespace Sample.Models { public class Outer { public enum Kind { A } } public partial class Widget { public Outer.Kind? Kind { get; set; } public Widget(Outer.Kind? kind) { Kind = kind; } } }";
+            var input = InputFactory.Model("Widget", usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("kind", InputPrimitiveType.Int32, isRequired: true)]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [input],
+                compilation: () => Helpers.GetCompilationFromSourceFilesAsync([("Widget.cs", customCode)]));
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+
+            Assert.That(model.GeneratedConstructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.True);
+            Assert.That(model.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
+            AssertGeneratedAndCustomCodeCompiles(model, customCode);
+        }
+
+        [Test]
+        public async Task CustomConstructorMatchesResolvedNullableNestedEnum()
+        {
+            const string customCode = "namespace Test { public class Outer { public enum Kind { A } } public partial class TestName { public TestName(Outer.Kind? kind) { } } }";
+            var model = new MutableConstructorModelProvider();
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: () => Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+            var outer = new CSharpType("Outer", "Test", false, false, null, [], true, false);
+            var kind = new CSharpType("Kind", "Test", true, true, outer, [], true, false, underlyingEnumType: typeof(int));
+            model.ConstructorProviders = [new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("kind", $"", kind)]),
+                MethodBodyStatement.Empty, model)];
+
+            Assert.That(model.Constructors, Is.Empty);
+            AssertGeneratedAndCustomCodeCompiles(model, customCode);
+        }
+
+        [Test]
+        public async Task CustomStaticConstructorReplacesGeneratedStaticConstructor()
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Static, []),
+                MethodBodyStatement.Empty, model);
+            model.ConstructorProviders = [generated];
+            const string customCode = "namespace Test { public partial class TestName { static TestName() { } } }";
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+            model.Update(reset: true);
+
+            var custom = model.CustomCodeView!.Constructors.Single();
+            Assert.That(custom.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static), Is.True);
+            Assert.That(model.Constructors, Is.Empty);
+            Assert.That(model.EffectiveConstructors.Single(), Is.SameAs(custom));
+            AssertGeneratedAndCustomCodeCompiles(model, customCode);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task RefReadonlyCustomConstructorUsesByReferenceSignature(bool generatedByReference)
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public,
+                    [new ParameterProvider("value", $"", typeof(int), isRef: generatedByReference)]),
+                Snippet.Throw(Snippet.Null), model);
+            model.ConstructorProviders = [generated];
+            const string customCode = "namespace Test { public partial class TestName { public TestName(ref readonly int value) { } } }";
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+            model.Update(reset: true);
+
+            Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().HasUnsupportedParameterModifiers, Is.True);
+            Assert.That(model.Constructors.Count, Is.EqualTo(generatedByReference ? 0 : 1));
+            AssertGeneratedAndCustomCodeCompiles(model, customCode);
+        }
+
+        [Test]
+        public async Task GeneratedAndEffectiveConstructorsReflectSignatureChanges()
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), model);
+            model.ConstructorProviders = [generated];
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("TestName.cs", "namespace Test { public partial class TestName { internal TestName(string param1) { } } }")]));
+            model.Update(reset: true);
+
+            Assert.That(model.Constructors, Is.Empty);
+            Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(1));
+            Assert.That(model.EffectiveConstructors.Single().Signature.Modifiers, Is.EqualTo(MethodSignatureModifiers.Internal));
+
+            generated.Signature.Parameters.Single().Update(type: typeof(int));
+
+            Assert.That(model.Constructors.Single(), Is.SameAs(generated));
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+            Assert.That(model.EffectiveConstructors, Does.Contain(generated));
+            Assert.That(model.EffectiveConstructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Internal)
+                .Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CanonicalConstructorsReflectInPlaceSignatureChanges(bool initiallyMatching)
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public,
+                    [new ParameterProvider("param1", $"", initiallyMatching ? typeof(string) : typeof(int))]),
+                Snippet.Throw(Snippet.Null), model);
+            model.ConstructorProviders = [generated];
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("TestName.cs", "namespace Test { public partial class TestName { internal TestName(string param1) { } } }")]));
+            model.Update(reset: true);
+
+            var canonical = model.CanonicalView;
+            Assert.That(canonical.Constructors, Has.Count.EqualTo(initiallyMatching ? 1 : 2));
+            Assert.That(canonical.GeneratedConstructors.Single(), Is.SameAs(generated));
+            generated.Signature.Parameters.Single().Update(type: initiallyMatching ? typeof(int) : typeof(string));
+
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(initiallyMatching ? 2 : 1));
+            Assert.That(canonical.Constructors, Has.Count.EqualTo(initiallyMatching ? 2 : 1));
+            Assert.That(canonical.EffectiveConstructors, Has.Count.EqualTo(initiallyMatching ? 2 : 1));
+        }
+
+        [Test]
+        public async Task CanonicalConstructorUpdatesAreRespected()
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), model);
+            model.ConstructorProviders = [generated];
+            await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            model.Update(reset: true);
+
+            var canonical = model.CanonicalView;
+            var replacement = new ConstructorProvider(
+                new ConstructorSignature(canonical.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", typeof(int))]),
+                Snippet.Throw(Snippet.Null), canonical);
+            canonical.Update(constructors: [replacement]);
+
+            Assert.That(canonical.Constructors.Single(), Is.SameAs(replacement));
+            Assert.That(canonical.GeneratedConstructors.Single(), Is.SameAs(replacement));
+            Assert.That(canonical.EffectiveConstructors.Single(), Is.SameAs(replacement));
+            Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
+
+            canonical.Reset();
+            canonical.EnsureBuilt();
+
+            Assert.That(canonical.Constructors.Single(), Is.SameAs(generated));
+            Assert.That(canonical.GeneratedConstructors.Single(), Is.SameAs(generated));
+            Assert.That(canonical.EffectiveConstructors.Single(), Is.SameAs(generated));
+        }
+
+        [Test]
+        public void ConstructorUpdateSnapshotsItsInputCollection()
+        {
+            var model = new TestTypeProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, []),
+                Snippet.Throw(Snippet.Null), model);
+            var constructors = new List<ConstructorProvider> { generated };
+            model.Update(constructors: constructors);
+
+            constructors.Clear();
+
+            Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
+        }
+
+        [Test]
+        public async Task UpdatingConstructorsPreservesGeneratedMembersForVisitors()
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), model);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+            model.Update(constructors: [generated], reset: true);
+
+            Assert.That(model.Constructors, Is.Empty);
+            Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
+            new TestFilterVisitor().VisitLibrary(generator.Object.OutputLibrary);
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(model.Constructors.Single(), Is.SameAs(generated));
+            Assert.That(generated.Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task SuppressionIsAppliedToTheFinalConstructorSignature(bool suppressFinalSignature)
+        {
+            var model = new MutableConstructorModelProvider();
+            var generated = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), model);
+            model.ConstructorProviders = [generated];
+            var suppressedType = suppressFinalSignature ? "int" : "string";
+            var customCode = $"using Microsoft.TypeSpec.Generator.Customizations; namespace Test {{ [CodeGenSuppress(\"TestName\", typeof({suppressedType}))] public partial class TestName {{ }} }}";
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+            model.Update(reset: true);
+
+            Assert.That(model.Constructors.Count, Is.EqualTo(suppressFinalSignature ? 1 : 0));
+            Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
+            new TestFilterVisitor().VisitLibrary(generator.Object.OutputLibrary);
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(model.Constructors.Count, Is.EqualTo(suppressFinalSignature ? 0 : 1));
+            Assert.That(model.GeneratedConstructors.Count, Is.EqualTo(suppressFinalSignature ? 0 : 1));
+        }
+
+        [TestCase("internal")]
+        [TestCase("protected internal")]
+        public async Task NonPublicCustomConstructorDoesNotAppearPublicDuringDiscovery(string accessibility)
+        {
+            var model = new MutableConstructorModelProvider();
+            model.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, []),
+                    Snippet.Throw(Snippet.Null), model)
+            ];
+            var customCode = $"namespace Test {{ public partial class TestName {{ {accessibility} TestName() {{ }} }} }}";
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+            model.Update(reset: true);
+
+            Assert.That(model.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
+            Assert.That(model.GeneratedConstructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.True);
+            Assert.That(model.EffectiveConstructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task SerializationConstructorsAreReconciledBySignature(bool byReference)
+        {
+            var model = new MutableConstructorModelProvider();
+            model.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", typeof(string))]),
+                    Snippet.Throw(Snippet.Null), model)
+            ];
+            var serialization = new TestConstructorTypeProvider("TestName", "Test");
+            var serializationConstructor = new ConstructorProvider(
+                new ConstructorSignature(serialization.Type, $"", MethodSignatureModifiers.Internal,
+                    [new ParameterProvider("value", $"", typeof(string), isRef: byReference)]),
+                Snippet.Throw(Snippet.Null), serialization);
+            serialization.ConstructorProviders = [serializationConstructor];
+            var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            model.Update(serializations: [serialization], reset: true);
+
+            Assert.That(model.EffectiveConstructors.Count, Is.EqualTo(byReference ? 2 : 1));
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(serialization.Constructors.Count, Is.EqualTo(byReference ? 1 : 0));
+            Assert.That(model.EffectiveConstructors.Count, Is.EqualTo(byReference ? 2 : 1));
+        }
+
+        [Test]
+        public async Task SerializationConstructorsWithDifferentNestedValueNullabilityRemainDistinct()
+        {
+            var model = new MutableConstructorModelProvider();
+            model.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", typeof(List<int>))]),
+                    Snippet.Throw(Snippet.Null), model)
+            ];
+            var serialization = new TestConstructorTypeProvider("TestName", "Test");
+            var serializationConstructor = new ConstructorProvider(
+                new ConstructorSignature(serialization.Type, $"", MethodSignatureModifiers.Internal,
+                    [new ParameterProvider("value", $"", typeof(List<int?>))]),
+                Snippet.Throw(Snippet.Null), serialization);
+            serialization.ConstructorProviders = [serializationConstructor];
+            var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            model.Update(serializations: [serialization], reset: true);
+
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(serialization.Constructors.Single(), Is.SameAs(serializationConstructor));
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task StaticAndInstanceConstructorsRemainDistinctAcrossPartials(bool staticOnModel)
+        {
+            var model = new TestTypeProvider();
+            var serialization = new TestConstructorTypeProvider("TestName", "Test");
+            var modelConstructor = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", staticOnModel ? MethodSignatureModifiers.Static : MethodSignatureModifiers.Public, []),
+                MethodBodyStatement.Empty, model);
+            var serializationConstructor = new ConstructorProvider(
+                new ConstructorSignature(serialization.Type, $"", staticOnModel ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Static, []),
+                MethodBodyStatement.Empty, serialization);
+            serialization.ConstructorProviders = [serializationConstructor];
+            var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            model.Update(constructors: [modelConstructor], serializations: [serialization], reset: true);
+
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(serialization.Constructors.Single(), Is.SameAs(serializationConstructor));
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create("ConstructorViews",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(model).Write().Content),
+                    CSharpSyntaxTree.ParseText(new TypeProviderWriter(serialization).Write().Content)],
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        [Test]
+        public async Task SerializationConstructorsWithDifferentDeclaringTypeChainsRemainDistinct()
+        {
+            var rootA = new CSharpType("A", "Test", false, false, null, [], true, false);
+            var rootB = new CSharpType("B", "Test", false, false, null, [], true, false);
+            var commonA = new CSharpType("Common", "Test", false, false, rootA, [], true, false);
+            var commonB = new CSharpType("Common", "Test", false, false, rootB, [], true, false);
+            var innerA = new CSharpType("Inner", "Test", false, false, commonA, [], true, false);
+            var innerB = new CSharpType("Inner", "Test", false, false, commonB, [], true, false);
+            var model = new TestTypeProvider();
+            var serialization = new TestConstructorTypeProvider("TestName", "Test");
+            var modelConstructor = new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", innerA)]),
+                MethodBodyStatement.Empty, model);
+            var serializationConstructor = new ConstructorProvider(
+                new ConstructorSignature(serialization.Type, $"", MethodSignatureModifiers.Internal, [new ParameterProvider("value", $"", innerB)]),
+                MethodBodyStatement.Empty, serialization);
+            serialization.ConstructorProviders = [serializationConstructor];
+            var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            model.Update(constructors: [modelConstructor], serializations: [serialization], reset: true);
+
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.That(serialization.Constructors.Single(), Is.SameAs(serializationConstructor));
+            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public async Task SerializationOfDifferentNestedTypeDoesNotShareConstructors()
+        {
+            var model = CreateNestedType("A");
+            var serialization = CreateNestedType("B");
+            await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            model.ConstructorProviders = [new ConstructorProvider(
+                new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, []), MethodBodyStatement.Empty, model)];
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(serialization.Type, $"", MethodSignatureModifiers.Public, []), MethodBodyStatement.Empty, serialization);
+            serialization.ConstructorProviders = [constructor];
+            model.Update(serializations: [serialization]);
+
+            CSharpGen.FilterAllCustomizedMembers(CodeModelGenerator.Instance.OutputLibrary);
+
+            Assert.That(serialization.Constructors, Is.EqualTo(new[] { constructor }));
+            Assert.That(model.EffectiveConstructors, Does.Not.Contain(constructor));
+
+            static TestConstructorTypeProvider CreateNestedType(string outerName) => new("Widget", "Test",
+                new TestConstructorTypeProvider("Common", "Test", new TestConstructorTypeProvider(outerName, "Test")));
+        }
+
+        [Test]
         public async Task SerializationProviderConstructorIsFilteredWhenMatchingCustomCode()
         {
             // Create a type provider with a serialization provider
@@ -322,13 +830,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             // Verify serialization provider constructor is present after EnsureBuilt
             Assert.IsNotNull(serializationProvider.CustomCodeView, "CustomCodeView should not be null");
-            Assert.AreEqual(1, serializationProvider.Constructors.Count, "Serialization provider should have 1 constructor before filtering");
+            Assert.AreEqual(1, serializationProvider.GeneratedConstructors.Count, "Serialization provider should have 1 constructor before filtering");
 
             // Apply filtering through the real pipeline
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             // The constructor should be filtered out because it matches custom code
             Assert.AreEqual(0, serializationProvider.Constructors.Count, "Serialization provider constructor should be filtered when matching custom code");
+            Assert.AreEqual(0, serializationProvider.GeneratedConstructors.Count, "Final filtering should remove the generated constructor");
         }
 
         [Test]
@@ -357,12 +866,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 type.EnsureBuilt();
             }
 
-            Assert.AreEqual(1, nestedProvider.Constructors.Count, "Nested provider should have 1 constructor before filtering");
+            Assert.AreEqual(1, nestedProvider.GeneratedConstructors.Count, "Nested provider should have 1 constructor before filtering");
             Assert.IsNotNull(nestedProvider.CustomCodeView, "Nested provider custom code view should be found");
 
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             Assert.AreEqual(0, nestedProvider.Constructors.Count, "Nested provider constructor should be filtered when matching custom code");
+            Assert.AreEqual(0, nestedProvider.GeneratedConstructors.Count, "Final filtering should remove the generated constructor");
         }
 
         [Test]
@@ -553,6 +1063,55 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected override string BuildName() => "TestSerializationProvider";
             protected override string BuildNamespace() => "Test";
             protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
+        }
+
+        private class MutableConstructorModelProvider() : ModelProvider(InputFactory.Model("TestName"))
+        {
+            public ConstructorProvider[] ConstructorProviders { get; set; } = [];
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => "TestName";
+            protected override string BuildNamespace() => "Test";
+            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
+        }
+
+        private static void AssertGeneratedAndCustomCodeCompiles(TypeProvider provider, string customCode)
+        {
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(BinaryData).Assembly.Location).Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create("ConstructorViews",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content), CSharpSyntaxTree.ParseText(customCode)],
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        private class ChangeConstructorSignatureVisitor(bool nestedNullableValue) : LibraryVisitor
+        {
+            protected internal override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+            {
+                var parameter = constructor.Signature.Parameters.Single();
+                if (nestedNullableValue)
+                {
+                    parameter.Update(type: typeof(List<int?>));
+                }
+                else
+                {
+                    parameter.Update(isRef: true);
+                }
+                return constructor;
+            }
+        }
+
+        private class ConstructorAccessingTypeProvider(TypeProvider model) : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => "Factory";
+            protected override string BuildNamespace() => "Test";
+            protected internal override MethodProvider[] BuildMethods()
+            {
+                _ = model.Constructors;
+                return [];
+            }
         }
 
         private class TestConstructorTypeProvider : TypeProvider

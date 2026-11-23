@@ -335,7 +335,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var signature = new ConstructorSignature(
                     Type,
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
-                    GetAccessModifier(constructorSymbol.DeclaredAccessibility),
+                    GetAccessModifier(constructorSymbol.DeclaredAccessibility) |
+                        (constructorSymbol.IsStatic ? MethodSignatureModifiers.Static : MethodSignatureModifiers.None),
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
                     attributes: [.. constructorSymbol.GetAttributes()
                         .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)

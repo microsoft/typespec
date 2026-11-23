@@ -627,6 +627,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
+        public async Task RenamingClientPreservesGeneratedOptionsConstructorsBeforeReapplyingCustomization()
+        {
+            var input = InputFactory.Client("WidgetClient");
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [input],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("WidgetClientOptions.cs", "namespace Sample { public partial class WidgetClientOptions { public WidgetClientOptions() { } } }")]));
+            var client = generator.Object.TypeFactory.CreateClient(input)!;
+            var options = client.ClientOptions!;
+            options.EnsureBuilt();
+
+            Assert.That(options.GeneratedConstructors.Any(c => c.Signature.Parameters.Count == 0), Is.True);
+            Assert.That(options.Constructors.Any(c => c.Signature.Parameters.Count == 0), Is.False);
+
+            client.Update(@namespace: "Sample.Relocated");
+
+            Assert.That(options.CustomCodeView, Is.Null);
+            Assert.That(options.GeneratedConstructors.Any(c => c.Signature.Parameters.Count == 0), Is.True);
+            Assert.That(options.Constructors.Any(c => c.Signature.Parameters.Count == 0), Is.True);
+        }
+
+        [Test]
         public async Task TestBuildName_UpdatesDependentConstructorDocumentation([Values] bool customSummary)
         {
             var input = InputFactory.Client("IpClient");

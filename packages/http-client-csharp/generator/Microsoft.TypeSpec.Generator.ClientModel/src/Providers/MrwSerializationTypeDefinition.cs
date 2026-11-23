@@ -412,7 +412,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<ConstructorProvider> constructors = new();
             bool ctorWithNoParamsExist = false;
 
-            foreach (var ctor in _model.Constructors)
+            foreach (var ctor in _model.GeneratedConstructors)
             {
                 var initializationCtorParams = ctor.Signature.Parameters;
 

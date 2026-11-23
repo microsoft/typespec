@@ -339,8 +339,59 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
+        private protected IReadOnlyList<ConstructorProvider>? CachedConstructors => _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= ApplyCustomizationFilter(BuildConstructors());
+        /// <summary>
+        /// Gets the generated constructors before customization filtering, for visitor transformations.
+        /// </summary>
+        public IReadOnlyList<ConstructorProvider> GeneratedConstructors => GetGeneratedConstructors();
+
+        private protected virtual IReadOnlyList<ConstructorProvider> GetGeneratedConstructors() => _constructors ??= BuildConstructors();
+
+        /// <summary>
+        /// Gets generated constructors that are not replaced or suppressed by custom code.
+        /// </summary>
+        public IReadOnlyList<ConstructorProvider> Constructors => GetConstructors();
+
+        private protected virtual IReadOnlyList<ConstructorProvider> GetConstructors() => ApplyCustomizationFilter(GeneratedConstructors);
+
+        /// <summary>
+        /// Gets explicitly declared constructors after customization, including constructors from generated
+        /// serialization partials of the same type. Compiler-synthesized constructors are not included.
+        /// </summary>
+        public IReadOnlyList<ConstructorProvider> EffectiveConstructors => GetEffectiveConstructors();
+
+        internal IReadOnlyList<ConstructorProvider> GetEffectiveDeclaredConstructors() => FilterCustomizedMembers
+            ? [.. Constructors, .. CustomCodeView?.Constructors ?? []]
+            : Constructors;
+
+        private protected virtual IReadOnlyList<ConstructorProvider> GetEffectiveConstructors()
+            => MergeSerializationConstructors(GetEffectiveDeclaredConstructors());
+
+        internal IReadOnlyList<ConstructorProvider> MergeSerializationConstructors(IReadOnlyList<ConstructorProvider> declaredConstructors)
+        {
+            var owner = SerializationProviderOwner;
+            if (owner is null || !owner.GetSerializationPartials().Contains(this))
+            {
+                owner = this;
+            }
+
+            var constructors = new List<ConstructorProvider>(owner == this ? declaredConstructors : owner.GetEffectiveDeclaredConstructors());
+            foreach (var serialization in owner.GetSerializationPartials())
+            {
+                foreach (var constructor in serialization == this ? declaredConstructors : serialization.Constructors)
+                {
+                    if (!constructors.Any(existing => ConstructorProvider.HasSameSignature(existing, constructor)))
+                    {
+                        constructors.Add(constructor);
+                    }
+                }
+            }
+            return constructors;
+        }
+
+        internal IEnumerable<TypeProvider> GetSerializationPartials()
+            => SerializationProviders.Where(serialization => ConstructorProvider.HaveSameType(Type, serialization.Type));
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= ApplyCustomizationFilter(BuildFields());
@@ -920,7 +971,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (constructors != null)
             {
-                _constructors = ApplyCustomizationFilter(constructors);
+                _constructors = [.. constructors];
             }
             if (implements != null)
             {
@@ -1015,7 +1066,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // to transform members (e.g., merging parameters). This ensures visitors see the
             // full set of members before customization filtering is applied.
             _methods ??= BuildMethods();
-            _constructors ??= BuildConstructors();
+            _ = GeneratedConstructors;
             _properties ??= BuildProperties();
             _fields ??= BuildFields();
             _ = Implements;
@@ -1337,7 +1388,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
             foreach (var customConstructor in customConstructors)
             {
-                if (MethodSignatureBase.SignatureComparer.Equals(customConstructor.Signature, constructor.Signature))
+                if (ConstructorProvider.HasSameSignature(customConstructor, constructor, allowUnqualifiedTypes: true))
                 {
                     return false;
                 }

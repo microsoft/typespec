@@ -658,7 +658,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Do not rename shared options or explicitly customized dependent types.
                 if (provider?.Name == $"{previousName}{suffix}" && provider.Type.Namespace == previousNamespace)
                 {
-                    var constructors = provider.Constructors;
+                    var constructors = provider.GeneratedConstructors;
                     provider.Update(name: $"{Name}{suffix}", @namespace: Type.Namespace);
                     foreach (var constructor in constructors)
                     {

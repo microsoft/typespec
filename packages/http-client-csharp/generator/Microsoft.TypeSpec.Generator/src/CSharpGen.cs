@@ -198,6 +198,29 @@ namespace Microsoft.TypeSpec.Generator
             {
                 FilterAllCustomizedMembers(nestedType, visited);
             }
+            RemoveDuplicateSerializationConstructors(typeProvider);
+        }
+
+        private static void RemoveDuplicateSerializationConstructors(TypeProvider typeProvider)
+        {
+            var constructors = new List<ConstructorProvider>(typeProvider.GetEffectiveDeclaredConstructors());
+            foreach (var serialization in typeProvider.GetSerializationPartials())
+            {
+                var serializationConstructors = serialization.Constructors;
+                var uniqueConstructors = new List<ConstructorProvider>();
+                foreach (var constructor in serializationConstructors)
+                {
+                    if (!constructors.Any(existing => ConstructorProvider.HasSameSignature(existing, constructor)))
+                    {
+                        constructors.Add(constructor);
+                        uniqueConstructors.Add(constructor);
+                    }
+                }
+                if (uniqueConstructors.Count != serializationConstructors.Count)
+                {
+                    serialization.Update(constructors: uniqueConstructors);
+                }
+            }
         }
 
         private static void FilterCustomizedMembers(TypeProvider typeProvider)
