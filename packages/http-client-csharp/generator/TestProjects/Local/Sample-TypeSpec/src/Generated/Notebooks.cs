@@ -84,7 +84,18 @@ namespace SampleTypeSpec
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _modelReaderWriterOptions = options.ModelReaderWriterOptions == null ? ModelSerializationExtensions.WireOptions : new ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
+            if (options.ModelProxies.Count == 0)
+            {
+                _modelReaderWriterOptions = ModelSerializationExtensions.WireOptions;
+            }
+            else
+            {
+                _modelReaderWriterOptions = new ModelReaderWriterOptions("W");
+                foreach (var proxy in options.ModelProxies)
+                {
+                    _modelReaderWriterOptions.Proxies.Add(proxy);
+                }
+            }
             _notebook = notebook;
             if (authenticationPolicy != null)
             {

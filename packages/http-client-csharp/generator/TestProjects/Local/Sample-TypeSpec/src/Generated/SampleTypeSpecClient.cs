@@ -67,7 +67,18 @@ namespace SampleTypeSpec
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _modelReaderWriterOptions = options.ModelReaderWriterOptions == null ? ModelSerializationExtensions.WireOptions : new ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
+            if (options.ModelProxies.Count == 0)
+            {
+                _modelReaderWriterOptions = ModelSerializationExtensions.WireOptions;
+            }
+            else
+            {
+                _modelReaderWriterOptions = new ModelReaderWriterOptions("W");
+                foreach (var proxy in options.ModelProxies)
+                {
+                    _modelReaderWriterOptions.Proxies.Add(proxy);
+                }
+            }
             if (authenticationPolicy != null)
             {
                 Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
