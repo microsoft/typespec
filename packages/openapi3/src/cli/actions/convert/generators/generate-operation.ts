@@ -31,12 +31,13 @@ export function generateOperation(operation: TypeSpecOperation, context: Context
   ];
 
   const responses = generateOperationReturnType(operation, context);
+  operationParts.push(...responses.examples);
 
   if (operation.fixmes?.length) {
     operationParts.push("\n", ...operation.fixmes.map((f) => `// FIXME: ${f}\n`));
   }
 
-  operationParts.push(`op ${operation.name}(${parameters.join(", ")}): ${responses};`);
+  operationParts.push(`op ${operation.name}(${parameters.join(", ")}): ${responses.returnType};`);
 
   const preambleStr = preamble.join("\n");
   const operationStr = operationParts.join(" ");
