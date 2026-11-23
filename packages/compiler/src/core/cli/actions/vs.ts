@@ -10,7 +10,7 @@ import { reportDeprecatedCommand, run } from "../utils.js";
 const VSIX_ALREADY_INSTALLED = 1001;
 const VSIX_NOT_INSTALLED = 1002;
 const VSIX_USER_CANCELED = 2005;
-const VS_SUPPORTED_VERSION_RANGE = "[17.0,)";
+const VS_SUPPORTED_VERSION_RANGE = "[18.0,)";
 
 /** Marketplace identity of the TypeSpec Visual Studio extension. */
 const VS_EXTENSION = {

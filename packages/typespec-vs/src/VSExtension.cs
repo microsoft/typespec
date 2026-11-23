@@ -264,7 +264,8 @@ namespace Microsoft.TypeSpec.VisualStudio
             if (workspace != null)
             {
                 // Use workspace manager when there is a workspace.
-                var settings = workspace.GetSettingsManager()?.GetAggregatedSettings(SettingsTypes.Generic);
+                var settingsManager = await workspace.GetSettingsManagerAsync();
+                var settings = settingsManager?.GetAggregatedSettings(SettingsTypes.Generic);
                 _configuredTypeSpecServerPath = settings?.Property<string>("typespec.tsp-server.path");
                 _workspaceFolder = workspace.Location;
             }
