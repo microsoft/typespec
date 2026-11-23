@@ -97,6 +97,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     context: Context,
     schema: Refable<SupportedOpenAPISchema>,
   ): void {
+    if ("$ref" in schema) return;
     const { name, scope } = getScopeAndName(rawName);
 
     // Unwrap single anyOf/oneOf members to get the actual schema
@@ -125,7 +126,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema)),
+        ...getModelPropertiesFromObjectSchema(effectiveSchema),
         ...allOfDetails.properties,
       ],
       additionalProperties:
@@ -303,10 +304,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
  * returns that member's schema merged with any properties from the parent schema.
  * Otherwise, returns the original schema.
  */
-function unwrapSingleAnyOfOneOf(
-  schema: Refable<SupportedOpenAPISchema>,
-): Refable<SupportedOpenAPISchema> {
-  if ("$ref" in schema) return schema;
+export function unwrapSingleAnyOfOneOf(schema: SupportedOpenAPISchema): SupportedOpenAPISchema {
   // Unwrapping drops the null variant, so it would invalidate a null example.
   if ("examples" in schema && Array.isArray(schema.examples) && schema.examples.includes(null)) {
     return schema;
@@ -322,7 +320,7 @@ function unwrapSingleAnyOfOneOf(
     if (!("type" in member)) return false;
     // In OpenAPI 3.1, type can be "null" (JsonSchemaType includes "null")
     // In OpenAPI 3.0, nullable is used instead, but we still check type here for consistency
-    return (member as any).type !== "null";
+    return member.type !== "null";
   });
 
   // Check if there are any $ref members in the union alongside the inline members

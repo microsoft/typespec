@@ -389,6 +389,33 @@ describe("import schema examples", () => {
     }
   });
 
+  it("round-trips schema and media type examples on a scalar JSON response", async () => {
+    const input = documentFor({ type: "string", examples: ["schema"] });
+    input.paths = {
+      "/pets": {
+        get: {
+          operationId: "getPet",
+          responses: {
+            "200": {
+              description: "Response",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Pet" },
+                  example: "response",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    const mediaType = output.paths["/pets"].get.responses["200"].content["application/json"];
+    expect(examplesForSchema(mediaType.schema, output)).toEqual(["schema"]);
+    expect(mediaType.example).toBe("response");
+  });
+
   it("keeps request body examples next to a reference separate from the component examples", async () => {
     const input = documentFor({ type: "string", examples: ["component"] });
     input.paths = {
