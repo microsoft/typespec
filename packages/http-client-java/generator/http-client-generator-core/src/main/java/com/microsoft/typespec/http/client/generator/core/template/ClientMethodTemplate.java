@@ -790,6 +790,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
         ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
 
+        if (generateContextOverload(clientMethod, typeBlock, settings)) {
+            return;
+        }
+
         switch (clientMethod.getType()) {
             case PagingSync:
                 if (settings.isSyncStackEnabled()) {
@@ -899,6 +903,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 generateSendRequestSync(clientMethod, typeBlock);
                 break;
         }
+    }
+
+    protected boolean generateContextOverload(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        return false;
     }
 
     protected void generateProtocolPagingSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
