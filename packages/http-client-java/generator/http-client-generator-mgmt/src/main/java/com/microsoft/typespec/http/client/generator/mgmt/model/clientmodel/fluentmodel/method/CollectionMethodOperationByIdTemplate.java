@@ -79,6 +79,14 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
             .map(p -> FluentUtils.getLocalMethodArgument(p, parametersSet, localVariables, model, collectionMethod))
             .collect(Collectors.joining(", "));
         String methodInvocation = String.format("%1$s(%2$s)", collectionMethod.getMethodName(), argumentsLine);
+        Set<String> pathParameterNames
+            = pathParameters.stream().map(p -> p.getClientMethodParameter().getName()).collect(Collectors.toSet());
+        String contextArguments = methodParameters.stream()
+            .filter(p -> !pathParameterNames.contains(p.getName()))
+            .map(p -> FluentUtils.getLocalMethodArgument(p, parametersSet, localVariables, model, collectionMethod))
+            .collect(Collectors.joining(", "));
+        String byIdInvocation = name + Utils.METHOD_POSTFIX_WITH_RESPONSE + "(id"
+            + (contextArguments.isEmpty() ? "" : ", " + contextArguments) + ")";
 
         Map<String, String> urlSegmentNameByParameterName = urlPathSegments.getReverseParameterSegments()
             .stream()
@@ -105,6 +113,20 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                 dummyClientMethodForJavadoc.getProxyMethod(), true))
             .methodSignature(this.getMethodSignature(returnType, parameters))
             .method(block -> {
+                if (!includeContextParameter) {
+                    for (LocalVariable var : localVariables.getLocalVariablesMap().values()) {
+                        if (var.getParameterLocation() == RequestParameterLocation.QUERY) {
+                            block.line(String.format("%1$s %2$s = %3$s;", var.getVariableType().toString(),
+                                var.getName(), var.getInitializeExpression()));
+                        }
+                    }
+                    if (returnType == PrimitiveType.VOID) {
+                        block.line("this." + byIdInvocation + ";");
+                    } else {
+                        block.methodReturn("this." + byIdInvocation + afterInvocationCode);
+                    }
+                    return;
+                }
                 // init path parameters from resource id
                 pathParameters.forEach(p -> {
                     String urlSegmentName = urlSegmentNameByParameterName.get(p.getSerializedName());
@@ -134,16 +156,6 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                             var.getName(), var.getVariableType().toString(), varName));
                     }
                 });
-
-                if (!includeContextParameter) {
-                    // init local variables to default value
-                    for (LocalVariable var : localVariables.getLocalVariablesMap().values()) {
-                        if (var.getParameterLocation() == RequestParameterLocation.QUERY) {
-                            block.line(String.format("%1$s %2$s = %3$s;", var.getVariableType().toString(),
-                                var.getName(), var.getInitializeExpression()));
-                        }
-                    }
-                }
 
                 if (returnType == PrimitiveType.VOID) {
                     block.line(String.format("this.%1$s%2$s;", methodInvocation, afterInvocationCode));

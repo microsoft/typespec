@@ -779,6 +779,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     @Override
     public void write(ClientMethod clientMethod, JavaType typeBlock) {
+        write(clientMethod, typeBlock, false);
+    }
+
+    public void writeWithInheritedDocumentation(ClientMethod clientMethod, JavaType typeBlock) {
+        write(clientMethod, typeBlock, true);
+    }
+
+    private void write(ClientMethod clientMethod, JavaType typeBlock, boolean inheritsDocumentation) {
         final boolean writingInterface = typeBlock instanceof JavaInterface;
         if (clientMethod.getMethodVisibility() != JavaVisibility.Public && writingInterface) {
             return;
@@ -787,7 +795,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         JavaSettings settings = JavaSettings.getInstance();
 
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
-        generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
+        if (inheritsDocumentation && !writingInterface && clientMethod.getMethodVisibility() == JavaVisibility.Public) {
+            typeBlock.annotation("Override");
+        } else {
+            generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
+        }
         ExperimentalAnnotationUtil.write(typeBlock, clientMethod.getApiMetadata());
 
         if (generateContextOverload(clientMethod, typeBlock, settings)) {

@@ -27,10 +27,13 @@ import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentClientMethodTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
@@ -59,6 +62,39 @@ public class FluentClientMethodContextTests {
         new TestUtils.MockFluentGen();
         JavaSettings.clear();
         Mappers.setFactory(new FluentMapperFactory());
+        Templates.setFactory(new FluentTemplateFactory());
+    }
+
+    @Test
+    public void inheritsDocumentationOnlyForMethodsImplementingTheInterface() {
+        useSettings(true);
+        Templates.setFactory(new FluentTemplateFactory());
+        List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation(false, false));
+        ClientMethod publicMethod = find(methods, ClientMethodType.LongRunningSync, true, false);
+        ClientMethod privateMethod
+            = publicMethod.newBuilder().name("helperCreate").methodVisibility(JavaVisibility.Private).build();
+        for (boolean implementsInterface : List.of(false, true)) {
+            MethodGroupClient client = new MethodGroupClient.Builder().packageName("com.azure.resourcemanager.mock")
+                .className("WidgetsClientImpl")
+                .interfaceName("WidgetsClient")
+                .implementedInterfaces(implementsInterface ? List.of("WidgetsClient") : List.of())
+                .supportedInterfaces(List.of())
+                .serviceClientName("MockClient")
+                .clientMethods(List.of(publicMethod, privateMethod))
+                .build();
+            JavaFile file = new JavaFile("WidgetsClientImpl.java");
+            Templates.getMethodGroupTemplate().write(client, file);
+            String source = file.getContents().toString();
+            if (implementsInterface) {
+                Assertions.assertTrue(source.contains("@Override"), source);
+                Assertions.assertEquals(1, source.split("@Override", -1).length - 1, source);
+                Assertions.assertEquals(1, source.split("The create operation.", -1).length - 1, source);
+            } else {
+                Assertions.assertFalse(source.contains("@Override"), source);
+                Assertions.assertEquals(2, source.split("The create operation.", -1).length - 1, source);
+            }
+            Assertions.assertTrue(source.contains("private " + privateMethod.getDeclaration()), source);
+        }
     }
 
     @Test
