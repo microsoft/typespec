@@ -1195,17 +1195,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.Add(clientOptionsParameter.Assign(clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate());
             body.Add(MethodBodyStatement.EmptyLine);
             body.Add(endpointAssignment.Terminate());
-            var configuredModelReaderWriterOptions = clientOptionsParameter
-                .Property("ModelReaderWriterOptions")
-                .As<ModelReaderWriterOptions>();
-            body.Add(ModelReaderWriterOptionsField.Assign(
-                new TernaryConditionalExpression(
-                    configuredModelReaderWriterOptions.Equal(Null),
-                    ModelSerializationExtensionsSnippets.Wire,
-                    New.Instance(
-                        typeof(ModelReaderWriterOptions),
-                        ModelReaderWriterOptionsSnippets.WireFormat,
-                        configuredModelReaderWriterOptions))).Terminate());
+            body.Add(BuildModelReaderWriterOptionsAssignment(clientOptionsParameter));
 
             // add other parameter assignments to their corresponding fields
             foreach (var p in primaryConstructorParameters)
@@ -1270,6 +1260,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. body];
+        }
+
+        // Snapshots ClientPipelineOptions.ModelProxies into the client's wire options. Clients without proxies
+        // share the static wire options instance, which must never receive proxies because it is process-wide.
+        private MethodBodyStatement BuildModelReaderWriterOptionsAssignment(ParameterProvider clientOptionsParameter)
+        {
+            var modelProxies = clientOptionsParameter.Property("ModelProxies");
+            var proxyEnumerable = modelProxies.As(new CSharpType(typeof(IEnumerable<>), typeof(object)));
+            var clientModelReaderWriterOptions = ModelReaderWriterOptionsField.As<ModelReaderWriterOptions>();
+
+            return new IfElseStatement(
+                modelProxies.Property("Count").Equal(Int(0)),
+                ModelReaderWriterOptionsField.Assign(ModelSerializationExtensionsSnippets.Wire).Terminate(),
+                new MethodBodyStatement[]
+                {
+                    ModelReaderWriterOptionsField.Assign(
+                        New.Instance(typeof(ModelReaderWriterOptions), ModelReaderWriterOptionsSnippets.WireFormat)).Terminate(),
+                    new ForEachStatement("proxy", proxyEnumerable, out var proxy)
+                    {
+                        clientModelReaderWriterOptions.Property("Proxies").Invoke("Add", proxy).Terminate()
+                    }
+                });
         }
 
         /// <summary>

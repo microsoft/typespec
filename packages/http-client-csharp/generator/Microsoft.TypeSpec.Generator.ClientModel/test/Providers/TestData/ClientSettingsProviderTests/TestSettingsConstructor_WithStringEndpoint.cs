@@ -26,7 +26,18 @@ namespace Sample
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = new global::System.Uri($"https://{endpoint}");
-            _modelReaderWriterOptions = (options.ModelReaderWriterOptions == null) ? global::Sample.ModelSerializationExtensions.WireOptions : new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
+            if ((options.ModelProxies.Count == 0))
+            {
+                _modelReaderWriterOptions = global::Sample.ModelSerializationExtensions.WireOptions;
+            }
+            else
+            {
+                _modelReaderWriterOptions = new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W");
+                foreach (var proxy in options.ModelProxies)
+                {
+                    _modelReaderWriterOptions.Proxies.Add(proxy);
+                }
+            }
             if ((authenticationPolicy != null))
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());

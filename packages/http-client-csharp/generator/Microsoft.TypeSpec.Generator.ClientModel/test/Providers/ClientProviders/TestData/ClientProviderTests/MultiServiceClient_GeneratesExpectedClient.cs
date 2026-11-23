@@ -36,7 +36,18 @@ namespace Sample
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
-            _modelReaderWriterOptions = (options.ModelReaderWriterOptions == null) ? global::Sample.ModelSerializationExtensions.WireOptions : new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
+            if ((options.ModelProxies.Count == 0))
+            {
+                _modelReaderWriterOptions = global::Sample.ModelSerializationExtensions.WireOptions;
+            }
+            else
+            {
+                _modelReaderWriterOptions = new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W");
+                foreach (var proxy in options.ModelProxies)
+                {
+                    _modelReaderWriterOptions.Proxies.Add(proxy);
+                }
+            }
             _subscriptionId = subscriptionId;
             if ((authenticationPolicy != null))
             {

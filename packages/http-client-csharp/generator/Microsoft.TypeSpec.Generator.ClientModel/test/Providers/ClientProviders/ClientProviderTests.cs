@@ -763,9 +763,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 c.Signature.Modifiers == MethodSignatureModifiers.Internal &&
                 c.Signature.Parameters.Any(p => p.Name == "options"));
             var body = implementationConstructor.BodyStatements!.ToDisplayString();
-            Assert.That(body, Does.Contain("options.ModelReaderWriterOptions"));
-            Assert.That(body, Does.Contain("ModelSerializationExtensions.WireOptions"));
-            Assert.That(body, Does.Contain("new global::System.ClientModel.Primitives.ModelReaderWriterOptions(\"W\", options.ModelReaderWriterOptions)"));
+            Assert.That(body, Does.Contain("if ((options.ModelProxies.Count == 0))"));
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions = global::Sample.ModelSerializationExtensions.WireOptions;"));
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions = new global::System.ClientModel.Primitives.ModelReaderWriterOptions(\"W\");"));
+            Assert.That(body, Does.Contain("foreach (var proxy in options.ModelProxies)"));
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions.Proxies.Add(proxy);"));
+            Assert.That(body, Does.Not.Contain("options.ModelReaderWriterOptions"));
+            Assert.That(body, Does.Not.Contain("ModelSerializationExtensions.WireOptions.Proxies"));
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
