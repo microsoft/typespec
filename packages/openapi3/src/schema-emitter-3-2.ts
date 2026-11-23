@@ -1,6 +1,6 @@
 import type { AssetEmitter, ObjectBuilder, TypeEmitter } from "@typespec/asset-emitter";
-import { ArrayBuilder, createAssetEmitter, Placeholder } from "@typespec/asset-emitter";
-import type { DiscriminatedUnion, Type } from "@typespec/compiler";
+import { ArrayBuilder, createAssetEmitter } from "@typespec/asset-emitter";
+import type { DiscriminatedUnion } from "@typespec/compiler";
 import { compilerAssert } from "@typespec/compiler";
 import type { MetadataInfo } from "@typespec/http";
 import type { JsonSchemaModule } from "./json-schema.js";
@@ -87,21 +87,5 @@ export class OpenAPI32SchemaEmitter extends OpenAPI31SchemaEmitter {
     }
 
     return this.applyConstraints(union.type, schema);
-  }
-
-  getDiscriminatorMapping(variants: Map<string, Type>) {
-    const mapping: Record<string, string> | undefined = {};
-    for (const [key, model] of variants.entries()) {
-      const ref = this.emitter.emitTypeReference(model);
-      compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
-      if (ref.value instanceof Placeholder) {
-        ref.value.onValue((resolvedValue: any) => {
-          mapping[key] = (resolvedValue as any).$ref;
-        });
-      } else {
-        mapping[key] = (ref.value as any).$ref;
-      }
-    }
-    return mapping;
   }
 }

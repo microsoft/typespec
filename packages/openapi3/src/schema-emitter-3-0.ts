@@ -200,7 +200,9 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
         ? this.applyConstraints(union, {})
         : {};
 
-      if (mergeUnionWideConstraints && nullable) {
+      // OpenAPI 3.0 ignores `nullable` unless `type` is set on the same schema, so it
+      // goes on each variant instead of on the `anyOf`/`oneOf` wrapper.
+      if (nullable) {
         additionalProps.nullable = true;
       }
 
@@ -273,10 +275,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
         wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
       ),
     };
-
-    if (!isMerge && nullable) {
-      schema.nullable = true;
-    }
 
     return this.applyConstraints(union, schema);
   }

@@ -269,9 +269,8 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         final String accept = "application/json";
         Response<BinaryData> res = service.listSync(this.client.getEndpoint(), accept, Context.NONE);
-        ListResult lroPageableResult
-            = this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, Context.NONE)
-                .getFinalResult();
+        ListResult lroPageableResult = this.client.getLroFinalResultOrError(
+            this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, Context.NONE));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.items(), lroPageableResult.nextLink(), null);
     }
@@ -294,9 +293,8 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         final String accept = "application/json";
         Response<BinaryData> res = service.listSync(this.client.getEndpoint(), accept, context);
-        ListResult lroPageableResult
-            = this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, context)
-                .getFinalResult();
+        ListResult lroPageableResult = this.client.getLroFinalResultOrError(
+            this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, context));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.items(), lroPageableResult.nextLink(), null);
     }

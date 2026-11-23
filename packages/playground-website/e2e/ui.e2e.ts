@@ -88,6 +88,24 @@ test.describe("playground UI tests", () => {
     await expect(page.locator(".squiggly-error")).toBeVisible();
   });
 
+  test("keeps previous output without errors when compilation fails", async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    // Pass code "op sharedCode(): string;"
+    // cspell:disable-next-line
+    await page.goto(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`);
+    await expect(page.getByText(`operationId: sharedCode`)).toBeVisible();
+
+    const typespecEditor = page.locator(".monaco-editor").first();
+    await typespecEditor.click();
+    await page.keyboard.press(`${ctrlOrCmd}+KeyA`);
+    await page.keyboard.type("model {");
+    await expect(page.locator(".squiggly-error")).toBeVisible();
+
+    await expect(page.getByText(`operationId: sharedCode`)).toBeVisible();
+    expect(pageErrors).toEqual([]);
+  });
+
   test("shared link works", async ({ page }) => {
     // Pass code "op sharedCode(): string;"
     // cspell:disable-next-line

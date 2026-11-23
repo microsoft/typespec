@@ -330,7 +330,7 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public StorageAccountInner createOrUpdate(String resourceGroupName, String accountName,
         StorageAccountInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, accountName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, accountName, resource));
     }
 
     /**
@@ -348,6 +348,7 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public StorageAccountInner createOrUpdate(String resourceGroupName, String accountName,
         StorageAccountInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, accountName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, accountName, resource, context));
     }
 }

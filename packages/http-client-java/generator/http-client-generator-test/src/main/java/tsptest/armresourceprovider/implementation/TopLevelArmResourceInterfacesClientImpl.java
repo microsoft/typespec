@@ -498,7 +498,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource));
     }
 
     /**
@@ -516,7 +517,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource, context));
     }
 
     /**
@@ -734,7 +736,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName) {
-        beginDelete(resourceGroupName, topLevelArmResourceName).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelArmResourceName));
     }
 
     /**
@@ -749,7 +751,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, Context context) {
-        beginDelete(resourceGroupName, topLevelArmResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelArmResourceName, context));
     }
 
     /**
@@ -1089,7 +1091,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResultInner action(String resourceGroupName, String topLevelArmResourceName) {
-        return beginAction(resourceGroupName, topLevelArmResourceName).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginAction(resourceGroupName, topLevelArmResourceName));
     }
 
     /**
@@ -1105,7 +1107,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResultInner action(String resourceGroupName, String topLevelArmResourceName, Context context) {
-        return beginAction(resourceGroupName, topLevelArmResourceName, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginAction(resourceGroupName, topLevelArmResourceName, context));
     }
 
     /**
