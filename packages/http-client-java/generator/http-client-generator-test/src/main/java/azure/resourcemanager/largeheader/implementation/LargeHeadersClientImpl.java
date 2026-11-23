@@ -221,7 +221,7 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CancelResultInner two6k(String resourceGroupName, String largeHeaderName) {
-        return beginTwo6k(resourceGroupName, largeHeaderName).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginTwo6k(resourceGroupName, largeHeaderName));
     }
 
     /**
@@ -237,6 +237,6 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CancelResultInner two6k(String resourceGroupName, String largeHeaderName, Context context) {
-        return beginTwo6k(resourceGroupName, largeHeaderName, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginTwo6k(resourceGroupName, largeHeaderName, context));
     }
 }

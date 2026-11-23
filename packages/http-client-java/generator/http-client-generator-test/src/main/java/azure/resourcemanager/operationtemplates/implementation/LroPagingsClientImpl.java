@@ -202,10 +202,9 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
         final String accept = "application/json";
         Response<BinaryData> res = service.postPagingLroSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, productName, accept, Context.NONE);
-        ProductListResult lroPageableResult = this.client
-            .<ProductListResult, ProductListResult>getLroResult(res, ProductListResult.class, ProductListResult.class,
-                Context.NONE)
-            .getFinalResult();
+        ProductListResult lroPageableResult
+            = this.client.getLroFinalResultOrError(this.client.<ProductListResult, ProductListResult>getLroResult(res,
+                ProductListResult.class, ProductListResult.class, Context.NONE));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.value(), lroPageableResult.nextLink(), null);
     }
@@ -227,10 +226,9 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
         final String accept = "application/json";
         Response<BinaryData> res = service.postPagingLroSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, productName, accept, context);
-        ProductListResult lroPageableResult = this.client
-            .<ProductListResult, ProductListResult>getLroResult(res, ProductListResult.class, ProductListResult.class,
-                context)
-            .getFinalResult();
+        ProductListResult lroPageableResult
+            = this.client.getLroFinalResultOrError(this.client.<ProductListResult, ProductListResult>getLroResult(res,
+                ProductListResult.class, ProductListResult.class, context));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.value(), lroPageableResult.nextLink(), null);
     }
@@ -339,10 +337,9 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
         Response<BinaryData> res
             = service.postPagingLroWithBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, productName, accept, body, Context.NONE);
-        ProductListResult lroPageableResult = this.client
-            .<ProductListResult, ProductListResult>getLroResult(res, ProductListResult.class, ProductListResult.class,
-                Context.NONE)
-            .getFinalResult();
+        ProductListResult lroPageableResult
+            = this.client.getLroFinalResultOrError(this.client.<ProductListResult, ProductListResult>getLroResult(res,
+                ProductListResult.class, ProductListResult.class, Context.NONE));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.value(), lroPageableResult.nextLink(), null);
     }
@@ -366,10 +363,9 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
         Response<BinaryData> res
             = service.postPagingLroWithBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, productName, accept, body, context);
-        ProductListResult lroPageableResult = this.client
-            .<ProductListResult, ProductListResult>getLroResult(res, ProductListResult.class, ProductListResult.class,
-                context)
-            .getFinalResult();
+        ProductListResult lroPageableResult
+            = this.client.getLroFinalResultOrError(this.client.<ProductListResult, ProductListResult>getLroResult(res,
+                ProductListResult.class, ProductListResult.class, context));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.value(), lroPageableResult.nextLink(), null);
     }

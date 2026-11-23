@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceClientTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
@@ -87,13 +88,8 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                 .build();
 
             MethodTemplate getLroFinalResultOrErrorMethod = MethodTemplate.builder()
-                .imports(List.of(ClassType.POLLER_FLUX.getFullName(), ClassType.POLL_RESULT.getFullName(),
-                    ClassType.MONO.getFullName(), ClassType.ASYNC_POLL_RESPONSE.getFullName(),
-                    FluentType.MANAGEMENT_ERROR.getFullName(), FluentType.MANAGEMENT_EXCEPTION.getFullName(),
-                    ClassType.HTTP_RESPONSE.getFullName(), ClassType.LONG_RUNNING_OPERATION_STATUS.getFullName(),
-                    ClassType.SERIALIZER_ENCODING.getFullName(), IOException.class.getName(),
-                    // below import is actually used in HttpResponseImpl
-                    ClassType.HTTP_HEADERS.getFullName(), Charset.class.getName(), StandardCharsets.class.getName()))
+                .imports(List.of(ClassType.POLL_RESULT.getFullName(), ClassType.MONO.getFullName(),
+                    ClassType.ASYNC_POLL_RESPONSE.getFullName(), FluentType.MANAGEMENT_EXCEPTION.getFullName()))
                 .methodSignature(
                     "<T, U> Mono<U> getLroFinalResultOrError(AsyncPollResponse<PollResult<T>, U> response)")
                 .comment(comment -> {
@@ -106,13 +102,48 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                 .method(method -> method.text(FluentUtils.loadTextFromResource("Client_getLroFinalResultOrError.txt")))
                 .build();
 
+            MethodTemplate getLroFinalResultOrErrorSyncMethod = MethodTemplate.builder()
+                .imports(List.of(ClassType.SYNC_POLLER.getFullName(), ClassType.POLL_RESULT.getFullName(),
+                    "com.azure.core.util.polling.PollResponse", FluentType.MANAGEMENT_EXCEPTION.getFullName()))
+                .methodSignature("<T, U> U getLroFinalResultOrError(SyncPoller<PollResult<T>, U> poller)")
+                .comment(comment -> {
+                    comment.description("Waits for completion and gets the final result, or throws an error.");
+                    comment.param("poller", "the synchronous poller.");
+                    comment.param("<T>", "type of poll result.");
+                    comment.param("<U>", "type of final result.");
+                    comment.methodReturns("the final result.");
+                    comment.methodThrows("ManagementException", "if the long running operation fails.");
+                })
+                .method(method -> {
+                    method.line("PollResponse<PollResult<T>> response = poller.waitForCompletion();");
+                    method.line(
+                        "ManagementException exception = getLroException(response.getStatus(), response.getValue());");
+                    method.ifBlock("exception != null", block -> block.line("throw exception;"));
+                    method.methodReturn("poller.getFinalResult()");
+                })
+                .build();
+
+            MethodTemplate getLroExceptionMethod = MethodTemplate.builder()
+                .imports(List.of(ClassType.POLL_RESULT.getFullName(), FluentType.MANAGEMENT_ERROR.getFullName(),
+                    FluentType.MANAGEMENT_EXCEPTION.getFullName(), ClassType.HTTP_RESPONSE.getFullName(),
+                    ClassType.LONG_RUNNING_OPERATION_STATUS.getFullName(), ClassType.SERIALIZER_ENCODING.getFullName(),
+                    IOException.class.getName(), ClassType.HTTP_HEADERS.getFullName(), Charset.class.getName(),
+                    StandardCharsets.class.getName()))
+                .visibility(JavaVisibility.Private)
+                .methodSignature(
+                    "ManagementException getLroException(LongRunningOperationStatus status, PollResult<?> result)")
+                .method(method -> method.text(FluentUtils.loadTextFromResource("Client_getLroException.txt")))
+                .build();
+
             INSTANCE.additionalMethods.add(getContextMethod);
             INSTANCE.additionalMethods.add(mergeContextMethod);
             INSTANCE.additionalMethods.add(getLroResultMethod);
             if (JavaSettings.getInstance().isSyncStackEnabled()) {
                 INSTANCE.additionalMethods.add(getLroResultSyncMethod);
+                INSTANCE.additionalMethods.add(getLroFinalResultOrErrorSyncMethod);
             }
             INSTANCE.additionalMethods.add(getLroFinalResultOrErrorMethod);
+            INSTANCE.additionalMethods.add(getLroExceptionMethod);
         }
     }
 

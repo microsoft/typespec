@@ -1206,6 +1206,29 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     });
   });
 
+  it("reuses the schema for an unreachable inherited discriminator variant", async () => {
+    const res = await openApiFor(`
+      @get op ping(): string;
+
+      @discriminator("kind")
+      model Event {
+        kind: string;
+      }
+
+      model Started extends Event {
+        kind: "started";
+        @visibility(Lifecycle.Create) input: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Event", "Started"]);
+    deepStrictEqual(res.components.schemas.Event.discriminator, {
+      propertyName: "kind",
+      mapping: { started: "#/components/schemas/Started" },
+    });
+    deepStrictEqual(res.components.schemas.Started.properties.input, { type: "string" });
+  });
+
   it("base models used in different visibility gets distinct names", async () => {
     const res = await openApiFor(`
       model Widget {

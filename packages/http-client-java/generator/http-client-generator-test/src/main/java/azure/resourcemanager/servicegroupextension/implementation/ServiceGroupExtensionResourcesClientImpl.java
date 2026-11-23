@@ -413,7 +413,8 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ServiceGroupExtensionResourceInner createOrUpdate(String serviceGroupId,
         String serviceGroupExtensionResourceName, ServiceGroupExtensionResourceInner resource) {
-        return beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource));
     }
 
     /**
@@ -431,8 +432,8 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ServiceGroupExtensionResourceInner createOrUpdate(String serviceGroupId,
         String serviceGroupExtensionResourceName, ServiceGroupExtensionResourceInner resource, Context context) {
-        return beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, context));
     }
 
     /**

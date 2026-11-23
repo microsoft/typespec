@@ -462,8 +462,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource));
     }
 
     /**
@@ -482,8 +482,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource, context));
     }
 
     /**
@@ -717,7 +717,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
-        beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName).getFinalResult();
+        this.client
+            .getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName));
     }
 
     /**
@@ -734,7 +735,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         Context context) {
-        beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName, context));
     }
 
     /**
@@ -1007,7 +1009,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
-        beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName));
     }
 
     /**
@@ -1024,7 +1027,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         Context context) {
-        beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, context));
     }
 
     /**
