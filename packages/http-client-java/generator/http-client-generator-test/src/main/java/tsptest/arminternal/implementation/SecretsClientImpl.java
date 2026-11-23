@@ -404,7 +404,7 @@ public final class SecretsClientImpl implements SecretsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Secret createOrUpdate(String resourceGroupName, String secretName, Secret resource) {
-        return beginCreateOrUpdate(resourceGroupName, secretName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, secretName, resource));
     }
 
     /**
@@ -421,7 +421,8 @@ public final class SecretsClientImpl implements SecretsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Secret createOrUpdate(String resourceGroupName, String secretName, Secret resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, secretName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, secretName, resource, context));
     }
 
     /**

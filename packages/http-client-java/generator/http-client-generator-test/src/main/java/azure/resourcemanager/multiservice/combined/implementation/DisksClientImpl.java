@@ -323,7 +323,7 @@ public final class DisksClientImpl implements DisksClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DiskInner createOrUpdate(String resourceGroupName, String diskName, DiskInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, diskName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, diskName, resource));
     }
 
     /**
@@ -340,6 +340,7 @@ public final class DisksClientImpl implements DisksClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DiskInner createOrUpdate(String resourceGroupName, String diskName, DiskInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, diskName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, diskName, resource, context));
     }
 }
