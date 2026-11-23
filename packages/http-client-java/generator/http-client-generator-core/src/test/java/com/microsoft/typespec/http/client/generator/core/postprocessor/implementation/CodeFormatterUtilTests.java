@@ -212,6 +212,11 @@ public class CodeFormatterUtilTests {
                     "/** {@link List} */", "", "class Example {", "    /** {@link Set} */", "", "    @Deprecated",
                     "    void call() {}", "}"),
                 List.of("import java.util.List;", "import java.util.Set;")),
+            Arguments.of("Javadoc separated from a declaration by an ordinary comment retains imports",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;", "class Example {",
+                    "    /** {@link List} */", "    // Method documentation continues below.", "    void call() {}",
+                    "}"),
+                List.of("import java.util.List;")),
             Arguments.of("nested Javadoc links retain imports except inside code and literal tags",
                 String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
                     "import java.time.Instant;", "import java.util.Map;", "/**",
@@ -340,6 +345,28 @@ public class CodeFormatterUtilTests {
         assertTrue(exception.getMessage().contains("First.java"));
         assertTrue(exception.getMessage().contains("Second.java"));
         assertFalse(exception.getMessage().contains("Valid.java"));
+    }
+
+    @Test
+    public void syntaxDiagnosticsIncludeContextWithoutAnUnverifiedCaret() {
+        String source = "class Example { void broken(;) {} }\n";
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> CodeFormatterUtil.formatCode(Map.of("Example.java", source)));
+
+        assertTrue(exception.getMessage().contains("1: " + source.trim()));
+        assertFalse(exception.getMessage().contains("^"));
+    }
+
+    @Test
+    public void lexicalDiagnosticsIncludeSourceContextWithoutAnUnverifiedCaret() {
+        String source = "class Example {\n    String value = \"unterminated;\n}\n";
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> CodeFormatterUtil.formatCode(Map.of("Example.java", source)));
+
+        assertTrue(exception.getMessage().contains("2:     String value = \"unterminated;"));
+        assertFalse(exception.getMessage().contains("^"));
     }
 
     @Test

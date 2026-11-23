@@ -45,6 +45,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
@@ -61,6 +63,8 @@ import org.slf4j.Logger;
  */
 public final class CodeFormatterUtil {
     private static final ImportUsageVisitor IMPORT_USAGE_VISITOR = new ImportUsageVisitor();
+    private static final Pattern DIAGNOSTIC_POSITION
+        = Pattern.compile("\\bline\\s+(\\d+)\\s*,\\s*col(?:umn)?\\s+\\d+\\b", Pattern.CASE_INSENSITIVE);
 
     /**
      * Formats the given files by removing unused imports and applying Eclipse code formatting.
@@ -127,20 +131,29 @@ public final class CodeFormatterUtil {
                 CompilationUnit compilationUnit = parsed.getResult().orElseThrow();
                 Set<String> usedNames = new HashSet<>();
                 compilationUnit.accept(IMPORT_USAGE_VISITOR, usedNames);
-                parsed.getCommentsCollection().ifPresent(comments -> {
-                    for (Comment comment : comments.getComments()) {
-                        // Without attribution information, retain Javadoc-only imports conservatively.
-                        if (comment instanceof JavadocComment
-                            && (comment.getCommentedNode().isPresent()
-                                || !parser.getParserConfiguration().isAttributeComments()
-                                || precedesDocumentedDeclaration(comment, compilationUnit, file.getValue(),
-                                    parser.getParserConfiguration().getTabSize()))) {
-                            collectJavadocReferences(((JavadocComment) comment).parse(), parser, usedNames);
-                        }
+                String source = file.getValue();
+                List<Integer> sourceLineStarts = lineStarts(source);
+                int tabSize = parser.getParserConfiguration().getTabSize();
+                List<Comment> comments = new ArrayList<>();
+                parsed.getCommentsCollection().ifPresent(collection -> comments.addAll(collection.getComments()));
+                boolean needsDeclarationOffsets = parser.getParserConfiguration().isAttributeComments()
+                    && comments.stream()
+                        .anyMatch(comment -> comment instanceof JavadocComment && comment.getCommentedNode().isEmpty());
+                Set<Integer> declarationOffsets = needsDeclarationOffsets
+                    ? documentedDeclarationOffsets(compilationUnit, source, sourceLineStarts, tabSize)
+                    : Set.of();
+                for (Comment comment : comments) {
+                    // Without attribution information, retain Javadoc-only imports conservatively.
+                    if (comment instanceof JavadocComment
+                        && (comment.getCommentedNode().isPresent()
+                            || !parser.getParserConfiguration().isAttributeComments()
+                            || precedesDocumentedDeclaration(comment, source, sourceLineStarts, declarationOffsets,
+                                tabSize))) {
+                        collectJavadocReferences(((JavadocComment) comment).parse(), parser, usedNames);
                     }
-                });
-                String content = reorderImports(file.getValue(), compilationUnit, usedNames, orderingStrategy,
-                    parser.getParserConfiguration().getTabSize());
+                }
+                String content
+                    = reorderImports(source, compilationUnit, usedNames, orderingStrategy, tabSize, sourceLineStarts);
                 boolean moduleInfo
                     = file.getKey().endsWith("module-info.java") && compilationUnit.getModule().isPresent();
                 prepared.add(new PreparedJavaFile(file.getKey(), content, moduleInfo));
@@ -155,24 +168,47 @@ public final class CodeFormatterUtil {
         return prepared;
     }
 
-    private static boolean precedesDocumentedDeclaration(Comment comment, CompilationUnit compilationUnit,
-        String source, int tabSize) {
-        List<Integer> starts = lineStarts(source);
-        int commentEnd = sourceOffset(source, starts, comment.getEnd().orElseThrow(), tabSize) + 1;
-        int next = commentEnd;
-        while (next < source.length() && Character.isWhitespace(source.charAt(next))) {
-            next++;
-        }
+    private static Set<Integer> documentedDeclarationOffsets(CompilationUnit compilationUnit, String source,
+        List<Integer> starts, int tabSize) {
+        Set<Integer> offsets = new HashSet<>();
         for (Node node : compilationUnit.findAll(Node.class,
             candidate -> candidate instanceof NodeWithJavadoc
                 || candidate instanceof PackageDeclaration
                 || candidate instanceof ModuleDeclaration)) {
-            if (node.getBegin().isPresent()) {
-                int begin = sourceOffset(source, starts, node.getBegin().get(), tabSize);
-                if (begin == next) {
-                    return true;
-                }
+            node.getBegin().ifPresent(begin -> offsets.add(sourceOffset(source, starts, begin, tabSize)));
+        }
+        return offsets;
+    }
+
+    private static boolean precedesDocumentedDeclaration(Comment comment, String source, List<Integer> starts,
+        Set<Integer> declarationOffsets, int tabSize) {
+        int next = sourceOffset(source, starts, comment.getEnd().orElseThrow(), tabSize) + 1;
+        while (next < source.length()) {
+            while (next < source.length() && Character.isWhitespace(source.charAt(next))) {
+                next++;
             }
+            if (next >= source.length()) {
+                return false;
+            }
+            if (source.startsWith("//", next)) {
+                next += 2;
+                while (next < source.length() && source.charAt(next) != '\r' && source.charAt(next) != '\n') {
+                    next++;
+                }
+                continue;
+            }
+            if (source.startsWith("/*", next)) {
+                if (source.startsWith("/**", next)) {
+                    return false;
+                }
+                int commentEnd = source.indexOf("*/", next + 2);
+                if (commentEnd < 0) {
+                    return false;
+                }
+                next = commentEnd + 2;
+                continue;
+            }
+            return declarationOffsets.contains(next);
         }
         return false;
     }
@@ -215,10 +251,11 @@ public final class CodeFormatterUtil {
      * @param usedNames The unqualified names referenced by code or Javadoc.
      * @param orderingStrategy The import ordering strategy to use.
      * @param tabSize The parser's tab width used by source positions.
+     * @param sourceLineStarts The source line offsets, computed once for the file.
      * @return The Java file with unused imports removed and the remaining imports reordered.
      */
     private static String reorderImports(String file, CompilationUnit compilationUnit, Set<String> usedNames,
-        ImportOrderingStrategy orderingStrategy, int tabSize) {
+        ImportOrderingStrategy orderingStrategy, int tabSize, List<Integer> sourceLineStarts) {
         NodeList<ImportDeclaration> imports = compilationUnit.getImports();
         if (imports.isEmpty()) {
             return file;
@@ -246,16 +283,16 @@ public final class CodeFormatterUtil {
         if (!sorted.isEmpty()) {
             sorted = orderingStrategy.sortImports(sorted).get(0);
         }
-        List<Integer> lineStarts = lineStarts(file);
         StringBuilder updated = new StringBuilder(file);
         int nextImport = sorted.size() - 1;
         // Edit individual import ranges backwards so comments and declarations sharing a line remain intact.
         for (int i = imports.size() - 1; i >= 0; i--) {
             ImportDeclaration declaration = imports.get(i);
-            int start = sourceOffset(file, lineStarts, declaration.getBegin().orElseThrow(), tabSize);
-            int end = sourceOffset(file, lineStarts, declaration.getEnd().orElseThrow(), tabSize) + 1;
+            int start = sourceOffset(file, sourceLineStarts, declaration.getBegin().orElseThrow(), tabSize);
+            int end = sourceOffset(file, sourceLineStarts, declaration.getEnd().orElseThrow(), tabSize) + 1;
             if (i + 1 < imports.size()) {
-                int nextStart = sourceOffset(file, lineStarts, imports.get(i + 1).getBegin().orElseThrow(), tabSize);
+                int nextStart
+                    = sourceOffset(file, sourceLineStarts, imports.get(i + 1).getBegin().orElseThrow(), tabSize);
                 String gap = file.substring(end, nextStart);
                 if (gap.trim().isEmpty()) {
                     int newline = 0;
@@ -509,18 +546,16 @@ public final class CodeFormatterUtil {
             .append("', ")
             .append(diagnostic.getVerboseMessage())
             .append(":\n");
-        diagnostic.getLocation().flatMap(TokenRange::toRange).ifPresent(range -> {
-            String[] lines = content.split("\r\n|\r|\n", -1);
-            int start = Math.max(0, range.begin.line - 3);
-            int end = Math.min(lines.length - 1, range.begin.line + 2);
-            for (int i = start; i <= end; i++) {
-                String prefix = (i + 1) + ": ";
-                diagnosticMessageBuilder.append(prefix).append(lines[i]).append("\n");
-                if (i == range.begin.line - 1) {
-                    diagnosticMessageBuilder.append(" ".repeat(range.begin.column + prefix.length() - 1)).append("^\n");
-                }
-            }
-        });
+        String[] lines = content.split("\r\n|\r|\n", -1);
+        Matcher position = DIAGNOSTIC_POSITION.matcher(diagnostic.getVerboseMessage());
+        int lineNumber = position.find()
+            ? Integer.parseInt(position.group(1))
+            : diagnostic.getLocation().flatMap(TokenRange::toRange).map(range -> range.begin.line).orElse(1);
+        int start = Math.max(0, lineNumber - 3);
+        int end = Math.min(lines.length - 1, lineNumber + 2);
+        for (int i = start; i <= end; i++) {
+            diagnosticMessageBuilder.append(i + 1).append(": ").append(lines[i]).append("\n");
+        }
 
         String diagnosticMessage = diagnosticMessageBuilder.toString();
         if (logger != null) {
