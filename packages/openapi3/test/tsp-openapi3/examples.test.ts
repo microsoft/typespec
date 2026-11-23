@@ -477,6 +477,7 @@ describe("import schema examples", () => {
         examples,
       }),
     );
+    expect(code).toContain('"""');
     const output = await emitOpenAPI(code);
     expect(output.components.schemas.Pet.examples).toEqual(examples);
   });

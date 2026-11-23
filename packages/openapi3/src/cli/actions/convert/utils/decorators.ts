@@ -572,10 +572,10 @@ function getExampleValueExpression(
   }
 
   function scalarExampleFromISO(scalar: string, value: string): string {
-    return `${scalar}.fromISO(${stringLiteralForExample(value)})`;
+    return `${scalar}.fromISO(${stringLiteral(value)})`;
   }
 
-  return typeof value === "string" ? stringLiteralForExample(value) : JSON.stringify(value);
+  return typeof value === "string" ? stringLiteral(value) : JSON.stringify(value);
 }
 
 function findExamplePropertySchema(
@@ -676,22 +676,6 @@ function isExampleTypeCompatible(value: unknown, type: string | undefined): bool
     default:
       return true;
   }
-}
-
-/**
- * Renders a raw OpenAPI example string as a single-line TypeSpec literal that round-trips exactly.
- * Unlike {@link stringLiteral}, this never uses triple quotes or treats existing backslashes
- * as escapes. It escapes every backslash before escaping quotes, interpolation, CR, LF, and tabs,
- * so a raw `\t` stays a backslash and a `t` rather than becoming a tab.
- */
-function stringLiteralForExample(value: string): string {
-  return `"${value
-    .replaceAll("\\", "\\\\")
-    .replaceAll('"', '\\"')
-    .replaceAll("${", "\\${")
-    .replaceAll("\r", "\\r")
-    .replaceAll("\n", "\\n")
-    .replaceAll("\t", "\\t")}"`;
 }
 
 export function getDirectivesForSchema(
