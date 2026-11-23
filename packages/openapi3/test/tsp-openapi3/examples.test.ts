@@ -57,6 +57,104 @@ describe("import schema patterns", () => {
 });
 
 describe("import schema examples", () => {
+  it.each([
+    { type: "string", defaultValue: "ok" },
+    { type: "boolean", defaultValue: false },
+  ] as const)(
+    "keeps a $type default on the request body rather than its hoisted scalar",
+    async ({ type, defaultValue }) => {
+      const input = documentFor({});
+      input.paths = {
+        "/pets": {
+          post: {
+            operationId: "createPet",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { type, default: defaultValue, examples: [defaultValue] },
+                },
+              },
+            },
+            responses: { "204": { description: "No content" } },
+          },
+        },
+      };
+
+      const code = await convertOpenAPI3Document(input);
+      const output = await emitOpenAPI(code);
+      expect(code).toContain(`@body body: __OpenAPIExampleBody0 = ${JSON.stringify(defaultValue)}`);
+      const schema = output.paths["/pets"].post.requestBody.content["application/json"].schema;
+      expect(examplesForSchema(schema, output)).toEqual([defaultValue]);
+    },
+  );
+
+  it("round-trips examples on unconstrained components and inline bodies", async () => {
+    const examples = ["pet", { name: "Fluffy" }, null];
+    const input = documentFor({ examples });
+    input.paths = {
+      "/pets": {
+        post: {
+          operationId: "createPet",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { examples } } },
+          },
+          responses: { "204": { description: "No content" } },
+        },
+      },
+    };
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+    const schema = output.paths["/pets"].post.requestBody.content["application/json"].schema;
+    expect(examplesForSchema(schema, output)).toEqual(examples);
+  });
+
+  it("round-trips enum examples on a property nested inside an array and a union", async () => {
+    const input = documentFor({
+      type: "array",
+      items: {
+        anyOf: [
+          {
+            type: "object",
+            properties: { color: { $ref: "#/components/schemas/Color", examples: ["red"] } },
+          },
+          { type: "string" },
+        ],
+      },
+    });
+    input.components!.schemas!.Color = { type: "string", enum: ["red", "blue"] };
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    expect(output.components.schemas.Pet.items.anyOf[0].properties.color.examples).toEqual(["red"]);
+  });
+
+  it("round-trips examples that use an inherited formatted indexer", async () => {
+    const examples = [{ when: "2026-11-20" }];
+    const input = documentFor({ allOf: [{ $ref: "#/components/schemas/Base" }], examples });
+    input.components!.schemas!.Base = {
+      type: "object",
+      additionalProperties: { type: "string", format: "date" },
+    };
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+    expect(output.components.schemas.Pet.additionalProperties).toMatchObject({
+      type: "string",
+      format: "date",
+    });
+  });
+
+  it("round-trips an open object example with undeclared properties", async () => {
+    const examples = [{ name: "Fluffy" }];
+    const input = documentFor({ type: "object", examples });
+
+    const output = await emitOpenAPI(await convertOpenAPI3Document(input));
+    expect(output.components.schemas.Pet.examples).toEqual(examples);
+    expect(output.components.schemas.Pet.additionalProperties).toEqual({});
+  });
+
   it("creates example decorators in reverse order without mutating the input", () => {
     const schema: OpenAPISchema3_2 = {
       type: "object",

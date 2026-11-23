@@ -79,7 +79,11 @@ function generateScalar(scalar: TypeSpecScalar, context: Context): string {
   const type = context.generateTypeFromRefableSchema(scalar.schema, scalar.scope);
 
   if (type === "unknown") {
-    definitions.push(`scalar ${scalar.name};`);
+    definitions.push(
+      scalar.decorators.some((decorator) => decorator.name === "example")
+        ? `union ${scalar.name} { unknown }`
+        : `scalar ${scalar.name};`,
+    );
   } else {
     definitions.push(`scalar ${scalar.name} extends ${type};`);
   }

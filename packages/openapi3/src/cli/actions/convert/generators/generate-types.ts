@@ -49,7 +49,11 @@ export class SchemaToExpressionGenerator {
     return this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
-  public generateArrayType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
+  public generateArrayType(
+    schema: SupportedOpenAPISchema,
+    callingScope: string[],
+    context?: Context,
+  ): string {
     const items = schema.items;
     if (!items) {
       return "unknown[]";
@@ -60,7 +64,7 @@ export class SchemaToExpressionGenerator {
     }
 
     // Prettier will get rid of the extra parenthesis for us
-    return `(${this.getTypeFromSchema(items, callingScope)})[]`;
+    return `(${this.getTypeFromSchema(items, callingScope, false, undefined, context)})[]`;
   }
 
   public getRefName(ref: string, callingScope: string[]): string {
@@ -143,13 +147,13 @@ export class SchemaToExpressionGenerator {
     } else if (schema.enum) {
       type = getEnum(schema.enum);
     } else if (schema.anyOf?.length) {
-      type = this.getAnyOfType(schema, callingScope);
+      type = this.getUnionType(schema.anyOf, callingScope, context);
     } else if (schema.allOf?.length) {
-      type = this.getAllOfType(schema, callingScope);
+      type = this.getAllOfType(schema, callingScope, context);
     } else if (schema?.items) {
       // we should never test on type array as it's not required
       // but rather on the presence of a schema for items
-      type = this.generateArrayType(schema, callingScope);
+      type = this.generateArrayType(schema, callingScope, context);
     } else if (schema.type === "boolean") {
       type = "boolean";
     } else if ((schema as any).type === "null") {
@@ -166,7 +170,7 @@ export class SchemaToExpressionGenerator {
       // but rather on the presence of properties which indicates an object type
       type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.oneOf?.length) {
-      type = this.getOneOfType(schema, callingScope);
+      type = this.getUnionType(schema.oneOf, callingScope, context);
     } else if (schema.type === "string") {
       type = getStringType(schema);
     } else if (schema.type === "object") {
@@ -174,7 +178,7 @@ export class SchemaToExpressionGenerator {
       type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.type === "array") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
-      type = this.generateArrayType(schema, callingScope);
+      type = this.generateArrayType(schema, callingScope, context);
     }
 
     if ("nullable" in schema && schema.nullable) {
@@ -257,7 +261,7 @@ export class SchemaToExpressionGenerator {
     callingScope: string[],
     context?: Context,
   ): string | undefined {
-    if (!schema.default) {
+    if (schema.default === undefined) {
       return undefined;
     }
 
@@ -284,7 +288,11 @@ export class SchemaToExpressionGenerator {
     return JSON.stringify(schema.default);
   }
 
-  private getAllOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
+  private getAllOfType(
+    schema: SupportedOpenAPISchema,
+    callingScope: string[],
+    context?: Context,
+  ): string {
     const requiredProps: string[] = schema.required || [];
     let properties: Record<string, Refable<SupportedOpenAPISchema>> = {};
     const baseTypes: string[] = [];
@@ -304,9 +312,14 @@ export class SchemaToExpressionGenerator {
     const props: string[] = [];
     for (const name of Object.keys(properties)) {
       const isOptional = !requiredProps.includes(name) ? "?" : "";
-      props.push(
-        `${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(properties[name], callingScope)}`,
+      const type = this.generateTypeFromRefableSchema(
+        properties[name],
+        callingScope,
+        false,
+        undefined,
+        context,
       );
+      props.push(`${printIdentifier(name)}${isOptional}: ${type}`);
     }
 
     if (baseTypes.length > 0 && props.length > 0) {
@@ -375,25 +388,25 @@ export class SchemaToExpressionGenerator {
     return strippedSchema;
   }
 
-  private getAnyOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
+  private getUnionType(
+    members: Refable<SupportedOpenAPISchema>[],
+    callingScope: string[],
+    context?: Context,
+  ): string {
     const definitions: string[] = [];
 
-    for (const item of schema.anyOf ?? []) {
+    for (const item of members) {
       // Generate type without defaults for union members by recursively stripping all defaults
       const itemWithoutDefaults = this.stripDefaultsFromSchema(item);
-      definitions.push(this.generateTypeFromRefableSchema(itemWithoutDefaults, callingScope));
-    }
-
-    return definitions.join(" | ");
-  }
-
-  private getOneOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
-    const definitions: string[] = [];
-
-    for (const item of schema.oneOf ?? []) {
-      // Generate type without defaults for union members by recursively stripping all defaults
-      const itemWithoutDefaults = this.stripDefaultsFromSchema(item);
-      definitions.push(this.generateTypeFromRefableSchema(itemWithoutDefaults, callingScope));
+      definitions.push(
+        this.generateTypeFromRefableSchema(
+          itemWithoutDefaults,
+          callingScope,
+          false,
+          undefined,
+          context,
+        ),
+      );
     }
 
     return definitions.join(" | ");
@@ -488,7 +501,7 @@ export class SchemaToExpressionGenerator {
       schema.additionalProperties === true
         ? "Record<unknown>"
         : typeof schema.additionalProperties === "object"
-          ? `Record<${this.generateTypeFromRefableSchema(schema.additionalProperties, callingScope)}>`
+          ? `Record<${this.generateTypeFromRefableSchema(schema.additionalProperties, callingScope, false, undefined, context)}>`
           : "";
 
     const requiredProps = schema.required ?? [];
@@ -499,7 +512,13 @@ export class SchemaToExpressionGenerator {
         const originalPropSchema = schema.properties[name];
         const isEnumType = !!context && isReferencedEnumType(originalPropSchema, context);
         const isUnionType = !!context && isReferencedUnionType(originalPropSchema, context);
-        const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
+        const propType = this.generateTypeFromRefableSchema(
+          originalPropSchema,
+          callingScope,
+          false,
+          undefined,
+          context,
+        );
 
         const decorators = generateDecorators(
           getDecoratorsForSchema(originalPropSchema, context),

@@ -8,7 +8,12 @@ import type {
   TypeSpecUnion,
 } from "../interfaces.js";
 import type { Context } from "../utils/context.js";
-import { getDecoratorsForSchema, getDirectivesForSchema } from "../utils/decorators.js";
+import {
+  findExampleAdditionalProperties,
+  findExamplePropertySchema,
+  getDecoratorsForSchema,
+  getDirectivesForSchema,
+} from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
 /**
@@ -118,6 +123,22 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     ) {
       decorators.push({ name: "error", args: [] });
     }
+    const { additionalProperties } = effectiveSchema;
+    // JSON Schema permits extra properties by default, but TypeSpec object values require an indexer.
+    const needsOpenIndexer =
+      additionalProperties === undefined &&
+      "examples" in effectiveSchema &&
+      Array.isArray(effectiveSchema.examples) &&
+      findExampleAdditionalProperties(effectiveSchema, context) === undefined &&
+      effectiveSchema.examples.some(
+        (example) =>
+          example !== null &&
+          typeof example === "object" &&
+          !Array.isArray(example) &&
+          Object.keys(example).some(
+            (key) => !findExamplePropertySchema(effectiveSchema, key, context),
+          ),
+      );
     types.push({
       kind: "model",
       name,
@@ -130,13 +151,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
         ...allOfDetails.properties,
       ],
       additionalProperties:
-        "additionalProperties" in effectiveSchema
-          ? effectiveSchema.additionalProperties === true
-            ? {} // Use empty object to represent Record<unknown>
-            : typeof effectiveSchema.additionalProperties === "object"
-              ? effectiveSchema.additionalProperties
-              : undefined
-          : undefined,
+        additionalProperties === true || needsOpenIndexer
+          ? {}
+          : typeof additionalProperties === "object"
+            ? additionalProperties
+            : undefined,
       extends: allOfDetails.extends,
       is: isParent,
       type: "type" in effectiveSchema ? effectiveSchema.type : undefined,

@@ -71,7 +71,10 @@ function hoistInlineBodyExampleSchemas(
   const schemas = (components.schemas ??= {});
   let nextSchemaIndex = 0;
 
-  function hoistContentSchemas(content: Record<string, any> | undefined): void {
+  function hoistContentSchemas(
+    content: Record<string, any> | undefined,
+    isRequestBody = false,
+  ): void {
     for (const mediaType of Object.values(content ?? {})) {
       const schema = mediaType?.schema;
       if (
@@ -88,22 +91,28 @@ function hoistInlineBodyExampleSchemas(
         name = `__OpenAPIExampleBody${nextSchemaIndex++}`;
       } while (name in schemas);
 
-      if ("$ref" in schema) {
+      const { default: defaultValue, ...declarationSchema } = schema;
+      if ("$ref" in declarationSchema) {
         // Keep usage examples separate from examples on the referenced component.
-        const { $ref, ...siblings } = schema;
+        const { $ref, ...siblings } = declarationSchema;
         schemas[name] = { ...siblings, anyOf: [{ $ref }] };
       } else {
         // A literal cannot be the base of a scalar, but can be a named union variant.
         schemas[name] =
-          schema.const === undefined ? schema : { ...schema, anyOf: [{ const: schema.const }] };
+          declarationSchema.const === undefined
+            ? declarationSchema
+            : { ...declarationSchema, anyOf: [{ const: declarationSchema.const }] };
       }
-      mediaType.schema = { $ref: `#/components/schemas/${name}` };
+      mediaType.schema = {
+        $ref: `#/components/schemas/${name}`,
+        ...(isRequestBody && defaultValue !== undefined ? { default: defaultValue } : {}),
+      };
     }
   }
 
   function hoistRequestBody(requestBody: any): void {
     if (requestBody && typeof requestBody === "object" && !("$ref" in requestBody)) {
-      hoistContentSchemas(requestBody.content);
+      hoistContentSchemas(requestBody.content, true);
     }
   }
 

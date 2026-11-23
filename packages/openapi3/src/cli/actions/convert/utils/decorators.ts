@@ -558,12 +558,13 @@ function getExampleValueExpression(
 
   if (typeof value === "object") {
     const properties: string[] = [];
+    const additionalProperties =
+      effectiveSchema.additionalProperties ??
+      findExampleAdditionalProperties(effectiveSchema, context);
     for (const [key, propertyValue] of Object.entries(value)) {
       const propertySchema =
         findExamplePropertySchema(effectiveSchema, key, context) ??
-        (typeof effectiveSchema.additionalProperties === "object"
-          ? effectiveSchema.additionalProperties
-          : {});
+        (typeof additionalProperties === "object" ? additionalProperties : {});
       const expression = getExampleValueExpression(propertyValue, propertySchema, context);
       if (expression === undefined) return undefined;
       properties.push(`${printIdentifier(key, "disallow-reserved")}: ${expression}`);
@@ -578,7 +579,7 @@ function getExampleValueExpression(
   return typeof value === "string" ? stringLiteral(value) : JSON.stringify(value);
 }
 
-function findExamplePropertySchema(
+export function findExamplePropertySchema(
   schema: Refable<SupportedOpenAPISchema>,
   key: string,
   context?: Context,
@@ -598,6 +599,28 @@ function findExamplePropertySchema(
   for (const member of schema.allOf ?? []) {
     const property = findExamplePropertySchema(member, key, context, visited);
     if (property) return property;
+  }
+  return undefined;
+}
+
+export function findExampleAdditionalProperties(
+  schema: Refable<SupportedOpenAPISchema>,
+  context?: Context,
+  visited = new Set<string>(),
+): Refable<SupportedOpenAPISchema> | boolean | undefined {
+  if ("$ref" in schema) {
+    if (visited.has(schema.$ref)) return undefined;
+    visited.add(schema.$ref);
+    const target = context?.getSchemaByRef(schema.$ref);
+    return target && findExampleAdditionalProperties(target, context, visited);
+  }
+
+  if (schema.additionalProperties !== undefined) return schema.additionalProperties;
+  for (const member of schema.allOf ?? []) {
+    // Only referenced members contribute an indexer to the generated model.
+    if (!("$ref" in member)) continue;
+    const additionalProperties = findExampleAdditionalProperties(member, context, visited);
+    if (additionalProperties !== undefined) return additionalProperties;
   }
   return undefined;
 }
