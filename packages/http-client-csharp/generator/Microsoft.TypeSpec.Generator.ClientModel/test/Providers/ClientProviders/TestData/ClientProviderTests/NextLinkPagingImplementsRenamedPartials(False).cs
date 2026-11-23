@@ -13,32 +13,32 @@ namespace Sample
     {
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, default, options);
+            return new global::Sample.TestClientGetItemsCollectionResult(this, _modelReaderWriterOptions, maxPageSize, default, options);
         }
 
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, default, options);
+            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, _modelReaderWriterOptions, maxPageSize, default, options);
         }
 
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, default, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, _modelReaderWriterOptions, maxPageSize, default, cancellationToken.ToRequestOptions());
         }
 
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, default, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, _modelReaderWriterOptions, maxPageSize, default, cancellationToken.ToRequestOptions());
         }
 
         public partial global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, string resumeToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, resumeToken, options);
+            return new global::Sample.TestClientGetItemsCollectionResult(this, _modelReaderWriterOptions, maxPageSize, resumeToken, options);
         }
 
         public partial global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, string resumeToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, resumeToken, options);
+            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, _modelReaderWriterOptions, maxPageSize, resumeToken, options);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Specs.Azure.ClientGenerator.Core.ResponseAsBool._HeadAsBoolean
     {
         protected HeadAsBoolean() => throw null;
 
-        internal HeadAsBoolean(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal HeadAsBoolean(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

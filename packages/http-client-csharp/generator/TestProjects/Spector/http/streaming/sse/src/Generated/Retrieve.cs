@@ -15,7 +15,7 @@ namespace Streaming.Sse._Retrieve
     {
         protected Retrieve() => throw null;
 
-        internal Retrieve(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Retrieve(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

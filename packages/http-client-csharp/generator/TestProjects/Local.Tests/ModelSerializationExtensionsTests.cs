@@ -102,8 +102,8 @@ namespace TestProjects.Local.Tests
             bool isAsync)
         {
             using var content = isDictionary
-                ? BinaryContentHelper.FromDictionary(new Dictionary<string, object> { ["numbers"] = collection })
-                : BinaryContentHelper.FromEnumerable<object>(new[] { collection });
+                ? BinaryContentHelper.FromDictionary(new Dictionary<string, object> { ["numbers"] = collection }, ModelSerializationExtensions.WireOptions)
+                : BinaryContentHelper.FromEnumerable<object>(new[] { collection }, ModelSerializationExtensions.WireOptions);
             using var stream = new MemoryStream();
             if (isAsync)
             {

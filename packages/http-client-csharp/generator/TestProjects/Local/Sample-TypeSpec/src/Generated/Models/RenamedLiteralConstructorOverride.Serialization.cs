@@ -66,6 +66,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(renamedLiteralConstructorOverride, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options to use for serialization. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RenamedLiteralConstructorOverride"/> from. </param>
         public static explicit operator RenamedLiteralConstructorOverride(ClientResult result)
         {

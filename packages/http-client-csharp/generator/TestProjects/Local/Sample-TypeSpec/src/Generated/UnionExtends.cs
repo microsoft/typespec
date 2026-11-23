@@ -19,6 +19,7 @@ namespace SampleTypeSpec
     public partial class UnionExtends
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
 
         /// <summary> Initializes a new instance of UnionExtends for mocking. </summary>
         protected UnionExtends()
@@ -27,11 +28,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of UnionExtends. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal UnionExtends(ClientPipeline pipeline, Uri endpoint)
+        internal UnionExtends(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -89,11 +92,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            UnionPet.SerializeUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            UnionPet.SerializeUnionPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = Echo(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(UnionPet.DeserializeUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(UnionPet.DeserializeUnionPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> Echo. </summary>
@@ -106,11 +109,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            UnionPet.SerializeUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            UnionPet.SerializeUnionPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(UnionPet.DeserializeUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(UnionPet.DeserializeUnionPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -232,8 +235,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = EchoContainer(container, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((UnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = EchoContainer(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<UnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoContainer. </summary>
@@ -245,8 +250,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = await EchoContainerAsync(container, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((UnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await EchoContainerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<UnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -300,8 +307,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = EchoRawContainer(container, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RawUnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = EchoRawContainer(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<RawUnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoRawContainer. </summary>
@@ -313,8 +322,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = await EchoRawContainerAsync(container, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RawUnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await EchoRawContainerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<RawUnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -369,11 +380,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            CollisionPetsUnion.SerializeCollisionPetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            CollisionPetsUnion.SerializeCollisionPetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoNestedOuter(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(CollisionPetsUnion.DeserializeCollisionPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(CollisionPetsUnion.DeserializeCollisionPetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoNestedOuter. </summary>
@@ -386,11 +397,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            CollisionPetsUnion.SerializeCollisionPetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            CollisionPetsUnion.SerializeCollisionPetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoNestedOuterAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(CollisionPetsUnion.DeserializeCollisionPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(CollisionPetsUnion.DeserializeCollisionPetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -450,11 +461,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            NestedMammal.SerializeNestedPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            NestedMammal.SerializeNestedPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoNestedInner(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(NestedMammal.DeserializeNestedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(NestedMammal.DeserializeNestedPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
@@ -469,11 +480,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            NestedMammal.SerializeNestedPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            NestedMammal.SerializeNestedPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoNestedInnerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(NestedMammal.DeserializeNestedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(NestedMammal.DeserializeNestedPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
@@ -534,11 +545,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            NestedMammal.SerializeCollisionPetsUnion2(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            NestedMammal.SerializeCollisionPetsUnion2(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoNestedSameName(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
@@ -553,11 +564,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            NestedMammal.SerializeCollisionPetsUnion2(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            NestedMammal.SerializeCollisionPetsUnion2(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoNestedSameNameAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(NestedMammal.DeserializeCollisionPetsUnion2(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 #pragma warning restore UNION001 // This generated code depends on experimental functionality.
 
@@ -613,11 +624,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            XmlUnionPet.SerializeXmlUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            XmlUnionPet.SerializeXmlUnionPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoXmlPets(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(XmlUnionPet.DeserializeXmlUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(XmlUnionPet.DeserializeXmlUnionPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoXmlPets. </summary>
@@ -630,11 +641,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            XmlUnionPet.SerializeXmlUnionPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            XmlUnionPet.SerializeXmlUnionPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoXmlPetsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(XmlUnionPet.DeserializeXmlUnionPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(XmlUnionPet.DeserializeXmlUnionPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -688,9 +699,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            using BinaryContent content = pet.ToBinaryContent("X");
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
             ClientResult result = EchoXmlBase(content, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((XmlUnionPet)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<XmlUnionPet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoXmlBase. </summary>
@@ -702,9 +714,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            using BinaryContent content = pet.ToBinaryContent("X");
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
             ClientResult result = await EchoXmlBaseAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((XmlUnionPet)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<XmlUnionPet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -966,8 +979,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = EchoDirectBase(pet, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((DirectUnionPet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = EchoDirectBase(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<DirectUnionPet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoDirectBase. </summary>
@@ -979,8 +994,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = await EchoDirectBaseAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((DirectUnionPet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await EchoDirectBaseAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<DirectUnionPet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1035,11 +1052,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DirectUnionPet.SerializeDirectPetsUnion3(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DirectUnionPet.SerializeDirectPetsUnion3(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoDirectUnion(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoDirectUnion. </summary>
@@ -1052,11 +1069,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DirectUnionPet.SerializeDirectPetsUnion3(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DirectUnionPet.SerializeDirectPetsUnion3(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoDirectUnionAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DirectUnionPet.DeserializeDirectPetsUnion3(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1110,8 +1127,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = EchoDirectContainer(container, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((DirectUnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = EchoDirectContainer(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<DirectUnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoDirectContainer. </summary>
@@ -1123,8 +1142,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = await EchoDirectContainerAsync(container, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((DirectUnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await EchoDirectContainerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<DirectUnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1178,8 +1199,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = EchoDynamicContainer(container, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((DynamicUnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = EchoDynamicContainer(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<DynamicUnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoDynamicContainer. </summary>
@@ -1191,8 +1214,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(container, nameof(container));
 
-            ClientResult result = await EchoDynamicContainerAsync(container, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((DynamicUnionPetContainer)result, result.GetRawResponse());
+            using BinaryContent content = container.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await EchoDynamicContainerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<DynamicUnionPetContainer>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1247,11 +1272,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DescendantUnionPet.SerializeDescendantPetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DescendantUnionPet.SerializeDescendantPetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoDescendantMembers(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DescendantUnionPet.DeserializeDescendantPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DescendantUnionPet.DeserializeDescendantPetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoDescendantMembers. </summary>
@@ -1264,11 +1289,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DescendantUnionPet.SerializeDescendantPetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DescendantUnionPet.SerializeDescendantPetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoDescendantMembersAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DescendantUnionPet.DeserializeDescendantPetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DescendantUnionPet.DeserializeDescendantPetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1391,11 +1416,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            SerializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            SerializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoSerializeClassName(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(SerializePetsUnion.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(SerializePetsUnion.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoSerializeClassName. </summary>
@@ -1408,11 +1433,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            SerializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            SerializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoSerializeClassNameAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(SerializePetsUnion.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(SerializePetsUnion.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1467,11 +1492,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DeserializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DeserializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoDeserializeClassName(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DeserializePetsUnion.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DeserializePetsUnion.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoDeserializeClassName. </summary>
@@ -1484,11 +1509,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DeserializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DeserializePetsUnion.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoDeserializeClassNameAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DeserializePetsUnion.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DeserializePetsUnion.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1610,8 +1635,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = EchoCustomContainer(pet, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((CustomUnionPet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = EchoCustomContainer(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<CustomUnionPet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> EchoCustomContainer. </summary>
@@ -1623,8 +1650,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = await EchoCustomContainerAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((CustomUnionPet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await EchoCustomContainerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<CustomUnionPet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1747,11 +1776,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            RebasedUnionPet.SerializeRebasedPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            RebasedUnionPet.SerializeRebasedPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoRebasedVariants(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoRebasedVariants. </summary>
@@ -1764,11 +1793,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            RebasedUnionPet.SerializeRebasedPetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            RebasedUnionPet.SerializeRebasedPetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoRebasedVariantsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(RebasedUnionPet.DeserializeRebasedPetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1823,11 +1852,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            RebasedUnionA.SerializePetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            RebasedUnionA.SerializePetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoRebasedBase(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(RebasedUnionA.DeserializePetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(RebasedUnionA.DeserializePetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoRebasedBase. </summary>
@@ -1840,11 +1869,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            RebasedUnionA.SerializePetsUnion(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            RebasedUnionA.SerializePetsUnion(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoRebasedBaseAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(RebasedUnionA.DeserializePetsUnion(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(RebasedUnionA.DeserializePetsUnion(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1899,11 +1928,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            RebasedUnionB.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            RebasedUnionB.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoRebasedDerived(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(RebasedUnionB.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(RebasedUnionB.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoRebasedDerived. </summary>
@@ -1916,11 +1945,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            RebasedUnionB.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            RebasedUnionB.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoRebasedDerivedAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(RebasedUnionB.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(RebasedUnionB.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -1975,11 +2004,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DeserializerPet.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DeserializerPet.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = EchoDescendantDeserializer(content, cancellationToken.ToRequestOptions());
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DeserializerPet.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DeserializerPet.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> EchoDescendantDeserializer. </summary>
@@ -1992,11 +2021,11 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(pet, nameof(pet));
 
             using Utf8JsonBinaryContent content = new Utf8JsonBinaryContent();
-            DeserializerPet.SerializePetsUnion1(content.JsonWriter, pet, ModelSerializationExtensions.WireOptions);
+            DeserializerPet.SerializePetsUnion1(content.JsonWriter, pet, _modelReaderWriterOptions);
             ClientResult result = await EchoDescendantDeserializerAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             BinaryData data = result.GetRawResponse().Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return ClientResult.FromValue(DeserializerPet.DeserializePetsUnion1(document.RootElement, ModelSerializationExtensions.WireOptions), result.GetRawResponse());
+            return ClientResult.FromValue(DeserializerPet.DeserializePetsUnion1(document.RootElement, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary>
@@ -2198,7 +2227,7 @@ namespace SampleTypeSpec
                 content.JsonWriter.WriteStartArray();
                 foreach (var item in pets)
                 {
-                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item, _modelReaderWriterOptions);
                 }
                 content.JsonWriter.WriteEndArray();
             }
@@ -2211,7 +2240,7 @@ namespace SampleTypeSpec
                 List<UnionPet> array = new List<UnionPet>();
                 foreach (var item in document.RootElement.EnumerateArray())
                 {
-                    array.Add(UnionPet.DeserializeUnionPetsUnion(item, ModelSerializationExtensions.WireOptions));
+                    array.Add(UnionPet.DeserializeUnionPetsUnion(item, _modelReaderWriterOptions));
                 }
                 unionValue = array;
             }
@@ -2237,7 +2266,7 @@ namespace SampleTypeSpec
                 content.JsonWriter.WriteStartArray();
                 foreach (var item in pets)
                 {
-                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item, _modelReaderWriterOptions);
                 }
                 content.JsonWriter.WriteEndArray();
             }
@@ -2250,7 +2279,7 @@ namespace SampleTypeSpec
                 List<UnionPet> array = new List<UnionPet>();
                 foreach (var item in document.RootElement.EnumerateArray())
                 {
-                    array.Add(UnionPet.DeserializeUnionPetsUnion(item, ModelSerializationExtensions.WireOptions));
+                    array.Add(UnionPet.DeserializeUnionPetsUnion(item, _modelReaderWriterOptions));
                 }
                 unionValue = array;
             }
@@ -2319,7 +2348,7 @@ namespace SampleTypeSpec
                 foreach (var item in pets)
                 {
                     content.JsonWriter.WritePropertyName(item.Key);
-                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item.Value, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item.Value, _modelReaderWriterOptions);
                 }
                 content.JsonWriter.WriteEndObject();
             }
@@ -2332,7 +2361,7 @@ namespace SampleTypeSpec
                 Dictionary<string, UnionPet> dictionary = new Dictionary<string, UnionPet>();
                 foreach (var @property in document.RootElement.EnumerateObject())
                 {
-                    dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, ModelSerializationExtensions.WireOptions));
+                    dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, _modelReaderWriterOptions));
                 }
                 unionValue = dictionary;
             }
@@ -2359,7 +2388,7 @@ namespace SampleTypeSpec
                 foreach (var item in pets)
                 {
                     content.JsonWriter.WritePropertyName(item.Key);
-                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item.Value, ModelSerializationExtensions.WireOptions);
+                    UnionPet.SerializeUnionPetsUnion(content.JsonWriter, item.Value, _modelReaderWriterOptions);
                 }
                 content.JsonWriter.WriteEndObject();
             }
@@ -2372,7 +2401,7 @@ namespace SampleTypeSpec
                 Dictionary<string, UnionPet> dictionary = new Dictionary<string, UnionPet>();
                 foreach (var @property in document.RootElement.EnumerateObject())
                 {
-                    dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, ModelSerializationExtensions.WireOptions));
+                    dictionary.Add(@property.Name, UnionPet.DeserializeUnionPetsUnion(@property.Value, _modelReaderWriterOptions));
                 }
                 unionValue = dictionary;
             }
@@ -2419,7 +2448,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<UnionCat> GetCat(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetCat(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((UnionCat)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<UnionCat>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> GetCat. </summary>
@@ -2428,7 +2458,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<UnionCat>> GetCatAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetCatAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((UnionCat)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<UnionCat>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
     }
 }

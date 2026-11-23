@@ -2399,13 +2399,13 @@ namespace SampleTypeSpec
         /// <summary> Initializes a new instance of UnionExtends. </summary>
         public virtual UnionExtends GetUnionExtendsClient()
         {
-            return Volatile.Read(ref _cachedUnionExtends) ?? Interlocked.CompareExchange(ref _cachedUnionExtends, new UnionExtends(Pipeline, _endpoint), null) ?? _cachedUnionExtends;
+            return Volatile.Read(ref _cachedUnionExtends) ?? Interlocked.CompareExchange(ref _cachedUnionExtends, new UnionExtends(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedUnionExtends;
         }
 
         /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
         public virtual ConstructorRequirements GetConstructorRequirementsClient()
         {
-            return Volatile.Read(ref _cachedConstructorRequirements) ?? Interlocked.CompareExchange(ref _cachedConstructorRequirements, new ConstructorRequirements(Pipeline, _endpoint), null) ?? _cachedConstructorRequirements;
+            return Volatile.Read(ref _cachedConstructorRequirements) ?? Interlocked.CompareExchange(ref _cachedConstructorRequirements, new ConstructorRequirements(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedConstructorRequirements;
         }
     }
 }
