@@ -36,6 +36,30 @@ Unconstrained union variants are combined into a JSON Schema `type` array. For e
 
 In mixed unions, unconstrained types are combined into one `anyOf` branch. Variants with constraints, annotations, references, or `@extension` decorators remain separate so their validation behavior and metadata are preserved. Unions marked with `@oneOf`, including inline unions on properties marked with `@oneOf`, keep their separate branches.
 
+## Configuring file names
+
+Use the `file-name` option to customize the name of each schema file. The default is `"{name}.{ext}"`, where `{name}` is the declaration name and `{ext}` is `yaml` or `json`, selected by `file-type` (defaults to `yaml`).
+
+For example, this configuration emits `Widget.schema.json` for a model named `Widget`:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    file-type: json
+    file-name: "{name}.schema.{ext}"
+```
+
+Set `file-type: yaml` to emit `Widget.schema.yaml` instead. The file name template does not change the serialization format.
+
+The template must be a file name, not a path: `/` and `\` are rejected. Use `emitter-output-dir` to configure the output directory.
+The `#` character is also rejected because it is a URI fragment delimiter and would break implicit schema ids and references.
+
+Templates that resolve to an empty name, `.` or `..` are also rejected. When emitting separate schema files, each must have a unique file name; collisions are reported as errors before any files are written. A fixed name such as `"schema.{ext}"` is valid when only one schema file is emitted.
+
+Implicit `$id` values and references between schemas use the configured file names. Explicit ids set with `@id` are preserved. When bundling, `bundleId` still determines the bundle file name; `file-name` only affects the implicit ids and references of the bundled schemas.
+
 ## Bundling behavior
 
 By default, this emitter will produce separate schema files for each JSON Schema type in your program. However, if you prefer to bundle all of your schemas into a single file, you can set the `bundleId` option to the id you want to use for your bundle. You will now get a single file containing all of your schemas.
