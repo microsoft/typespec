@@ -115,6 +115,7 @@
                   </excludes>
                 </filter>
                 <filter>
+                  <!-- cspell:words condpermadmin dtree jdom jface osgi -->
                   <!-- Eclipse JDT Core is only used for its code formatter and doesn't run inside an OSGi/Eclipse workspace.
                        Exclude its unused subsystems, along with the unused parts of the Eclipse platform, OSGi,
                        and SnakeYAML. These package trees are never loaded while generating code. minimizeJar cannot remove
