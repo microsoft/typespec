@@ -237,6 +237,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_PreservesPartialConstructorModifier()
+        {
+            var signature = new ConstructorSignature(new CSharpType(typeof(string)), null,
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Partial, []);
+            using var writer = new CodeWriter();
+            writer.WriteMethodDeclarationNoScope(signature);
+            Assert.That(writer.ToString(false), Is.EqualTo("public partial String()"));
+        }
+
+        [Test]
         public void CodeWriter_WriteMethod_GenericConstraints()
         {
             var t = typeof(IEnumerable<>).GetGenericArguments()[0];

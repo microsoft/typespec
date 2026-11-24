@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
@@ -83,9 +84,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
             (_model.BaseModelProvider != null || HasCustomBaseJsonModelWriteCoreMethod());
         private bool ShouldOverrideJsonModelWriteCore => ShouldOverrideMethods &&
-            (_model.BaseModelProvider is not SystemObjectModelProvider systemBase ||
-                ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase) ||
-                HasCustomBaseJsonModelWriteCoreMethod());
+            (GetSystemCoreMethodModifiers(JsonModelWriteCoreMethodName, null, typeof(Utf8JsonWriter), typeof(ModelReaderWriterOptions)) is { } systemModifiers
+                ? systemModifiers.HasFlag(MethodSignatureModifiers.Override)
+                : _model.BaseModelProvider is not SystemObjectModelProvider systemBase ||
+                    ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase) ||
+                    HasCustomBaseJsonModelWriteCoreMethod());
         private bool? _shouldSkipSerializationMethodOverrides;
         private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
@@ -366,19 +369,266 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
 
         /// <summary>
+        /// Selects the modifier for a core method on a mapped external CLR base. Implementing MRW
+        /// interfaces alone does not guarantee that any of the protected core methods exist.
+        /// </summary>
+        private MethodSignatureModifiers? GetSystemCoreMethodModifiers(string name, CSharpType? returnType, params Type[] parameterTypes)
+        {
+            if (_isStruct || _model.BaseModelProvider is not SystemObjectModelProvider systemBase || !systemBase.SystemType.IsFrameworkType)
+            {
+                return null;
+            }
+
+            return ResolveSystemCoreMethodModifiers(systemBase, name, returnType, parameterTypes);
+        }
+
+        private MethodSignatureModifiers ResolveSystemCoreMethodModifiers(SystemObjectModelProvider systemBase, string name, CSharpType? returnType, Type[] parameterTypes)
+        {
+            var method = FindSystemCoreMethod(systemBase, name, parameterTypes);
+            if (method is null)
+            {
+                return MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            }
+
+            var accessibility = method.IsPublic ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Protected;
+            var hasContract = name == JsonModelWriteCoreMethodName
+                ? CanUseMappedWriteContract(systemBase, method)
+                : ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase);
+            if (hasContract && !method.IsStatic && method.IsVirtual && !method.IsFinal)
+            {
+                if (IsCompatibleCoreReturnType(systemBase, method.ReturnType, returnType))
+                {
+                    return accessibility | MethodSignatureModifiers.Override;
+                }
+                ReportIncompatibleCreateCore(systemBase, name, returnType, method);
+            }
+
+            // An accessible non-overridable method with the same signature would otherwise be hidden
+            // implicitly, producing CS0114 when generated code is compiled with warnings as errors.
+            return accessibility | MethodSignatureModifiers.New | MethodSignatureModifiers.Virtual;
+        }
+
+        private void ReportIncompatibleCreateCore(SystemObjectModelProvider systemBase, string name, CSharpType? returnType, MethodInfo method)
+        {
+            if (name is not (JsonModelCreateCoreMethodName or PersistableModelCreateCoreMethodName) ||
+                (!method.IsAbstract && !method.ReturnType.IsInterface && method.DeclaringType?.IsAssignableFrom(method.ReturnType) != true))
+            {
+                return;
+            }
+            var parameters = name == JsonModelCreateCoreMethodName ? _utf8JsonReaderParameter : _dataParameter;
+            var signature = new MethodSignature(name, null, MethodSignatureModifiers.None,
+                returnType, null, [parameters, _serializationOptionsParameter]);
+            if (WillGenerateMethod(signature))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.UnsupportedSerialization,
+                    $"The mapped base '{systemBase.Type}' declares '{name}' with incompatible return type '{method.ReturnType}'. The generated '{_model.Type}' cannot override that create core with return type '{returnType}'.",
+                    _inputModel.CrossLanguageDefinitionId, EmitterDiagnosticSeverity.Error);
+            }
+        }
+
+        private static MethodInfo? FindSystemCoreMethod(SystemObjectModelProvider systemBase, string name, Type[] parameterTypes)
+        {
+            // Generated type arguments do not have a runtime Type yet. The definition still
+            // exposes slots whose signatures are independent of those arguments.
+            for (var type = GetClosedFrameworkType(systemBase.SystemType) ?? systemBase.SystemType.FrameworkType;
+                type is not null; type = type.BaseType)
+            {
+                // GetMethod can choose an unrelated generic overload on a nearer type. Inspect each
+                // declaration level and match the actual nongeneric parameter signature instead.
+                var method = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                    .FirstOrDefault(candidate => candidate.Name == name && !candidate.IsGenericMethod &&
+                        (candidate.IsPublic || candidate.IsFamily || candidate.IsFamilyOrAssembly) &&
+                        candidate.GetParameters() is { } parameters && parameters.Length == parameterTypes.Length &&
+                        parameters.Select(parameter => parameter.ParameterType).SequenceEqual(parameterTypes) &&
+                        parameters.All(parameter => !parameter.IsOut && !parameter.IsIn));
+                if (method is not null)
+                {
+                    return method;
+                }
+            }
+            return null;
+        }
+
+        private static Type? GetClosedFrameworkType(CSharpType type)
+        {
+            if (!type.IsFrameworkType)
+            {
+                return null;
+            }
+
+            var frameworkType = type.FrameworkType;
+            if (frameworkType.IsGenericTypeDefinition)
+            {
+                if (frameworkType.GetGenericArguments().Length != type.Arguments.Count)
+                {
+                    return null;
+                }
+                var arguments = new Type[type.Arguments.Count];
+                for (int i = 0; i < arguments.Length; i++)
+                {
+                    if (GetClosedFrameworkType(type.Arguments[i]) is not { } argument)
+                    {
+                        return null;
+                    }
+                    arguments[i] = argument;
+                }
+                try
+                {
+                    frameworkType = frameworkType.MakeGenericType(arguments);
+                }
+                catch (ArgumentException)
+                {
+                    return null;
+                }
+            }
+
+            if (frameworkType.ContainsGenericParameters)
+            {
+                return null;
+            }
+            // CSharpType represents nullable value types as the underlying type plus a flag.
+            return type.IsNullable && frameworkType.IsValueType && Nullable.GetUnderlyingType(frameworkType) is null
+                ? typeof(Nullable<>).MakeGenericType(frameworkType)
+                : frameworkType;
+        }
+
+        private bool CanCallBaseJsonModelWriteCore
+        {
+            get
+            {
+                var (inherited, systemBase) = FindInheritedCore(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]);
+                if (inherited is not null)
+                {
+                    var modifiers = inherited.Signature.Modifiers;
+                    return (modifiers & (MethodSignatureModifiers.Abstract | MethodSignatureModifiers.Static)) == 0 &&
+                        (inherited.Signature.ReturnType is null || inherited.Signature.ReturnType.Equals(typeof(void)));
+                }
+                return systemBase is { SystemType.IsFrameworkType: true }
+                    ? FindSystemCoreMethod(systemBase, JsonModelWriteCoreMethodName, [typeof(Utf8JsonWriter), typeof(ModelReaderWriterOptions)]) is
+                        { IsStatic: false, IsAbstract: false, IsVirtual: true, ReturnType: var returnType } method && returnType == typeof(void) &&
+                        CanUseMappedWriteContract(systemBase, method)
+                    : ShouldOverrideJsonModelWriteCore;
+            }
+        }
+
+        private bool CanUseMappedWriteContract(SystemObjectModelProvider systemBase, MethodInfo method)
+            // Reflection can confirm a CLR slot, but cannot establish serialization intent.
+            // Preserve non-MRW helpers only when the existing custom-base path recognizes them.
+            => ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase) ||
+                method.IsFamily && method.IsVirtual && !method.IsFinal && HasCustomBaseJsonModelWriteCoreMethod();
+
+        private MethodSignatureModifiers? GetGeneratedBaseCoreMethodModifiers(string name)
+        {
+            if (_isStruct || _model.BaseModelProvider is null or SystemObjectModelProvider)
+            {
+                return null;
+            }
+
+            // A generated parent may itself override a public system member. Its descendants must
+            // retain that accessibility instead of narrowing the next override to protected.
+            var parameters = name switch
+            {
+                JsonModelWriteCoreMethodName => new[] { _utf8JsonWriterParameter, _serializationOptionsParameter },
+                JsonModelCreateCoreMethodName => [_utf8JsonReaderParameter, _serializationOptionsParameter],
+                PersistableModelCreateCoreMethodName => [_dataParameter, _serializationOptionsParameter],
+                _ => [_serializationOptionsParameter],
+            };
+            var (inherited, systemBase) = FindInheritedCore(name, parameters);
+            if (inherited is not null)
+            {
+                var modifiers = inherited.Signature.Modifiers;
+                var accessibility = modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected |
+                    MethodSignatureModifiers.Internal | MethodSignatureModifiers.Private);
+                return accessibility | (!modifiers.HasFlag(MethodSignatureModifiers.Static) && ModelReaderWriterHelpers.IsOverridable(modifiers)
+                    ? MethodSignatureModifiers.Override : MethodSignatureModifiers.New | MethodSignatureModifiers.Virtual);
+            }
+            if (systemBase is not { SystemType.IsFrameworkType: true })
+            {
+                return null;
+            }
+            var parameterTypes = parameters.Select(parameter => parameter.IsRef
+                ? parameter.Type.FrameworkType.MakeByRefType() : parameter.Type.FrameworkType).ToArray();
+            var returnType = name switch
+            {
+                JsonModelWriteCoreMethodName => null,
+                PersistableModelWriteCoreMethodName => new CSharpType(typeof(BinaryData)),
+                _ => RootType,
+            };
+            return ResolveSystemCoreMethodModifiers(systemBase, name, returnType, parameterTypes);
+        }
+
+        private (MethodProvider? Method, SystemObjectModelProvider? SystemBase) FindInheritedCore(string name, ParameterProvider[] parameters)
+        {
+            var signature = new MethodSignature(name, null, MethodSignatureModifiers.None, null, null, parameters);
+            var visited = new HashSet<ModelProvider> { _model };
+            for (var parent = _model.BaseModelProvider; parent is not null && visited.Add(parent); parent = parent.BaseModelProvider)
+            {
+                if (parent is SystemObjectModelProvider systemBase)
+                {
+                    return (null, systemBase);
+                }
+                var inherited = (parent.CustomCodeView?.Methods ?? []).FirstOrDefault(method => MatchesCoreSignature(method, signature)) ??
+                    parent.SerializationProviders.OfType<MrwSerializationTypeDefinition>().SelectMany(provider => provider.Methods)
+                        .FirstOrDefault(method => MatchesCoreSignature(method, signature, includePartial: true));
+                if (inherited is null || inherited.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
+                    !inherited.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                {
+                    continue;
+                }
+                return (inherited, null);
+            }
+            return (null, null);
+        }
+
+        // A handwritten partial declaration alone does not establish a slot. The filtered
+        // generated Methods collection also contains implementations of matching partial declarations.
+        private static bool MatchesCoreSignature(MethodProvider method, MethodSignature signature, bool includePartial = false) =>
+            (includePartial || !method.IsPartialMethod) && method.Signature.GenericArguments is not { Count: > 0 } &&
+            MethodSignature.MethodSignatureComparer.Equals(method.Signature, signature) &&
+            method.Signature.Parameters.Zip(signature.Parameters).All(pair => pair.First.IsRef == pair.Second.IsRef &&
+                pair.First.IsIn == pair.Second.IsIn && pair.First.IsOut == pair.Second.IsOut);
+
+        private static bool IsCompatibleCoreReturnType(SystemObjectModelProvider systemBase, Type baseReturnType, CSharpType? returnType)
+        {
+            if (returnType is null)
+            {
+                return baseReturnType == typeof(void);
+            }
+
+            var expected = new CSharpType(baseReturnType);
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var current = returnType; current is not null && visited.Add(current.FullyQualifiedName); current = current.BaseType)
+            {
+                if (current.AreNamesEqual(expected) ||
+                    (baseReturnType.IsGenericTypeDefinition && baseReturnType == systemBase.SystemType.FrameworkType &&
+                     current.AreNamesEqual(systemBase.Type)))
+                {
+                    // On the open definition, a self-returning method denotes the same
+                    // constructed mapped base, even if its arguments have no CLR Type yet.
+                    return true;
+                }
+
+                // Provider-backed CSharpTypes for the mapped base are not reflected types;
+                // recover the wrapped CLR identity before checking covariant assignability.
+                var runtimeType = GetClosedFrameworkType(current.AreNamesEqual(systemBase.Type) ? systemBase.SystemType : current);
+                if (runtimeType is { IsValueType: false } && baseReturnType.IsAssignableFrom(runtimeType))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Determines whether a derived model should skip overriding the generated serialization
         /// <c>*Core</c> methods of its base.
         /// </summary>
         /// <remarks>
         /// External/system base models are represented by a <see cref="SystemObjectModelProvider"/>.
-        /// Such a base only participates in the generated MRW <c>*Core</c> override chain when the
-        /// wrapped framework/referenced type itself follows the model-reader-writer serialization
-        /// pattern (i.e. implements <see cref="IJsonModel{T}"/> or <see cref="IPersistableModel{T}"/>,
-        /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
-        /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
-        /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
-        /// models re-introduce the methods as <c>virtual</c>. The same reasoning applies to a
-        /// hand-authored base, which only participates when it declares the <c>*Core</c> methods.
+        /// Resolved CLR framework bases are handled per method by <see cref="GetSystemCoreMethodModifiers"/>:
+        /// implementing an MRW interface does not itself imply that any core method is overridable.
+        /// This fallback preserves the existing behavior for symbol-backed system types and generated
+        /// or hand-authored bases where CLR reflection is not available.
         /// </remarks>
         private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider model)
         {
@@ -745,17 +995,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (ShouldOverrideJsonModelWriteCore)
+            if (GetSystemCoreMethodModifiers(JsonModelWriteCoreMethodName, null, typeof(Utf8JsonWriter), typeof(ModelReaderWriterOptions)) is { } systemModifiers)
+            {
+                modifiers = systemModifiers;
+            }
+            else if (GetGeneratedBaseCoreMethodModifiers(JsonModelWriteCoreMethodName) is { } inheritedModifiers)
+            {
+                modifiers = inheritedModifiers;
+            }
+            else if (ShouldOverrideJsonModelWriteCore)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
-            // void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-            return new MethodProvider
-            (
-              new MethodSignature(JsonModelWriteCoreMethodName, null, modifiers, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter]),
-              BuildJsonModelWriteCoreMethodBody(),
-              this
-            );
+            var signature = new MethodSignature(JsonModelWriteCoreMethodName, null, modifiers, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter]);
+            // A replaced or suppressed core does not emit this body. Its customization
+            // owns the serialization contract instead.
+            return new MethodProvider(signature, BuildJsonModelWriteCoreMethodBody(validateBaseWriter: WillGenerateMethod(signature)), this);
         }
 
         /// <summary>
@@ -767,7 +1022,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
+            if (GetSystemCoreMethodModifiers(PersistableModelWriteCoreMethodName, typeof(BinaryData), typeof(ModelReaderWriterOptions)) is { } systemModifiers)
+            {
+                modifiers = systemModifiers;
+            }
+            else if (GetGeneratedBaseCoreMethodModifiers(PersistableModelWriteCoreMethodName) is { } inheritedModifiers)
+            {
+                modifiers = inheritedModifiers;
+            }
+            else if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -791,7 +1054,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
+            if (GetSystemCoreMethodModifiers(PersistableModelCreateCoreMethodName, RootType, typeof(BinaryData), typeof(ModelReaderWriterOptions)) is { } systemModifiers)
+            {
+                modifiers = systemModifiers;
+            }
+            else if (GetGeneratedBaseCoreMethodModifiers(PersistableModelCreateCoreMethodName) is { } inheritedModifiers)
+            {
+                modifiers = inheritedModifiers;
+            }
+            else if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -839,7 +1110,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
+            if (GetSystemCoreMethodModifiers(JsonModelCreateCoreMethodName, RootType, typeof(Utf8JsonReader).MakeByRefType(), typeof(ModelReaderWriterOptions)) is { } systemModifiers)
+            {
+                modifiers = systemModifiers;
+            }
+            else if (GetGeneratedBaseCoreMethodModifiers(JsonModelCreateCoreMethodName) is { } inheritedModifiers)
+            {
+                modifiers = inheritedModifiers;
+            }
+            else if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -1053,7 +1332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement[] BuildJsonModelWriteCoreMethodBody()
+        private MethodBodyStatement[] BuildJsonModelWriteCoreMethodBody(bool validateBaseWriter)
         {
             bool isDynamicModelWithNonDynamicBase = _model is ScmModelProvider { IsDynamicModel: true } && _model.BaseModelProvider is ScmModelProvider { IsDynamicModel: false };
             var propertiesStatements = CreateWritePropertiesStatements(isDynamicModelWithNonDynamicBase);
@@ -1092,7 +1371,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             [
                 CreateValidateFormat(_persistableModelTInterface, WriteAction, ModelReaderWriterOptionsSnippets.JsonFormat),
-                CallBaseJsonModelWriteCore(isDynamicModelWithNonDynamicBase),
+                CallBaseJsonModelWriteCore(isDynamicModelWithNonDynamicBase, validateBaseWriter),
                 writePropertiesStatements,
                 CreateWriteAdditionalRawDataStatement()
             ];
@@ -1303,14 +1582,120 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase)
+        private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase, bool validateBaseWriter)
         {
             // base.<JsonModelWriteCore>()
-            bool callBaseWriteMethod = ShouldOverrideJsonModelWriteCore
+            bool callBaseWriteMethod = CanCallBaseJsonModelWriteCore
                 && (_jsonPatchProperty is null || !isDynamicModelWithNonDynamicBase);
+            if (validateBaseWriter)
+            {
+                if (!callBaseWriteMethod && !isDynamicModelWithNonDynamicBase)
+                {
+                    ReportOpaqueMappedBaseWriter();
+                }
+                ReportBlockedGeneratedWriter(isDynamicModelWithNonDynamicBase);
+            }
             return callBaseWriteMethod ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
                 : MethodBodyStatement.Empty;
+        }
+
+        private void ReportBlockedGeneratedWriter(bool writesAncestorPropertiesDirectly)
+        {
+            if (_model.BaseModelProvider is null or SystemObjectModelProvider ||
+                FindInheritedCore(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Method is not { } inherited)
+            {
+                return;
+            }
+            static bool HasPayload(ModelProvider model) => model.CanonicalView.Properties.Any(property =>
+                property.IsAdditionalProperties || property.WireInfo is { IsHttpMetadata: false }) ||
+                model.CanonicalView.Fields.Any(field => field.WireInfo is { IsHttpMetadata: false });
+
+            var modifiers = inherited.Signature.Modifiers;
+            string? detail = null;
+            if (!writesAncestorPropertiesDirectly && modifiers.HasFlag(MethodSignatureModifiers.Abstract) &&
+                EnumerateBaseModelProviders().Any(model => HasPayload(model) || model.SerializationProviders
+                    .OfType<MrwSerializationTypeDefinition>().Any(provider => provider._supportsJson && provider._rawDataField is not null)))
+            {
+                detail = "cannot call the abstract writer for its inherited JSON payload";
+            }
+            else if ((_jsonPatchProperty is not null || HasPayload(_model)) && HasSealedGeneratedInterfaceWriter())
+            {
+                detail = "cannot override the sealed writer used by an inherited generated JSON interface; writing through that interface would omit its local payload";
+            }
+            if (detail is not null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.UnsupportedSerialization,
+                    $"The generated model '{_model.Type}' {detail}. Provide an explicit serialization implementation for this hierarchy.",
+                    _inputModel.CrossLanguageDefinitionId, EmitterDiagnosticSeverity.Error);
+            }
+        }
+
+        private bool HasSealedGeneratedInterfaceWriter()
+        {
+            var signature = new MethodSignature(JsonModelWriteCoreMethodName, null, MethodSignatureModifiers.None,
+                null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter]);
+            bool sealedOverride = false;
+            foreach (var ancestor in EnumerateBaseModelProviders())
+            {
+                var serializations = ancestor.SerializationProviders.OfType<MrwSerializationTypeDefinition>();
+                if (sealedOverride && serializations.Any(provider => provider.Methods.Any(method =>
+                    method.Signature.Name == nameof(IJsonModel<object>.Write) &&
+                    method.Signature.ExplicitInterface?.AreNamesEqual(provider._jsonModelTInterface) == true)))
+                {
+                    return true;
+                }
+                // A generated descendant can hide the sealed writer in a new slot, but the
+                // original generated interface still calls the sealed override.
+                sealedOverride |= ancestor.CustomCodeView?.Methods.Any(method => MatchesCoreSignature(method, signature) &&
+                    method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Sealed | MethodSignatureModifiers.Override)) == true;
+            }
+            return false;
+        }
+
+        private void ReportOpaqueMappedBaseWriter()
+        {
+            if (_model.BaseModelProvider is not SystemObjectModelProvider systemBase || !systemBase.SystemType.IsFrameworkType ||
+                !ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase))
+            {
+                return;
+            }
+
+            // An explicit interface writer owns a complete JSON value, not just the base
+            // properties. An abstract core likewise has no callable writer body. We cannot infer
+            // how either contract writes the base payload from its CLR members.
+            var framework = GetClosedFrameworkType(systemBase.SystemType) ?? systemBase.SystemType.FrameworkType;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var mappedProperties = framework.GetProperties(flags);
+            var mappedFields = framework.GetFields(flags);
+            // The input mapping declares the wire payload even when the CLR implementation
+            // stores it privately under a different member name or the plugin supplies the mapping.
+            var declaresExternalPayload = _inputModel.BaseModel is { } inputBase &&
+                ReferenceEquals(ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase), systemBase) &&
+                HasDeclaredJsonPayload(inputBase);
+            if (declaresExternalPayload || systemBase.Properties.Any(property => property.WireInfo is { IsHttpMetadata: false } &&
+                (mappedProperties.Any(candidate => candidate.Name == property.Name && candidate.GetIndexParameters().Length == 0) ||
+                 mappedFields.Any(candidate => candidate.Name == property.Name))))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"The mapped base '{systemBase.Type}' has no accessible JSON write core to serialize its inherited properties in '{_model.Type}'.",
+                    _inputModel.CrossLanguageDefinitionId,
+                    EmitterDiagnosticSeverity.Error);
+            }
+        }
+
+        private static bool HasDeclaredJsonPayload(InputModelType model)
+        {
+            var visited = new HashSet<InputModelType>();
+            for (InputModelType? current = model; current is not null && visited.Add(current); current = current.BaseModel)
+            {
+                if (current.AdditionalProperties is not null || current.Properties.Any(property => !property.IsHttpMetadata))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

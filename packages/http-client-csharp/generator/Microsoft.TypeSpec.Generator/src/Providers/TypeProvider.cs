@@ -642,7 +642,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     foreach (var partial in partialDeclarations)
                     {
-                        if (MethodSignatureBase.SignatureComparer.Equals(partial.Signature, method.Signature))
+                        if (HasSameMethodOverloadShape(partial.Signature, method.Signature) &&
+                        MethodSignatureBase.SignatureComparer.Equals(partial.Signature, method.Signature))
                         {
                             matchingPartial = partial;
                             break;
@@ -1356,17 +1357,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private bool ShouldGenerate(MethodProvider method)
+        private bool ShouldGenerate(MethodProvider method) => ShouldGenerateMethod(method.EnclosingType, method.Signature);
+
+        /// <summary>
+        /// Checks whether a generated method signature will be retained after customization filtering.
+        /// </summary>
+        protected bool WillGenerateMethod(MethodSignature signature)
+        {
+            return !FilterCustomizedMembers || signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ||
+                CustomCodeView?.Methods.Any(method => method.IsPartialMethod && HasSameMethodOverloadShape(method.Signature, signature) &&
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, signature)) == true ||
+                ShouldGenerateMethod(this, signature);
+        }
+
+        private bool ShouldGenerateMethod(TypeProvider enclosingType, MethodSignature signature)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
-                if (IsMatch(method.EnclosingType, method.Signature, attribute))
+                if (IsMatch(enclosingType, signature, attribute))
                 {
                     return false;
                 }
             }
 
-            var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
+            var customMethods = enclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
                 // Partial method declarations are handled in FilterCustomizedMethods and
@@ -1379,13 +1393,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // A custom method suppresses the generated one when their signatures match — treating
                 // optional value-type parameters that differ only by nullability as equal, since emitting
                 // both would be a CS0121-ambiguous coexistence.
-                if (MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(customMethod.Signature, method.Signature))
+                if (HasSameMethodOverloadShape(customMethod.Signature, signature) &&
+                    MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(customMethod.Signature, signature))
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private static bool HasSameMethodOverloadShape(MethodSignature left, MethodSignature right)
+        {
+            static bool IsByRef(ParameterProvider parameter) => parameter.IsRef || parameter.IsIn || parameter.IsOut;
+            return (left.GenericArguments?.Count ?? 0) == (right.GenericArguments?.Count ?? 0) &&
+                left.Parameters.Count == right.Parameters.Count &&
+                left.Parameters.Zip(right.Parameters).All(pair => IsByRef(pair.First) == IsByRef(pair.Second));
         }
 
         internal bool IsPropertySuppressed(PropertyProvider property)

@@ -372,11 +372,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
 
-                bool isPartialDeclaration = IsPartialMethodDeclaration(methodSymbol);
-                if (isPartialDeclaration)
-                {
-                    modifiers |= MethodSignatureModifiers.Partial;
-                }
+                modifiers |= GetPartialDeclarationModifiers(methodSymbol);
 
                 var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
 
@@ -831,7 +827,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ => null
             };
 
-        private static bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
+        private static MethodSignatureModifiers GetPartialDeclarationModifiers(IMethodSymbol methodSymbol)
         {
             foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
             {
@@ -841,12 +837,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     bool hasNoBody = methodSyntax.Body == null && methodSyntax.ExpressionBody == null;
                     if (hasPartialModifier && hasNoBody)
                     {
-                        return true;
+                        // Both declarations must agree on 'new'. The symbol exposes the
+                        // virtual/override/sealed flags but not this source modifier.
+                        return methodSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.NewKeyword))
+                            ? MethodSignatureModifiers.Partial | MethodSignatureModifiers.New
+                            : MethodSignatureModifiers.Partial;
                     }
                 }
             }
 
-            return false;
+            return MethodSignatureModifiers.None;
         }
 
         protected override bool GetIsEnum() => _namedTypeSymbol.TypeKind == TypeKind.Enum;

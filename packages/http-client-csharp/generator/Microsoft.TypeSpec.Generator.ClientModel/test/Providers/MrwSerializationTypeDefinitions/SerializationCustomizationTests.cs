@@ -272,6 +272,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task DerivedSerializationNameForExternalBase([Values] bool hasJsonName)
+        {
+            var kind = InputFactory.StringEnum("ResponseKind", [("Tool", "tool")], isExtensible: true,
+                external: new InputExternalTypeMetadata(typeof(ExternalResponseKind).AssemblyQualifiedName!, null, null));
+            var id = InputFactory.Property("id", InputPrimitiveType.String, isRequired: true,
+                serializationOptions: hasJsonName ? InputFactory.Serialization.Options(json: InputFactory.Serialization.Json("id")) : null);
+            var external = InputFactory.Model("ExternalResponse",
+                properties: [InputFactory.Property("kind", kind, isRequired: true), id],
+                external: new InputExternalTypeMetadata(typeof(ExternalResponse).AssemblyQualifiedName!, null, null));
+            var input = InputFactory.Model("Model", properties: [], baseModel: external);
+            var sibling = InputFactory.Model("Sibling", properties: [], baseModel: external);
+            var leaf = InputFactory.Model("Leaf", properties: [], baseModel: input);
+            var inherited = InputFactory.Model("Inherited", properties: [], baseModel: input);
+            var grandchild = InputFactory.Model("Grandchild", properties: [], baseModel: leaf);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [external, input, sibling, leaf, inherited, grandchild], inputEnums: () => [kind]);
+            var custom = (await Helpers.GetCompilationFromDirectoryAsync())
+                .AddReferences(MetadataReference.CreateFromFile(typeof(ExternalResponse).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(ModelReaderWriterOptions).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
+            generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(custom, null));
+
+            var externalProvider = generator.Object.TypeFactory.CreateModel(external);
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            // The external base owns the writer. Without an explicit property replacement, the
+            // generated reader must continue to accept the key that writer produces.
+            Assert.That(model.CustomCodeView?.Attributes.Any(attribute => attribute.Type.Name == "CodeGenSerializationAttribute"), Is.True);
+            Assert.That(externalProvider, Is.InstanceOf<SystemObjectModelProvider>());
+            Assert.That(model.BaseModelProvider, Is.SameAs(externalProvider));
+
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(ModelReaderWriterOptions).Assembly.Location)
+                .Append(typeof(BinaryData).Assembly.Location)
+                .Append(typeof(ExternalResponse).Assembly.Location)
+                .Distinct().Select(path => MetadataReference.CreateFromFile(path));
+            var models = new[] { input, sibling, leaf, inherited, grandchild }
+                .Select(modelInput => generator.Object.TypeFactory.CreateModel(modelInput)!).ToArray();
+            var providers = generator.Object.OutputLibrary.TypeProviders.Where(provider => models.Contains(provider) ||
+                provider.Name is "Argument" or "Optional" or "ChangeTrackingList" or "ChangeTrackingDictionary" or
+                    "ModelSerializationExtensions" or "TypeFormatters" or "SerializationFormat" ||
+                provider is ModelReaderWriterContextDefinition or ModelFactoryProvider).ToArray();
+            var trees = providers.SelectMany(provider => new[] { provider }.Concat(provider.SerializationProviders))
+                .Distinct().Select(provider => CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var compilation = CSharpCompilation.Create("ExternalDerivedName" + Guid.NewGuid().ToString("N"),
+                custom.SyntaxTrees.Where(tree => Path.GetFileName(tree.FilePath).StartsWith("CodeGen", StringComparison.Ordinal) ||
+                    Path.GetFileName(tree.FilePath) == "Model.cs").Concat(trees), references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Disable));
+            var sourceGenerators = Assembly.Load("System.ClientModel.SourceGeneration").GetTypes()
+                .Where(type => type.IsDefined(typeof(GeneratorAttribute)))
+                .Select(type => Activator.CreateInstance(type))
+                .Select(sourceGenerator => sourceGenerator is ISourceGenerator sourceGeneratorInstance
+                    ? sourceGeneratorInstance : ((IIncrementalGenerator)sourceGenerator!).AsSourceGenerator());
+            CSharpGeneratorDriver.Create(sourceGenerators).RunGeneratorsAndUpdateCompilation(compilation,
+                out var generatedCompilation, out var diagnostics);
+            Assert.That(diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
+            using var stream = new MemoryStream();
+            var emitted = generatedCompilation.Emit(stream);
+            Assert.That(emitted.Success, Is.True, string.Join(Environment.NewLine,
+                emitted.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
+            var assembly = Assembly.Load(stream.ToArray());
+            foreach (var name in new[] { "Model", "Sibling", "Leaf", "Inherited", "Grandchild" })
+            {
+                var type = assembly.GetType("Sample.Models." + name)!;
+                var deserialize = type.GetMethod("Deserialize" + name, BindingFlags.Static | BindingFlags.NonPublic)!;
+                using var payload = JsonDocument.Parse("""{"id":"value"}""");
+                var instance = (ExternalResponse)deserialize.Invoke(null, [payload.RootElement, new ModelReaderWriterOptions("J")])!;
+                Assert.That(instance.Id, Is.EqualTo("value"), name);
+                using var output = new MemoryStream();
+                using (var writer = new Utf8JsonWriter(output))
+                {
+                    ((IJsonModel<ExternalResponse>)instance).Write(writer, new ModelReaderWriterOptions("J"));
+                }
+                using var serialized = JsonDocument.Parse(output.ToArray());
+                Assert.That(serialized.RootElement.GetProperty("id").GetString(), Is.EqualTo("value"));
+                var restored = (ExternalResponse)deserialize.Invoke(null, [serialized.RootElement, new ModelReaderWriterOptions("J")])!;
+                Assert.That(restored.Id, Is.EqualTo(instance.Id), $"{name}: {serialized.RootElement.GetRawText()}");
+            }
+        }
+
+        [Test]
         public async Task BackCompat_RenamedPropertiesKeepSerializationParameters(
             [Values(false, true)] bool useLastContract)
         {

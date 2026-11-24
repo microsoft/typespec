@@ -1998,7 +1998,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (requiresFullBaseConstructor)
                 {
                     // The public base constructor cannot initialize this overridden storage.
-                    var arguments = BaseModelProvider.FullConstructor.Signature.Parameters.Select(p =>
+                    var fullBaseParameters = BaseModelProvider.FullConstructor.Signature.Parameters;
+                    var orderedBaseParameters = BaseModelProvider is SystemObjectModelProvider systemBase
+                        ? systemBase.OrderDirectConstructorParameters(fullBaseParameters)
+                        : fullBaseParameters;
+                    var arguments = orderedBaseParameters.Select(p =>
                         GetExpressionForCtor(p, overriddenProperties, true, constructorParameters, useFullBaseConstructor: true));
                     constructorInitializer = new ConstructorInitializer(true,
                         BaseModelProvider.NeedsNonValidatingInheritanceConstructor
@@ -2021,7 +2025,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 else if (baseParameters.Count > 0)
                 {
                     // Standard base constructor call
-                    var arguments = baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
+                    var orderedBaseParameters = BaseModelProvider is SystemObjectModelProvider systemBase
+                        ? systemBase.OrderDirectConstructorParameters(baseParameters)
+                        : baseParameters;
+                    var arguments = orderedBaseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
                     constructorInitializer = new ConstructorInitializer(true,
                         !isInitializationConstructor && BaseModelProvider.NeedsNonValidatingInheritanceConstructor
                             ? [.. arguments, True]

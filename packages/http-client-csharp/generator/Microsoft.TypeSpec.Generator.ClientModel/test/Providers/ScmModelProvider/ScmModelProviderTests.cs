@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -25,6 +26,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        [Test]
+        public void NullablePresenceAccessorIsPublicForGeneratorPlugins()
+        {
+            var accessor = typeof(ScmModel).GetMethod("GetNullablePropertyPresence",
+                BindingFlags.Public | BindingFlags.Static, null, [typeof(PropertyProvider)], null);
+            Assert.That(accessor, Is.Not.Null);
+            Assert.That(accessor!.ReturnType, Is.EqualTo(typeof(FieldProvider)));
+        }
+
         [TestCase(InputModelTypeUsage.Input, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Output, "WidgetContent")]
         [TestCase(InputModelTypeUsage.Input | InputModelTypeUsage.Output, "WidgetContent")]
