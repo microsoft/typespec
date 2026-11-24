@@ -2817,13 +2817,28 @@ export class CodeModelBuilder {
       // check for File
       responseBodyIsFile = true;
     } else if (bodyType && bodyType.kind === "bytes") {
-      // TCGC encode "bytes" means raw binary, unlike JSON bytes encoded as "base64"/"base64url".
-      // Preserve raw bytes even when another offered content type is recognized (e.g. Arrow | XML).
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseBodyIsFile = bodyType.encode === "bytes" || Boolean(unknownResponseBody);
+      // Compatibility bridge: isKnownContentType checks a serializer whitelist and returns true
+      // if ANY declared type is recognized. Keep the existing unknown-only behavior above for
+      // every bytes encoding, but also preserve raw bytes when an unknown type is offered
+      // alongside a known one (e.g. Blob Storage's Arrow | application/xml response).
+      //
+      // Do not classify all TCGC encode "bytes" responses as binary: known-only responses such
+      // as App Service's XML publishing profiles historically fall through to the String
+      // schema fallback. Changing those to BinaryData would break existing generated APIs.
+      // Base64/base64url bytes with mixed content types must also keep their schema decoding.
+      //
+      // This is a whitelist heuristic, not proof that an unknown content type is binary.
+      // Known-only raw bytes intentionally retain legacy behavior (including its encoding
+      // warning) until a broader solution can distinguish payload semantics compatibly.
+      const rawBytesWithUnknownContentType =
+        bodyType.encode === "bytes" &&
+        (sdkResponse.contentTypes?.some((contentType) => !isKnownContentType([contentType])) ??
+          false);
+      responseBodyIsFile = Boolean(unknownResponseBody) || rawBytesWithUnknownContentType;
     }
 
     let response: Response;

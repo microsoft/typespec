@@ -154,10 +154,10 @@ describe("ARM internal access", () => {
 });
 
 describe("XML storage responses", () => {
-  async function build(namespace: string) {
+  async function build(namespace: string, additionalSource = "") {
     const entrypoint = fileURLToPath(new URL("./fixtures/xml-storage-test.tsp", import.meta.url));
     const sourceFile = createSourceFile(
-      `import "./xml-storage.tsp";\n@@service(XmlStorage.${namespace});`,
+      `import "./xml-storage.tsp";\n${additionalSource}\n@@service(XmlStorage.${namespace});`,
       entrypoint,
     );
     const isEntrypoint = (path: string) => resolvePath(path) === resolvePath(entrypoint);
@@ -208,6 +208,70 @@ describe("XML storage responses", () => {
       expect(response).toMatchObject({ schema: { type: SchemaType.ByteArray, format } });
     }
   });
+
+  it.each([
+    ["bytes", ["application/vnd.apache.arrow.stream", "application/xml"], "binary"],
+    ["bytes", ["application/xml"], "string"],
+    ["bytes", ["application/xml", "text/plain"], "string"],
+    ["bytes", ["application/octet-stream"], "binary"],
+    ["base64", ["application/json"], "byte"],
+    ["base64url", ["application/json"], "base64url"],
+    ["base64", ["application/vnd.apache.arrow.stream", "application/xml"], "byte"],
+    ["base64url", ["application/vnd.apache.arrow.stream", "application/xml"], "base64url"],
+    ["base64", ["application/octet-stream"], "binary"],
+    ["base64url", ["application/octet-stream"], "binary"],
+  ] as const)(
+    "maps %s bytes with content types %j to %s",
+    async (encoding, contentTypes, expected) => {
+      const { program, model } = await build(
+        "BytesResponses",
+        `
+using TypeSpec.Http;
+
+namespace XmlStorage.BytesResponses {
+  @get
+  op getBytes(): {
+    @header contentType: ${contentTypes.map((contentType) => `"${contentType}"`).join(" | ")};
+    @body @encode("${encoding}") body: bytes;
+  };
+}
+`,
+      );
+      if (expected === "string") {
+        expectDiagnostics(program.diagnostics, [
+          {
+            code: "@typespec/http-client-java/unknown-encode",
+            message: "Encode 'bytes' is not supported.",
+          },
+        ]);
+      } else {
+        expectDiagnosticEmpty(program.diagnostics);
+      }
+
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      const response = operations.find(
+        (operation) => operation.language.default.name === "getBytes",
+      )!.responses![0];
+      expect(response.protocol.http?.mediaTypes).toEqual(contentTypes);
+      if (expected === "binary") {
+        expect(response).toMatchObject({
+          binary: true,
+          protocol: { http: { knownMediaType: KnownMediaType.Binary } },
+        });
+        expect(isSchemaResponse(response)).toBe(false);
+      } else {
+        expect(response).not.toHaveProperty("binary", true);
+        expect(response).toMatchObject({
+          schema:
+            expected === "string"
+              ? { type: SchemaType.String }
+              : { type: SchemaType.ByteArray, format: expected },
+        });
+      }
+    },
+  );
 
   it("diagnoses XML records before generating invalid Java", async () => {
     const { program } = await build("Records");
