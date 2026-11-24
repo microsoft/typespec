@@ -5,8 +5,9 @@ import {
   getSourceLocation,
   type DiagnosticTarget,
 } from "../../src/index.js";
-import { getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
+import { $doc, getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
 import { expectDiagnostics, t } from "../../src/testing/index.js";
+import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";
 
 function sourceText(target: DiagnosticTarget | undefined): string {
@@ -602,6 +603,18 @@ describe("getDocDiagnosticTarget", () => {
       sourceText(getDocDiagnosticTarget(program, Decorated)),
       '@doc("Explicit documentation")',
     );
+  });
+
+  it("returns undefined for documentation on a programmatically created type", async () => {
+    const { program } = await Tester.compile("");
+    const model = $(program).model.create({
+      name: "Programmatic",
+      properties: {},
+      decorators: [[$doc, "Programmatic documentation"]],
+    });
+
+    strictEqual(getDoc(program, model), "Programmatic documentation");
+    strictEqual(getDocDiagnosticTarget(program, model), undefined);
   });
 
   it("uses the declaration when multiple comments contribute to the main documentation", async () => {

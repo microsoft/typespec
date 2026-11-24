@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { it } from "vitest";
 import { SyntaxKind } from "../../../src/ast/index.js";
 import {
@@ -39,6 +39,36 @@ it("it suppress for model property", async () => {
       model Foo {
         #suppress "foo" ""
         a: int32;
+      }
+    `);
+});
+
+it("inserts suppressions before declarations for documentation tags", async () => {
+  await expectCodeFixOnAst(
+    `
+      /**
+       * @prop name ┆Localized documentation
+       */
+      model Foo {
+        name: string;
+      }
+    `,
+    (node) => {
+      let target: typeof node | undefined = node;
+      while (target && target.kind !== SyntaxKind.DocPropTag) {
+        target = target.parent;
+      }
+      ok(target);
+      strictEqual(target.kind, SyntaxKind.DocPropTag);
+      return createSuppressCodeFix(target, "foo");
+    },
+  ).toChangeTo(`
+      #suppress "foo" ""
+      /**
+       * @prop name Localized documentation
+       */
+      model Foo {
+        name: string;
       }
     `);
 });
