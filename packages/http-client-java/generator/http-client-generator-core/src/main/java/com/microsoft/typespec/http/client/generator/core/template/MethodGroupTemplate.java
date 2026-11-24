@@ -17,7 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.ObjectSerializer;
 import io.clientcore.core.utils.CoreUtils;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,11 +43,11 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
         }
 
         methodGroupClient.addImportsTo(imports, true, settings);
+        ClientCoreHttpOperationTemplate.addImportsTo(methodGroupClient.getProxy(), imports, settings);
 
         String serviceClientPackageName
             = ClientModelUtil.getServiceClientPackageName(methodGroupClient.getServiceClientName());
         imports.add(String.format("%1$s.%2$s", serviceClientPackageName, methodGroupClient.getServiceClientName()));
-        imports.add(InvocationTargetException.class.getName());
         imports.add(ObjectSerializer.class.getName());
         ClassType.INSTRUMENTATION.addImportsTo(imports, false);
         ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
@@ -123,7 +122,9 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                     Templates.getProxyTemplate().write(methodGroupClient.getProxy(), classBlock);
                 }
 
-                TemplateUtil.writeClientMethodsAndHelpers(classBlock, methodGroupClient.getClientMethods());
+                TemplateUtil.writeClientMethodsAndHelpers(classBlock, methodGroupClient.getClientMethods(),
+                    settings.isFluent()
+                        && methodGroupClient.getImplementedInterfaces().contains(methodGroupClient.getInterfaceName()));
 
                 if (settings.isUseClientLogger()) {
                     TemplateUtil.addClientLogger(classBlock, methodGroupClient.getClassName(), javaFile.getContents());

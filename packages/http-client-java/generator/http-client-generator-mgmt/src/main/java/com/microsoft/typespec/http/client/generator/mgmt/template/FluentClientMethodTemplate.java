@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -15,6 +16,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaTyp
 import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
+import io.clientcore.core.annotations.ReturnType;
+import java.util.stream.Collectors;
 
 public class FluentClientMethodTemplate extends ClientMethodTemplate {
 
@@ -22,6 +25,54 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
 
     public static FluentClientMethodTemplate getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    protected boolean generateContextOverload(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        if (!settings.isSyncStackEnabled()
+            || !clientMethod.hasWithContextOverload()
+            || contextInParameters(clientMethod)) {
+            return false;
+        }
+
+        final ReturnType returnType;
+        switch (clientMethod.getType()) {
+            case PagingSync:
+                returnType = ReturnType.COLLECTION;
+                break;
+
+            case PagingSyncSinglePage:
+            case SimpleSyncRestResponse:
+            case LongRunningSync:
+                returnType = ReturnType.SINGLE;
+                break;
+
+            case LongRunningBeginSync:
+                returnType = ReturnType.LONG_RUNNING_OPERATION;
+                break;
+
+            default:
+                return false;
+        }
+
+        typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType + ")");
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+            addOptionalVariables(function, clientMethod);
+            String arguments = clientMethod.getMethodParameters()
+                .stream()
+                .filter(parameter -> !clientMethod.isPageStreamingType()
+                    || !clientMethod.getMethodPageDetails().shouldHideParameter(parameter))
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.joining(", "));
+            arguments = arguments.isEmpty() ? "Context.NONE" : arguments + ", Context.NONE";
+            String call = clientMethod.getName() + "(" + arguments + ")";
+            if (clientMethod.getReturnValue().getType() == PrimitiveType.VOID) {
+                function.line(call + ";");
+            } else {
+                function.methodReturn(call);
+            }
+        });
+        return true;
     }
 
     @Override

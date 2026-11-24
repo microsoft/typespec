@@ -54,11 +54,7 @@ public final class LocationResourceImpl
     }
 
     public LocationResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getLocationResources()
-            .createOrUpdateWithResponse(location, locationResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public LocationResource create(Context context) {
@@ -80,11 +76,7 @@ public final class LocationResourceImpl
     }
 
     public LocationResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getLocationResources()
-            .updateWithResponse(location, locationResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public LocationResource apply(Context context) {
@@ -108,11 +100,7 @@ public final class LocationResourceImpl
     }
 
     public LocationResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getLocationResources()
-            .getWithResponse(location, locationResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public LocationResource refresh(Context context) {

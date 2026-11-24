@@ -176,17 +176,7 @@ public final class PagingsClientImpl implements PagingsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a Monitor.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param monitorName The name of the Monitor.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Monitor along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<MonitorInner> getByResourceGroupWithResponse(String resourceGroupName, String monitorName,
         Context context) {
@@ -195,16 +185,7 @@ public final class PagingsClientImpl implements PagingsClient {
             this.client.getSubscriptionId(), resourceGroupName, monitorName, accept, context);
     }
 
-    /**
-     * Get a Monitor.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param monitorName The name of the Monitor.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Monitor.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public MonitorInner getByResourceGroup(String resourceGroupName, String monitorName) {
         return getByResourceGroupWithResponse(resourceGroupName, monitorName, Context.NONE).getValue();
@@ -282,12 +263,7 @@ public final class PagingsClientImpl implements PagingsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<MonitoredResourceInner> postActionPagingSinglePage(String resourceGroupName,
         String monitorName, LogStatusRequest body) {
-        final String accept = "application/json";
-        Response<MonitoredResourceListResponse> res
-            = service.postActionPagingSync(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, monitorName, accept, body, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return postActionPagingSinglePage(resourceGroupName, monitorName, body, Context.NONE);
     }
 
     /**
@@ -313,35 +289,14 @@ public final class PagingsClientImpl implements PagingsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param monitorName The name of the Monitor.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<MonitoredResourceInner> postActionPaging(String resourceGroupName, String monitorName) {
         final LogStatusRequest body = null;
-        return new PagedIterable<>(() -> postActionPagingSinglePage(resourceGroupName, monitorName, body),
-            nextLink -> postActionPagingNextSinglePage(nextLink));
+        return postActionPaging(resourceGroupName, monitorName, body, Context.NONE);
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param monitorName The name of the Monitor.
-     * @param body The content of the action request.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<MonitoredResourceInner> postActionPaging(String resourceGroupName, String monitorName,
         LogStatusRequest body, Context context) {
@@ -398,12 +353,7 @@ public final class PagingsClientImpl implements PagingsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<CollectionInner> markAsPageableSinglePage(String resourceGroupName, String monitorName) {
-        final String accept = "application/json";
-        Response<CollectionsList> res
-            = service.markAsPageableSync(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, monitorName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            null, null);
+        return markAsPageableSinglePage(resourceGroupName, monitorName, Context.NONE);
     }
 
     /**
@@ -428,32 +378,13 @@ public final class PagingsClientImpl implements PagingsClient {
             null, null);
     }
 
-    /**
-     * List Collection resources by Monitor.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param monitorName The name of the Monitor.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<CollectionInner> markAsPageable(String resourceGroupName, String monitorName) {
-        return new PagedIterable<>(() -> markAsPageableSinglePage(resourceGroupName, monitorName));
+        return markAsPageable(resourceGroupName, monitorName, Context.NONE);
     }
 
-    /**
-     * List Collection resources by Monitor.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param monitorName The name of the Monitor.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<CollectionInner> markAsPageable(String resourceGroupName, String monitorName,
         Context context) {
@@ -490,11 +421,7 @@ public final class PagingsClientImpl implements PagingsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<MonitoredResourceInner> postActionPagingNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<MonitoredResourceListResponse> res
-            = service.postActionPagingNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return postActionPagingNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

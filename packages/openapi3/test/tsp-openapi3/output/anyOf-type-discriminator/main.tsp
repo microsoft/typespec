@@ -25,7 +25,7 @@ model SpeechAudioDoneEvent {
 }
 
 @route("/") @get op extensive():
-  | CreateSpeechResponseStreamEvent
+  | Body<CreateSpeechResponseStreamEvent>
   | {
       @statusCode
       @minValue(400)

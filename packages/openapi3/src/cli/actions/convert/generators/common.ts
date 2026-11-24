@@ -1,18 +1,39 @@
-/** Render a TypeSpec string literal. Automatically render a multiline one if needed */
+import type { SupportedOpenAPISchema } from "../../../../types.js";
+
+/** Render a raw string as a TypeSpec literal, using triple quotes for multiline values. */
 export function stringLiteral(value: string): string {
+  const escaped = value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("${", "\\${")
+    .replaceAll("\r", "\\r")
+    .replaceAll("\t", "\\t");
   if (value.includes("\n")) {
-    // Escape single backslashes
-    // Escape ${...} in multi-line strings to prevent interpolation
-    // Also escape triple quotes
-    // Avoid double-escaping backslashes in the process
-    return `"""\n${value
-      .replaceAll(/(?:([^\\])\\([\s])|^\\([\s]))/gi, "$1\\\\$2")
-      .replaceAll(/(?:([^\\])\$\{|^\$\{)/gi, "$1\\${")
-      .replaceAll(/(?:([^\\])"""|^""")/gi, '$1\\"""')
-      .replaceAll(/(?:([^\\])\\u|^\\u)/gi, "$1\\\\u")}\n"""`;
+    // Break up every run of three or more quotes so none can close the literal.
+    return `"""\n${escaped.replaceAll(/"(?="")/g, '\\"')}\n"""`;
   }
-  // Escape both quotes
-  // Escape ${...} in single-line strings to prevent interpolation
-  // Avoid double-escaping backslashes in the process
-  return `"${value.replaceAll(/(?:([^\\])"|^")/gi, '$1\\"').replaceAll(/(?:([^\\])\$\{|^\$\{)/gi, "$1\\${")}"`;
+  return `"${escaped.replaceAll('"', '\\"')}"`;
+}
+
+export function getStringType(schema: SupportedOpenAPISchema): string {
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    return "bytes";
+  }
+
+  switch (schema.format) {
+    case "binary":
+    case "byte":
+      return "bytes";
+    case "date":
+      return "plainDate";
+    case "date-time":
+      return "utcDateTime";
+    case "time":
+      return "plainTime";
+    case "duration":
+      return "duration";
+    case "uri":
+      return "url";
+    default:
+      return "string";
+  }
 }

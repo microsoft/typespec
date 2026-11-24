@@ -45,8 +45,7 @@ public final class MachineResourcesImpl implements MachineResources {
     }
 
     public PagedIterable<TopLevelArmResource> list(String group, String labName, String machineName) {
-        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(group, labName, machineName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+        return this.list(group, labName, machineName, Context.NONE);
     }
 
     public PagedIterable<TopLevelArmResource> list(String group, String labName, String machineName, Context context) {

@@ -46,7 +46,7 @@ public final class NestedsImpl implements Nesteds {
     }
 
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName) {
-        this.serviceClient().delete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName);
+        this.delete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, Context.NONE);
     }
 
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
@@ -56,9 +56,7 @@ public final class NestedsImpl implements Nesteds {
 
     public PagedIterable<NestedProxyResource> listByTopLevelTrackedResource(String resourceGroupName,
         String topLevelTrackedResourceName) {
-        PagedIterable<NestedProxyResourceInner> inner
-            = this.serviceClient().listByTopLevelTrackedResource(resourceGroupName, topLevelTrackedResourceName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new NestedProxyResourceImpl(inner1, this.manager()));
+        return this.listByTopLevelTrackedResource(resourceGroupName, topLevelTrackedResourceName, Context.NONE);
     }
 
     public PagedIterable<NestedProxyResource> listByTopLevelTrackedResource(String resourceGroupName,
@@ -69,104 +67,36 @@ public final class NestedsImpl implements Nesteds {
     }
 
     public NestedProxyResource getById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
-        String nextedProxyResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "nextedProxyResourceName");
-        if (nextedProxyResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'nestedProxyResources'.", id)));
-        }
-        return this
-            .getWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<NestedProxyResource> getByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String topLevelTrackedResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
-        String nextedProxyResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "topLevelTrackedResourceName", "topLevelTrackedResources", LOGGER);
+        String nextedProxyResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "nextedProxyResourceName");
-        if (nextedProxyResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'nestedProxyResources'.", id)));
-        }
+            "nextedProxyResourceName", "nestedProxyResources", LOGGER);
         return this.getWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context);
     }
 
     public void deleteById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
-        String nextedProxyResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "nextedProxyResourceName");
-        if (nextedProxyResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'nestedProxyResources'.", id)));
-        }
-        this.delete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public void deleteByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String topLevelTrackedResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
-        String nextedProxyResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "topLevelTrackedResourceName", "topLevelTrackedResources", LOGGER);
+        String nextedProxyResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
-            "nextedProxyResourceName");
-        if (nextedProxyResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'nestedProxyResources'.", id)));
-        }
+            "nextedProxyResourceName", "nestedProxyResources", LOGGER);
         this.delete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context);
     }
 

@@ -8,7 +8,12 @@ import type {
   TypeSpecUnion,
 } from "../interfaces.js";
 import type { Context } from "../utils/context.js";
-import { getDecoratorsForSchema, getDirectivesForSchema } from "../utils/decorators.js";
+import {
+  findExampleAdditionalProperties,
+  findExamplePropertySchema,
+  getDecoratorsForSchema,
+  getDirectivesForSchema,
+} from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
 /**
@@ -79,7 +84,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "enum",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema, context),
+      decorators: getDecoratorsForSchema(
+        schema,
+        context,
+        context.getRefName(`#/components/schemas/${name}`, [context.rootNamespace]),
+      ),
       doc: schema.description,
       schema,
     };
@@ -114,6 +123,22 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     ) {
       decorators.push({ name: "error", args: [] });
     }
+    const { additionalProperties } = effectiveSchema;
+    // JSON Schema permits extra properties by default, but TypeSpec object values require an indexer.
+    const needsOpenIndexer =
+      additionalProperties === undefined &&
+      "examples" in effectiveSchema &&
+      Array.isArray(effectiveSchema.examples) &&
+      findExampleAdditionalProperties(effectiveSchema, context) === undefined &&
+      effectiveSchema.examples.some(
+        (example) =>
+          example !== null &&
+          typeof example === "object" &&
+          !Array.isArray(example) &&
+          Object.keys(example).some(
+            (key) => !findExamplePropertySchema(effectiveSchema, key, context),
+          ),
+      );
     types.push({
       kind: "model",
       name,
@@ -122,17 +147,15 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...getModelPropertiesFromObjectSchema(effectiveSchema, context),
+        ...getModelPropertiesFromObjectSchema(effectiveSchema),
         ...allOfDetails.properties,
       ],
       additionalProperties:
-        "additionalProperties" in effectiveSchema
-          ? effectiveSchema.additionalProperties === true
-            ? {} // Use empty object to represent Record<unknown>
-            : typeof effectiveSchema.additionalProperties === "object"
-              ? effectiveSchema.additionalProperties
-              : undefined
-          : undefined,
+        additionalProperties === true || needsOpenIndexer
+          ? {}
+          : typeof additionalProperties === "object"
+            ? additionalProperties
+            : undefined,
       extends: allOfDetails.extends,
       is: isParent,
       type: "type" in effectiveSchema ? effectiveSchema.type : undefined,
@@ -151,7 +174,12 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
-    let decorators = [...getDecoratorsForSchema(schema, context), ...unionMetadata.decorators];
+    let decorators = [
+      ...getDecoratorsForSchema(schema, context),
+      ...unionMetadata.decorators.filter(
+        (decorator) => decorator.name !== "example" || !("examples" in schema),
+      ),
+    ];
 
     // Check if this is an SSE event schema - if so, replace @oneOf with @events
     const schemaRef = `#/components/schemas/${name}`;
@@ -175,7 +203,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
 
   /**
    * Extracts meaningful description and decorators from union members.
-   * Handles anyOf/oneOf with null, and type arrays like ["string", "null"].
+   * Handles anyOf/oneOf with null.
    */
   function extractUnionMetadata(schema: SupportedOpenAPISchema): {
     description?: string;
@@ -201,19 +229,6 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       }
     }
 
-    // Handle type array scenarios like type: ["string", "null"]
-    if (Array.isArray(schema.type)) {
-      const nonNullTypes = schema.type.filter((t) => t !== "null");
-      // If we have exactly one non-null type, this is essentially a nullable version of that type
-      // The schema itself should contain the relevant constraints/description for the non-null type
-      if (nonNullTypes.length === 1) {
-        // Create a schema without the null type to extract decorators for the non-null part
-        const nonNullSchema = { ...schema, type: nonNullTypes[0] };
-        return { decorators: getDecoratorsForSchema(nonNullSchema, context) };
-        // The description should already be on the main schema, so we don't override it here
-      }
-    }
-
     return { decorators: [] };
   }
 
@@ -226,7 +241,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "scalar",
       ...getScopeAndName(name),
       directives: getDirectivesForSchema(schema),
-      decorators: getDecoratorsForSchema(schema, context),
+      decorators: getDecoratorsForSchema(
+        schema,
+        context,
+        context.getRefName(`#/components/schemas/${name}`, [context.rootNamespace]),
+      ),
       doc: schema.description,
       schema: "$ref" in schema ? {} : schema,
     });
@@ -255,7 +274,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     for (const member of schema.allOf) {
       // inline-schemas treated as normal objects with properties
       if (!("$ref" in member)) {
-        details.properties.push(...getModelPropertiesFromObjectSchema(member, context));
+        details.properties.push(...getModelPropertiesFromObjectSchema(member));
         continue;
       }
 
@@ -305,6 +324,10 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
  * Otherwise, returns the original schema.
  */
 export function unwrapSingleAnyOfOneOf(schema: SupportedOpenAPISchema): SupportedOpenAPISchema {
+  // Unwrapping drops the null variant, so it would invalidate a null example.
+  if ("examples" in schema && Array.isArray(schema.examples) && schema.examples.includes(null)) {
+    return schema;
+  }
   const unionMembers = schema.anyOf || schema.oneOf;
   if (!unionMembers) {
     return schema;
@@ -336,6 +359,9 @@ export function unwrapSingleAnyOfOneOf(schema: SupportedOpenAPISchema): Supporte
         ...(schema as object),
         ...member,
         description: member.description || schema.description,
+        ...("examples" in schema && schema.examples !== undefined
+          ? { examples: schema.examples }
+          : {}),
         anyOf: undefined,
         oneOf: undefined,
       };
@@ -345,10 +371,10 @@ export function unwrapSingleAnyOfOneOf(schema: SupportedOpenAPISchema): Supporte
   return schema;
 }
 
-function getModelPropertiesFromObjectSchema(
-  { properties, required = [] }: SupportedOpenAPISchema,
-  context: Context,
-): TypeSpecModelProperty[] {
+function getModelPropertiesFromObjectSchema({
+  properties,
+  required = [],
+}: SupportedOpenAPISchema): TypeSpecModelProperty[] {
   if (!properties) return [];
 
   const modelProperties: TypeSpecModelProperty[] = [];
@@ -361,7 +387,7 @@ function getModelPropertiesFromObjectSchema(
       schema: property,
       isOptional: !required.includes(name),
       directives: [...getDirectivesForSchema(property)],
-      decorators: [...getDecoratorsForSchema(property, context)],
+      decorators: [],
     });
   }
 

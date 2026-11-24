@@ -87,11 +87,7 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
     }
 
     public ChildResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getChildResourcesInterfaces()
-            .createOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, this.innerModel(),
-                Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ChildResource create(Context context) {
@@ -113,12 +109,7 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
     }
 
     public ChildResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getChildResourcesInterfaces()
-            .updateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, updateProperties,
-                Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public ChildResource apply(Context context) {
@@ -146,11 +137,7 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
     }
 
     public ChildResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getChildResourcesInterfaces()
-            .getWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ChildResource refresh(Context context) {

@@ -49,11 +49,7 @@ public final class SubscriptionResource1Impl
     private String subscriptionResource1Name;
 
     public SubscriptionResource1 create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getTwoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-            .putWithResponse(subscriptionId, subscriptionResource1Name, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public SubscriptionResource1 create(Context context) {
@@ -76,11 +72,7 @@ public final class SubscriptionResource1Impl
     }
 
     public SubscriptionResource1 apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getTwoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-            .putWithResponse(subscriptionId, subscriptionResource1Name, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public SubscriptionResource1 apply(Context context) {
@@ -104,11 +96,7 @@ public final class SubscriptionResource1Impl
     }
 
     public SubscriptionResource1 refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getTwoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-            .getWithResponse(subscriptionId, subscriptionResource1Name, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public SubscriptionResource1 refresh(Context context) {
