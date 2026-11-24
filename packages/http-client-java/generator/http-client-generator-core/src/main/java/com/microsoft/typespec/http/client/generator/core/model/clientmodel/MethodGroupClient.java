@@ -166,7 +166,9 @@ public class MethodGroupClient {
 
         if (includeImplementationImports) {
             // ClassType proxyType = settings.isAzureOrFluent() ? ClassType.AzureProxy : ClassType.RestProxy;
-            imports.add(ClassType.REST_PROXY.getFullName());
+            if (!settings.generateClientCoreHttpOperations()) {
+                imports.add(ClassType.REST_PROXY.getFullName());
+            }
 
             if (settings.isGenerateClientInterfaces()) {
                 String interfacePackage = ClientModelUtil.getServiceClientInterfacePackageName();

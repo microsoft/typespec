@@ -378,7 +378,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SingletonTrackedResourceInner createOrUpdate(String resourceGroupName,
         SingletonTrackedResourceInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, resource));
     }
 
     /**
@@ -395,7 +395,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SingletonTrackedResourceInner createOrUpdate(String resourceGroupName,
         SingletonTrackedResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, resource, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, resource, context));
     }
 
     /**

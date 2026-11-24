@@ -8,8 +8,9 @@ import type {
   OpenAPISchema3_1,
   OpenAPISchema3_2,
   Refable,
+  SupportedOpenAPISchema,
 } from "../../../../types.js";
-import { stringLiteral } from "../generators/common.js";
+import { getStringType, stringLiteral } from "../generators/common.js";
 import type { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 import type { Context } from "./context.js";
 
@@ -240,6 +241,7 @@ function getHeaderArgs(explode: boolean): TSValue | undefined {
 export function getDecoratorsForSchema(
   schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
   context?: Context,
+  exampleTargetType?: string,
 ): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
@@ -261,6 +263,7 @@ export function getDecoratorsForSchema(
   const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
 
   decorators.push(...getExtensions(schemaWithoutRef));
+  decorators.push(...getExampleDecoratorsForSchema(schema, context, exampleTargetType));
 
   // Handle readOnly and writeOnly properties
   // These are mutually exclusive - if both are present, emit a warning and ignore both
@@ -419,6 +422,283 @@ export function getDecoratorsForSchema(
   }
 
   return decorators;
+}
+
+export function getExampleDecoratorsForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+  context?: Context,
+  exampleTargetType?: string,
+): TypeSpecDecorator[] {
+  const schemaWithoutRef = schema as OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+  if (!("examples" in schemaWithoutRef)) {
+    return [];
+  }
+
+  if (!Array.isArray(schemaWithoutRef.examples)) {
+    context?.logger.warn("Schema examples must be an array. The examples will be ignored.");
+    return [];
+  }
+
+  // Decorators are applied in reverse order, so reverse to preserve the examples array order.
+  const decorators: TypeSpecDecorator[] = [];
+  for (const example of [...schemaWithoutRef.examples].reverse()) {
+    const expression = getExampleValueExpression(example, schema, context, exampleTargetType);
+    if (expression !== undefined) {
+      decorators.push({ name: "example", args: [createTSValue(expression)] });
+    }
+  }
+  return decorators;
+}
+
+function getExampleValueExpression(
+  value: unknown,
+  schema: Refable<SupportedOpenAPISchema>,
+  context?: Context,
+  exampleTargetType?: string,
+  refs: ReadonlySet<string> = new Set(),
+): string | undefined {
+  if (value === null) return "null";
+
+  const isRef = "$ref" in schema;
+  const referencedSchema = isRef ? context?.getSchemaByRef(schema.$ref) : undefined;
+  const effectiveSchema: SupportedOpenAPISchema = isRef
+    ? { ...referencedSchema, ...schema }
+    : schema;
+  const typeName = isRef
+    ? context?.getRefName(schema.$ref, [context.rootNamespace])
+    : exampleTargetType;
+  const nullable =
+    Array.isArray(effectiveSchema.type) ||
+    ("nullable" in effectiveSchema && effectiveSchema.nullable);
+
+  if (
+    typeName &&
+    !nullable &&
+    effectiveSchema.type === "string" &&
+    effectiveSchema.enum?.includes(value as string)
+  ) {
+    return `${typeName}.${printIdentifier(String(value), "disallow-reserved")}`;
+  }
+
+  const unionMembers = effectiveSchema.anyOf ?? effectiveSchema.oneOf;
+  if (unionMembers) {
+    const activeRefs = isRef ? new Set([...refs, schema.$ref]) : refs;
+    const matchingMember = unionMembers.find((member) =>
+      isExampleValueCompatible(value, member, context, activeRefs),
+    );
+    if (matchingMember) {
+      return getExampleValueExpression(value, matchingMember, context, undefined, activeRefs);
+    }
+  }
+
+  if (effectiveSchema.const === undefined && !effectiveSchema.enum) {
+    const types = Array.isArray(effectiveSchema.type)
+      ? effectiveSchema.type
+      : [effectiveSchema.type];
+    if (typeof value === "string" && types.includes("string")) {
+      const scalar = getStringType(effectiveSchema);
+      switch (scalar) {
+        case "utcDateTime":
+        case "plainDate":
+        case "plainTime":
+        case "duration":
+          return scalarExampleFromISO((!nullable && typeName) || scalar, value);
+        case "bytes":
+          context?.logger.warn("Schema example contains a bytes value and will be ignored.");
+          return undefined;
+      }
+    } else if (typeof value === "number") {
+      const encoding = effectiveSchema["x-ms-duration"];
+      if (
+        (types.includes("integer") || types.includes("number")) &&
+        (encoding === "seconds" || encoding === "milliseconds")
+      ) {
+        const seconds = encoding === "milliseconds" ? value / 1000 : value;
+        const magnitude = Math.abs(seconds);
+        const decimal = magnitude.toLocaleString("en-US", {
+          useGrouping: false,
+          maximumFractionDigits: 9,
+        });
+        if (
+          magnitude > Number.MAX_SAFE_INTEGER ||
+          Math.abs(Number(decimal) - magnitude) > magnitude * Number.EPSILON
+        ) {
+          context?.logger.warn(
+            "Schema example contains an unrepresentable duration and will be ignored.",
+          );
+          return undefined;
+        }
+        return scalarExampleFromISO(
+          (!nullable && typeName) || "duration",
+          `${seconds < 0 ? "-" : ""}PT${decimal}S`,
+        );
+      }
+      if (types.includes("integer") && effectiveSchema.format === "unixtime") {
+        const date = new Date(value * 1000);
+        if (Number.isNaN(date.getTime())) {
+          context?.logger.warn(
+            "Schema example contains an out-of-range Unix timestamp and will be ignored.",
+          );
+          return undefined;
+        }
+        return scalarExampleFromISO((!nullable && typeName) || "utcDateTime", date.toISOString());
+      }
+    }
+  }
+
+  if (Array.isArray(value)) {
+    const items: string[] = [];
+    for (const item of value) {
+      const expression = getExampleValueExpression(item, effectiveSchema.items ?? {}, context);
+      if (expression === undefined) return undefined;
+      items.push(expression);
+    }
+    return `#[${items.join(", ")}]`;
+  }
+
+  if (typeof value === "object") {
+    const properties: string[] = [];
+    const additionalProperties =
+      effectiveSchema.additionalProperties ??
+      findExampleAdditionalProperties(effectiveSchema, context);
+    for (const [key, propertyValue] of Object.entries(value)) {
+      const propertySchema =
+        findExamplePropertySchema(effectiveSchema, key, context) ??
+        (typeof additionalProperties === "object" ? additionalProperties : {});
+      const expression = getExampleValueExpression(propertyValue, propertySchema, context);
+      if (expression === undefined) return undefined;
+      properties.push(`${printIdentifier(key, "disallow-reserved")}: ${expression}`);
+    }
+    return `#{${properties.join(", ")}}`;
+  }
+
+  function scalarExampleFromISO(scalar: string, value: string): string {
+    return `${scalar}.fromISO(${stringLiteral(value)})`;
+  }
+
+  return typeof value === "string" ? stringLiteral(value) : JSON.stringify(value);
+}
+
+export function findExamplePropertySchema(
+  schema: Refable<SupportedOpenAPISchema>,
+  key: string,
+  context?: Context,
+  visited = new Set<Refable<SupportedOpenAPISchema>>(),
+): Refable<SupportedOpenAPISchema> | undefined {
+  if (visited.has(schema)) return undefined;
+  visited.add(schema);
+
+  if ("$ref" in schema) {
+    const target = context?.getSchemaByRef(schema.$ref);
+    return target && findExamplePropertySchema(target, key, context, visited);
+  }
+
+  if (schema.properties && Object.hasOwn(schema.properties, key)) {
+    return schema.properties[key];
+  }
+  for (const member of schema.allOf ?? []) {
+    const property = findExamplePropertySchema(member, key, context, visited);
+    if (property) return property;
+  }
+  return undefined;
+}
+
+export function findExampleAdditionalProperties(
+  schema: Refable<SupportedOpenAPISchema>,
+  context?: Context,
+  visited = new Set<string>(),
+): Refable<SupportedOpenAPISchema> | boolean | undefined {
+  if ("$ref" in schema) {
+    if (visited.has(schema.$ref)) return undefined;
+    visited.add(schema.$ref);
+    const target = context?.getSchemaByRef(schema.$ref);
+    return target && findExampleAdditionalProperties(target, context, visited);
+  }
+
+  if (schema.additionalProperties !== undefined) return schema.additionalProperties;
+  for (const member of schema.allOf ?? []) {
+    // Only referenced members contribute an indexer to the generated model.
+    if (!("$ref" in member)) continue;
+    const additionalProperties = findExampleAdditionalProperties(member, context, visited);
+    if (additionalProperties !== undefined) return additionalProperties;
+  }
+  return undefined;
+}
+
+function isExampleValueCompatible(
+  value: unknown,
+  schema: Refable<SupportedOpenAPISchema>,
+  context?: Context,
+  refs: ReadonlySet<string> = new Set(),
+): boolean {
+  if ("$ref" in schema) {
+    if (refs.has(schema.$ref)) return false;
+    const referencedSchema = context?.getSchemaByRef(schema.$ref);
+    return (
+      !referencedSchema ||
+      isExampleValueCompatible(value, referencedSchema, context, new Set([...refs, schema.$ref]))
+    );
+  }
+
+  if (schema.const !== undefined && schema.const !== value) return false;
+  if (schema.enum && !schema.enum.includes(value as never)) return false;
+
+  const unionMembers = schema.anyOf ?? schema.oneOf;
+  if (
+    (unionMembers &&
+      !unionMembers.some((member) => isExampleValueCompatible(value, member, context, refs))) ||
+    (schema.allOf &&
+      !schema.allOf.every((member) => isExampleValueCompatible(value, member, context, refs)))
+  ) {
+    return false;
+  }
+
+  if (value === null && "nullable" in schema && schema.nullable) return true;
+
+  const types = Array.isArray(schema.type) ? schema.type : [schema.type];
+  if (!types.some((type) => isExampleTypeCompatible(value, type))) return false;
+
+  // Inspect nested values independently: a recursive schema can recur at a different value.
+  if (Array.isArray(value) && schema.items) {
+    const items = schema.items;
+    return value.every((item) => isExampleValueCompatible(item, items, context));
+  }
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return (
+      (schema.required ?? []).every((key) => Object.hasOwn(value, key)) &&
+      Object.entries(value).every(([key, propertyValue]) => {
+        const propertySchema =
+          schema.properties && Object.hasOwn(schema.properties, key)
+            ? schema.properties[key]
+            : schema.additionalProperties;
+        return typeof propertySchema === "object"
+          ? isExampleValueCompatible(propertyValue, propertySchema, context)
+          : propertySchema !== false;
+      })
+    );
+  }
+  return true;
+}
+
+function isExampleTypeCompatible(value: unknown, type: string | undefined): boolean {
+  switch (type) {
+    case "null":
+      return value === null;
+    case "array":
+      return Array.isArray(value);
+    case "object":
+      return value !== null && typeof value === "object" && !Array.isArray(value);
+    case "string":
+      return typeof value === "string";
+    case "boolean":
+      return typeof value === "boolean";
+    case "integer":
+      return typeof value === "number" && Number.isInteger(value);
+    case "number":
+      return typeof value === "number";
+    default:
+      return true;
+  }
 }
 
 export function getDirectivesForSchema(
@@ -599,7 +879,7 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   }
 
   if (typeof schema.pattern === "string") {
-    decorators.push({ name: "pattern", args: [escapeRegex(schema.pattern)] });
+    decorators.push({ name: "pattern", args: [schema.pattern] });
   }
 
   if (typeof schema.format === "string" && !knownStringFormats.has(schema.format)) {
@@ -615,8 +895,4 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   }
 
   return decorators;
-}
-
-function escapeRegex(str: string) {
-  return str.replace(/\\/g, "\\\\");
 }

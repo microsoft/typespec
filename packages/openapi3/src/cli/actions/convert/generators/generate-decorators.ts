@@ -33,10 +33,17 @@ export function generateDecorators(
   decorators: TypeSpecDecorator[],
   namesToExclude: string[] = [],
 ): string[] {
-  const uniqueDecorators = new Set<string>(
-    decorators.filter((d) => !namesToExclude.includes(d.name)).map(generateDecorator),
-  );
-  return Array.from(uniqueDecorators);
+  const seen = new Set<string>();
+  return decorators
+    .filter((d) => !namesToExclude.includes(d.name))
+    .flatMap((decorator) => {
+      const generated = generateDecorator(decorator);
+      if (decorator.name !== "example" && seen.has(generated)) {
+        return [];
+      }
+      seen.add(generated);
+      return [generated];
+    });
 }
 
 function isTSValue(value: unknown): value is TSValue {

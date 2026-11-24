@@ -337,7 +337,7 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VirtualMachineInner createOrUpdate(String resourceGroupName, String vmName, VirtualMachineInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, vmName, resource).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, vmName, resource));
     }
 
     /**
@@ -356,6 +356,6 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VirtualMachineInner createOrUpdate(String resourceGroupName, String vmName, VirtualMachineInner resource,
         Context context) {
-        return beginCreateOrUpdate(resourceGroupName, vmName, resource, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, vmName, resource, context));
     }
 }
