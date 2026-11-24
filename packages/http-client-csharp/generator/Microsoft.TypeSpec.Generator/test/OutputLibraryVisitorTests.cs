@@ -315,8 +315,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var referencingType = new ConstructorAccessingTypeProvider(model);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(referencingType, model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
 
             foreach (var type in generator.Object.OutputLibrary.TypeProviders)
@@ -335,6 +334,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(model.Constructors, Has.Count.EqualTo(2));
             var publicConstructor = model.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Public);
             Assert.That(publicConstructor.Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+            AssertGeneratedOutput(model);
         }
 
         [Test]
@@ -349,8 +349,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ];
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
 
             foreach (var type in generator.Object.OutputLibrary.TypeProviders)
@@ -367,6 +366,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
             Assert.That(model.Constructors, Has.Count.EqualTo(1));
             Assert.That(model.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+            AssertGeneratedOutput(model);
         }
 
         [Test]
@@ -382,8 +382,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var referencingType = new ConstructorAccessingTypeProvider(model);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(referencingType, model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
             generator.Object.AddVisitor(new MethodVisitor());
             generator.Object.AddVisitor(new TestFilterVisitor());
@@ -393,23 +392,23 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
             Assert.That(model.Constructors, Has.Count.EqualTo(1));
             Assert.That(model.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
+            AssertGeneratedOutput(model);
         }
 
         [TestCase(false)]
         [TestCase(true)]
         public async Task FinalFilteringPreservesDistinctConstructorSignatures(bool nestedNullableValue)
         {
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false, nestedNullableValue.ToString()), "TestName.cs"));
             var model = new MutableConstructorModelProvider();
             var initialType = nestedNullableValue ? typeof(List<int>) : typeof(int);
             var generated = new ConstructorProvider(
                 new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("value", $"", initialType)]),
                 Snippet.Throw(Snippet.Null), model);
             model.ConstructorProviders = [generated];
-            var parameterType = nestedNullableValue ? "System.Collections.Generic.List<int>" : "int";
-            var customCode = $"namespace Test {{ public partial class TestName {{ public TestName({parameterType} value) {{ }} }} }}";
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(nestedNullableValue.ToString()));
             model.Update(reset: true);
 
             Assert.That(model.Constructors, Is.Empty);
@@ -422,7 +421,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 .Append(typeof(BinaryData).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path));
             var compilation = CSharpCompilation.Create("DistinctConstructors",
-                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(model).Write().Content), CSharpSyntaxTree.ParseText(customCode)],
+                [CSharpSyntaxTree.ParseText(AssertGeneratedOutput(model, nestedNullableValue.ToString())), CSharpSyntaxTree.ParseText(customCode)],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
         }
@@ -430,11 +429,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public async Task CustomConstructorMatchesParameterFromCustomizedNullableNestedEnumProperty()
         {
-            const string customCode = "namespace Sample.Models { public class Outer { public enum Kind { A } } public partial class Widget { public Outer.Kind? Kind { get; set; } public Widget(Outer.Kind? kind) { Kind = kind; } } }";
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "Widget.cs"));
             var input = InputFactory.Model("Widget", usage: InputModelTypeUsage.Input,
                 properties: [InputFactory.Property("kind", InputPrimitiveType.Int32, isRequired: true)]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [input],
-                compilation: () => Helpers.GetCompilationFromSourceFilesAsync([("Widget.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var model = generator.Object.TypeFactory.CreateModel(input)!;
 
             Assert.That(model.GeneratedConstructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.True);
@@ -445,11 +444,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public async Task CustomConstructorMatchesResolvedNullableNestedEnum()
         {
-            const string customCode = "namespace Test { public class Outer { public enum Kind { A } } public partial class TestName { public TestName(Outer.Kind? kind) { } } }";
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "TestName.cs"));
             var model = new MutableConstructorModelProvider();
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: () => Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var outer = new CSharpType("Outer", "Test", false, false, null, [], true, false);
             var kind = new CSharpType("Kind", "Test", true, true, outer, [], true, false, underlyingEnumType: typeof(int));
             model.ConstructorProviders = [new ConstructorProvider(
@@ -463,15 +462,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public async Task CustomStaticConstructorReplacesGeneratedStaticConstructor()
         {
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "TestName.cs"));
             var model = new MutableConstructorModelProvider();
             var generated = new ConstructorProvider(
                 new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Static, []),
                 MethodBodyStatement.Empty, model);
             model.ConstructorProviders = [generated];
-            const string customCode = "namespace Test { public partial class TestName { static TestName() { } } }";
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
 
             var custom = model.CustomCodeView!.Constructors.Single();
@@ -485,21 +484,21 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase(true)]
         public async Task RefReadonlyCustomConstructorUsesByReferenceSignature(bool generatedByReference)
         {
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "TestName.cs"));
             var model = new MutableConstructorModelProvider();
             var generated = new ConstructorProvider(
                 new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public,
                     [new ParameterProvider("value", $"", typeof(int), isRef: generatedByReference)]),
                 Snippet.Throw(Snippet.Null), model);
             model.ConstructorProviders = [generated];
-            const string customCode = "namespace Test { public partial class TestName { public TestName(ref readonly int value) { } } }";
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
 
             Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().HasUnsupportedParameterModifiers, Is.True);
             Assert.That(model.Constructors.Count, Is.EqualTo(generatedByReference ? 0 : 1));
-            AssertGeneratedAndCustomCodeCompiles(model, customCode);
+            AssertGeneratedAndCustomCodeCompiles(model, customCode, generatedByReference.ToString());
         }
 
         [Test]
@@ -512,8 +511,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             model.ConstructorProviders = [generated];
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("TestName.cs", "namespace Test { public partial class TestName { internal TestName(string param1) { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
 
             Assert.That(model.Constructors, Is.Empty);
@@ -542,8 +540,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             model.ConstructorProviders = [generated];
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("TestName.cs", "namespace Test { public partial class TestName { internal TestName(string param1) { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(reset: true);
 
             var canonical = model.CanonicalView;
@@ -610,8 +607,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 Snippet.Throw(Snippet.Null), model);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("TestName.cs", "namespace Test { public partial class TestName { public TestName(string param1) { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             model.Update(constructors: [generated], reset: true);
 
             Assert.That(model.Constructors, Is.Empty);
@@ -632,11 +628,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
                 Snippet.Throw(Snippet.Null), model);
             model.ConstructorProviders = [generated];
-            var suppressedType = suppressFinalSignature ? "int" : "string";
-            var customCode = $"using Microsoft.TypeSpec.Generator.Customizations; namespace Test {{ [CodeGenSuppress(\"TestName\", typeof({suppressedType}))] public partial class TestName {{ }} }}";
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(suppressFinalSignature.ToString()));
             model.Update(reset: true);
 
             Assert.That(model.Constructors.Count, Is.EqualTo(suppressFinalSignature ? 1 : 0));
@@ -659,10 +653,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     new ConstructorSignature(model.Type, $"", MethodSignatureModifiers.Public, []),
                     Snippet.Throw(Snippet.Null), model)
             ];
-            var customCode = $"namespace Test {{ public partial class TestName {{ {accessibility} TestName() {{ }} }} }}";
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(model),
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("TestName.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync(accessibility));
             model.Update(reset: true);
 
             Assert.That(model.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
@@ -746,8 +739,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
                 .Select(path => MetadataReference.CreateFromFile(path));
             var compilation = CSharpCompilation.Create("ConstructorViews",
-                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(model).Write().Content),
-                    CSharpSyntaxTree.ParseText(new TypeProviderWriter(serialization).Write().Content)],
+                [CSharpSyntaxTree.ParseText(AssertGeneratedOutput(model, $"{staticOnModel},Model")),
+                    CSharpSyntaxTree.ParseText(AssertGeneratedOutput(serialization, $"{staticOnModel},Serialization"))],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
         }
@@ -1074,13 +1067,22 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
 
-        private static void AssertGeneratedAndCustomCodeCompiles(TypeProvider provider, string customCode)
+        private static string AssertGeneratedOutput(TypeProvider provider, string? variant = null,
+            [System.Runtime.CompilerServices.CallerMemberName] string method = "")
+        {
+            var code = new TypeProviderWriter(provider).Write().Content;
+            Assert.That(code, Is.EqualTo(Helpers.GetExpectedFromFile(variant, method)));
+            return code;
+        }
+
+        private static void AssertGeneratedAndCustomCodeCompiles(TypeProvider provider, string customCode, string? variant = null,
+            [System.Runtime.CompilerServices.CallerMemberName] string method = "")
         {
             var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
                 .Append(typeof(BinaryData).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path));
             var compilation = CSharpCompilation.Create("ConstructorViews",
-                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content), CSharpSyntaxTree.ParseText(customCode)],
+                [CSharpSyntaxTree.ParseText(AssertGeneratedOutput(provider, variant, method)), CSharpSyntaxTree.ParseText(customCode)],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
         }

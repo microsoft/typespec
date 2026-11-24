@@ -632,8 +632,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var input = InputFactory.Client("WidgetClient");
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [input],
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync(
-                    [("WidgetClientOptions.cs", "namespace Sample { public partial class WidgetClientOptions { public WidgetClientOptions() { } } }")]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var client = generator.Object.TypeFactory.CreateClient(input)!;
             var options = client.ClientOptions!;
             options.EnsureBuilt();

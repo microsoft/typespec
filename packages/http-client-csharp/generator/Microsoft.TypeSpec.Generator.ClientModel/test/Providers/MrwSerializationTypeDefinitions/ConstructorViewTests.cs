@@ -35,13 +35,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var usage = (outputOnly ? InputModelTypeUsage.Output : InputModelTypeUsage.Input) |
                 (multipart ? InputModelTypeUsage.MultipartFormData : InputModelTypeUsage.Json);
             var input = InputFactory.Model("Widget", properties: [], usage: usage);
-            var customCode = suppressed
-                ? "using Microsoft.TypeSpec.Generator.Customizations; namespace Sample.Models { [CodeGenSuppress(\"Widget\")] public partial class Widget { } }"
-                : "namespace Sample.Models { public partial class Widget { public Widget() { } } }";
+            var customization = suppressed ? "Suppressed" : "Custom";
             Compilation? customCompilation = null;
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [input],
-                compilation: async () => customCompilation = await Helpers.GetCompilationFromSourceFilesAsync([("Widget.cs", customCode)]));
+                compilation: async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync(customization));
             var model = generator.Object.TypeFactory.CreateModel(input)!;
             model.EnsureBuilt();
             var serialization = model.SerializationProviders.Single(provider => multipart
@@ -60,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 .Concat([typeof(BinaryData).Assembly.Location, typeof(ModelReaderWriterOptions).Assembly.Location])
                 .Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path));
+            AssertOutput(model, serialization, $"{multipart},{outputOnly},{suppressed}");
             var customTrees = customCompilation!.SyntaxTrees.Where(tree =>
                 Path.GetFileName(tree.FilePath) is "Widget.cs" or "CodeGenSuppressAttribute.cs");
             var compilation = CSharpCompilation.Create("ConstructorViews",
@@ -72,10 +71,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public async Task XmlDeserializationRemainsCallableAfterVisitorAddsOptionalParameter()
         {
             var input = InputFactory.Model("Widget", properties: [], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml);
-            const string customCode = "using Microsoft.TypeSpec.Generator.Customizations; namespace Sample.Models { [CodeGenSuppress(\"Widget\")] public partial class Widget { } }";
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "Widget.cs"));
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [input],
-                compilation: () => Helpers.GetCompilationFromSourceFilesAsync([("Widget.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var model = generator.Object.TypeFactory.CreateModel(input)!;
             Assert.That(model.Constructors, Is.Empty);
             model.EnsureBuilt();
@@ -87,6 +86,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.That(model.Constructors.Any(c => c.Signature.Parameters.Count == 1 &&
                 c.Signature.Parameters[0].Type.FrameworkType == typeof(int)), Is.True);
+            AssertOutput(model, model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single(), "Xml");
             var trees = output.TypeProviders.SelectMany(provider => new[] { provider }.Concat(provider.SerializationProviders))
                 .Distinct()
                 .Select(provider => new TypeProviderWriter(provider).Write())
@@ -135,10 +135,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var usage = InputModelTypeUsage.Input | (multipart ? InputModelTypeUsage.MultipartFormData : InputModelTypeUsage.Json);
             var input = InputFactory.Model("Widget", usage: usage,
                 properties: [InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)]);
-            const string customCode = "namespace Sample.Models { public partial class Widget { public Widget(string value) { } } }";
+            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "Widget.cs"));
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [input],
-                compilation: () => Helpers.GetCompilationFromSourceFilesAsync([("Widget.cs", customCode)]));
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var model = generator.Object.TypeFactory.CreateModel(input)!;
             Assert.That(model.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
             model.EnsureBuilt();
@@ -156,10 +156,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 .Concat([typeof(BinaryData).Assembly.Location, typeof(ModelReaderWriterOptions).Assembly.Location])
                 .Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path));
+            AssertOutput(model, serialization, multipart.ToString());
             var compilation = CSharpCompilation.Create("ConstructorViews",
                 [ConstructorSurface(model), ConstructorSurface(serialization), CSharpSyntaxTree.ParseText(customCode)],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        private static void AssertOutput(TypeProvider model, TypeProvider serialization, string variant,
+            [System.Runtime.CompilerServices.CallerMemberName] string method = "")
+        {
+            Assert.That(new TypeProviderWriter(model).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{variant},Model", method)));
+            Assert.That(new TypeProviderWriter(serialization).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{variant},Serialization", method)));
         }
 
         private static SyntaxTree ConstructorSurface(TypeProvider provider)

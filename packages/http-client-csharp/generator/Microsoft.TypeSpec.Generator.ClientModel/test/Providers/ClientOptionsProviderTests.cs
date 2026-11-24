@@ -519,9 +519,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
                 .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
                 .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var generatedCode = new TypeProviderWriter(options).Write().Content;
+            Assert.That(generatedCode, Is.EqualTo(Helpers.GetExpectedFromFile()));
             var trees = customCompilation!.SyntaxTrees.Where(tree =>
                 System.IO.Path.GetFileName(tree.FilePath) is "TestClientOptions.cs" or "CodeGenTypeAttribute.cs")
-                .Append(CSharpSyntaxTree.ParseText(new TypeProviderWriter(options).Write().Content));
+                .Append(CSharpSyntaxTree.ParseText(generatedCode));
             var compilation = CSharpCompilation.Create("CustomizedOptions", trees, references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
