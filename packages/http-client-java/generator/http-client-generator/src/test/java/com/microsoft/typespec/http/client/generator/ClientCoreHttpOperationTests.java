@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Info;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
@@ -28,6 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
+import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import io.clientcore.core.http.client.HttpClient;
@@ -229,7 +229,8 @@ public class ClientCoreHttpOperationTests {
             Assertions.assertFalse(source.contains("io.clientcore.core.http.annotations."), source);
             Assertions.assertFalse(source.contains("@ServiceInterface"), source);
             Assertions.assertFalse(source.contains("Class.forName("), source);
-            Files.writeString(path, RemoveUnusedImports.removeUnusedImports(source), StandardCharsets.UTF_8);
+            Files.writeString(path, CodeFormatterUtil.formatCode(Map.of(file.getFilePath(), source)).get(0),
+                StandardCharsets.UTF_8);
             arguments.add(path.toString());
         }
         ByteArrayOutputStream output = new ByteArrayOutputStream();
