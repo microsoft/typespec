@@ -162,7 +162,11 @@ export const $doc: DocDecorator = (
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
-  setDocData(context.program, target, "self", { value: text, source: "decorator" });
+  setDocData(context.program, target, "self", {
+    value: text,
+    source: "decorator",
+    sourceTarget: context.decoratorTarget,
+  });
 };
 
 /**
@@ -182,7 +186,11 @@ export const $returnsDoc: ReturnsDocDecorator = (
   text: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
-  setDocData(context.program, target, "returns", { value: text, source: "decorator" });
+  setDocData(context.program, target, "returns", {
+    value: text,
+    source: "decorator",
+    sourceTarget: context.decoratorTarget,
+  });
 };
 
 /**
@@ -212,7 +220,11 @@ export const $errorsDoc: ErrorsDocDecorator = (
   text: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
-  setDocData(context.program, target, "errors", { value: text, source: "decorator" });
+  setDocData(context.program, target, "errors", {
+    value: text,
+    source: "decorator",
+    sourceTarget: context.decoratorTarget,
+  });
 };
 
 /**

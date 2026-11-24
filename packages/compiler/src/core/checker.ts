@@ -196,6 +196,11 @@ import {
 /** Properties supplied to create a type before the checker adds its identity and finishing state. */
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 
+interface DocComment {
+  value: string;
+  sourceTarget: Node;
+}
+
 enum CheckFlags {
   /** No flags set. */
   None = 0,
@@ -546,7 +551,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   const stdTypes: Partial<StdTypes> = {};
   const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
-  const docFromCommentForSym = new Map<Sym, string>();
+  const docFromCommentForSym = new Map<Sym, DocComment>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
@@ -2777,7 +2782,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const paramDocs = extractParamDocs(node);
       for (const [name, memberSym] of members) {
         const doc = paramDocs.get(name);
-        if (doc) {
+        if (doc?.value) {
           docFromCommentForSym.set(memberSym, doc);
           const declarationSymbol = memberSym.node?.symbol;
           if (declarationSymbol && declarationSymbol !== memberSym) {
@@ -5224,7 +5229,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const propDocs = extractPropDocs(node);
       for (const [name, memberSym] of members) {
         const doc = propDocs.get(name);
-        if (doc) {
+        if (doc?.value) {
           docFromCommentForSym.set(memberSym, doc);
         }
       }
@@ -6954,7 +6959,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const shouldRunDecorators = !ctx.hasFlags(CheckFlags.InTemplateDeclaration);
     if (!parentTemplate || shouldRunDecorators) {
       const docComment = getDocCommentForSymbol(sym) ?? getOperationParameterDocComment(prop);
-      if (docComment) {
+      if (docComment?.value) {
         type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
     }
@@ -6976,7 +6981,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return false;
   }
 
-  function getOperationParameterDocComment(prop: ModelPropertyNode): string | undefined {
+  function getOperationParameterDocComment(prop: ModelPropertyNode): DocComment | undefined {
     if (prop.parent?.kind !== SyntaxKind.ModelExpression) {
       return undefined;
     }
@@ -6994,17 +6999,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return extractParamDocs(operation).get(prop.id.sv);
   }
 
-  function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
+  function createDocFromCommentDecorator(
+    key: "self" | "returns" | "errors",
+    doc: DocComment,
+  ): DecoratorApplication {
     return {
       decorator: docFromCommentDecorator,
       args: [
         { value: createLiteralType(key), jsValue: key },
-        { value: createLiteralType(doc), jsValue: doc },
+        { value: createLiteralType(doc.value), jsValue: doc.value },
       ],
+      sourceTarget: doc.sourceTarget,
     };
   }
 
-  function getDocCommentForSymbol(sym: Sym | undefined): string | undefined {
+  function getDocCommentForSymbol(sym: Sym | undefined): DocComment | undefined {
     if (!sym) {
       return undefined;
     }
@@ -7019,7 +7028,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
-  function getDocCommentForType(type: Type | undefined): string | undefined {
+  function getDocCommentForType(type: Type | undefined): DocComment | undefined {
     if (!type) {
       return undefined;
     }
@@ -7489,10 +7498,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     if (targetType.kind === "Operation") {
       const returnTypesDocs = extractReturnsDocs(targetType);
-      if (returnTypesDocs.returns) {
+      if (returnTypesDocs.returns?.value) {
         decorators.unshift(createDocFromCommentDecorator("returns", returnTypesDocs.returns));
       }
-      if (returnTypesDocs.errors) {
+      if (returnTypesDocs.errors?.value) {
         decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
       }
     } else if (targetType.kind === "ModelProperty") {
@@ -9071,23 +9080,28 @@ function linkMapper<T extends Type & TemplatedTypeBase>(typeDef: T, mapper?: Typ
   }
 }
 
-function extractMainDoc(type: Type): string | undefined {
+function extractMainDoc(type: Type): DocComment | undefined {
   if (type.node?.docs === undefined) {
     return undefined;
   }
   let mainDoc: string = "";
+  let sourceTarget: Node | undefined;
   for (const doc of type.node.docs) {
-    mainDoc += getDocContent(doc.content);
+    const content = getDocContent(doc.content);
+    if (content.trim()) {
+      sourceTarget = sourceTarget ? type.node : doc;
+    }
+    mainDoc += content;
   }
   const trimmed = mainDoc.trim();
-  return trimmed === "" ? undefined : trimmed;
+  return trimmed === "" ? undefined : { value: trimmed, sourceTarget: sourceTarget ?? type.node };
 }
 
 function extractReturnsDocs(type: Type): {
-  returns: string | undefined;
-  errors: string | undefined;
+  returns: DocComment | undefined;
+  errors: DocComment | undefined;
 } {
-  const result: { returns: string | undefined; errors: string | undefined } = {
+  const result: { returns: DocComment | undefined; errors: DocComment | undefined } = {
     returns: undefined,
     errors: undefined,
   };
@@ -9097,25 +9111,25 @@ function extractReturnsDocs(type: Type): {
   for (const doc of type.node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocReturnsTag) {
-        result.returns = getDocContent(tag.content);
+        result.returns = { value: getDocContent(tag.content), sourceTarget: tag };
       }
       if (tag.kind === SyntaxKind.DocErrorsTag) {
-        result.errors = getDocContent(tag.content);
+        result.errors = { value: getDocContent(tag.content), sourceTarget: tag };
       }
     }
   }
   return result;
 }
 
-function extractParamDocs(node: OperationStatementNode): Map<string, string> {
+function extractParamDocs(node: OperationStatementNode): Map<string, DocComment> {
   if (node.docs === undefined) {
     return new Map();
   }
-  const paramDocs = new Map();
+  const paramDocs = new Map<string, DocComment>();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocParamTag) {
-        paramDocs.set(tag.paramName.sv, getDocContent(tag.content));
+        paramDocs.set(tag.paramName.sv, { value: getDocContent(tag.content), sourceTarget: tag });
       }
     }
   }
@@ -9124,15 +9138,15 @@ function extractParamDocs(node: OperationStatementNode): Map<string, string> {
 
 function extractPropDocs(
   node: ModelStatementNode | ModelDeclarationExpressionNode,
-): Map<string, string> {
+): Map<string, DocComment> {
   if (node.docs === undefined) {
     return new Map();
   }
-  const propDocs = new Map();
+  const propDocs = new Map<string, DocComment>();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocPropTag) {
-        propDocs.set(tag.propName.sv, getDocContent(tag.content));
+        propDocs.set(tag.propName.sv, { value: getDocContent(tag.content), sourceTarget: tag });
       }
     }
   }
@@ -9236,10 +9250,11 @@ function createPassThruContexts(
 }
 
 function createDecoratorContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
-  const passthrough = createPassThruContexts(program, decApp.node!);
+  const target = decApp.node ?? decApp.sourceTarget!;
+  const passthrough = createPassThruContexts(program, target);
   const decCtx: DecoratorContext = {
     program,
-    decoratorTarget: decApp.node!,
+    decoratorTarget: target,
     getArgumentTarget: (index: number) => {
       return decApp.args[index]?.node;
     },

@@ -80,6 +80,7 @@ export {
   getDiscriminatedTypes,
   getDiscriminator,
   getDocData,
+  getDocDiagnosticTarget,
   getMaxItems,
   getMaxItemsAsNumeric,
   getMaxLength,

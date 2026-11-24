@@ -49,6 +49,8 @@ export interface DecoratorApplication {
   args: DecoratorArgument[];
   /** Source application, or absent for a programmatically constructed application. */
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
+  /** @internal Source target for a compiler-generated decorator application. */
+  sourceTarget?: DiagnosticTarget;
 }
 
 /**

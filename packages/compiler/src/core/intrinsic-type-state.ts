@@ -6,7 +6,7 @@ import { createStateSymbol } from "../lib/utils.js";
 import { useStateMap } from "../utils/state-accessor.js";
 import { isNumeric, type Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
-import type { Model, ScalarValue, Type, Union } from "./types.js";
+import type { DiagnosticTarget, Model, Operation, ScalarValue, Type, Union } from "./types.js";
 
 const stateKeys = {
   minValues: createStateSymbol("minValues"),
@@ -265,6 +265,9 @@ export interface DocData {
    * - `comment` means it was set from a `/** comment * /`
    */
   source: "decorator" | "comment";
+
+  /** Target that authored this documentation, if a source is available. */
+  sourceTarget?: DiagnosticTarget;
 }
 
 /** @internal */
@@ -306,6 +309,36 @@ export function getDocDataInternal(
  */
 export function getDocData(program: Program, target: Type): DocData | undefined {
   return getDocDataInternal(program, target, "self");
+}
+
+/**
+ * Get a diagnostic target for the source of the effective documentation on a type.
+ *
+ * The target identifies the comment or decorator that supplied the documentation, including
+ * when it was copied from another type. Returns undefined if there is no documentation or its
+ * source is unavailable. If several comments contribute to main documentation, the containing
+ * declaration is returned. Use {@link getSourceLocation} to obtain a source range.
+ *
+ * @param program Program containing the type.
+ * @param target Type whose documentation is being checked.
+ * @param kind Select an operation's return or error documentation instead of its main documentation.
+ */
+export function getDocDiagnosticTarget(
+  program: Program,
+  target: Type,
+  kind?: "self",
+): DiagnosticTarget | undefined;
+export function getDocDiagnosticTarget(
+  program: Program,
+  target: Operation,
+  kind: "self" | "returns" | "errors",
+): DiagnosticTarget | undefined;
+export function getDocDiagnosticTarget(
+  program: Program,
+  target: Type,
+  kind: DocTarget = "self",
+): DiagnosticTarget | undefined {
+  return getDocDataInternal(program, target, kind)?.sourceTarget;
 }
 // #endregion doc
 

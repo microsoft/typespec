@@ -1,7 +1,14 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
+import {
+  createRule,
+  createTypeSpecLibrary,
+  getDocDiagnosticTarget,
+  getSourceLocation,
+  type DiagnosticTarget,
+} from "../../src/index.js";
 import { getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
-import { t } from "../../src/testing/index.js";
+import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: checker: doc comments", () => {
@@ -560,5 +567,212 @@ describe("@prop", () => {
     strictEqual(getDoc(program, Base), "This is the model doc.");
     strictEqual(getDoc(program, Base.properties.get("name")!), "This is the name prop doc.");
     strictEqual(getDoc(program, Base.properties.get("age")!), "This is the age prop doc.");
+  });
+});
+
+describe("getDocDiagnosticTarget", () => {
+  function sourceText(target: DiagnosticTarget | undefined): string {
+    ok(target, "Expected a documentation diagnostic target.");
+    const location = getSourceLocation(target);
+    ok(!location.isSynthetic, "Expected a real source location.");
+    return location.file.text.slice(location.pos, location.end).trim();
+  }
+
+  it("finds a documentation comment and returns undefined when documentation is absent", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        /** Property documentation */
+        name: string;
+        other: string;
+      }
+    `);
+
+    strictEqual(
+      sourceText(getDocDiagnosticTarget(program, Foo.properties.get("name")!)),
+      "/** Property documentation */",
+    );
+    strictEqual(getDocDiagnosticTarget(program, Foo.properties.get("other")!), undefined);
+  });
+
+  it("finds the decorator that overrides a comment", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      /** Original comment */
+      @doc("Explicit documentation")
+      model ${t.model("Foo")} {}
+    `);
+
+    strictEqual(getDoc(program, Foo), "Explicit documentation");
+    strictEqual(sourceText(getDocDiagnosticTarget(program, Foo)), '@doc("Explicit documentation")');
+  });
+
+  it("uses the declaration when multiple comments contribute to the main documentation", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      /** First */
+      /** Second */
+      model ${t.model("Foo")} {}
+    `);
+
+    strictEqual(getDoc(program, Foo), "FirstSecond");
+    strictEqual(getDocDiagnosticTarget(program, Foo), Foo.node);
+  });
+
+  it("preserves an augmented decorator as the source through property spreads", async () => {
+    const { Source, Copy, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} { name: string; }
+      @@doc(Source.name, "Augmented documentation");
+      model ${t.model("Copy")} { ...Source; }
+    `);
+    const source = getDocDiagnosticTarget(program, Source.properties.get("name")!);
+    const copy = getDocDiagnosticTarget(program, Copy.properties.get("name")!);
+
+    strictEqual(sourceText(source), '@@doc(Source.name, "Augmented documentation");');
+    strictEqual(copy, source);
+  });
+
+  it("keeps an intermediate property tag as the source even when its text is unchanged", async () => {
+    const { Source, Middle, Copy, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} {
+        /** Shared text */
+        name: string;
+      }
+      /** @prop name Shared text */
+      model ${t.model("Middle")} { ...Source; }
+      model ${t.model("Copy")} { ...Middle; }
+    `);
+    const source = getDocDiagnosticTarget(program, Source.properties.get("name")!);
+    const middle = getDocDiagnosticTarget(program, Middle.properties.get("name")!);
+    const copy = getDocDiagnosticTarget(program, Copy.properties.get("name")!);
+
+    strictEqual(sourceText(source), "/** Shared text */");
+    strictEqual(sourceText(middle), "@prop name Shared text");
+    strictEqual(copy, middle);
+  });
+
+  it("does not treat an empty property tag as a documentation source", async () => {
+    const { Source, Copy, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} {
+        /** Original */
+        name: string;
+      }
+      /** @prop name */
+      model ${t.model("Copy")} { ...Source; }
+    `);
+
+    strictEqual(
+      getDocDiagnosticTarget(program, Copy.properties.get("name")!),
+      getDocDiagnosticTarget(program, Source.properties.get("name")!),
+    );
+    strictEqual(getDoc(program, Copy.properties.get("name")!), "Original");
+  });
+
+  it("preserves parameter comment overrides across copied operations", async () => {
+    const { source, middle, copy, program } = await Tester.compile(t.code`
+      /** @param name Original */
+      op ${t.op("source")}(name: string): void;
+      /** @param name Override */
+      op ${t.op("middle")} is source;
+      op ${t.op("copy")} is middle;
+    `);
+    const original = getDocDiagnosticTarget(program, source.parameters.properties.get("name")!);
+    const override = getDocDiagnosticTarget(program, middle.parameters.properties.get("name")!);
+    const copied = getDocDiagnosticTarget(program, copy.parameters.properties.get("name")!);
+
+    strictEqual(sourceText(original), "@param name Original");
+    strictEqual(sourceText(override), "@param name Override");
+    strictEqual(copied, override);
+  });
+
+  it("preserves parameter sources through template wrappers", async () => {
+    const { target, program } = await Tester.compile(t.code`
+      /** @param selection Template documentation */
+      op source<T>(selection: T): void;
+      model ParametersWrapper<O extends Reflection.Operation> {
+        value: O::parameters;
+      }
+      alias WrappedParameters = ParametersWrapper<source<string>>;
+      op ${t.op("target")}(...WrappedParameters.value::type): void;
+    `);
+
+    const source = getDocDiagnosticTarget(program, target.parameters.properties.get("selection")!);
+    strictEqual(sourceText(source), "@param selection Template documentation");
+  });
+
+  it("locates operation return and error documentation independently", async () => {
+    const { source, copy, program } = await Tester.compile(t.code`
+      /**
+       * @returns Result documentation
+       * @errors Error documentation
+       */
+      op ${t.op("source")}(): string;
+      @returnsDoc("Explicit result")
+      op ${t.op("copy")} is source;
+    `);
+
+    ok(
+      sourceText(getDocDiagnosticTarget(program, source, "returns")).startsWith(
+        "@returns Result documentation",
+      ),
+    );
+    strictEqual(
+      sourceText(getDocDiagnosticTarget(program, copy, "returns")),
+      '@returnsDoc("Explicit result")',
+    );
+    const errorSource = getDocDiagnosticTarget(program, source, "errors");
+    ok(sourceText(errorSource).startsWith("@errors Error documentation"));
+    strictEqual(getDocDiagnosticTarget(program, copy, "errors"), errorSource);
+  });
+
+  it("supports deduplicating and suppressing linter diagnostics on copied documentation", async () => {
+    const rule = createRule({
+      name: "no-bad-doc",
+      description: "Test source targets",
+      severity: "warning",
+      messages: { default: "Bad documentation" },
+      create(context) {
+        const reported = new Set<DiagnosticTarget>();
+        return {
+          modelProperty(property) {
+            if (getDoc(context.program, property) !== "Bad documentation") return;
+            const target = getDocDiagnosticTarget(context.program, property);
+            if (target !== undefined && !reported.has(target)) {
+              reported.add(target);
+              context.reportDiagnostic({ target });
+            }
+          },
+        };
+      },
+    });
+    async function diagnose(suppression: string) {
+      return Tester.files({
+        "node_modules/test-lib/package.json": JSON.stringify({
+          name: "test-lib",
+          main: "index.js",
+        }),
+        "node_modules/test-lib/index.js": mockFile.js({
+          $lib: createTypeSpecLibrary({ name: "test-lib", diagnostics: {} }),
+          $linter: { rules: [rule] },
+        }),
+      }).diagnose(
+        `
+          import "test-lib";
+          model Source { name: string; }
+          ${suppression}
+          /** @prop name Bad documentation */
+          model Middle { ...Source; }
+          model Copy { ...Middle; }
+        `,
+        { compilerOptions: { linterRuleSet: { enable: { "test-lib/no-bad-doc": true } } } },
+      );
+    }
+
+    const diagnostics = await diagnose("");
+    expectDiagnostics(diagnostics, [{ code: "test-lib/no-bad-doc" }]);
+    const location = getSourceLocation(diagnostics[0].target);
+    ok(location);
+    strictEqual(
+      location.file.text.slice(location.pos, location.end).trim(),
+      "@prop name Bad documentation",
+    );
+    expectDiagnostics(await diagnose('#suppress "test-lib/no-bad-doc" "Intentional"'), []);
   });
 });
