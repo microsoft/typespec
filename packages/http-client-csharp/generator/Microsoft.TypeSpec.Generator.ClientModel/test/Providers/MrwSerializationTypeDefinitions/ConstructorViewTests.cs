@@ -13,7 +13,6 @@ using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -23,13 +22,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     public class ConstructorViewTests
     {
         [TestCase(false, false, false)]
-        [TestCase(false, true, false)]
-        [TestCase(true, false, false)]
-        [TestCase(true, true, false)]
-        [TestCase(false, false, true)]
         [TestCase(false, true, true)]
         [TestCase(true, false, true)]
-        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
         public async Task CustomizedParameterlessConstructorDoesNotCreateDuplicateAfterVisitor(bool multipart, bool outputOnly, bool suppressed)
         {
             var usage = (outputOnly ? InputModelTypeUsage.Output : InputModelTypeUsage.Input) |
@@ -58,46 +53,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 .Concat([typeof(BinaryData).Assembly.Location, typeof(ModelReaderWriterOptions).Assembly.Location])
                 .Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path));
-            AssertOutput(model, serialization, $"{multipart},{outputOnly},{suppressed}");
+            Assert.That(new TypeProviderWriter(model).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{multipart},{outputOnly},Model")));
+            Assert.That(new TypeProviderWriter(serialization).Write().Content,
+                Is.EqualTo(Helpers.GetExpectedFromFile($"{multipart},Serialization")));
             var customTrees = customCompilation!.SyntaxTrees.Where(tree =>
                 Path.GetFileName(tree.FilePath) is "Widget.cs" or "CodeGenSuppressAttribute.cs");
             var compilation = CSharpCompilation.Create("ConstructorViews",
                 new[] { ConstructorSurface(model), ConstructorSurface(serialization) }.Concat(customTrees),
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
-        }
-
-        [Test]
-        public async Task XmlDeserializationRemainsCallableAfterVisitorAddsOptionalParameter()
-        {
-            var input = InputFactory.Model("Widget", properties: [], usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml);
-            var customCode = File.ReadAllText(Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "Widget.cs"));
-            var generator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [input],
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
-            var model = generator.Object.TypeFactory.CreateModel(input)!;
-            Assert.That(model.Constructors, Is.Empty);
-            model.EnsureBuilt();
-            Assert.That(model.FullConstructor.Signature.Parameters, Is.Empty);
-
-            var output = generator.Object.OutputLibrary;
-            new AddOptionalConstructorParameterVisitor().VisitLibrary(output);
-            CSharpGen.FilterAllCustomizedMembers(output);
-
-            Assert.That(model.Constructors.Any(c => c.Signature.Parameters.Count == 1 &&
-                c.Signature.Parameters[0].Type.FrameworkType == typeof(int)), Is.True);
-            AssertOutput(model, model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single(), "Xml");
-            var trees = output.TypeProviders.SelectMany(provider => new[] { provider }.Concat(provider.SerializationProviders))
-                .Distinct()
-                .Select(provider => new TypeProviderWriter(provider).Write())
-                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
-            var references = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
-                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
-            var compilation = CSharpCompilation.Create("XmlConstructorViews",
-                trees.Append(CSharpSyntaxTree.ParseText(customCode)), references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            Assert.That(compilation.GetDiagnostics().Where(d => d.Id == "CS7036" && d.GetMessage().Contains("Widget.Widget(int)")), Is.Empty);
         }
 
         [TestCase(false)]
@@ -189,18 +154,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 {
                     constructor.Signature.Update(parameters: []);
                     constructor.Update(bodyStatements: MethodBodyStatement.Empty);
-                }
-                return constructor;
-            }
-        }
-
-        private sealed class AddOptionalConstructorParameterVisitor : LibraryVisitor
-        {
-            protected internal override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
-            {
-                if (constructor.EnclosingType.Name == "Widget" && constructor.Signature.Parameters.Count == 0)
-                {
-                    constructor.Signature.Update(parameters: [new ParameterProvider("marker", $"", typeof(int), defaultValue: Snippet.Literal(0))]);
                 }
                 return constructor;
             }

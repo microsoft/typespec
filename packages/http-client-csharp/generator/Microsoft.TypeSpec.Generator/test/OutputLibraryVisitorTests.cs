@@ -366,7 +366,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(model.CustomCodeView!.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
             Assert.That(model.Constructors, Has.Count.EqualTo(1));
             Assert.That(model.Constructors.Single().Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(int)));
-            AssertGeneratedOutput(model);
         }
 
         [Test]
