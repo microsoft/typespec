@@ -45,8 +45,7 @@ public final class AccountResourcesImpl implements AccountResources {
     }
 
     public PagedIterable<TopLevelArmResource> list(String group, String accountName) {
-        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(group, accountName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+        return this.list(group, accountName, Context.NONE);
     }
 
     public PagedIterable<TopLevelArmResource> list(String group, String accountName, Context context) {

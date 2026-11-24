@@ -447,9 +447,18 @@ public class ProxyMethod {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        Annotation.HTTP_REQUEST_INFORMATION.addImportsTo(imports);
-        Annotation.UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION.addImportsTo(imports);
+        boolean direct = settings.generateClientCoreHttpOperations();
+        if (!direct) {
+            Annotation.HTTP_REQUEST_INFORMATION.addImportsTo(imports);
+            Annotation.UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION.addImportsTo(imports);
+        }
         ClassType.HTTP_RESPONSE_EXCEPTION.addImportsTo(imports, false);
+        if (includeImplementationImports && direct) {
+            returnType.getClientType().addImportsTo(imports, true);
+            parameters.forEach(parameter -> parameter.getWireType().addImportsTo(imports, true));
+            allParameters.forEach(parameter -> parameter.addImportsTo(imports, true, settings));
+            return;
+        }
         if (includeImplementationImports) {
             if (getUnexpectedResponseExceptionType() != null) {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);

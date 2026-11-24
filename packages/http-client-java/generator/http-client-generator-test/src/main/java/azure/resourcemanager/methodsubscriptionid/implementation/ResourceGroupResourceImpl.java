@@ -82,11 +82,7 @@ public final class ResourceGroupResourceImpl
     }
 
     public ResourceGroupResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getMixedSubscriptionPlacementResourceGroupResourceOperations()
-            .putWithResponse(resourceGroupName, resourceGroupResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ResourceGroupResource create(Context context) {
@@ -109,11 +105,7 @@ public final class ResourceGroupResourceImpl
     }
 
     public ResourceGroupResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getMixedSubscriptionPlacementResourceGroupResourceOperations()
-            .putWithResponse(resourceGroupName, resourceGroupResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public ResourceGroupResource apply(Context context) {
@@ -137,11 +129,7 @@ public final class ResourceGroupResourceImpl
     }
 
     public ResourceGroupResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getMixedSubscriptionPlacementResourceGroupResourceOperations()
-            .getByResourceGroupWithResponse(resourceGroupName, resourceGroupResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ResourceGroupResource refresh(Context context) {

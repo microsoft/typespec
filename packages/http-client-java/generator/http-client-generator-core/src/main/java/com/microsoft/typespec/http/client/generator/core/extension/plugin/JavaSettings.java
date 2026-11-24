@@ -441,6 +441,10 @@ public class JavaSettings {
         return this.useRestProxy;
     }
 
+    public boolean generateClientCoreHttpOperations() {
+        return !isAzureV1() && !useRestProxy();
+    }
+
     private final String keyCredentialHeaderName;
 
     /**

@@ -236,18 +236,7 @@ public final class NestedsClientImpl implements NestedsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a NestedProxyResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NestedProxyResourceInner> getWithResponse(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName, Context context) {
@@ -256,17 +245,7 @@ public final class NestedsClientImpl implements NestedsClient {
             resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, accept, context);
     }
 
-    /**
-     * Get a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a NestedProxyResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner get(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName) {
@@ -314,11 +293,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrReplaceWithResponse(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName, NestedProxyResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrReplaceSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
-            contentType, accept, resource, Context.NONE);
+        return createOrReplaceWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
+            resource, Context.NONE);
     }
 
     /**
@@ -368,41 +344,16 @@ public final class NestedsClientImpl implements NestedsClient {
             this.client.getContext());
     }
 
-    /**
-     * Create a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<NestedProxyResourceInner>, NestedProxyResourceInner> beginCreateOrReplace(
         String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
         NestedProxyResourceInner resource) {
-        Response<BinaryData> response = createOrReplaceWithResponse(resourceGroupName, topLevelTrackedResourceName,
-            nextedProxyResourceName, resource);
-        return this.client.<NestedProxyResourceInner, NestedProxyResourceInner>getLroResult(response,
-            NestedProxyResourceInner.class, NestedProxyResourceInner.class, Context.NONE);
+        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource,
+            Context.NONE);
     }
 
-    /**
-     * Create a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<NestedProxyResourceInner>, NestedProxyResourceInner> beginCreateOrReplace(
         String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
@@ -432,43 +383,20 @@ public final class NestedsClientImpl implements NestedsClient {
             resource).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner createOrReplace(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner resource) {
-        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource)
-            .getFinalResult();
+        return createOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource,
+            Context.NONE);
     }
 
-    /**
-     * Create a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner createOrReplace(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner resource, Context context) {
-        return beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, resource,
-            context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrReplace(resourceGroupName, topLevelTrackedResourceName,
+            nextedProxyResourceName, resource, context));
     }
 
     /**
@@ -511,11 +439,8 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> updateWithResponse(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner properties) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.updateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
-            contentType, accept, properties, Context.NONE);
+        return updateWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties,
+            Context.NONE);
     }
 
     /**
@@ -564,41 +489,16 @@ public final class NestedsClientImpl implements NestedsClient {
             this.client.getContext());
     }
 
-    /**
-     * Update a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<NestedProxyResourceInner>, NestedProxyResourceInner> beginUpdate(
         String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
         NestedProxyResourceInner properties) {
-        Response<BinaryData> response
-            = updateWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties);
-        return this.client.<NestedProxyResourceInner, NestedProxyResourceInner>getLroResult(response,
-            NestedProxyResourceInner.class, NestedProxyResourceInner.class, Context.NONE);
+        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties,
+            Context.NONE);
     }
 
-    /**
-     * Update a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<NestedProxyResourceInner>, NestedProxyResourceInner> beginUpdate(
         String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
@@ -629,43 +529,20 @@ public final class NestedsClientImpl implements NestedsClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Update a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner update(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner properties) {
-        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties)
-            .getFinalResult();
+        return update(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties,
+            Context.NONE);
     }
 
-    /**
-     * Update a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return nested child of Top Level Tracked Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NestedProxyResourceInner update(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, NestedProxyResourceInner properties, Context context) {
-        return beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginUpdate(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, properties, context));
     }
 
     /**
@@ -703,8 +580,7 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName) {
-        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
+        return deleteWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName,
             Context.NONE);
     }
 
@@ -748,37 +624,14 @@ public final class NestedsClientImpl implements NestedsClient {
             this.client.getContext());
     }
 
-    /**
-     * Delete a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName) {
-        Response<BinaryData> response
-            = deleteWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+        return beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, Context.NONE);
     }
 
-    /**
-     * Delete a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelTrackedResourceName,
         String nextedProxyResourceName, Context context) {
@@ -805,36 +658,18 @@ public final class NestedsClientImpl implements NestedsClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Delete a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName) {
-        beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName).getFinalResult();
+        delete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, Context.NONE);
     }
 
-    /**
-     * Delete a NestedProxyResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param nextedProxyResourceName Name of the nested resource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, String nextedProxyResourceName,
         Context context) {
-        beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context));
     }
 
     /**
@@ -892,12 +727,7 @@ public final class NestedsClientImpl implements NestedsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<NestedProxyResourceInner> listByTopLevelTrackedResourceSinglePage(String resourceGroupName,
         String topLevelTrackedResourceName) {
-        final String accept = "application/json";
-        Response<NestedProxyResourceListResult> res
-            = service.listByTopLevelTrackedResourceSync(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelTrackedResourceName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByTopLevelTrackedResourceSinglePage(resourceGroupName, topLevelTrackedResourceName, Context.NONE);
     }
 
     /**
@@ -922,35 +752,14 @@ public final class NestedsClientImpl implements NestedsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List NestedProxyResource resources by TopLevelTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a NestedProxyResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<NestedProxyResourceInner> listByTopLevelTrackedResource(String resourceGroupName,
         String topLevelTrackedResourceName) {
-        return new PagedIterable<>(
-            () -> listByTopLevelTrackedResourceSinglePage(resourceGroupName, topLevelTrackedResourceName),
-            nextLink -> listByTopLevelTrackedResourceNextSinglePage(nextLink));
+        return listByTopLevelTrackedResource(resourceGroupName, topLevelTrackedResourceName, Context.NONE);
     }
 
-    /**
-     * List NestedProxyResource resources by TopLevelTrackedResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelTrackedResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a NestedProxyResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<NestedProxyResourceInner> listByTopLevelTrackedResource(String resourceGroupName,
         String topLevelTrackedResourceName, Context context) {
@@ -991,11 +800,7 @@ public final class NestedsClientImpl implements NestedsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<NestedProxyResourceInner> listByTopLevelTrackedResourceNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<NestedProxyResourceListResult> res
-            = service.listByTopLevelTrackedResourceNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByTopLevelTrackedResourceNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

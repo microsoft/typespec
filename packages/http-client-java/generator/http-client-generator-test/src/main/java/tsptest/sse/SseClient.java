@@ -75,13 +75,13 @@ public final class SseClient {
     /**
      * The readCreated operation.
      * <p><strong>Response Body Schema</strong></p>
-     *
+     * 
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     *
+     * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -199,20 +199,20 @@ public final class SseClient {
 
     /**
      * The readCreated operation.
-     *
+     * 
      * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
      * {@code getValue()} to access its typed payload. Unrecognized events expose only their names through
      * {@link TestStreamEvent#getEventName()}; their payloads are not available.
-     *
+     * 
      * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
-     *
+     * 
      * If received, the terminal {@code completed} event is emitted before iteration ends. A failure while closing after
      * a terminal event is reported by the next iterator access or explicit close, after the terminal event is
      * delivered. End-of-stream without a terminal event completes normally. Transport and decoding failures are thrown
      * during iteration. The client does not reconnect automatically.
-     *
+     * 
      * @return A closeable stream of typed test events.
      */
     @Generated

@@ -25,12 +25,7 @@ public final class LargeHeadersImpl implements LargeHeaders {
     }
 
     public CancelResult two6k(String resourceGroupName, String largeHeaderName) {
-        CancelResultInner inner = this.serviceClient().two6k(resourceGroupName, largeHeaderName);
-        if (inner != null) {
-            return new CancelResultImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.two6k(resourceGroupName, largeHeaderName, Context.NONE);
     }
 
     public CancelResult two6k(String resourceGroupName, String largeHeaderName, Context context) {

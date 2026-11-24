@@ -89,12 +89,7 @@ public final class ConfidentialResourceImpl implements ConfidentialResource, Con
     }
 
     public ConfidentialResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getErrors()
-            .createForUserDefinedErrorWithResponse(resourceGroupName, confidentialResourceName, this.innerModel(),
-                Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ConfidentialResource create(Context context) {
@@ -114,11 +109,7 @@ public final class ConfidentialResourceImpl implements ConfidentialResource, Con
     }
 
     public ConfidentialResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getErrors()
-            .getByResourceGroupWithResponse(resourceGroupName, confidentialResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ConfidentialResource refresh(Context context) {

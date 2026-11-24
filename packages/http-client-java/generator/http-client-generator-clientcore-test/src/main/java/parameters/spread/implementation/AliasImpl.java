@@ -1,21 +1,23 @@
 package parameters.spread.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.implementation.utils.UriEscapers;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.util.List;
 import parameters.spread.alias.implementation.SpreadAsRequestBodyRequest;
 
@@ -50,71 +52,188 @@ public final class AliasImpl {
     }
 
     /**
-     * The interface defining all the services for SpreadClientAlias to be used by the proxy service to perform REST
-     * calls.
+     * The HTTP operations for SpreadClientAlias.
      */
-    @ServiceInterface(name = "SpreadClientAlias", host = "{endpoint}")
     public interface AliasService {
         static AliasService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.spread.implementation.AliasServiceImpl");
-                return (AliasService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new AliasServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/alias/request-body",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadAsRequestBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadAsRequestBodyRequest spreadAsRequestBodyRequest,
+        Response<Void> spreadAsRequestBody(String endpoint, String contentType,
+            SpreadAsRequestBodyRequest spreadAsRequestBodyRequest, RequestContext requestContext);
+
+        Response<Void> spreadParameterWithInnerModel(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/parameters/spread/alias/inner-model-parameter/{id}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadParameterWithInnerModel(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("x-ms-test-header") String xMsTestHeader, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest,
+        Response<Void> spreadAsRequestParameter(String endpoint, String id, String xMsTestHeader, String contentType,
+            SpreadAsRequestParameterRequest spreadAsRequestParameterRequest, RequestContext requestContext);
+
+        Response<Void> spreadWithMultipleParameters(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/alias/request-parameter/{id}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadAsRequestParameter(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("x-ms-test-header") String xMsTestHeader, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadAsRequestParameterRequest spreadAsRequestParameterRequest,
+        Response<Void> spreadParameterWithInnerAlias(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest,
             RequestContext requestContext);
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/alias/multiple-parameters/{id}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadWithMultipleParameters(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("x-ms-test-header") String xMsTestHeader, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest,
-            RequestContext requestContext);
+    private static final class AliasServiceImpl implements AliasService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(AliasService.class);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/parameters/spread/alias/inner-alias-parameter/{id}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadParameterWithInnerAlias(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("x-ms-test-header") String xMsTestHeader, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest,
-            RequestContext requestContext);
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private AliasServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> spreadAsRequestBody(String endpoint, String contentType,
+            SpreadAsRequestBodyRequest spreadAsRequestBodyRequest, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/parameters/spread/alias/request-body");
+            if (spreadAsRequestBodyRequest != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(spreadAsRequestBodyRequest,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> spreadParameterWithInnerModel(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(
+                    endpoint + "/parameters/spread/alias/inner-model-parameter/" + UriEscapers.PATH_ESCAPER.escape(id));
+            if (xMsTestHeader != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
+            }
+            if (spreadParameterWithInnerModelRequest != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(spreadParameterWithInnerModelRequest,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> spreadAsRequestParameter(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadAsRequestParameterRequest spreadAsRequestParameterRequest,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/parameters/spread/alias/request-parameter/" + UriEscapers.PATH_ESCAPER.escape(id));
+            if (xMsTestHeader != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
+            }
+            if (spreadAsRequestParameterRequest != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(spreadAsRequestParameterRequest,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> spreadWithMultipleParameters(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(
+                    endpoint + "/parameters/spread/alias/multiple-parameters/" + UriEscapers.PATH_ESCAPER.escape(id));
+            if (xMsTestHeader != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
+            }
+            if (spreadWithMultipleParametersRequest != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(spreadWithMultipleParametersRequest,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> spreadParameterWithInnerAlias(String endpoint, String id, String xMsTestHeader,
+            String contentType, SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(
+                    endpoint + "/parameters/spread/alias/inner-alias-parameter/" + UriEscapers.PATH_ESCAPER.escape(id));
+            if (xMsTestHeader != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
+            }
+            if (spreadParameterWithInnerAliasRequest != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(spreadParameterWithInnerAliasRequest,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

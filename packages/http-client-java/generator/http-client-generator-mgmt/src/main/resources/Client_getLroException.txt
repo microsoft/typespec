@@ -1,0 +1,32 @@
+PollResult.Error lroError = result == null ? null : result.getError();
+if (status != LongRunningOperationStatus.SUCCESSFULLY_COMPLETED || lroError != null) {
+    String errorMessage;
+    ManagementError managementError = null;
+    HttpResponse errorResponse = null;
+    if (lroError != null) {
+        errorResponse = new HttpResponseImpl(lroError.getResponseStatusCode(), lroError.getResponseHeaders(), lroError.getResponseBody());
+
+        errorMessage = lroError.getMessage();
+        String errorBody = lroError.getResponseBody();
+        if (errorBody != null) {
+            // try to deserialize error body to ManagementError
+            try {
+                managementError = this.getSerializerAdapter().deserialize(errorBody, ManagementError.class, SerializerEncoding.JSON);
+                if (managementError.getCode() == null || managementError.getMessage() == null) {
+                    managementError = null;
+                }
+            } catch (IOException | RuntimeException ioe) {
+                LOGGER.logThrowableAsWarning(ioe);
+            }
+        }
+    } else {
+        // fallback to default error message
+        errorMessage = "Long running operation failed.";
+    }
+    if (managementError == null) {
+        // fallback to default ManagementError
+        managementError = new ManagementError(status.toString(), errorMessage);
+    }
+    return new ManagementException(errorMessage, errorResponse, managementError);
+}
+return null;

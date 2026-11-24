@@ -139,17 +139,7 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Gets information about a storage account.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param accountName The name of the StorageAccount.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return information about a storage account along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<StorageAccountInner> getByResourceGroupWithResponse(String resourceGroupName, String accountName,
         Context context) {
@@ -159,16 +149,7 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
             resourceGroupName, accountName, accept, context);
     }
 
-    /**
-     * Gets information about a storage account.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param accountName The name of the StorageAccount.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return information about a storage account.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public StorageAccountInner getByResourceGroup(String resourceGroupName, String accountName) {
         return getByResourceGroupWithResponse(resourceGroupName, accountName, Context.NONE).getValue();
@@ -210,11 +191,7 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String accountName,
         StorageAccountInner resource) {
-        final String apiVersion = "2025-02-01";
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
-            resourceGroupName, accountName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, accountName, resource, Context.NONE);
     }
 
     /**
@@ -259,37 +236,14 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
             StorageAccountInner.class, StorageAccountInner.class, this.client.getContext());
     }
 
-    /**
-     * Creates or updates a storage account.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param accountName The name of the StorageAccount.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of storage account resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<StorageAccountInner>, StorageAccountInner>
         beginCreateOrUpdate(String resourceGroupName, String accountName, StorageAccountInner resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, accountName, resource);
-        return this.client.<StorageAccountInner, StorageAccountInner>getLroResult(response, StorageAccountInner.class,
-            StorageAccountInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, accountName, resource, Context.NONE);
     }
 
-    /**
-     * Creates or updates a storage account.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param accountName The name of the StorageAccount.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of storage account resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<StorageAccountInner>, StorageAccountInner> beginCreateOrUpdate(
         String resourceGroupName, String accountName, StorageAccountInner resource, Context context) {
@@ -316,38 +270,18 @@ public final class StorageAccountsClientImpl implements StorageAccountsClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Creates or updates a storage account.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param accountName The name of the StorageAccount.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return storage account resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public StorageAccountInner createOrUpdate(String resourceGroupName, String accountName,
         StorageAccountInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, accountName, resource).getFinalResult();
+        return createOrUpdate(resourceGroupName, accountName, resource, Context.NONE);
     }
 
-    /**
-     * Creates or updates a storage account.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param accountName The name of the StorageAccount.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return storage account resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public StorageAccountInner createOrUpdate(String resourceGroupName, String accountName,
         StorageAccountInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, accountName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, accountName, resource, context));
     }
 }

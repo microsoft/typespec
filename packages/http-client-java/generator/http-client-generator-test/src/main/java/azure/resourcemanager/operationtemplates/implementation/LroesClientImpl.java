@@ -196,10 +196,7 @@ public final class LroesClientImpl implements LroesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrReplaceWithResponse(String resourceGroupName, String orderName,
         OrderInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrReplaceSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, orderName, contentType, accept, resource, Context.NONE);
+        return createOrReplaceWithResponse(resourceGroupName, orderName, resource, Context.NONE);
     }
 
     /**
@@ -245,39 +242,14 @@ public final class LroesClientImpl implements LroesClient {
             OrderInner.class, this.client.getContext());
     }
 
-    /**
-     * Create a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<OrderInner>, OrderInner> beginCreateOrReplace(String resourceGroupName,
         String orderName, OrderInner resource) {
-        Response<BinaryData> response = createOrReplaceWithResponse(resourceGroupName, orderName, resource);
-        return this.client.<OrderInner, OrderInner>getLroResult(response, OrderInner.class, OrderInner.class,
-            Context.NONE);
+        return beginCreateOrReplace(resourceGroupName, orderName, resource, Context.NONE);
     }
 
-    /**
-     * Create a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<OrderInner>, OrderInner> beginCreateOrReplace(String resourceGroupName,
         String orderName, OrderInner resource, Context context) {
@@ -303,38 +275,18 @@ public final class LroesClientImpl implements LroesClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public OrderInner createOrReplace(String resourceGroupName, String orderName, OrderInner resource) {
-        return beginCreateOrReplace(resourceGroupName, orderName, resource).getFinalResult();
+        return createOrReplace(resourceGroupName, orderName, resource, Context.NONE);
     }
 
-    /**
-     * Create a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public OrderInner createOrReplace(String resourceGroupName, String orderName, OrderInner resource,
         Context context) {
-        return beginCreateOrReplace(resourceGroupName, orderName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrReplace(resourceGroupName, orderName, resource, context));
     }
 
     /**
@@ -372,10 +324,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> exportWithResponse(String resourceGroupName, String orderName, ExportRequest body) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.exportSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, orderName, contentType, accept, body, Context.NONE);
+        return exportWithResponse(resourceGroupName, orderName, body, Context.NONE);
     }
 
     /**
@@ -418,37 +367,14 @@ public final class LroesClientImpl implements LroesClient {
             ExportResultInner.class, ExportResultInner.class, this.client.getContext());
     }
 
-    /**
-     * The export operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param body The content of the action request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ExportResultInner>, ExportResultInner> beginExport(String resourceGroupName,
         String orderName, ExportRequest body) {
-        Response<BinaryData> response = exportWithResponse(resourceGroupName, orderName, body);
-        return this.client.<ExportResultInner, ExportResultInner>getLroResult(response, ExportResultInner.class,
-            ExportResultInner.class, Context.NONE);
+        return beginExport(resourceGroupName, orderName, body, Context.NONE);
     }
 
-    /**
-     * The export operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param body The content of the action request.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ExportResultInner>, ExportResultInner> beginExport(String resourceGroupName,
         String orderName, ExportRequest body, Context context) {
@@ -474,37 +400,16 @@ public final class LroesClientImpl implements LroesClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The export operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param body The content of the action request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExportResultInner export(String resourceGroupName, String orderName, ExportRequest body) {
-        return beginExport(resourceGroupName, orderName, body).getFinalResult();
+        return export(resourceGroupName, orderName, body, Context.NONE);
     }
 
-    /**
-     * The export operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param body The content of the action request.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExportResultInner export(String resourceGroupName, String orderName, ExportRequest body, Context context) {
-        return beginExport(resourceGroupName, orderName, body, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginExport(resourceGroupName, orderName, body, context));
     }
 
     /**
@@ -537,8 +442,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> deleteWithResponse(String resourceGroupName, String orderName) {
-        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, orderName, Context.NONE);
+        return deleteWithResponse(resourceGroupName, orderName, Context.NONE);
     }
 
     /**
@@ -575,33 +479,13 @@ public final class LroesClientImpl implements LroesClient {
             this.client.getContext());
     }
 
-    /**
-     * Delete a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String orderName) {
-        Response<BinaryData> response = deleteWithResponse(resourceGroupName, orderName);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+        return beginDelete(resourceGroupName, orderName, Context.NONE);
     }
 
-    /**
-     * Delete a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String orderName, Context context) {
         Response<BinaryData> response = deleteWithResponse(resourceGroupName, orderName, context);
@@ -623,33 +507,16 @@ public final class LroesClientImpl implements LroesClient {
         return beginDeleteAsync(resourceGroupName, orderName).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Delete a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String orderName) {
-        beginDelete(resourceGroupName, orderName).getFinalResult();
+        delete(resourceGroupName, orderName, Context.NONE);
     }
 
-    /**
-     * Delete a Order.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param orderName The name of the Order.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String orderName, Context context) {
-        beginDelete(resourceGroupName, orderName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, orderName, context));
     }
 
     /**
@@ -682,10 +549,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> exportArrayWithResponse(ExportRequest body) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.exportArraySync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), contentType, accept, body, Context.NONE);
+        return exportArrayWithResponse(body, Context.NONE);
     }
 
     /**
@@ -725,35 +589,14 @@ public final class LroesClientImpl implements LroesClient {
             }.getJavaType(), this.client.getContext());
     }
 
-    /**
-     * The exportArray operation.
-     * 
-     * @param body The request body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<List<ExportResultInner>>, List<ExportResultInner>>
         beginExportArray(ExportRequest body) {
-        Response<BinaryData> response = exportArrayWithResponse(body);
-        return this.client.<List<ExportResultInner>, List<ExportResultInner>>getLroResult(response,
-            new TypeReference<List<ExportResultInner>>() {
-            }.getJavaType(), new TypeReference<List<ExportResultInner>>() {
-            }.getJavaType(), Context.NONE);
+        return beginExportArray(body, Context.NONE);
     }
 
-    /**
-     * The exportArray operation.
-     * 
-     * @param body The request body.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<List<ExportResultInner>>, List<ExportResultInner>> beginExportArray(ExportRequest body,
         Context context) {
@@ -778,33 +621,16 @@ public final class LroesClientImpl implements LroesClient {
         return beginExportArrayAsync(body).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The exportArray operation.
-     * 
-     * @param body The request body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<ExportResultInner> exportArray(ExportRequest body) {
-        return beginExportArray(body).getFinalResult();
+        return exportArray(body, Context.NONE);
     }
 
-    /**
-     * The exportArray operation.
-     * 
-     * @param body The request body.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<ExportResultInner> exportArray(ExportRequest body, Context context) {
-        return beginExportArray(body, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginExportArray(body, context));
     }
 
     /**
@@ -838,9 +664,7 @@ public final class LroesClientImpl implements LroesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> getLroWithResponse(String scope, String operationId) {
-        final String accept = "application/json";
-        return service.getLroSync(this.client.getEndpoint(), this.client.getApiVersion(), scope, operationId, accept,
-            Context.NONE);
+        return getLroWithResponse(scope, operationId, Context.NONE);
     }
 
     /**
@@ -879,34 +703,13 @@ public final class LroesClientImpl implements LroesClient {
             CostReportInner.class, CostReportInner.class, this.client.getContext());
     }
 
-    /**
-     * Get a CostReport.
-     * 
-     * @param scope The fully qualified Azure Resource manager identifier of the resource.
-     * @param operationId The name of the CostReport.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of a CostReport.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<CostReportInner>, CostReportInner> beginGetLro(String scope, String operationId) {
-        Response<BinaryData> response = getLroWithResponse(scope, operationId);
-        return this.client.<CostReportInner, CostReportInner>getLroResult(response, CostReportInner.class,
-            CostReportInner.class, Context.NONE);
+        return beginGetLro(scope, operationId, Context.NONE);
     }
 
-    /**
-     * Get a CostReport.
-     * 
-     * @param scope The fully qualified Azure Resource manager identifier of the resource.
-     * @param operationId The name of the CostReport.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of a CostReport.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<CostReportInner>, CostReportInner> beginGetLro(String scope, String operationId,
         Context context) {
@@ -930,35 +733,16 @@ public final class LroesClientImpl implements LroesClient {
         return beginGetLroAsync(scope, operationId).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Get a CostReport.
-     * 
-     * @param scope The fully qualified Azure Resource manager identifier of the resource.
-     * @param operationId The name of the CostReport.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a CostReport.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CostReportInner getLro(String scope, String operationId) {
-        return beginGetLro(scope, operationId).getFinalResult();
+        return getLro(scope, operationId, Context.NONE);
     }
 
-    /**
-     * Get a CostReport.
-     * 
-     * @param scope The fully qualified Azure Resource manager identifier of the resource.
-     * @param operationId The name of the CostReport.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a CostReport.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CostReportInner getLro(String scope, String operationId, Context context) {
-        return beginGetLro(scope, operationId, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginGetLro(scope, operationId, context));
     }
 
     private static final TypeReference<List<ExportResultInner>> TYPE_REFERENCE_LIST_EXPORT_RESULT_INNER

@@ -1,20 +1,21 @@
 package specialheaders.conditionalrequest.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.DateTimeRfc1123;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.time.OffsetDateTime;
 
 /**
@@ -83,55 +84,120 @@ public final class ConditionalRequestClientImpl {
     }
 
     /**
-     * The interface defining all the services for ConditionalRequestClient to be used by the proxy service to perform
-     * REST calls.
+     * The HTTP operations for ConditionalRequestClient.
      */
-    @ServiceInterface(name = "ConditionalRequestClient", host = "{endpoint}")
     public interface ConditionalRequestClientService {
         static ConditionalRequestClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("specialheaders.conditionalrequest.implementation.ConditionalRequestClientServiceImpl");
-                return (ConditionalRequestClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new ConditionalRequestClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/special-headers/conditional-request/if-match",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> postIfMatch(@HostParam("endpoint") String endpoint, @HeaderParam("If-Match") String ifMatch,
+        Response<Void> postIfMatch(String endpoint, String ifMatch, RequestContext requestContext);
+
+        Response<Void> postIfNoneMatch(String endpoint, String ifNoneMatch, RequestContext requestContext);
+
+        Response<Void> headIfModifiedSince(String endpoint, DateTimeRfc1123 ifModifiedSince,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/special-headers/conditional-request/if-none-match",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> postIfNoneMatch(@HostParam("endpoint") String endpoint,
-            @HeaderParam("If-None-Match") String ifNoneMatch, RequestContext requestContext);
+        Response<Void> postIfUnmodifiedSince(String endpoint, DateTimeRfc1123 ifUnmodifiedSince,
+            RequestContext requestContext);
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/special-headers/conditional-request/if-modified-since",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> headIfModifiedSince(@HostParam("endpoint") String endpoint,
-            @HeaderParam("If-Modified-Since") DateTimeRfc1123 ifModifiedSince, RequestContext requestContext);
+    private static final class ConditionalRequestClientServiceImpl implements ConditionalRequestClientService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(ConditionalRequestClientService.class);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/special-headers/conditional-request/if-unmodified-since",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> postIfUnmodifiedSince(@HostParam("endpoint") String endpoint,
-            @HeaderParam("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince, RequestContext requestContext);
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private ConditionalRequestClientServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> postIfMatch(String endpoint, String ifMatch, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/special-headers/conditional-request/if-match");
+            if (ifMatch != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("If-Match"), ifMatch);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> postIfNoneMatch(String endpoint, String ifNoneMatch, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/special-headers/conditional-request/if-none-match");
+            if (ifNoneMatch != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("If-None-Match"), ifNoneMatch);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> headIfModifiedSince(String endpoint, DateTimeRfc1123 ifModifiedSince,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD)
+                .setUri(endpoint + "/special-headers/conditional-request/if-modified-since");
+            if (ifModifiedSince != null) {
+                httpRequest.getHeaders()
+                    .add(HttpHeaderName.fromString("If-Modified-Since"), String.valueOf(ifModifiedSince));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> postIfUnmodifiedSince(String endpoint, DateTimeRfc1123 ifUnmodifiedSince,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/special-headers/conditional-request/if-unmodified-since");
+            if (ifUnmodifiedSince != null) {
+                httpRequest.getHeaders()
+                    .add(HttpHeaderName.fromString("If-Unmodified-Since"), String.valueOf(ifUnmodifiedSince));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**
