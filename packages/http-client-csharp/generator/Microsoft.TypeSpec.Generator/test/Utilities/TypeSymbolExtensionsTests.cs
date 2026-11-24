@@ -185,22 +185,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
-        [TestCase("1.0.0", true)]
-        [TestCase("1.0.0", false)]
-        [TestCase("1.0.0.4", false)]
-        [TestCase("1.0.0.4", true)]
-        public async Task CreateCSharpType_ExternalTypeNotInFramework(string pkgVersion, bool isAlpha)
+        [TestCase("1.0.0", true, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0", false, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0.4", false, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0.4", true, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0", true, "GeneratedCode", false)]
+        [TestCase("1.0.0", false, "GeneratedCode", false)]
+        [TestCase("1.0.0.4", false, "GeneratedCode", false)]
+        [TestCase("1.0.0.4", true, "GeneratedCode", false)]
+        public void CreateCSharpType_ExternalTypeNotInFramework(string pkgVersion, bool isAlpha, string pkgName, bool shouldBeFramework)
         {
             // Create a temporary directory for project and cache
             string tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
             string nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
             Directory.CreateDirectory(nugetCacheDir);
-            string projectDir = Path.Combine(tempDir, "ProjectDir");
-            Directory.CreateDirectory(Path.Combine(projectDir, "src"));
-            // Create anexternal test package.
-            const string pkgName = "Test.ModelProvider.External";
+            // Create an external test package.
             Version assemblyVersion = Version.Parse(pkgVersion);
-            const string typeName = "Test.ModelProvider.External.MyExternalType";
+            string typeName = $"{pkgName}.MyExternalType";
             string fixedPkgVersion = isAlpha ? pkgVersion + "-alpha.20261027.4" : pkgVersion;
             FakeNuGetPackage.Create(
                 nugetCacheDir: nugetCacheDir,
@@ -208,50 +209,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 version: fixedPkgVersion,
                 sourceCode: $"namespace {pkgName} {{ public class MyExternalType {{ }} }}",
                 assemblyVersion: assemblyVersion);
-            // Create a project using the external package.
-            string tab = "    ";
-            string references = $"\n  <PackageReference Include=\"{pkgName}\">\n    <Version>{fixedPkgVersion}</Version>\n  </PackageReference>\n";
-            string assets = $"\n{tab}{tab}\"{pkgName}\": {{\n{tab}{tab}{tab}\"type\": \"package\",\n{tab}{tab}{tab}\"dependencies\": {{}}\n{tab}{tab}}}\n";
-            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
-  <ItemGroup>{references}</ItemGroup>
-</Project>";
-            string minimalProjectAssets = $$"""
-            {
-              "version": 4,
-              "targets": {
-                  "netstandard2.0": {{{assets}}
-                  }
-              }
-            }
-            """;
-            Directory.CreateDirectory(Path.Combine(projectDir!, "src"));
-            Directory.CreateDirectory(Path.Combine(projectDir!, "src", "obj"));
-            string ns = "TestProject";
-            File.WriteAllText(Path.Combine(projectDir!, "src", "obj", "project.assets.json"), minimalProjectAssets);
-            File.WriteAllText(Path.Combine(projectDir!, "src", $"{ns}.csproj"), csprojContent);
-            // Create a model as we load it from the typespec and load it.
-            // This model uses the package we have just created.
             InputExternalTypeMetadata external = new(typeName, pkgName, null);
             InputModelType model = InputFactory.Model(
                 "ModelWithResolvableExternal",
                 external: external
             );
             // Make sure we are reading the temporary NuGetCache.
-            var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+            string ns = "TestProject";
             try
             {
                 MockHelpers.LoadMockGenerator(
                     inputNamespaceName: ns,
-                    outputPath: projectDir,
+                    outputPath: Path.Combine(tempDir, "ProjectDir"),
                     inputModelTypes: [model],
                     configuration: $"{{\"package-name\": \"{ns}\"}}");
-                await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
-                // Get the type for the assembly we have generated.
                 string dllPath = Path.Combine(nugetCacheDir, pkgName.ToLowerInvariant(), fixedPkgVersion, "lib", "netstandard2.0", $"{pkgName}.dll");
+                CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(dllPath));
                 MetadataReference myExternalRef = MetadataReference.CreateFromFile(dllPath);
                 CSharpCompilation compilation = CSharpCompilation.Create(
                     assemblyName: pkgName,
@@ -268,29 +242,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 {
                     Assert.That(testAssembly?.Identity.Version, Is.EqualTo(assemblyVersion));
                 }
-                INamedTypeSymbol ? myTypeReflection = testAssembly?.GetTypeByMetadataName("Test.ModelProvider.External.MyExternalType");
+                INamedTypeSymbol ? myTypeReflection = testAssembly?.GetTypeByMetadataName(typeName);
                 Assert.That(myTypeReflection, Is.Not.Null);
-                var nugetConfigPath = Path.Combine(projectDir, "NuGet.Config");
-                var normalizedCachePath = nugetCacheDir.Replace("\\", "/");
-                var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
-<configuration>
-    <packageSources>
-        <clear />
-        <add key=""local-cache"" value=""{normalizedCachePath}"" />
-    </packageSources>
-    <disabledPackageSources>
-        <clear />
-    </disabledPackageSources>
-</configuration>";
-                File.WriteAllText(nugetConfigPath, config);
                 CSharpType? typespecType = myTypeReflection?.GetCSharpType();
                 Assert.That(typespecType, Is.Not.Null);
-                Assert.That(typespecType?.IsFrameworkType, Is.True);
+                Assert.That(typespecType?.IsFrameworkType, Is.EqualTo(shouldBeFramework));
             }
             finally
             {
                 ExternalTypeReferenceResolver.Reset();
-                Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
                 Directory.Delete(tempDir, true);
             }
         }

@@ -58,8 +58,9 @@ namespace Microsoft.TypeSpec.Generator
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
             Type? type = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(fullyQualifiedName);
-            if (typeSymbol.ContainingAssembly.Name != "GeneratedCode"
-                && typeSymbol.ContainingAssembly.Identity.Version != null
+            if (typeSymbol.ContainingAssembly is { } assembly
+                && assembly.Name != "GeneratedCode"
+                && assembly.Identity.Version != null
                 && type == null)
             {
                 // Finally, if project depends on alpha version, this information is not contained in Assembly
@@ -67,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     InputExternalTypeMetadata metadata = new(
                         identity: fullyQualifiedName,
-                        package: typeSymbol.ContainingAssembly.Name,
+                        package: assembly.Name,
                         minVersion: null);
                     type = ExternalTypeReferenceResolver.TryResolve(metadata);
                 }
