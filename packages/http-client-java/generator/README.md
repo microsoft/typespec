@@ -2,6 +2,9 @@
 
 The **Microsoft Java client generator** tool generates client libraries for accessing RESTful web services.
 
+The `generic` and `azurev2` flavors generate HTTP operations directly and no longer require the ClientCore annotation
+processor. The `use-rest-proxy: true` option retains the HTTP annotations for ClientCore's runtime `RestProxy`.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)

@@ -188,14 +188,14 @@ function handleDefaultResponse({
     ];
   }
 
+  const hasMediaExamples = hasResponseExamples(Object.fromEntries(contents));
   return contents.map(([mediaType, content]) => {
     const bodySchema = content.schema;
     const headerProps: TypeSpecModelProperty[] = [...headers];
     // application/json is default contentType so can ignore it
     if (
       mediaType !== "application/json" ||
-      (hasResponseExamples(Object.fromEntries(contents)) &&
-        (contents.length > 1 || isScalarBody(bodySchema, context)))
+      (hasMediaExamples && (contents.length > 1 || isScalarBody(bodySchema, context)))
     ) {
       headerProps.push({
         name: "contentType",
@@ -295,11 +295,21 @@ function generateResponseExpressions({
     return [generateModelExpression(modelProps, operationScope, context)];
   }
 
+  const hasMediaExamples = hasResponseExamples(Object.fromEntries(contents));
   return contents.map(([mediaType, content]) => {
+    const bodySchema = content.schema;
+    const bodyRef = bodySchema && "$ref" in bodySchema ? bodySchema.$ref : undefined;
+    const referencedBody = bodyRef ? context.getSchemaByRef(bodyRef) : undefined;
+    // Intersections and implicit bodies don't preserve non-model response body types.
+    const isModelBody =
+      referencedBody &&
+      getTypeSpecKind(referencedBody) === "model" &&
+      referencedBody.type !== "array" &&
+      !referencedBody.items;
     const explicitContentType =
       mediaType !== "application/json" ||
-      (hasResponseExamples(Object.fromEntries(contents)) &&
-        (contents.length > 1 || isScalarBody(content.schema, context)));
+      (referencedBody && !isModelBody && "examples" in referencedBody) ||
+      (hasMediaExamples && (contents.length > 1 || isScalarBody(bodySchema, context)));
     // Special handling for Server-Sent Events
     if (
       !context.openApi3Doc.openapi.startsWith("3.0") &&
@@ -335,24 +345,23 @@ function generateResponseExpressions({
 
     // Attempt to emit just the Body or an intersection of Body & MappedResponse
     // if there aren't any custom headers.
-    const bodySchema = content.schema;
-    const canUseImplicitBody = !(
-      bodySchema &&
-      "$ref" in bodySchema &&
-      hasResponseExamples(Object.fromEntries(contents)) &&
-      !canIntersectBody(bodySchema.$ref, context)
-    );
-    if (bodySchema && !explicitContentType && !headers.length && canUseImplicitBody) {
+    if (bodySchema && !explicitContentType && !headers.length) {
+      const canUseImplicitBody =
+        isModelBody && (!hasMediaExamples || (bodyRef && canIntersectBody(bodyRef, context)));
       // Scenario 3 - have a mapped status code and body schema is a ref using application/json - intersection!
       // Example: CreatedResponse & Widget
-      if ("$ref" in bodySchema && statusCodeMetadata.httpLibModel) {
+      if (
+        canUseImplicitBody &&
+        statusCodeMetadata.httpLibModel &&
+        statusCodeMetadata.modelProperty
+      ) {
         examples.push(
           ...generateResponseExamples(
             {
               statusCode,
               mediaType,
               content,
-              properties: [statusCodeMetadata.modelProperty!],
+              properties: [statusCodeMetadata.modelProperty],
               implicitBody: bodySchema,
             },
             operationScope,
@@ -369,7 +378,7 @@ function generateResponseExpressions({
       // Example: Body<string>
       if (statusCodeMetadata.literalStatusCode === 200 && !statusCodeMetadata.modelProperty) {
         const body = context.generateTypeFromRefableSchema(bodySchema, operationScope);
-        if ("$ref" in bodySchema) {
+        if (canUseImplicitBody) {
           examples.push(
             ...generateResponseExamples(
               { statusCode, mediaType, content, properties: [], implicitBody: bodySchema },
@@ -409,7 +418,6 @@ function generateResponseExpressions({
     }
     modelExpressionProps.push(...headers);
 
-    // application/json is default contentType so can ignore it
     if (explicitContentType) {
       modelExpressionProps.push({
         name: "contentType",

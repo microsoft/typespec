@@ -1,20 +1,23 @@
 package type.model.inheritance.enumdiscriminator.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
 import type.model.inheritance.enumdiscriminator.Dog;
 import type.model.inheritance.enumdiscriminator.Snake;
 
@@ -84,89 +87,244 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
-     * The interface defining all the services for EnumDiscriminatorClient to be used by the proxy service to perform
-     * REST calls.
+     * The HTTP operations for EnumDiscriminatorClient.
      */
-    @ServiceInterface(name = "EnumDiscriminatorClient", host = "{endpoint}")
     public interface EnumDiscriminatorClientService {
         static EnumDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName(
-                    "type.model.inheritance.enumdiscriminator.implementation.EnumDiscriminatorClientServiceImpl");
-                return (EnumDiscriminatorClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new EnumDiscriminatorClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<Dog> getExtensibleModel(String endpoint, String accept, RequestContext requestContext);
+
+        Response<Void> putExtensibleModel(String endpoint, String contentType, Dog input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putExtensibleModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Dog input,
+        Response<Dog> getExtensibleModelMissingDiscriminator(String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelMissingDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelWrongDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<Dog> getExtensibleModelWrongDiscriminator(String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putFixedModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Snake input,
+        Response<Snake> getFixedModel(String endpoint, String accept, RequestContext requestContext);
+
+        Response<Void> putFixedModel(String endpoint, String contentType, Snake input, RequestContext requestContext);
+
+        Response<Snake> getFixedModelMissingDiscriminator(String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelMissingDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<Snake> getFixedModelWrongDiscriminator(String endpoint, String accept, RequestContext requestContext);
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelWrongDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+    private static final class EnumDiscriminatorClientServiceImpl implements EnumDiscriminatorClientService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(EnumDiscriminatorClientService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private EnumDiscriminatorClientServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Dog> getExtensibleModel(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Dog.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Void> putExtensibleModel(String endpoint, String contentType, Dog input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum");
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Dog> getExtensibleModelMissingDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Dog.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Dog> getExtensibleModelWrongDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Dog.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Snake> getFixedModel(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Snake.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Void> putFixedModel(String endpoint, String contentType, Snake input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum");
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Snake> getFixedModelMissingDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Snake.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Snake> getFixedModelWrongDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Snake.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        private <T> T decodeResponse(BinaryData value, ParameterizedType type, SerializationFormat format) {
+            if (this.jsonSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.jsonSerializer, type);
+            }
+            if (this.xmlSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.xmlSerializer, type);
+            }
+            throw HTTP_LOG.throwableAtError()
+                .addKeyValue("serializationFormat", format.name())
+                .log("None of the provided serializers support the format.", UnsupportedOperationException::new);
+        }
     }
 
     /**

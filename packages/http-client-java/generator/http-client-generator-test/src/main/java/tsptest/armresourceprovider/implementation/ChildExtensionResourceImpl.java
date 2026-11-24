@@ -61,11 +61,7 @@ public final class ChildExtensionResourceImpl
     }
 
     public ChildExtensionResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getChildExtensionResourceInterfaces()
-            .createOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, this.innerModel(),
-                Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ChildExtensionResource create(Context context) {
@@ -88,12 +84,7 @@ public final class ChildExtensionResourceImpl
     }
 
     public ChildExtensionResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getChildExtensionResourceInterfaces()
-            .updateWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, updateProperties,
-                Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public ChildExtensionResource apply(Context context) {
@@ -121,11 +112,7 @@ public final class ChildExtensionResourceImpl
     }
 
     public ChildExtensionResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getChildExtensionResourceInterfaces()
-            .getWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ChildExtensionResource refresh(Context context) {

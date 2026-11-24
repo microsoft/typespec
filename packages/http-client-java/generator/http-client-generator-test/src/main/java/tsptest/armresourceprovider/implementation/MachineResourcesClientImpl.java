@@ -116,19 +116,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept, Context context);
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @param resourceName The resourceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<TopLevelArmResourceInner>> getWithResponseAsync(String group, String labName,
         String machineName, String resourceName) {
@@ -139,19 +127,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @param resourceName The resourceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> getAsync(String group, String labName, String machineName,
         String resourceName) {
@@ -159,20 +135,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @param resourceName The resourceName parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getWithResponse(String group, String labName, String machineName,
         String resourceName, Context context) {
@@ -181,18 +144,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
             resourceName, this.client.getApiVersion(), accept, context);
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @param resourceName The resourceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner get(String group, String labName, String machineName, String resourceName) {
         return getWithResponse(group, labName, machineName, resourceName, Context.NONE).getValue();
@@ -222,17 +174,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of TopLevelArmResource items as paginated response with {@link PagedFlux}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<TopLevelArmResourceInner> listAsync(String group, String labName, String machineName) {
         return new PagedFlux<>(() -> listSinglePageAsync(group, labName, machineName),
@@ -252,12 +194,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listSinglePage(String group, String labName, String machineName) {
-        final String accept = "application/json";
-        Response<SharedResourceListResult> res
-            = service.listSync(this.client.getEndpoint(), this.client.getSubscriptionId(), group, labName, machineName,
-                this.client.getApiVersion(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listSinglePage(group, labName, machineName, Context.NONE);
     }
 
     /**
@@ -282,35 +219,13 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of TopLevelArmResource items as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(String group, String labName, String machineName) {
-        return new PagedIterable<>(() -> listSinglePage(group, labName, machineName),
-            nextLink -> listNextSinglePage(nextLink));
+        return list(group, labName, machineName, Context.NONE);
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param group The group parameter.
-     * @param labName The labName parameter.
-     * @param machineName The machineName parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of TopLevelArmResource items as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(String group, String labName, String machineName,
         Context context) {
@@ -348,11 +263,7 @@ public final class MachineResourcesClientImpl implements MachineResourcesClient 
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<SharedResourceListResult> res
-            = service.listNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

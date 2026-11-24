@@ -8,7 +8,6 @@ import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
 import com.azure.core.http.rest.PagedResponseBase;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -17,45 +16,6 @@ import reactor.core.publisher.Flux;
 
 final class ResourceManagerUtils {
     private ResourceManagerUtils() {
-    }
-
-    static String getValueFromIdByParameterName(String id, String pathTemplate, String parameterName) {
-        if (id == null || pathTemplate == null || parameterName == null) {
-            return null;
-        }
-        String[] idSegments = id.split("/", -1);
-        String[] pathSegments = pathTemplate.split("/", -1);
-        int idStart = idSegments[0].isEmpty() ? 1 : 0;
-        int pathStart = pathSegments[0].isEmpty() ? 1 : 0;
-        if (idStart == idSegments.length || pathStart == pathSegments.length) {
-            return null;
-        }
-        for (int i = idStart; i < idSegments.length; ++i) {
-            if (idSegments[i].isEmpty()) {
-                return null;
-            }
-        }
-        String parameterPlaceholder = "{" + parameterName + "}";
-        String value = null;
-        int idIndex = idSegments.length - 1;
-        for (int pathIndex = pathSegments.length - 1; pathIndex >= pathStart; --pathIndex, --idIndex) {
-            String pathSegment = pathSegments[pathIndex];
-            boolean isParameter = pathSegment.startsWith("{") && pathSegment.endsWith("}");
-            if (pathIndex == pathStart && isParameter) {
-                // A leading scope can span multiple segments, or be empty for tenant resources.
-                if (pathSegment.equalsIgnoreCase(parameterPlaceholder)) {
-                    value = String.join("/", Arrays.copyOfRange(idSegments, idStart, idIndex + 1));
-                }
-                idIndex = idStart;
-            } else if (idIndex < idStart) {
-                return null;
-            } else if (!isParameter && !pathSegment.equalsIgnoreCase(idSegments[idIndex])) {
-                return null;
-            } else if (pathSegment.equalsIgnoreCase(parameterPlaceholder)) {
-                value = idSegments[idIndex];
-            }
-        }
-        return idIndex < idStart ? value : null;
     }
 
     static <T, S> PagedIterable<S> mapPage(PagedIterable<T> pageIterable, Function<T, S> mapper) {

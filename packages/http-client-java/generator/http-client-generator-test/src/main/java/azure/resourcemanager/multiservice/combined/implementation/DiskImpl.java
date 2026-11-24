@@ -81,10 +81,7 @@ public final class DiskImpl implements Disk, Disk.Definition, Disk.Update {
     }
 
     public Disk create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getDisks()
-            .createOrUpdate(resourceGroupName, diskName, this.innerModel(), Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public Disk create(Context context) {
@@ -105,10 +102,7 @@ public final class DiskImpl implements Disk, Disk.Definition, Disk.Update {
     }
 
     public Disk apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getDisks()
-            .createOrUpdate(resourceGroupName, diskName, this.innerModel(), Context.NONE);
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public Disk apply(Context context) {
@@ -130,11 +124,7 @@ public final class DiskImpl implements Disk, Disk.Definition, Disk.Update {
     }
 
     public Disk refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getDisks()
-            .getByResourceGroupWithResponse(resourceGroupName, diskName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public Disk refresh(Context context) {

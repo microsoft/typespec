@@ -47,13 +47,7 @@ public final class ManagementGroupChildResourcesImpl implements ManagementGroupC
 
     public ManagementGroupChildResource createOrUpdate(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner resource) {
-        ManagementGroupChildResourceInner inner
-            = this.serviceClient().createOrUpdate(managementGroupId, managementGroupChildResourceName, resource);
-        if (inner != null) {
-            return new ManagementGroupChildResourceImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.createOrUpdate(managementGroupId, managementGroupChildResourceName, resource, Context.NONE);
     }
 
     public ManagementGroupChildResource createOrUpdate(String managementGroupId,
@@ -92,14 +86,11 @@ public final class ManagementGroupChildResourcesImpl implements ManagementGroupC
     }
 
     public void deleteByResourceGroup(String managementGroupId, String managementGroupChildResourceName) {
-        this.serviceClient().delete(managementGroupId, managementGroupChildResourceName);
+        this.deleteByResourceGroupWithResponse(managementGroupId, managementGroupChildResourceName, Context.NONE);
     }
 
     public PagedIterable<ManagementGroupChildResource> listByManagementGroup(String managementGroupId) {
-        PagedIterable<ManagementGroupChildResourceInner> inner
-            = this.serviceClient().listByManagementGroup(managementGroupId);
-        return ResourceManagerUtils.mapPage(inner,
-            inner1 -> new ManagementGroupChildResourceImpl(inner1, this.manager()));
+        return this.listByManagementGroup(managementGroupId, Context.NONE);
     }
 
     public PagedIterable<ManagementGroupChildResource> listByManagementGroup(String managementGroupId,

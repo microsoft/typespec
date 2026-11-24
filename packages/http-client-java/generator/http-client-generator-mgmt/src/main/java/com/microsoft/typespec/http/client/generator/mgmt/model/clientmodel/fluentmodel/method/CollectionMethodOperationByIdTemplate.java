@@ -79,6 +79,14 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
             .map(p -> FluentUtils.getLocalMethodArgument(p, parametersSet, localVariables, model, collectionMethod))
             .collect(Collectors.joining(", "));
         String methodInvocation = String.format("%1$s(%2$s)", collectionMethod.getMethodName(), argumentsLine);
+        Set<String> pathParameterNames
+            = pathParameters.stream().map(p -> p.getClientMethodParameter().getName()).collect(Collectors.toSet());
+        String contextArguments = methodParameters.stream()
+            .filter(p -> !pathParameterNames.contains(p.getName()))
+            .map(p -> FluentUtils.getLocalMethodArgument(p, parametersSet, localVariables, model, collectionMethod))
+            .collect(Collectors.joining(", "));
+        String byIdInvocation = name + Utils.METHOD_POSTFIX_WITH_RESPONSE + "(id"
+            + (contextArguments.isEmpty() ? "" : ", " + contextArguments) + ")";
 
         Map<String, String> urlSegmentNameByParameterName = urlPathSegments.getReverseParameterSegments()
             .stream()
@@ -105,13 +113,29 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                 dummyClientMethodForJavadoc.getProxyMethod(), true))
             .methodSignature(this.getMethodSignature(returnType, parameters))
             .method(block -> {
+                if (!includeContextParameter) {
+                    for (LocalVariable var : localVariables.getLocalVariablesMap().values()) {
+                        if (var.getParameterLocation() == RequestParameterLocation.QUERY) {
+                            block.line(String.format("%1$s %2$s = %3$s;", var.getVariableType().toString(),
+                                var.getName(), var.getInitializeExpression()));
+                        }
+                    }
+                    if (returnType == PrimitiveType.VOID) {
+                        block.line("this." + byIdInvocation + ";");
+                    } else {
+                        block.methodReturn("this." + byIdInvocation + afterInvocationCode);
+                    }
+                    return;
+                }
                 // init path parameters from resource id
                 pathParameters.forEach(p -> {
                     String urlSegmentName = urlSegmentNameByParameterName.get(p.getSerializedName());
-                    String valueFromIdText
-                        = String.format("%1$s.getValueFromIdByParameterName(%2$s, \"%3$s\", \"%4$s\")",
-                            ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.METHOD_PARAMETER_NAME_ID,
-                            urlPathSegments.getPath(), p.getSerializedName());
+                    String segmentNameForErrorPrompt
+                        = urlSegmentName.isEmpty() ? p.getSerializedName() : urlSegmentName;
+                    String valueFromIdText = String.format(
+                        "%1$s.getRequiredValueFromIdByParameterName(%2$s, \"%3$s\", \"%4$s\", \"%5$s\", LOGGER)",
+                        ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.METHOD_PARAMETER_NAME_ID,
+                        urlPathSegments.getPath(), p.getSerializedName(), segmentNameForErrorPrompt);
                     LocalVariable var = localVariables.getLocalVariableByMethodParameter(p.getClientMethodParameter());
                     // need additional conversion from String to LocalVariable.variableType
                     boolean needsLocalVar = var.getVariableType() != ClassType.STRING;
@@ -119,31 +143,12 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                     block
                         .line(String.format("%1$s %2$s = %3$s;", ClassType.STRING.getName(), varName, valueFromIdText));
 
-                    String segmentNameForErrorPrompt
-                        = urlSegmentName.isEmpty() ? p.getSerializedName() : urlSegmentName;
-                    block.ifBlock(String.format("%1$s == null", varName), ifBlock -> {
-                        String errorMessageExpr = String.format(
-                            "String.format(\"The resource ID '%%s' is not valid. Missing path segment '%1$s'.\", %2$s)",
-                            segmentNameForErrorPrompt, ModelNaming.METHOD_PARAMETER_NAME_ID);
-                        ifBlock.line(String.format(
-                            "throw LOGGER.logExceptionAsError(new IllegalArgumentException(%1$s));", errorMessageExpr));
-                    });
                     if (needsLocalVar) {
                         // currently this works only for UUID or Enum
                         block.line(String.format("%1$s %2$s = %3$s.fromString(%4$s);", var.getVariableType().toString(),
                             var.getName(), var.getVariableType().toString(), varName));
                     }
                 });
-
-                if (!includeContextParameter) {
-                    // init local variables to default value
-                    for (LocalVariable var : localVariables.getLocalVariablesMap().values()) {
-                        if (var.getParameterLocation() == RequestParameterLocation.QUERY) {
-                            block.line(String.format("%1$s %2$s = %3$s;", var.getVariableType().toString(),
-                                var.getName(), var.getInitializeExpression()));
-                        }
-                    }
-                }
 
                 if (returnType == PrimitiveType.VOID) {
                     block.line(String.format("this.%1$s%2$s;", methodInvocation, afterInvocationCode));

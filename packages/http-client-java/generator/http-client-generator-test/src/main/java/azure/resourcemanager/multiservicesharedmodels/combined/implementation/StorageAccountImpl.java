@@ -81,10 +81,7 @@ public final class StorageAccountImpl implements StorageAccount, StorageAccount.
     }
 
     public StorageAccount create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getStorageAccounts()
-            .createOrUpdate(resourceGroupName, accountName, this.innerModel(), Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public StorageAccount create(Context context) {
@@ -106,10 +103,7 @@ public final class StorageAccountImpl implements StorageAccount, StorageAccount.
     }
 
     public StorageAccount apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getStorageAccounts()
-            .createOrUpdate(resourceGroupName, accountName, this.innerModel(), Context.NONE);
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public StorageAccount apply(Context context) {
@@ -132,11 +126,7 @@ public final class StorageAccountImpl implements StorageAccount, StorageAccount.
     }
 
     public StorageAccount refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getStorageAccounts()
-            .getByResourceGroupWithResponse(resourceGroupName, accountName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public StorageAccount refresh(Context context) {

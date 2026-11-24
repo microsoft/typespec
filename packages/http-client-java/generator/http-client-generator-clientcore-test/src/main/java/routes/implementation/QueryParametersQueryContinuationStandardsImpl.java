@@ -1,19 +1,20 @@
 package routes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,56 +52,112 @@ public final class QueryParametersQueryContinuationStandardsImpl {
     }
 
     /**
-     * The interface defining all the services for RoutesClientQueryParametersQueryContinuationStandards to be used by
-     * the proxy service to perform REST calls.
+     * The HTTP operations for RoutesClientQueryParametersQueryContinuationStandards.
      */
-    @ServiceInterface(name = "RoutesClientQueryParametersQueryContinuationStandards", host = "{endpoint}")
     public interface QueryParametersQueryContinuationStandardsService {
         static QueryParametersQueryContinuationStandardsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("routes.implementation.QueryParametersQueryContinuationStandardsServiceImpl");
-                return (QueryParametersQueryContinuationStandardsService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new QueryParametersQueryContinuationStandardsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/query/query-continuation/standard/primitive?fixed=true",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> primitive(@HostParam("endpoint") String endpoint, @QueryParam("param") String param,
-            RequestContext requestContext);
+        Response<Void> primitive(String endpoint, String param, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/query/query-continuation/standard/array?fixed=true",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> array(@HostParam("endpoint") String endpoint, @QueryParam("param") String param,
-            RequestContext requestContext);
+        Response<Void> array(String endpoint, String param, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/query/query-continuation/standard/record?fixed=true",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> record(@HostParam("endpoint") String endpoint, @QueryParam("param") Map<String, Integer> param,
-            RequestContext requestContext);
+        Response<Void> record(String endpoint, Map<String, Integer> param, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/query/query-continuation/standard/model?fixed=true",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> model(@HostParam("endpoint") String endpoint, @QueryParam("param") ExpandParameters param,
-            RequestContext requestContext);
+        Response<Void> model(String endpoint, ExpandParameters param, RequestContext requestContext);
+    }
+
+    private static final class QueryParametersQueryContinuationStandardsServiceImpl
+        implements QueryParametersQueryContinuationStandardsService {
+        private static final ClientLogger HTTP_LOG
+            = new ClientLogger(QueryParametersQueryContinuationStandardsService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private QueryParametersQueryContinuationStandardsServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> primitive(String endpoint, String param, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/routes/query/query-continuation/standard/primitive?fixed=true");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "param", true, param, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> array(String endpoint, String param, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/routes/query/query-continuation/standard/array?fixed=true");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "param", true, param, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> record(String endpoint, Map<String, Integer> param, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/routes/query/query-continuation/standard/record?fixed=true");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "param", true, param, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> model(String endpoint, ExpandParameters param, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/routes/query/query-continuation/standard/model?fixed=true");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "param", true, param, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

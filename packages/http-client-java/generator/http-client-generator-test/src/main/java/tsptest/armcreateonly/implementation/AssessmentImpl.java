@@ -72,12 +72,7 @@ public final class AssessmentImpl implements Assessment, Assessment.Definition {
     }
 
     public Assessment create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getAssessments()
-            .createOrReplaceWithResponse(resourceGroupName, projectName, assessmentName, this.innerModel(),
-                Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public Assessment create(Context context) {
@@ -95,11 +90,7 @@ public final class AssessmentImpl implements Assessment, Assessment.Definition {
     }
 
     public Assessment refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getAssessments()
-            .getWithResponse(resourceGroupName, projectName, assessmentName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public Assessment refresh(Context context) {

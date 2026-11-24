@@ -91,10 +91,7 @@ public final class OrderImpl implements Order, Order.Definition {
     }
 
     public Order create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getLroes()
-            .createOrReplace(resourceGroupName, orderName, this.innerModel(), Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public Order create(Context context) {
