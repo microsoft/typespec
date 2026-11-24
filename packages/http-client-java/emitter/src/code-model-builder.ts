@@ -2468,6 +2468,12 @@ export class CodeModelBuilder {
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
 
     const sdkType: SdkType = sdkBody.type;
+    this.validateXmlDictionaryBody(
+      sdkType,
+      sdkBody.contentTypes,
+      sdkBody.__raw ?? sdkMethod.__raw ?? this.program.getGlobalNamespaceType(),
+      sdkBody.name,
+    );
 
     let requestBodyIsFile: boolean = false;
     if (
@@ -2811,12 +2817,13 @@ export class CodeModelBuilder {
       // check for File
       responseBodyIsFile = true;
     } else if (bodyType && bodyType.kind === "bytes") {
-      // check for bytes + unknown content-type
+      // TCGC encode "bytes" means raw binary, unlike JSON bytes encoded as "base64"/"base64url".
+      // Preserve raw bytes even when another offered content type is recognized (e.g. Arrow | XML).
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseBodyIsFile = Boolean(unknownResponseBody);
+      responseBodyIsFile = bodyType.encode === "bytes" || Boolean(unknownResponseBody);
     }
 
     let response: Response;
@@ -2865,7 +2872,16 @@ export class CodeModelBuilder {
         });
         schema = this.stringSchema;
       } else {
-        schema = this.processSchema(bodyType, op.language.default.name + "Response");
+        this.validateXmlDictionaryBody(
+          bodyType,
+          sdkResponse.contentTypes,
+          bodyType.__raw ?? this.program.getGlobalNamespaceType(),
+          op.language.default.name + "Response",
+        );
+        schema = this.processSchema(
+          getNonNullSdkType(bodyType),
+          op.language.default.name + "Response",
+        );
       }
       response = createSchemaResponse(schema, {
         protocol: {
@@ -3485,6 +3501,13 @@ export class CodeModelBuilder {
 
     // xml
     if (type.serializationOptions.xml) {
+      if (type.additionalProperties) {
+        reportDiagnostic(this.program, {
+          code: "xml-additional-properties-not-supported",
+          format: { modelName: type.name ?? name },
+          target: rawModelType ?? NoTarget,
+        });
+      }
       objectSchema.serialization = objectSchema.serialization ?? {};
       objectSchema.serialization.xml = getXmlSerializationFormat(type);
     }
@@ -3550,6 +3573,13 @@ export class CodeModelBuilder {
 
     // xml
     if (modelProperty.serializationOptions.xml) {
+      if (this.hasUnsupportedXmlDictionary(nonNullType)) {
+        reportDiagnostic(this.program, {
+          code: "xml-additional-properties-not-supported",
+          format: { modelName: modelProperty.__raw?.model?.name ?? modelProperty.name },
+          target: modelProperty.__raw ?? NoTarget,
+        });
+      }
       // property.serializedName is set via getPropertySerializedName
 
       // "serialization" is set to the property in TypeSpec emitter, not in the schema
@@ -3560,6 +3590,43 @@ export class CodeModelBuilder {
     }
 
     return codeModelProperty;
+  }
+
+  private hasUnsupportedXmlDictionary(type: SdkType): boolean {
+    const nonNullType = getNonNullSdkType(type);
+    if (nonNullType.kind === "dict") {
+      const valueType = getNonNullSdkType(nonNullType.valueType);
+      return ["unknown", "dict", "array"].includes(valueType.kind);
+    }
+    if (nonNullType.kind === "array") {
+      const valueType = getNonNullSdkType(nonNullType.valueType);
+      return valueType.kind === "dict" || this.hasUnsupportedXmlDictionary(valueType);
+    }
+    return false;
+  }
+
+  private validateXmlDictionaryBody(
+    type: SdkType,
+    contentTypes: string[] | undefined,
+    target: DiagnosticTarget,
+    name: string,
+  ): void {
+    const isXml = contentTypes?.some((contentType) => {
+      const mediaType = contentType.split(";")[0].trim().toLowerCase();
+      return (
+        mediaType === "application/xml" || mediaType === "text/xml" || mediaType.endsWith("+xml")
+      );
+    });
+    if (
+      isXml &&
+      (getNonNullSdkType(type).kind === "dict" || this.hasUnsupportedXmlDictionary(type))
+    ) {
+      reportDiagnostic(this.program, {
+        code: "xml-additional-properties-not-supported",
+        format: { modelName: name },
+        target,
+      });
+    }
   }
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {

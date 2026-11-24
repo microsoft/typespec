@@ -117,6 +117,26 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
         String convertFromResponse
             = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
+        // Only simple BinaryData responses need status-aware deserialization. Paging/LRO methods use other
+        // conversion paths, and synthetic paging proxy methods may not have response-status metadata.
+        String bodylessResponseCondition = protocolResponseBodyType == ClassType.BINARY_DATA
+            && (convenienceMethod.getType() == ClientMethodType.SimpleSync
+                || convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse)
+                    ? getBodylessResponseCondition(protocolMethod)
+                    : "";
+
+        // Keep the response status until conversion: a declared bodyless success must return null, not parse XML/JSON.
+        if (convenienceMethod.getType() == ClientMethodType.SimpleSync
+            && protocolResponseBodyType == ClassType.BINARY_DATA
+            && responseBodyType != ClassType.BINARY_DATA
+            && !bodylessResponseCondition.isEmpty()) {
+            methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
+            methodBlock.ifBlock(bodylessResponseCondition, ifBlock -> ifBlock.methodReturn("null"));
+            methodBlock.methodReturn(expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType,
+                "protocolMethodResponse.getValue()", protocolMethod.getProxyMethod().getResponseContentTypes(),
+                typeReferenceStaticClasses));
+            return;
+        }
 
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
             String mapPageExpression = "";
@@ -155,6 +175,9 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 expressConversion
                     = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, expressConversion,
                         protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
+                if (!bodylessResponseCondition.isEmpty()) {
+                    expressConversion = bodylessResponseCondition + " ? null : " + expressConversion;
+                }
             }
 
             if (isResponseBase(convenienceMethod.getReturnValue().getType())) {

@@ -45,6 +45,7 @@ public class ProxyMethod {
      * Get the status codes that are expected in the response.
      */
     private final List<Integer> responseExpectedStatusCodes;
+    private final List<Integer> responseBodylessStatusCodes;
 
     private final Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes;
     /**
@@ -114,6 +115,7 @@ public class ProxyMethod {
             .urlPath(urlPath)
             .unexpectedResponseExceptionTypes(unexpectedResponseExceptionTypes)
             .responseExpectedStatusCodes(responseExpectedStatusCodes)
+            .responseBodylessStatusCodes(responseBodylessStatusCodes)
             .unexpectedResponseExceptionType(unexpectedResponseExceptionType)
             .name(name)
             .baseName(baseName)
@@ -143,6 +145,7 @@ public class ProxyMethod {
      * @param baseUrl The base URL that will be used for each REST API method.
      * @param urlPath The path of this method's request URL.
      * @param responseExpectedStatusCodes The status codes that are expected in the response.
+     * @param responseBodylessStatusCodes The status codes whose successful responses have no body.
      * @param returnValueWireType The return value's type as it is received from the network (across the wire).
      * @param unexpectedResponseExceptionType The exception type to throw if this method receives and unexpected
      * response status code.
@@ -158,19 +161,20 @@ public class ProxyMethod {
      * @param baseName the base name of the REST method.
      */
     private ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
-        String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
-        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
-        List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
-        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
-        Set<String> responseContentTypes, List<ProxyMethodResponseHeader> responseHeaders, String operationId,
-        Map<String, ProxyMethodExample> examples, List<String> specialHeaders, boolean isSync, String baseName,
-        boolean customHeaderIgnored, String implementation) {
+        String urlPath, List<Integer> responseExpectedStatusCodes, List<Integer> responseBodylessStatusCodes,
+        ClassType unexpectedResponseExceptionType, Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes,
+        String name, List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters,
+        String description, IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType,
+        boolean isResumable, Set<String> responseContentTypes, List<ProxyMethodResponseHeader> responseHeaders,
+        String operationId, Map<String, ProxyMethodExample> examples, List<String> specialHeaders, boolean isSync,
+        String baseName, boolean customHeaderIgnored, String implementation) {
         this.requestContentType = requestContentType;
         this.returnType = returnType;
         this.httpMethod = httpMethod;
         this.baseUrl = baseUrl;
         this.urlPath = urlPath;
         this.responseExpectedStatusCodes = responseExpectedStatusCodes;
+        this.responseBodylessStatusCodes = responseBodylessStatusCodes;
         this.unexpectedResponseExceptionType = unexpectedResponseExceptionType;
         this.unexpectedResponseExceptionTypes = unexpectedResponseExceptionTypes;
         this.name = name;
@@ -214,6 +218,10 @@ public class ProxyMethod {
 
     public final List<Integer> getResponseExpectedStatusCodes() {
         return responseExpectedStatusCodes;
+    }
+
+    public final List<Integer> getResponseBodylessStatusCodes() {
+        return responseBodylessStatusCodes;
     }
 
     public final ClassType getUnexpectedResponseExceptionType() {
@@ -369,6 +377,7 @@ public class ProxyMethod {
             .responseContentTypes(this.getResponseContentTypes())
             .responseHeaders(this.getResponseHeaders())
             .responseExpectedStatusCodes(this.getResponseExpectedStatusCodes())
+            .responseBodylessStatusCodes(this.getResponseBodylessStatusCodes())
             .isSync(true)
             .customHeaderIgnored(this.customHeaderIgnored)
             .build();
@@ -530,6 +539,7 @@ public class ProxyMethod {
         protected String baseUrl;
         protected String urlPath;
         protected List<Integer> responseExpectedStatusCodes;
+        protected List<Integer> responseBodylessStatusCodes;
         protected ClassType unexpectedResponseExceptionType;
         protected Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes;
         protected String name;
@@ -614,6 +624,11 @@ public class ProxyMethod {
          */
         public Builder responseExpectedStatusCodes(List<Integer> responseExpectedStatusCodes) {
             this.responseExpectedStatusCodes = responseExpectedStatusCodes;
+            return this;
+        }
+
+        public Builder responseBodylessStatusCodes(List<Integer> responseBodylessStatusCodes) {
+            this.responseBodylessStatusCodes = responseBodylessStatusCodes;
             return this;
         }
 
@@ -816,7 +831,8 @@ public class ProxyMethod {
          */
         public ProxyMethod build() {
             return new ProxyMethod(requestContentType, returnType, httpMethod, baseUrl, urlPath,
-                CollectionUtil.toImmutableList(responseExpectedStatusCodes), unexpectedResponseExceptionType,
+                CollectionUtil.toImmutableList(responseExpectedStatusCodes),
+                CollectionUtil.toImmutableList(responseBodylessStatusCodes), unexpectedResponseExceptionType,
                 CollectionUtil.toImmutableMapOfList(unexpectedResponseExceptionTypes), name,
                 CollectionUtil.toImmutableList(parameters), CollectionUtil.toImmutableList(allParameters), description,
                 returnValueWireType, responseBodyType, rawResponseBodyType, isResumable,

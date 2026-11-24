@@ -166,6 +166,10 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 && responseBodyType != ClassType.BINARY_DATA) {
                 convertedValue = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, convertedValue,
                     protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
+                String bodylessResponseCondition = getBodylessResponseCondition(protocolMethod);
+                if (!bodylessResponseCondition.isEmpty()) {
+                    convertedValue = bodylessResponseCondition + " ? null : " + convertedValue;
+                }
             }
             if (responseBaseType != null) {
                 IType headerType = responseBaseType.getTypeArguments()[0];
@@ -178,6 +182,22 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     methodInvocation, convertedValue));
             }
         } else {
+            String bodylessResponseCondition = getBodylessResponseCondition(protocolMethod);
+            // Check status before FluxUtil::toMono discards the response metadata. A bodyless success becomes
+            // Mono.empty() rather than attempting to deserialize an empty XML/JSON payload.
+            if (protocolResponseBodyType == ClassType.BINARY_DATA
+                && responseBodyType != ClassType.BINARY_DATA
+                && responseBodyType.asNullable() != ClassType.VOID
+                && !bodylessResponseCondition.isEmpty()) {
+                String convertedValue = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType,
+                    "protocolMethodResponse.getValue()", protocolMethod.getProxyMethod().getResponseContentTypes(),
+                    typeReferenceStaticClasses);
+                methodBlock.methodReturn(String.format(
+                    "%1$s(%2$s).flatMap(protocolMethodResponse -> {\n" + "    if (%3$s) {\n"
+                        + "        return Mono.empty();\n" + "    }\n" + "    return Mono.justOrEmpty(%4$s);\n" + "})",
+                    getMethodName(protocolMethod), invocationExpression, bodylessResponseCondition, convertedValue));
+                return;
+            }
             String returnTypeConversionExpression = "";
             if (protocolResponseBodyType == ClassType.BINARY_DATA) {
                 returnTypeConversionExpression = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType,
