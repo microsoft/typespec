@@ -396,7 +396,7 @@ public final class OperationIdClientImpl {
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
                 "/azure/client-generator-core/lro/operation-id/documentModels/{modelId}/analyzeResults/{resultId}",
-                "resultId", "operation-location"),
+                "resultId", "operation-location", "{endpoint}".replace("{endpoint}", this.getEndpoint())),
             TypeReference.createInstance(DocumentAnalysisStatus.class),
             TypeReference.createInstance(DocumentAnalysisResult.class));
     }
@@ -426,7 +426,7 @@ public final class OperationIdClientImpl {
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
                 "/azure/client-generator-core/lro/operation-id/documentModels/{modelId}/analyzeResults/{resultId}",
-                "resultId", "operation-location"),
+                "resultId", "operation-location", "{endpoint}".replace("{endpoint}", this.getEndpoint())),
             TypeReference.createInstance(DocumentAnalysisStatus.class),
             TypeReference.createInstance(DocumentAnalysisResult.class));
     }
@@ -794,7 +794,7 @@ public final class OperationIdClientImpl {
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
                 "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId",
-                "operation-location"),
+                "operation-location", "{endpoint}".replace("{endpoint}", this.getEndpoint())),
             TypeReference.createInstance(TranslationWithPathStatus.class),
             TypeReference.createInstance(TranslationResult.class));
     }
@@ -824,7 +824,7 @@ public final class OperationIdClientImpl {
                         .setServiceVersion(this.getServiceVersion().getVersion()),
                     "result"),
                 "/azure/client-generator-core/lro/operation-id/translations/operations/{operationId}", "operationId",
-                "operation-location"),
+                "operation-location", "{endpoint}".replace("{endpoint}", this.getEndpoint())),
             TypeReference.createInstance(TranslationWithPathStatus.class),
             TypeReference.createInstance(TranslationResult.class));
     }

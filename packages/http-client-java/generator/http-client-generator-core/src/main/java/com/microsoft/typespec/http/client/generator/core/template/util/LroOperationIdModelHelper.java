@@ -10,10 +10,14 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -120,6 +124,17 @@ public final class LroOperationIdModelHelper {
      * @param classBlock the model class.
      */
     public void addAccessors(JavaClass classBlock) {
+        if (JavaSettings.getInstance().isStreamStyleSerialization()) {
+            for (ClientModelProperty property : model.getProperties()) {
+                String wireGetter = getSerializationGetterName(model, property);
+                if (!wireGetter.equals(property.getGetterName())) {
+                    addGeneratedAnnotation.accept(classBlock);
+                    classBlock.method(JavaVisibility.Protected, List.of(JavaModifier.Final),
+                        "String " + wireGetter + "()",
+                        methodBlock -> methodBlock.methodReturn("this." + property.getName()));
+                }
+            }
+        }
         if (metadata == null) {
             if (model.getLroOperationId() != null) {
                 LOGGER.warn("Cannot expose the long-running operation ID on model '{}': a property conflicts with "
@@ -176,6 +191,37 @@ public final class LroOperationIdModelHelper {
 
     private boolean hasPathSource() {
         return metadata != null && metadata.hasPathSource();
+    }
+
+    /**
+     * Gets a getter that preserves the body property when serialization reads an inherited operation ID.
+     *
+     * @param model the model being serialized.
+     * @param property the inherited property.
+     * @return the raw property getter, or the normal getter if no polling URL fallback can apply.
+     */
+    public static String getSerializationGetterName(ClientModel model, ClientModelProperty property) {
+        if (!GETTER_NAME.equals(property.getGetterName()) || !ClassType.STRING.equals(property.getWireType())) {
+            return property.getGetterName();
+        }
+        List<ClientModel> models = Stream.concat(Stream.of(model), ClientModels.getInstance().getModels().stream())
+            .collect(java.util.stream.Collectors.toList());
+        boolean usesFallback = models.stream().anyMatch(candidate -> {
+            LongRunningOperationIdMetadata metadata = resolveMetadata(candidate);
+            return metadata != null && metadata.hasPathSource() && resolveProperty(candidate, metadata) == property;
+        });
+        if (!usesFallback) {
+            return property.getGetterName();
+        }
+        Set<String> getters = models.stream()
+            .flatMap(candidate -> candidate.getProperties().stream())
+            .map(ClientModelProperty::getGetterName)
+            .collect(java.util.stream.Collectors.toSet());
+        String name = "getLroOperationIdPropertyValue";
+        for (int suffix = 1; getters.contains(name); suffix++) {
+            name = "getLroOperationIdPropertyValue" + suffix;
+        }
+        return name;
     }
 
     private boolean usesPathFallback(ClientModelProperty property) {

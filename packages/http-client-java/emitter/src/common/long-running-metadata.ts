@@ -21,6 +21,7 @@ export interface LongRunningMetadata {
   finalResultType?: Schema;
   pollingStrategy?: Metadata;
   finalResultPropertySerializedName?: string;
+  pollingHeaderName?: string;
   operationId?: LongRunningOperationIdMetadata;
 }
 
@@ -31,6 +32,7 @@ export function createLongRunningMetadata(
   pollingStrategy?: Metadata,
   finalResultPropertySerializedName?: string,
   operationId?: LongRunningOperationIdMetadata,
+  pollingHeaderName?: string,
 ): LongRunningMetadata {
   return {
     longRunning,
@@ -39,5 +41,6 @@ export function createLongRunningMetadata(
     pollingStrategy,
     finalResultPropertySerializedName,
     operationId,
+    pollingHeaderName,
   };
 }

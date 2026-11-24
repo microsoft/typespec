@@ -199,6 +199,21 @@ describe("LRO operation ID metadata", () => {
       pathParameterSerializedName: "operationId",
       propertySerializedName: "id",
     });
+    for (const name of ["startLocation", "startLocationWithoutId"]) {
+      const operation = operations.find((operation) => operation.operationId === name)!;
+      expect(operation.lroMetadata?.pollingHeaderName).toBe("location");
+      expect(operation.lroMetadata?.pollingStrategy?.language.java?.name).toBe(
+        "OperationLocationPollingStrategy",
+      );
+    }
+    expect(
+      operations.find((operation) => operation.operationId === "startLocation")!.lroMetadata
+        ?.operationId?.pollingHeaderName,
+    ).toBe("location");
+    expect(
+      operations.find((operation) => operation.operationId === "startLocationWithoutId")!
+        .lroMetadata?.operationId,
+    ).toBeUndefined();
   });
 });
 

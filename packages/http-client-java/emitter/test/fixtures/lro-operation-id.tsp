@@ -55,3 +55,37 @@ op getBodyOnlyStatus(): CombinedStatus;
 @pollingOperation(getBodyOnlyStatus)
 op startBodyOnly(): Azure.Core.Foundations.AcceptedResponse &
   Azure.Core.Foundations.LongRunningStatusLocation<CombinedStatus>;
+
+model LocationStatus {
+  status: Azure.Core.Foundations.OperationState;
+
+  @lroResult
+  result?: Result;
+}
+
+model LocationResponse {
+  @statusCode
+  statusCode: 202;
+
+  @pollingLocation
+  @header("Location")
+  location: TypeSpec.Rest.ResourceLocation<LocationStatus>;
+}
+
+@get
+@route("/location/{resultId}")
+op getLocationStatus(@lroOperationId @path resultId: string): LocationStatus;
+
+@post
+@route("/start-location")
+@pollingOperation(getLocationStatus)
+op startLocation(): LocationResponse;
+
+@get
+@route("/location-without-id/{resultId}")
+op getLocationWithoutIdStatus(@path resultId: string): LocationStatus;
+
+@post
+@route("/start-location-without-id")
+@pollingOperation(getLocationWithoutIdStatus)
+op startLocationWithoutId(): LocationResponse;

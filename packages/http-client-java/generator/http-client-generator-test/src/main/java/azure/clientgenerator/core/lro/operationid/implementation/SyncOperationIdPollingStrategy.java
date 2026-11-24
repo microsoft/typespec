@@ -26,6 +26,7 @@ public final class SyncOperationIdPollingStrategy<T, U> implements SyncPollingSt
     private final SyncPollingStrategy<T, U> pollingStrategy;
     private final Pattern pathPattern;
     private final String pollingHeaderName;
+    private final String endpoint;
 
     /**
      * Creates an instance of the polling strategy.
@@ -37,9 +38,24 @@ public final class SyncOperationIdPollingStrategy<T, U> implements SyncPollingSt
      */
     public SyncOperationIdPollingStrategy(SyncPollingStrategy<T, U> pollingStrategy, String pathTemplate,
         String pathParameterName, String pollingHeaderName) {
+        this(pollingStrategy, pathTemplate, pathParameterName, pollingHeaderName, null);
+    }
+
+    /**
+     * Creates an operation ID strategy using the polling endpoint to resolve relative URLs.
+     *
+     * @param pollingStrategy the polling strategy to delegate to.
+     * @param pathTemplate the status-monitor route template.
+     * @param pathParameterName the operation ID path parameter.
+     * @param pollingHeaderName the response header containing the polling URL.
+     * @param endpoint the endpoint used by the underlying polling strategy.
+     */
+    public SyncOperationIdPollingStrategy(SyncPollingStrategy<T, U> pollingStrategy, String pathTemplate,
+        String pathParameterName, String pollingHeaderName, String endpoint) {
         this.pollingStrategy = Objects.requireNonNull(pollingStrategy, "'pollingStrategy' cannot be null.");
         this.pathPattern = OperationIdPollingStrategy.createPathPattern(pathTemplate, pathParameterName);
         this.pollingHeaderName = Objects.requireNonNull(pollingHeaderName, "'pollingHeaderName' cannot be null.");
+        this.endpoint = endpoint;
     }
 
     /**
@@ -56,7 +72,7 @@ public final class SyncOperationIdPollingStrategy<T, U> implements SyncPollingSt
     @Override
     public PollResponse<T> onInitialResponse(Response<?> response, PollingContext<T> pollingContext,
         TypeReference<T> pollResponseType) {
-        OperationIdPollingStrategy.savePollingUrl(response, pollingContext, pollingHeaderName);
+        OperationIdPollingStrategy.savePollingUrl(response, pollingContext, pollingHeaderName, endpoint);
         return OperationIdPollingStrategy.setOperationId(
             pollingStrategy.onInitialResponse(response, pollingContext, pollResponseType), pollingContext, pathPattern);
     }

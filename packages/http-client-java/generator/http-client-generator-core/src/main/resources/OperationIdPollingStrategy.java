@@ -1,4 +1,5 @@
 import com.azure.core.http.rest.Response;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.PollingContext;
 import com.azure.core.util.polling.PollingStrategy;
@@ -26,12 +27,14 @@ import reactor.core.publisher.Mono;
  * @param <U> the type of the final result object to deserialize into
  */
 public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T, U> {
+    private static final ClientLogger LOGGER = new ClientLogger(OperationIdPollingStrategy.class);
     private static final String POLLING_URL_KEY = OperationIdPollingStrategy.class.getName() + ".pollingUrl";
     private static final Map<Class<?>, BiConsumer<Object, String>> ACCESSORS = new ConcurrentHashMap<>();
 
     private final PollingStrategy<T, U> pollingStrategy;
     private final Pattern pathPattern;
     private final String pollingHeaderName;
+    private final String endpoint;
 
     /**
      * Creates an instance of the polling strategy.
@@ -43,9 +46,24 @@ public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T
      */
     public OperationIdPollingStrategy(PollingStrategy<T, U> pollingStrategy, String pathTemplate,
         String pathParameterName, String pollingHeaderName) {
+        this(pollingStrategy, pathTemplate, pathParameterName, pollingHeaderName, null);
+    }
+
+    /**
+     * Creates an operation ID strategy using the polling endpoint to resolve relative URLs.
+     *
+     * @param pollingStrategy the polling strategy to delegate to.
+     * @param pathTemplate the status-monitor route template.
+     * @param pathParameterName the operation ID path parameter.
+     * @param pollingHeaderName the response header containing the polling URL.
+     * @param endpoint the endpoint used by the underlying polling strategy.
+     */
+    public OperationIdPollingStrategy(PollingStrategy<T, U> pollingStrategy, String pathTemplate,
+        String pathParameterName, String pollingHeaderName, String endpoint) {
         this.pollingStrategy = Objects.requireNonNull(pollingStrategy, "'pollingStrategy' cannot be null.");
         this.pathPattern = createPathPattern(pathTemplate, pathParameterName);
         this.pollingHeaderName = Objects.requireNonNull(pollingHeaderName, "'pollingHeaderName' cannot be null.");
+        this.endpoint = endpoint;
     }
 
     /**
@@ -74,7 +92,7 @@ public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T
     @Override
     public Mono<PollResponse<T>> onInitialResponse(Response<?> response, PollingContext<T> pollingContext,
         TypeReference<T> pollResponseType) {
-        savePollingUrl(response, pollingContext, pollingHeaderName);
+        savePollingUrl(response, pollingContext, pollingHeaderName, endpoint);
         return pollingStrategy.onInitialResponse(response, pollingContext, pollResponseType)
             .map(pollResponse -> setOperationId(pollResponse, pollingContext, pathPattern));
     }
@@ -146,10 +164,12 @@ public final class OperationIdPollingStrategy<T, U> implements PollingStrategy<T
         return pollResponse;
     }
 
-    static void savePollingUrl(Response<?> response, PollingContext<?> pollingContext, String pollingHeaderName) {
+    static void savePollingUrl(Response<?> response, PollingContext<?> pollingContext, String pollingHeaderName,
+        String endpoint) {
         String pollingUrl = response.getHeaders().getValue(pollingHeaderName);
         if (pollingUrl != null) {
-            pollingContext.setData(POLLING_URL_KEY, pollingUrl);
+            pollingContext.setData(POLLING_URL_KEY,
+                endpoint == null ? pollingUrl : PollingUtils.getAbsolutePath(pollingUrl, endpoint, LOGGER));
         }
     }
 

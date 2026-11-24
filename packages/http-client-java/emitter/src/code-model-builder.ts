@@ -1826,11 +1826,22 @@ export class CodeModelBuilder {
         pollingStrategy,
         finalResultPropertySerializedName,
         operationId,
+        this.getLroPollingHeaderName(lroMetadata),
       );
       return op.lroMetadata;
     }
 
     return createLongRunningMetadata(false);
+  }
+
+  private getLroPollingHeaderName(lroMetadata: SdkLroServiceMetadata): string | undefined {
+    const step = lroMetadata.statusMonitorStep;
+    const link = step?.kind === "nextOperationReference" ? step.target.link : step?.target;
+    if (link?.location === "ResponseHeader" && link.property.__raw) {
+      const headerName = getHeaderFieldName(this.program, link.property.__raw).toLowerCase();
+      return headerName === "operation-location" ? undefined : headerName;
+    }
+    return undefined;
   }
 
   private processLroOperationIdMetadata(

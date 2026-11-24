@@ -12,6 +12,7 @@ public class LongRunningMetadata {
     private Metadata pollingStrategy;
     private String finalResultPropertySerializedName;
     private LongRunningOperationIdMetadata operationId;
+    private String pollingHeaderName;
 
     /**
      * Creates a new instance of the LongRunningMetadata class.
@@ -107,5 +108,23 @@ public class LongRunningMetadata {
      */
     public void setOperationId(LongRunningOperationIdMetadata operationId) {
         this.operationId = operationId;
+    }
+
+    /**
+     * Gets the response header containing the status-monitor URL.
+     *
+     * @return the polling header name.
+     */
+    public String getPollingHeaderName() {
+        return pollingHeaderName;
+    }
+
+    /**
+     * Sets the response header containing the status-monitor URL.
+     *
+     * @param pollingHeaderName the polling header name.
+     */
+    public void setPollingHeaderName(String pollingHeaderName) {
+        this.pollingHeaderName = pollingHeaderName;
     }
 }

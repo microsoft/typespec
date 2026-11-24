@@ -6,6 +6,7 @@ package tsptest.union.implementation;
 
 import com.azure.core.exception.AzureException;
 import com.azure.core.http.HttpHeader;
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.logging.ClientLogger;
@@ -37,6 +38,7 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
     private final ObjectSerializer serializer;
     private final String endpoint;
     private final String propertyName;
+    private final HttpHeaderName pollingHeaderName;
 
     /**
      * Creates an instance of the operation resource polling strategy.
@@ -56,7 +58,20 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
      * @throws NullPointerException if {@code pollingStrategyOptions} is null.
      */
     public OperationLocationPollingStrategy(PollingStrategyOptions pollingStrategyOptions, String propertyName) {
-        super(PollingUtils.OPERATION_LOCATION_HEADER, pollingStrategyOptions);
+        this(pollingStrategyOptions, propertyName, PollingUtils.OPERATION_LOCATION_HEADER.getCaseSensitiveName());
+    }
+
+    /**
+     * Creates a strategy for the selected status-monitor response header.
+     *
+     * @param pollingStrategyOptions the polling options.
+     * @param propertyName the property containing the final result.
+     * @param pollingHeaderName the response header containing the polling URL.
+     */
+    public OperationLocationPollingStrategy(PollingStrategyOptions pollingStrategyOptions, String propertyName,
+        String pollingHeaderName) {
+        super(HttpHeaderName.fromString(pollingHeaderName), pollingStrategyOptions);
+        this.pollingHeaderName = HttpHeaderName.fromString(pollingHeaderName);
         this.propertyName = propertyName;
         this.endpoint = pollingStrategyOptions.getEndpoint();
         this.serializer = pollingStrategyOptions.getSerializer() != null
@@ -72,9 +87,9 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
         TypeReference<T> pollResponseType) {
         // Response<?> is Response<BinaryData>
 
-        HttpHeader operationLocationHeader = response.getHeaders().get(PollingUtils.OPERATION_LOCATION_HEADER);
+        HttpHeader operationLocationHeader = response.getHeaders().get(pollingHeaderName);
         if (operationLocationHeader != null) {
-            pollingContext.setData(PollingUtils.OPERATION_LOCATION_HEADER.getCaseSensitiveName(),
+            pollingContext.setData(pollingHeaderName.getCaseSensitiveName(),
                 PollingUtils.getAbsolutePath(operationLocationHeader.getValue(), endpoint, LOGGER));
         }
         final String httpMethod = response.getRequest().getHttpMethod().name();
@@ -97,13 +112,9 @@ public final class OperationLocationPollingStrategy<T, U> extends OperationResou
             return pollResponseMono.switchIfEmpty(
                 Mono.fromSupplier(() -> new PollResponse<>(LongRunningOperationStatus.IN_PROGRESS, null, retryAfter)));
         } else {
-            return Mono
-                .error(
-                    new AzureException(String.format(
-                        "Operation failed or cancelled with status code %d,"
-                            + ", '%s' header: %s, and response body: %s",
-                        response.getStatusCode(), PollingUtils.OPERATION_LOCATION_HEADER, operationLocationHeader,
-                        response.getValue())));
+            return Mono.error(new AzureException(String.format(
+                "Operation failed or cancelled with status code %d," + ", '%s' header: %s, and response body: %s",
+                response.getStatusCode(), pollingHeaderName, operationLocationHeader, response.getValue())));
         }
     }
 

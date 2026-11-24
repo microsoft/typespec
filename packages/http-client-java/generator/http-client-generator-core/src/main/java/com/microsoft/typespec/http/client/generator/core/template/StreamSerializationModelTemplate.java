@@ -27,6 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.util.LroOperationIdModelHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
@@ -833,13 +834,12 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
          * @param fromSuperType Whether the property is defined by a super type of the model.
          * @return The property getter statement.
          */
-        private static String getPropertyGetterStatement(ClientModelProperty property, boolean fromSuperType) {
+        private String getPropertyGetterStatement(ClientModelProperty property, boolean fromSuperType) {
             IType clientType = property.getClientType();
             IType wireType = property.getWireType();
             if (fromSuperType) {
-                return (clientType != wireType)
-                    ? wireType.convertFromClientType(property.getGetterName() + "()")
-                    : property.getGetterName() + "()";
+                String getter = LroOperationIdModelHelper.getSerializationGetterName(model, property);
+                return (clientType != wireType) ? wireType.convertFromClientType(getter + "()") : getter + "()";
             } else {
                 return "this." + property.getName();
             }

@@ -98,11 +98,11 @@ final class PollingMetadata {
             final String pathParameterArg
                 = ClassType.STRING.defaultValueExpression(operationId.getPathParameterSerializedName());
             final String headerArg = ClassType.STRING.defaultValueExpression(operationId.getPollingHeaderName());
-            final String operationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s, %s)", packageName,
-                ClientModelUtil.OPERATION_ID_POLLING_STRATEGY, pollingStrategy, pathTemplateArg, pathParameterArg,
-                headerArg);
-            final String syncOperationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s, %s)", packageName,
-                ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY, syncPollingStrategy, pathTemplateArg,
+            final String operationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s, %s, {endpoint})",
+                packageName, ClientModelUtil.OPERATION_ID_POLLING_STRATEGY, pollingStrategy, pathTemplateArg,
+                pathParameterArg, headerArg);
+            final String syncOperationIdPollingStrategy = String.format("new %s.%s<>(%s, %s, %s, %s, {endpoint})",
+                packageName, ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY, syncPollingStrategy, pathTemplateArg,
                 pathParameterArg, headerArg);
             return new MethodPollingDetails(operationIdPollingStrategy, syncOperationIdPollingStrategy, pollResultType,
                 finalResultType, pollIntervalInSeconds);
@@ -239,7 +239,19 @@ final class PollingMetadata {
             final String strategyFqName = packageName + "." + strategyName;
             final String syncStrategyFqName = packageName + "." + "Sync" + strategyName;
 
-            if (lroMetadata.getFinalResultPropertySerializedName() != null) {
+            String headerName = lroMetadata.getPollingHeaderName();
+            if (settings.isAzureV1()
+                && "OperationLocationPollingStrategy".equals(strategyName)
+                && headerName != null
+                && !"operation-location".equalsIgnoreCase(headerName)) {
+                String resultArg
+                    = ClassType.STRING.defaultValueExpression(lroMetadata.getFinalResultPropertySerializedName());
+                String headerArg = ClassType.STRING.defaultValueExpression(headerName);
+                String format = PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT;
+                format = format.substring(0, format.length() - 1) + ", %s)";
+                pollingStrategy = String.format(format, strategyFqName, resultArg, headerArg);
+                syncPollingStrategy = String.format(format, syncStrategyFqName, resultArg, headerArg);
+            } else if (lroMetadata.getFinalResultPropertySerializedName() != null) {
                 final String finalResultArg
                     = ClassType.STRING.defaultValueExpression(lroMetadata.getFinalResultPropertySerializedName());
                 pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
