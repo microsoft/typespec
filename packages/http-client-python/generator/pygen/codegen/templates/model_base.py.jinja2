@@ -1470,7 +1470,8 @@ def _has_same_elements(original: typing.Any, deserialized: typing.Any) -> bool:
     if isinstance(original, dict):
         return all(k in original and original[k] is v for k, v in deserialized.items())
     if isinstance(original, set):
-        return all(any(a is b for b in original) for a in deserialized)
+        original_ids = {id(x) for x in original}
+        return all(id(x) in original_ids for x in deserialized)
     return False
 
 
