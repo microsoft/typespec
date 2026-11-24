@@ -116,25 +116,11 @@
                 </filter>
                 <filter>
                   <!-- Eclipse JDT Core is only used for its code formatter and doesn't run inside an OSGi/Eclipse workspace.
-                       Exclude its unused subsystems, along with the unused parts of the Eclipse platform, OSGi, clientcore,
+                       Exclude its unused subsystems, along with the unused parts of the Eclipse platform, OSGi,
                        and SnakeYAML. These package trees are never loaded while generating code. minimizeJar cannot remove
                        most of them because JDT's static references reach them. -->
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>io/clientcore/core/http/annotations/**</exclude>
-                    <exclude>io/clientcore/core/http/client/**</exclude>
-                    <exclude>io/clientcore/core/http/paging/**</exclude>
-                    <exclude>io/clientcore/core/http/pipeline/**</exclude>
-                    <exclude>io/clientcore/core/implementation/http/**</exclude>
-                    <exclude>io/clientcore/core/implementation/instrumentation/fallback/**</exclude>
-                    <exclude>io/clientcore/core/implementation/instrumentation/otel/**</exclude>
-                    <exclude>io/clientcore/core/implementation/utils/**</exclude>
-                    <exclude>io/clientcore/core/instrumentation/metrics/**</exclude>
-                    <exclude>io/clientcore/core/instrumentation/tracing/**</exclude>
-                    <exclude>io/clientcore/core/models/geo/**</exclude>
-                    <exclude>io/clientcore/core/serialization/json/models/**</exclude>
-                    <exclude>io/clientcore/core/serialization/xml/**</exclude>
-                    <exclude>io/clientcore/core/traits/**</exclude>
                     <exclude>org/apache/**</exclude>
                     <exclude>org/eclipse/core/commands/**</exclude>
                     <exclude>org/eclipse/core/expressions/**</exclude>
