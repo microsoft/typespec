@@ -178,6 +178,13 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Cannot replace the response of operation '${"operationName"}' with bytes: the emitter cannot fabricate bytes when the HTTP response has no body. The response type override is ignored.`,
       },
     },
+    "xml-additional-properties-not-supported": {
+      ...doc("xml-additional-properties-not-supported"),
+      severity: "error",
+      messages: {
+        default: paramMessage`XML additional properties are not supported for model '${"modelName"}'. Use @@alternateType to select a Java model with explicitly named XML properties.`,
+      },
+    },
     "type-not-supported-on-text-plain": {
       ...doc("type-not-supported-on-text-plain"),
       severity: "warning",

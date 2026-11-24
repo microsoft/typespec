@@ -99,16 +99,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch, Context context);
     }
 
-    /**
-     * Get a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ModelInterfaceDifferentName along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName) {
@@ -119,16 +110,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Get a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ModelInterfaceDifferentName on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ModelInterfaceSameNameInner> getByResourceGroupAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName) {
@@ -136,17 +118,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ModelInterfaceDifferentName along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelInterfaceSameNameInner> getByResourceGroupWithResponse(String resourceGroupName,
         String modelInterfaceDifferentNameName, Context context) {
@@ -155,16 +127,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             this.client.getSubscriptionId(), resourceGroupName, modelInterfaceDifferentNameName, accept, context);
     }
 
-    /**
-     * Get a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ModelInterfaceDifferentName.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelInterfaceSameNameInner getByResourceGroup(String resourceGroupName,
         String modelInterfaceDifferentNameName) {
@@ -172,18 +135,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             .getValue();
     }
 
-    /**
-     * Delete a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @param ifMatch The request should only proceed if an entity matches this string.
-     * @param ifNoneMatch The request should only proceed if no entity matches this string.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName, String ifMatch, String ifNoneMatch) {
@@ -194,16 +146,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Delete a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> deleteAsync(String resourceGroupName, String modelInterfaceDifferentNameName) {
         final String ifMatch = null;
@@ -212,19 +155,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             .flatMap(ignored -> Mono.empty());
     }
 
-    /**
-     * Delete a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @param ifMatch The request should only proceed if an entity matches this string.
-     * @param ifNoneMatch The request should only proceed if no entity matches this string.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String resourceGroupName, String modelInterfaceDifferentNameName,
         String ifMatch, String ifNoneMatch, Context context) {
@@ -233,15 +164,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             context);
     }
 
-    /**
-     * Delete a ModelInterfaceDifferentName.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String modelInterfaceDifferentNameName) {
         final String ifMatch = null;

@@ -217,17 +217,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             @HeaderParam("Accept") String accept, Context context);
     }
 
-    /**
-     * Get a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ChildResource along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<ChildResourceInner>> getWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
@@ -239,17 +229,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Get a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ChildResource on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ChildResourceInner> getAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
@@ -257,18 +237,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ChildResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChildResourceInner> getWithResponse(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, Context context) {
@@ -277,35 +246,13 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             resourceGroupName, topLevelArmResourceName, childResourceName, accept, context);
     }
 
-    /**
-     * Get a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ChildResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner get(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
         return getWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE).getValue();
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource along with {@link Response} on successful completion of
-     * {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceInner resource) {
@@ -333,11 +280,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, contentType,
-            accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, resource,
+            Context.NONE);
     }
 
     /**
@@ -363,18 +307,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             accept, resource, context);
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of subresource of Top Level Arm Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourceName, String childResourceName,
@@ -385,40 +318,15 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             ChildResourceInner.class, ChildResourceInner.class, this.client.getContext());
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of subresource of Top Level Arm Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdate(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceInner resource) {
-        Response<BinaryData> response
-            = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, resource);
-        return this.client.<ChildResourceInner, ChildResourceInner>getLroResult(response, ChildResourceInner.class,
-            ChildResourceInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource,
+            Context.NONE);
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of subresource of Top Level Arm Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdate(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceInner resource, Context context) {
@@ -428,18 +336,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             ChildResourceInner.class, context);
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ChildResourceInner> createOrUpdateAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource) {
@@ -447,58 +344,22 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource)
-            .getFinalResult();
+        return createOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource, context));
     }
 
-    /**
-     * Update a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource along with {@link Response} on successful completion of
-     * {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<ChildResourceInner>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceUpdate properties) {
@@ -511,18 +372,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Update a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ChildResourceInner> updateAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceUpdate properties) {
@@ -530,19 +380,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChildResourceInner> updateWithResponse(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceUpdate properties, Context context) {
@@ -553,18 +391,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             accept, properties, context);
     }
 
-    /**
-     * Update a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner update(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         ChildResourceUpdate properties) {
@@ -572,17 +399,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             Context.NONE).getValue();
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
@@ -605,9 +422,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
-        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
-            Context.NONE);
+        return deleteWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE);
     }
 
     /**
@@ -629,17 +444,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
@@ -649,37 +454,14 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             this.client.getContext());
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
-        Response<BinaryData> response
-            = deleteWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+        return beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE);
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, Context context) {
@@ -688,53 +470,25 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
         return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
         return beginDeleteAsync(resourceGroupName, topLevelArmResourceName, childResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
-        beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName).getFinalResult();
+        delete(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE);
     }
 
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         Context context) {
-        beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName, context));
     }
 
     /**
@@ -761,16 +515,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * List ChildResource resources by TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of ChildResource items as paginated response with {@link PagedFlux}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<ChildResourceInner> listByTopLevelArmResourceAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -792,12 +537,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ChildResourceInner> listByTopLevelArmResourceSinglePage(String resourceGroupName,
         String topLevelArmResourceName) {
-        final String accept = "application/json";
-        Response<ChildResourceListResult> res
-            = service.listByTopLevelArmResourceSync(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByTopLevelArmResourceSinglePage(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
     /**
@@ -822,35 +562,14 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List ChildResource resources by TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
         String topLevelArmResourceName) {
-        return new PagedIterable<>(
-            () -> listByTopLevelArmResourceSinglePage(resourceGroupName, topLevelArmResourceName),
-            nextLink -> listByTopLevelArmResourceNextSinglePage(nextLink));
+        return listByTopLevelArmResource(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
-    /**
-     * List ChildResource resources by TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
         String topLevelArmResourceName, Context context) {
@@ -859,17 +578,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             nextLink -> listByTopLevelArmResourceNextSinglePage(nextLink, context));
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> actionWithoutBodyWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
@@ -894,8 +603,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> actionWithoutBodyWithResponse(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
-        return service.actionWithoutBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName,
+        return actionWithoutBodyWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName,
             Context.NONE);
     }
 
@@ -918,17 +626,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<Void>, Void> beginActionWithoutBodyAsync(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
@@ -938,37 +636,14 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             this.client.getContext());
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginActionWithoutBody(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
-        Response<BinaryData> response
-            = actionWithoutBodyWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+        return beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE);
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginActionWithoutBody(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, Context context) {
@@ -977,17 +652,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
         return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> actionWithoutBodyAsync(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
@@ -995,36 +660,18 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
-        beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName).getFinalResult();
+        actionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, Context.NONE);
     }
 
-    /**
-     * The actionWithoutBody operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         Context context) {
-        beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, context).getFinalResult();
+        this.client.getLroFinalResultOrError(
+            beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, context));
     }
 
     /**
@@ -1059,11 +706,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ChildResourceInner> listByTopLevelArmResourceNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<ChildResourceListResult> res
-            = service.listByTopLevelArmResourceNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByTopLevelArmResourceNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

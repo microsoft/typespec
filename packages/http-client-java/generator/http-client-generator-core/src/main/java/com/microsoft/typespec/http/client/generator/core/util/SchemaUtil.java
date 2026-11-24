@@ -123,6 +123,10 @@ public class SchemaUtil {
      */
     public static IType getOperationResponseType(Schema responseBodySchema, Operation operation,
         JavaSettings settings) {
+        if (responseBodySchema != null && operation.hasBinaryResponse()) {
+            // A single declared schema cannot represent both typed and raw binary success payloads.
+            return ClassType.BINARY_DATA;
+        }
         final IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
         if (responseBodyType != null) {
             return responseBodyType;

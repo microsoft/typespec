@@ -50,12 +50,11 @@ public final class ExtensionsResourcesImpl implements ExtensionsResources {
     }
 
     public void deleteByResourceGroup(String resourceUri, String extensionsResourceName) {
-        this.serviceClient().delete(resourceUri, extensionsResourceName);
+        this.deleteByResourceGroupWithResponse(resourceUri, extensionsResourceName, Context.NONE);
     }
 
     public PagedIterable<ExtensionsResource> listByScope(String resourceUri) {
-        PagedIterable<ExtensionsResourceInner> inner = this.serviceClient().listByScope(resourceUri);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new ExtensionsResourceImpl(inner1, this.manager()));
+        return this.listByScope(resourceUri, Context.NONE);
     }
 
     public PagedIterable<ExtensionsResource> listByScope(String resourceUri, Context context) {
@@ -64,74 +63,30 @@ public final class ExtensionsResourcesImpl implements ExtensionsResources {
     }
 
     public ExtensionsResource getById(String id) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String extensionsResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "extensionsResourceName");
-        if (extensionsResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'extensionsResources'.", id)));
-        }
-        return this.getWithResponse(resourceUri, extensionsResourceName, Context.NONE).getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<ExtensionsResource> getByIdWithResponse(String id, Context context) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceUri = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String extensionsResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceUri", "resourceUri", LOGGER);
+        String extensionsResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "extensionsResourceName");
-        if (extensionsResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'extensionsResources'.", id)));
-        }
+            "extensionsResourceName", "extensionsResources", LOGGER);
         return this.getWithResponse(resourceUri, extensionsResourceName, context);
     }
 
     public void deleteById(String id) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String extensionsResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "extensionsResourceName");
-        if (extensionsResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'extensionsResources'.", id)));
-        }
-        this.deleteByResourceGroupWithResponse(resourceUri, extensionsResourceName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public Response<Void> deleteByIdWithResponse(String id, Context context) {
-        String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceUri = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "resourceUri");
-        if (resourceUri == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceUri'.", id)));
-        }
-        String extensionsResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceUri", "resourceUri", LOGGER);
+        String extensionsResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}",
-            "extensionsResourceName");
-        if (extensionsResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'extensionsResources'.", id)));
-        }
+            "extensionsResourceName", "extensionsResources", LOGGER);
         return this.deleteByResourceGroupWithResponse(resourceUri, extensionsResourceName, context);
     }
 

@@ -135,41 +135,6 @@ namespace Microsoft.TypeSpec.Generator
         {
         }
 
-        internal void UpdateTypeIdentity(TypeProvider provider, InputType? inputType, string name, string @namespace)
-        {
-            var type = provider.Type;
-            if (type.Name == name && type.Namespace == @namespace)
-            {
-                return;
-            }
-            var mappedType = CSharpTypeMap.TryGetValue(type, out var mappedProvider) && ReferenceEquals(mappedProvider, provider);
-            var mappedName = TypeProvidersByName.TryGetValue(type.Name, out var namedProvider) && ReferenceEquals(namedProvider, provider);
-            // Remove mutable keys before changing their hash or lookup identity.
-            if (mappedType)
-            {
-                CSharpTypeMap.Remove(type);
-            }
-            if (mappedName)
-            {
-                TypeProvidersByName.Remove(type.Name);
-            }
-
-            type.Update(name: name, @namespace: @namespace);
-
-            if (mappedType)
-            {
-                CSharpTypeMap[type] = provider;
-            }
-            if (mappedName)
-            {
-                TypeProvidersByName[type.Name] = provider;
-            }
-            if (inputType is not null)
-            {
-                SerializationsCache.Remove(inputType);
-            }
-        }
-
         internal CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
             => CreateLastContractModelBaseCore(previousBase, currentModel);
 
@@ -261,7 +226,11 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
-                    if (unionType.BaseModel is { } baseModel && HasCompatibleUnionBase(unionType))
+                    // Unions without a discriminator property (SSE events unions) are only selected by the
+                    // out-of-band event type, so they map to their base on the SSE convenience path alone.
+                    if (unionType.BaseModel is { } baseModel &&
+                        unionType.DiscriminatorPropertyName is not null &&
+                        HasCompatibleUnionBase(unionType))
                     {
                         type = CreateCSharpType(baseModel);
                         break;
@@ -605,14 +574,14 @@ namespace Microsoft.TypeSpec.Generator
             // unsatisfied dependency, ...) so the message points at the actual problem.
             var details = ExternalTypeReferenceResolver.GetFailureReason(externalProperties)
                 ?? (string.IsNullOrEmpty(externalProperties.Package)
-                    ? "no package metadata was provided"
-                    : string.IsNullOrEmpty(externalProperties.MinVersion)
-                        ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
-                        : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed");
+                    ? "runtime type lookup failed and no NuGet package ID was provided. " +
+                      "To resolve the type from NuGet, specify its package ID in @alternateType. " +
+                      ExternalTypeReferenceResolver.PackageReferenceGuidance
+                    : $"no resolution details are available for NuGet package '{externalProperties.Package}'");
 
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalProperties.Identity}' could not be resolved: {details}.");
+                $"External type '{externalProperties.Identity}' could not be resolved: {details.TrimEnd('.')}.");
 
             return null;
         }

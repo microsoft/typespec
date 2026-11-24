@@ -16,6 +16,12 @@ public final class NonResourceImpl implements NonResource, NonResource.Definitio
     NonResourceImpl(NonResourceInner innerObject, azure.resourcemanager.nonresource.NonResourceManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.location = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}",
+            "location");
+        this.parameter = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}",
+            "parameter");
     }
 
     public String id() {
@@ -48,11 +54,7 @@ public final class NonResourceImpl implements NonResource, NonResource.Definitio
     }
 
     public NonResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNonResourceOperations()
-            .createWithResponse(location, parameter, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public NonResource create(Context context) {
@@ -70,11 +72,7 @@ public final class NonResourceImpl implements NonResource, NonResource.Definitio
     }
 
     public NonResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNonResourceOperations()
-            .getWithResponse(location, parameter, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public NonResource refresh(Context context) {

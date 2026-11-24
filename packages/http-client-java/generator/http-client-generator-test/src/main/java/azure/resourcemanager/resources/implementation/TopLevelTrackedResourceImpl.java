@@ -84,10 +84,7 @@ public final class TopLevelTrackedResourceImpl
     }
 
     public TopLevelTrackedResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getTopLevels()
-            .createOrReplace(resourceGroupName, topLevelTrackedResourceName, this.innerModel(), Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public TopLevelTrackedResource create(Context context) {
@@ -108,10 +105,7 @@ public final class TopLevelTrackedResourceImpl
     }
 
     public TopLevelTrackedResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getTopLevels()
-            .update(resourceGroupName, topLevelTrackedResourceName, this.innerModel(), Context.NONE);
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public TopLevelTrackedResource apply(Context context) {
@@ -134,11 +128,7 @@ public final class TopLevelTrackedResourceImpl
     }
 
     public TopLevelTrackedResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getTopLevels()
-            .getByResourceGroupWithResponse(resourceGroupName, topLevelTrackedResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public TopLevelTrackedResource refresh(Context context) {

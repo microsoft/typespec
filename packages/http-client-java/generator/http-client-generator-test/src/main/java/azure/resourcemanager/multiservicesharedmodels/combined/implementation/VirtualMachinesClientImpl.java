@@ -139,17 +139,7 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Retrieves information about the model view or the instance view of a virtual machine.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param vmName The name of the VirtualMachine.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return describes a Virtual Machine along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<VirtualMachineInner> getByResourceGroupWithResponse(String resourceGroupName, String vmName,
         Context context) {
@@ -159,16 +149,7 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
             resourceGroupName, vmName, accept, context);
     }
 
-    /**
-     * Retrieves information about the model view or the instance view of a virtual machine.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param vmName The name of the VirtualMachine.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return describes a Virtual Machine.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VirtualMachineInner getByResourceGroup(String resourceGroupName, String vmName) {
         return getByResourceGroupWithResponse(resourceGroupName, vmName, Context.NONE).getValue();
@@ -213,11 +194,7 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String vmName,
         VirtualMachineInner resource) {
-        final String apiVersion = "2025-05-01";
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
-            resourceGroupName, vmName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, vmName, resource, Context.NONE);
     }
 
     /**
@@ -263,39 +240,14 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
             VirtualMachineInner.class, VirtualMachineInner.class, this.client.getContext());
     }
 
-    /**
-     * The operation to create or update a virtual machine. Please note some properties can be set only during virtual
-     * machine creation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param vmName The name of the VirtualMachine.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of describes a Virtual Machine.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<VirtualMachineInner>, VirtualMachineInner>
         beginCreateOrUpdate(String resourceGroupName, String vmName, VirtualMachineInner resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, vmName, resource);
-        return this.client.<VirtualMachineInner, VirtualMachineInner>getLroResult(response, VirtualMachineInner.class,
-            VirtualMachineInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, vmName, resource, Context.NONE);
     }
 
-    /**
-     * The operation to create or update a virtual machine. Please note some properties can be set only during virtual
-     * machine creation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param vmName The name of the VirtualMachine.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of describes a Virtual Machine.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<VirtualMachineInner>, VirtualMachineInner>
         beginCreateOrUpdate(String resourceGroupName, String vmName, VirtualMachineInner resource, Context context) {
@@ -323,39 +275,16 @@ public final class VirtualMachinesClientImpl implements VirtualMachinesClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The operation to create or update a virtual machine. Please note some properties can be set only during virtual
-     * machine creation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param vmName The name of the VirtualMachine.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return describes a Virtual Machine.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VirtualMachineInner createOrUpdate(String resourceGroupName, String vmName, VirtualMachineInner resource) {
-        return beginCreateOrUpdate(resourceGroupName, vmName, resource).getFinalResult();
+        return createOrUpdate(resourceGroupName, vmName, resource, Context.NONE);
     }
 
-    /**
-     * The operation to create or update a virtual machine. Please note some properties can be set only during virtual
-     * machine creation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param vmName The name of the VirtualMachine.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return describes a Virtual Machine.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VirtualMachineInner createOrUpdate(String resourceGroupName, String vmName, VirtualMachineInner resource,
         Context context) {
-        return beginCreateOrUpdate(resourceGroupName, vmName, resource, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, vmName, resource, context));
     }
 }

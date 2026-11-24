@@ -230,6 +230,14 @@ abstract class ConvenienceMethodTemplateBase {
         return isResponseBase(type) ? (GenericType) type : null;
     }
 
+    protected static String getBodylessResponseCondition(ClientMethod protocolMethod) {
+        return protocolMethod.getProxyMethod()
+            .getResponseBodylessStatusCodes()
+            .stream()
+            .map(status -> "protocolMethodResponse.getStatusCode() == " + status)
+            .collect(Collectors.joining(" || "));
+    }
+
     protected static String expressionConvertFromBinaryData(IType responseBodyType, IType rawType,
         String invocationExpression, Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
         if (responseBodyType == ClassType.BINARY_DATA) {

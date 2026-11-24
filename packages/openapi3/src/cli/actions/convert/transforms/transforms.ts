@@ -8,20 +8,11 @@ import type {
   OpenAPIResponses3_2,
   Refable,
   SupportedOpenAPIDocuments,
-  SupportedOpenAPISchema,
 } from "../../../../types.js";
-import type {
-  TypeSpecDataTypes,
-  TypeSpecModel,
-  TypeSpecModelProperty,
-  TypeSpecProgram,
-} from "../interfaces.js";
+import type { TypeSpecDataTypes, TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
 import type { Context } from "../utils/context.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
-import {
-  convertHeaderToProperty,
-  convertStatusCodeToProperty,
-} from "../utils/response-properties.js";
+import { getComponentResponseProperties } from "../utils/response-properties.js";
 import { transformComponentParameters } from "./transform-component-parameters.js";
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";
@@ -375,60 +366,10 @@ export function transformComponentResponses(
           scope: namespace,
           decorators: statusCode === "default" ? [{ name: "error", args: [] }] : [],
           doc: componentResponse.description,
-          properties: getResponseProperties(statusCode, componentResponse, context),
+          properties: getComponentResponseProperties(statusCode, componentResponse, context)
+            .properties,
         });
       }
     }
   }
-}
-
-function getResponseProperties(
-  statusCode: string,
-  response: OpenAPI3Response,
-  context: Context,
-): TypeSpecModelProperty[] {
-  const properties: TypeSpecModelProperty[] = [];
-  const resolvedStatus = statusCode === "default" ? "default" : statusCode;
-
-  if (resolvedStatus !== "default") {
-    properties.push(convertStatusCodeToProperty(resolvedStatus));
-  }
-
-  for (const [headerName, header] of Object.entries(response.headers ?? {})) {
-    const property = convertHeaderToProperty({ name: headerName, header, context });
-    if (property) {
-      properties.push(property);
-    }
-  }
-
-  const contentEntries = Object.entries(response.content ?? {});
-  const preferredContent = [
-    contentEntries.find(([mediaType]) => mediaType === "application/json"),
-    contentEntries[0],
-  ].find((entry): entry is [string, any] => !!entry);
-
-  const bodySchema =
-    preferredContent && typeof preferredContent[1] === "object" && "schema" in preferredContent[1]
-      ? (preferredContent[1].schema as Refable<SupportedOpenAPISchema>)
-      : undefined;
-
-  if (preferredContent && preferredContent[0] !== "application/json") {
-    properties.push({
-      name: "contentType",
-      decorators: [{ name: "header", args: ["Content-Type"] }],
-      isOptional: false,
-      schema: { type: "string", enum: [preferredContent[0]] },
-    });
-  }
-
-  if (bodySchema) {
-    properties.push({
-      name: "body",
-      decorators: [{ name: "body", args: [] }],
-      isOptional: false,
-      schema: bodySchema,
-    });
-  }
-
-  return properties;
 }

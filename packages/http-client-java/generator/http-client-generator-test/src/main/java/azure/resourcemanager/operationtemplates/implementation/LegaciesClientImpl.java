@@ -136,18 +136,7 @@ public final class LegaciesClientImpl implements LegaciesClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The routedGet operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param name The name parameter.
-     * @param diagnosticName The diagnosticName parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DiagnosticInfoInner> routedGetWithResponse(String resourceGroupName, String name,
         String diagnosticName, Context context) {
@@ -156,17 +145,7 @@ public final class LegaciesClientImpl implements LegaciesClient {
             this.client.getSubscriptionId(), resourceGroupName, name, diagnosticName, accept, context);
     }
 
-    /**
-     * The routedGet operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param name The name parameter.
-     * @param diagnosticName The diagnosticName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DiagnosticInfoInner routedGet(String resourceGroupName, String name, String diagnosticName) {
         return routedGetWithResponse(resourceGroupName, name, diagnosticName, Context.NONE).getValue();
@@ -214,19 +193,7 @@ public final class LegaciesClientImpl implements LegaciesClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Create a Configuration.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the Configuration.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ConfigurationInner> createOrReplaceOptionalBodyWithResponse(String resourceGroupName,
         String configurationName, ConfigurationInner resource, Context context) {
@@ -235,16 +202,7 @@ public final class LegaciesClientImpl implements LegaciesClient {
             this.client.getSubscriptionId(), resourceGroupName, configurationName, accept, resource, context);
     }
 
-    /**
-     * Create a Configuration.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the Configuration.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ConfigurationInner createOrReplaceOptionalBody(String resourceGroupName, String configurationName) {
         final ConfigurationInner resource = null;

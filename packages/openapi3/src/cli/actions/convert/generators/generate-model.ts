@@ -79,7 +79,11 @@ function generateScalar(scalar: TypeSpecScalar, context: Context): string {
   const type = context.generateTypeFromRefableSchema(scalar.schema, scalar.scope);
 
   if (type === "unknown") {
-    definitions.push(`scalar ${scalar.name};`);
+    definitions.push(
+      scalar.decorators.some((decorator) => decorator.name === "example")
+        ? `union ${scalar.name} { unknown }`
+        : `scalar ${scalar.name};`,
+    );
   } else {
     definitions.push(`scalar ${scalar.name} extends ${type};`);
   }
@@ -381,8 +385,14 @@ export function generateModelProperty(
 
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
+  const hasExamples = prop.decorators.some((decorator) => decorator.name === "example");
   const decorators = generateDecorators(
-    [...prop.decorators, ...getDecoratorsForSchema(prop.schema)],
+    [
+      ...prop.decorators,
+      ...getDecoratorsForSchema(prop.schema, context).filter(
+        (decorator) => decorator.name !== "example" || !hasExamples,
+      ),
+    ],
     isModelReferencedAsMultipartRequestBody
       ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts
       : [],

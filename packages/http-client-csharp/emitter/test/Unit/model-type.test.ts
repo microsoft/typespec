@@ -15,9 +15,12 @@ import {
 } from "./utils/test-util.js";
 
 describe("Union extends", () => {
-  async function compileUnion(source: string) {
+  async function compileUnion(source: string, isSseNeeded = false) {
     const host = await createEmitterTestHost();
-    const program = await typeSpecCompile(source, host, { Features: ["union-extends"] });
+    const program = await typeSpecCompile(source, host, {
+      Features: ["union-extends"],
+      IsSseNeeded: isSseNeeded,
+    });
     deepStrictEqual(
       program.diagnostics.filter((d) => d.severity === "error"),
       [],
@@ -139,6 +142,83 @@ describe("Union extends", () => {
     const [union] = fromSdkType(context, sdkUnion);
     strictEqual(union.baseModel, undefined);
     strictEqual(union.discriminatedSubtypes, undefined);
+  });
+
+  describe("SSE events", () => {
+    async function getEventsUnion(source: string) {
+      const { context, root } = await compileUnion(source, true);
+      const operation = [...context.__typeCache.operations.values()][0];
+      const bodyType = operation.responses[0].bodyType;
+      ok(bodyType?.kind === "streaming");
+      ok(bodyType.valueType.kind === "union");
+      return { union: bodyType.valueType, root };
+    }
+
+    it("maps event types to variants of the declared base", async () => {
+      const { union, root } = await getEventsUnion(`
+        model ResponseEvent { sequence: int32; }
+        model ResponseCreated extends ResponseEvent { id: string; }
+        model Intermediate extends ResponseEvent {}
+        model ResponseDelta extends Intermediate { delta: string; }
+        @events
+        union ResponseEvents extends ResponseEvent {
+          @Events.contentType("application/json")
+          responseCreated: ResponseCreated,
+          @Events.contentType("application/json")
+          responseDelta: ResponseDelta,
+          @Events.contentType("application/json")
+          ResponseDelta,
+        }
+        op receive(): SSEStream<ResponseEvents>;
+      `);
+      const base = root.models.find((m) => m.name === "ResponseEvent");
+      ok(base);
+      strictEqual(union.baseModel, base);
+      deepStrictEqual(Object.keys(union.discriminatedSubtypes ?? {}), [
+        "responseCreated",
+        "responseDelta",
+        "message",
+      ]);
+      strictEqual(
+        union.discriminatedSubtypes?.responseCreated,
+        root.models.find((m) => m.name === "ResponseCreated"),
+      );
+      strictEqual(
+        union.discriminatedSubtypes?.message,
+        root.models.find((m) => m.name === "ResponseDelta"),
+      );
+      strictEqual(union.discriminatorPropertyName, undefined);
+      strictEqual(union.envelopePropertyName, undefined);
+      strictEqual(base.discriminatorProperty, undefined);
+    });
+
+    it.each([
+      ["no extends clause", "", "extends Named", "application/json", ""],
+      ["structural variants", "extends Named", "", "application/json", ""],
+      ["a non-JSON payload", "extends Named", "extends Named", "text/plain", ""],
+      ["an envelope payload", "extends Named", "extends Named", "application/json", "@data"],
+      ["duplicate event types", "extends Named", "extends Named", "application/json", "dup"],
+    ])(
+      "keeps the existing representation for %s",
+      async (_, constraint, inheritance, contentType, variant) => {
+        const { union } = await getEventsUnion(`
+          model Named { name: string; }
+          model Cat ${inheritance} { ${inheritance ? "" : "name: string;"} meow: boolean; }
+          model Dog ${inheritance} { ${inheritance ? "" : "name: string;"} bark: boolean; }
+          model Wrapper ${inheritance} { ${inheritance ? "" : "name: string;"} @Events.contentType("application/json") @data payload: Cat; }
+          @events
+          union PetEvents ${constraint} {
+            @Events.contentType("${contentType}")
+            cat: Cat,
+            ${variant === "@data" ? `@Events.contentType("application/json") wrapped: Wrapper,` : `@Events.contentType("application/json") dog: Dog,`}
+            ${variant === "dup" ? `@Events.contentType("application/json") Dog, @Events.contentType("application/json") Cat,` : ""}
+          }
+          op receive(): SSEStream<PetEvents>;
+        `);
+        strictEqual(union.baseModel, undefined);
+        strictEqual(union.discriminatedSubtypes, undefined);
+      },
+    );
   });
 });
 

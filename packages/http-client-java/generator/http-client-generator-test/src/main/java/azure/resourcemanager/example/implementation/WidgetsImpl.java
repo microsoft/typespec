@@ -25,8 +25,7 @@ public final class WidgetsImpl implements Widgets {
     }
 
     public PagedIterable<Widget> listByResourceGroup(String resourceGroupName) {
-        PagedIterable<WidgetInner> inner = this.serviceClient().listByResourceGroup(resourceGroupName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new WidgetImpl(inner1, this.manager()));
+        return this.listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
     public PagedIterable<Widget> listByResourceGroup(String resourceGroupName, Context context) {

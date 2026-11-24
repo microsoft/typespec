@@ -262,18 +262,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> listSinglePage() {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<BinaryData> res = service.listSync(this.client.getEndpoint(), accept, Context.NONE);
-        ListResult lroPageableResult
-            = this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, Context.NONE)
-                .getFinalResult();
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            lroPageableResult.items(), lroPageableResult.nextLink(), null);
+        return listSinglePage(Context.NONE);
     }
 
     /**
@@ -294,34 +283,19 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         final String accept = "application/json";
         Response<BinaryData> res = service.listSync(this.client.getEndpoint(), accept, context);
-        ListResult lroPageableResult
-            = this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, context)
-                .getFinalResult();
+        ListResult lroPageableResult = this.client.getLroFinalResultOrError(
+            this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, context));
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             lroPageableResult.items(), lroPageableResult.nextLink(), null);
     }
 
-    /**
-     * The list operation.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> list() {
-        return new PagedIterable<>(() -> listSinglePage(), nextLink -> listNextSinglePage(nextLink));
+        return list(Context.NONE);
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> list(Context context) {
         return new PagedIterable<>(() -> listSinglePage(context), nextLink -> listNextSinglePage(nextLink, context));
@@ -368,15 +342,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> summarySinglePage() {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResultSummary> res = service.summarySync(this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return summarySinglePage(Context.NONE);
     }
 
     /**
@@ -401,27 +367,13 @@ public final class ItemsClientImpl implements ItemsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * The summary operation.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> summary() {
-        return new PagedIterable<>(() -> summarySinglePage(), nextLink -> summaryNextSinglePage(nextLink));
+        return summary(Context.NONE);
     }
 
-    /**
-     * The summary operation.
-     * 
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> summary(Context context) {
         return new PagedIterable<>(() -> summarySinglePage(context),
@@ -469,15 +421,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list2SinglePage() {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResult2> res = service.list2Sync(this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return list2SinglePage(Context.NONE);
     }
 
     /**
@@ -502,27 +446,13 @@ public final class ItemsClientImpl implements ItemsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * The list2 operation.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> list2() {
-        return new PagedIterable<>(() -> list2SinglePage(), nextLink -> list2NextSinglePage(nextLink));
+        return list2(Context.NONE);
     }
 
-    /**
-     * The list2 operation.
-     * 
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> list2(Context context) {
         return new PagedIterable<>(() -> list2SinglePage(context), nextLink -> list2NextSinglePage(nextLink, context));
@@ -558,15 +488,7 @@ public final class ItemsClientImpl implements ItemsClient {
         return summary2WithResponseAsync().flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The summary2 operation.
-     * 
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ListResultSummary2Inner> summary2WithResponse(Context context) {
         if (this.client.getEndpoint() == null) {
@@ -578,13 +500,7 @@ public final class ItemsClientImpl implements ItemsClient {
         return service.summary2Sync(this.client.getEndpoint(), accept, context);
     }
 
-    /**
-     * The summary2 operation.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ListResultSummary2Inner summary2() {
         return summary2WithResponse(Context.NONE).getValue();
@@ -631,15 +547,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list3SinglePage() {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResult3> res = service.list3Sync(this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return list3SinglePage(Context.NONE);
     }
 
     /**
@@ -664,27 +572,13 @@ public final class ItemsClientImpl implements ItemsClient {
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * The list3 operation.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> list3() {
-        return new PagedIterable<>(() -> list3SinglePage(), nextLink -> list3NextSinglePage(nextLink));
+        return list3(Context.NONE);
     }
 
-    /**
-     * The list3 operation.
-     * 
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Result> list3(Context context) {
         return new PagedIterable<>(() -> list3SinglePage(context), nextLink -> list3NextSinglePage(nextLink, context));
@@ -729,16 +623,7 @@ public final class ItemsClientImpl implements ItemsClient {
         return postWithResponseAsync(body).flatMap(ignored -> Mono.empty());
     }
 
-    /**
-     * The post operation.
-     * 
-     * @param body The body parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postWithResponse(ListResult3 body, Context context) {
         if (this.client.getEndpoint() == null) {
@@ -755,14 +640,7 @@ public final class ItemsClientImpl implements ItemsClient {
         return service.postSync(this.client.getEndpoint(), contentType, body, context);
     }
 
-    /**
-     * The post operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void post(ListResult3 body) {
         postWithResponse(body, Context.NONE);
@@ -804,19 +682,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> listNextSinglePage(String nextLink) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResult> res = service.listNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return listNextSinglePage(nextLink, Context.NONE);
     }
 
     /**
@@ -883,20 +749,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> summaryNextSinglePage(String nextLink) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResultSummary> res
-            = service.summaryNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return summaryNextSinglePage(nextLink, Context.NONE);
     }
 
     /**
@@ -962,19 +815,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list2NextSinglePage(String nextLink) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResult2> res = service.list2NextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return list2NextSinglePage(nextLink, Context.NONE);
     }
 
     /**
@@ -1040,19 +881,7 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list3NextSinglePage(String nextLink) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ListResult3> res = service.list3NextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        return list3NextSinglePage(nextLink, Context.NONE);
     }
 
     /**

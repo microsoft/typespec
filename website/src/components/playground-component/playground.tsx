@@ -9,12 +9,15 @@ import {
   type VersionSelectorVersion,
 } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
+import { registerMonacoDefaultWorkersForVite } from "@typespec/playground/vite/workers";
 import { type FunctionComponent, useMemo } from "react";
 import { type VersionData } from "./import-map";
 import { LoadingSpinner } from "./loading-spinner";
 
 import "@typespec/playground-website/style.css";
 import "@typespec/playground/styles.css";
+
+registerMonacoDefaultWorkersForVite();
 
 export interface WebsitePlaygroundProps {
   versionData: VersionData;

@@ -137,17 +137,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a ConfidentialResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param confidentialResourceName The name of the ConfidentialResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ConfidentialResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ConfidentialResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
         String confidentialResourceName, Context context) {
@@ -156,16 +146,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
             this.client.getSubscriptionId(), resourceGroupName, confidentialResourceName, accept, context);
     }
 
-    /**
-     * Get a ConfidentialResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param confidentialResourceName The name of the ConfidentialResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ConfidentialResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ConfidentialResourceInner getByResourceGroup(String resourceGroupName, String confidentialResourceName) {
         return getByResourceGroupWithResponse(resourceGroupName, confidentialResourceName, Context.NONE).getValue();
@@ -214,19 +195,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Create a ConfidentialResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param confidentialResourceName The name of the ConfidentialResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ApiErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ConfidentialResourceInner> createForUserDefinedErrorWithResponse(String resourceGroupName,
         String confidentialResourceName, ConfidentialResourceInner resource, Context context) {
@@ -237,17 +206,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
             context);
     }
 
-    /**
-     * Create a ConfidentialResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param confidentialResourceName The name of the ConfidentialResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ApiErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ConfidentialResourceInner createForUserDefinedError(String resourceGroupName,
         String confidentialResourceName, ConfidentialResourceInner resource) {

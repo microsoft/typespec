@@ -30,7 +30,7 @@ public final class ItemsImpl implements Items {
     }
 
     public PagedIterable<Result> list() {
-        return this.serviceClient().list();
+        return this.list(Context.NONE);
     }
 
     public PagedIterable<Result> list(Context context) {
@@ -38,7 +38,7 @@ public final class ItemsImpl implements Items {
     }
 
     public PagedIterable<Result> summary() {
-        return this.serviceClient().summary();
+        return this.summary(Context.NONE);
     }
 
     public PagedIterable<Result> summary(Context context) {
@@ -46,7 +46,7 @@ public final class ItemsImpl implements Items {
     }
 
     public PagedIterable<Result> list2() {
-        return this.serviceClient().list2();
+        return this.list2(Context.NONE);
     }
 
     public PagedIterable<Result> list2(Context context) {
@@ -69,7 +69,7 @@ public final class ItemsImpl implements Items {
     }
 
     public PagedIterable<Result> list3() {
-        return this.serviceClient().list3();
+        return this.list3(Context.NONE);
     }
 
     public PagedIterable<Result> list3(Context context) {
@@ -81,7 +81,7 @@ public final class ItemsImpl implements Items {
     }
 
     public void post(ListResult3 body) {
-        this.serviceClient().post(body);
+        this.postWithResponse(body, Context.NONE);
     }
 
     private ItemsClient serviceClient() {
