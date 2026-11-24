@@ -136,17 +136,7 @@ public final class DisksClientImpl implements DisksClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Gets information about a disk.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param diskName The name of the Disk.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return information about a disk along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DiskInner> getByResourceGroupWithResponse(String resourceGroupName, String diskName,
         Context context) {
@@ -156,16 +146,7 @@ public final class DisksClientImpl implements DisksClient {
             resourceGroupName, diskName, accept, context);
     }
 
-    /**
-     * Gets information about a disk.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param diskName The name of the Disk.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return information about a disk.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DiskInner getByResourceGroup(String resourceGroupName, String diskName) {
         return getByResourceGroupWithResponse(resourceGroupName, diskName, Context.NONE).getValue();
@@ -208,11 +189,7 @@ public final class DisksClientImpl implements DisksClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String diskName,
         DiskInner resource) {
-        final String apiVersion = "2025-01-02";
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), apiVersion, this.client.getSubscriptionId(),
-            resourceGroupName, diskName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, diskName, resource, Context.NONE);
     }
 
     /**
@@ -256,36 +233,14 @@ public final class DisksClientImpl implements DisksClient {
             DiskInner.class, this.client.getContext());
     }
 
-    /**
-     * Creates or updates a disk.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param diskName The name of the Disk.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of disk resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<DiskInner>, DiskInner> beginCreateOrUpdate(String resourceGroupName, String diskName,
         DiskInner resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, diskName, resource);
-        return this.client.<DiskInner, DiskInner>getLroResult(response, DiskInner.class, DiskInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, diskName, resource, Context.NONE);
     }
 
-    /**
-     * Creates or updates a disk.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param diskName The name of the Disk.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of disk resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<DiskInner>, DiskInner> beginCreateOrUpdate(String resourceGroupName, String diskName,
         DiskInner resource, Context context) {
@@ -310,34 +265,13 @@ public final class DisksClientImpl implements DisksClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Creates or updates a disk.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param diskName The name of the Disk.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return disk resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DiskInner createOrUpdate(String resourceGroupName, String diskName, DiskInner resource) {
-        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, diskName, resource));
+        return createOrUpdate(resourceGroupName, diskName, resource, Context.NONE);
     }
 
-    /**
-     * Creates or updates a disk.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param diskName The name of the Disk.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return disk resource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DiskInner createOrUpdate(String resourceGroupName, String diskName, DiskInner resource, Context context) {
         return this.client

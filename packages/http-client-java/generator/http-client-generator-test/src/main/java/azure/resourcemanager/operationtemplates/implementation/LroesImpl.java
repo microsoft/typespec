@@ -31,12 +31,7 @@ public final class LroesImpl implements Lroes {
     }
 
     public ExportResult export(String resourceGroupName, String orderName, ExportRequest body) {
-        ExportResultInner inner = this.serviceClient().export(resourceGroupName, orderName, body);
-        if (inner != null) {
-            return new ExportResultImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.export(resourceGroupName, orderName, body, Context.NONE);
     }
 
     public ExportResult export(String resourceGroupName, String orderName, ExportRequest body, Context context) {
@@ -49,7 +44,7 @@ public final class LroesImpl implements Lroes {
     }
 
     public void deleteByResourceGroup(String resourceGroupName, String orderName) {
-        this.serviceClient().delete(resourceGroupName, orderName);
+        this.delete(resourceGroupName, orderName, Context.NONE);
     }
 
     public void delete(String resourceGroupName, String orderName, Context context) {
@@ -57,14 +52,7 @@ public final class LroesImpl implements Lroes {
     }
 
     public List<ExportResult> exportArray(ExportRequest body) {
-        List<ExportResultInner> inner = this.serviceClient().exportArray(body);
-        if (inner != null) {
-            return Collections.unmodifiableList(inner.stream()
-                .map(inner1 -> new ExportResultImpl(inner1, this.manager()))
-                .collect(Collectors.toList()));
-        } else {
-            return Collections.emptyList();
-        }
+        return this.exportArray(body, Context.NONE);
     }
 
     public List<ExportResult> exportArray(ExportRequest body, Context context) {
@@ -79,12 +67,7 @@ public final class LroesImpl implements Lroes {
     }
 
     public CostReport getLro(String scope, String operationId) {
-        CostReportInner inner = this.serviceClient().getLro(scope, operationId);
-        if (inner != null) {
-            return new CostReportImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.getLro(scope, operationId, Context.NONE);
     }
 
     public CostReport getLro(String scope, String operationId, Context context) {
@@ -97,38 +80,16 @@ public final class LroesImpl implements Lroes {
     }
 
     public void deleteById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String orderName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
-            "orderName");
-        if (orderName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'orders'.", id)));
-        }
-        this.delete(resourceGroupName, orderName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public void deleteByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String orderName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String orderName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
-            "orderName");
-        if (orderName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'orders'.", id)));
-        }
+            "orderName", "orders", LOGGER);
         this.delete(resourceGroupName, orderName, context);
     }
 

@@ -27,8 +27,7 @@ public final class LroPagingsImpl implements LroPagings {
     }
 
     public PagedIterable<Product> postPagingLro(String resourceGroupName, String productName) {
-        PagedIterable<ProductInner> inner = this.serviceClient().postPagingLro(resourceGroupName, productName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new ProductImpl(inner1, this.manager()));
+        return this.postPagingLro(resourceGroupName, productName, Context.NONE);
     }
 
     public PagedIterable<Product> postPagingLro(String resourceGroupName, String productName, Context context) {
@@ -38,9 +37,7 @@ public final class LroPagingsImpl implements LroPagings {
 
     public PagedIterable<Product> postPagingLroWithBody(String resourceGroupName, String productName,
         VnetProfile body) {
-        PagedIterable<ProductInner> inner
-            = this.serviceClient().postPagingLroWithBody(resourceGroupName, productName, body);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new ProductImpl(inner1, this.manager()));
+        return this.postPagingLroWithBody(resourceGroupName, productName, body, Context.NONE);
     }
 
     public PagedIterable<Product> postPagingLroWithBody(String resourceGroupName, String productName, VnetProfile body,

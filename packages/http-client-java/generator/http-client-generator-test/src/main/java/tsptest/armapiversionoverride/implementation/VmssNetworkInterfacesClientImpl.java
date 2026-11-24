@@ -122,19 +122,7 @@ public final class VmssNetworkInterfacesClientImpl implements VmssNetworkInterfa
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param virtualMachineScaleSetName The virtualMachineScaleSetName parameter.
-     * @param networkInterfaceName The networkInterfaceName parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NetworkInterfaceInner> getWithResponse(String resourceGroupName, String virtualMachineScaleSetName,
         String networkInterfaceName, Context context) {
@@ -144,17 +132,7 @@ public final class VmssNetworkInterfacesClientImpl implements VmssNetworkInterfa
             resourceGroupName, virtualMachineScaleSetName, networkInterfaceName, accept, context);
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param virtualMachineScaleSetName The virtualMachineScaleSetName parameter.
-     * @param networkInterfaceName The networkInterfaceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NetworkInterfaceInner get(String resourceGroupName, String virtualMachineScaleSetName,
         String networkInterfaceName) {

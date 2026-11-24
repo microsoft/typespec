@@ -114,18 +114,7 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept, Context context);
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @param resourceName The resourceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<TopLevelArmResourceInner>> getWithResponseAsync(String group, String accountName,
         String resourceName) {
@@ -136,36 +125,13 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @param resourceName The resourceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> getAsync(String group, String accountName, String resourceName) {
         return getWithResponseAsync(group, accountName, resourceName).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @param resourceName The resourceName parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getWithResponse(String group, String accountName, String resourceName,
         Context context) {
@@ -174,17 +140,7 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
             resourceName, this.client.getApiVersion(), accept, context);
     }
 
-    /**
-     * The get operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @param resourceName The resourceName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner get(String group, String accountName, String resourceName) {
         return getWithResponse(group, accountName, resourceName, Context.NONE).getValue();
@@ -212,16 +168,7 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of TopLevelArmResource items as paginated response with {@link PagedFlux}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<TopLevelArmResourceInner> listAsync(String group, String accountName) {
         return new PagedFlux<>(() -> listSinglePageAsync(group, accountName),
@@ -240,11 +187,7 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listSinglePage(String group, String accountName) {
-        final String accept = "application/json";
-        Response<SharedResourceListResult> res = service.listSync(this.client.getEndpoint(),
-            this.client.getSubscriptionId(), group, accountName, this.client.getApiVersion(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listSinglePage(group, accountName, Context.NONE);
     }
 
     /**
@@ -267,32 +210,13 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of TopLevelArmResource items as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(String group, String accountName) {
-        return new PagedIterable<>(() -> listSinglePage(group, accountName), nextLink -> listNextSinglePage(nextLink));
+        return list(group, accountName, Context.NONE);
     }
 
-    /**
-     * The list operation.
-     * 
-     * @param group The group parameter.
-     * @param accountName The accountName parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of TopLevelArmResource items as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(String group, String accountName, Context context) {
         return new PagedIterable<>(() -> listSinglePage(group, accountName, context),
@@ -329,11 +253,7 @@ public final class AccountResourcesClientImpl implements AccountResourcesClient 
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<SharedResourceListResult> res
-            = service.listNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

@@ -87,12 +87,7 @@ public final class ManagedIdentityTrackedResourceImpl implements ManagedIdentity
     }
 
     public ManagedIdentityTrackedResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getManagedIdentities()
-            .createWithSystemAssignedWithResponse(resourceGroupName, managedIdentityTrackedResourceName,
-                this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ManagedIdentityTrackedResource create(Context context) {
@@ -116,12 +111,7 @@ public final class ManagedIdentityTrackedResourceImpl implements ManagedIdentity
     }
 
     public ManagedIdentityTrackedResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getManagedIdentities()
-            .updateWithUserAssignedAndSystemAssignedWithResponse(resourceGroupName, managedIdentityTrackedResourceName,
-                this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public ManagedIdentityTrackedResource apply(Context context) {
@@ -146,11 +136,7 @@ public final class ManagedIdentityTrackedResourceImpl implements ManagedIdentity
     }
 
     public ManagedIdentityTrackedResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getManagedIdentities()
-            .getByResourceGroupWithResponse(resourceGroupName, managedIdentityTrackedResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ManagedIdentityTrackedResource refresh(Context context) {

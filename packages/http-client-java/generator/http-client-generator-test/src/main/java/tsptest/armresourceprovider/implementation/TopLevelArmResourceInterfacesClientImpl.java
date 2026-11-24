@@ -260,16 +260,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             @HeaderParam("Accept") String accept, Context context);
     }
 
-    /**
-     * Get a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a TopLevelArmResource along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -280,16 +271,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Get a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a TopLevelArmResource on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> getByResourceGroupAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -297,17 +279,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a TopLevelArmResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
         String topLevelArmResourceName, Context context) {
@@ -316,33 +288,13 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, context);
     }
 
-    /**
-     * Get a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a TopLevelArmResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner getByResourceGroup(String resourceGroupName, String topLevelArmResourceName) {
         return getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourceName, Context.NONE).getValue();
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceInner resource) {
@@ -370,11 +322,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept, resource,
-            Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, resource, Context.NONE);
     }
 
     /**
@@ -400,18 +348,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             context);
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceInner resource) {
@@ -422,40 +359,14 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             this.client.getContext());
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceInner resource) {
-        Response<BinaryData> response
-            = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, resource);
-        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
-            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceInner resource, Context context) {
@@ -465,18 +376,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, context);
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> createOrUpdateAsync(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource) {
@@ -484,36 +384,14 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource) {
-        return this.client
-            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource));
+        return createOrUpdate(resourceGroupName, topLevelArmResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource, Context context) {
@@ -521,18 +399,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource, context));
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<TopLevelArmResourceInner>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceUpdate properties) {
@@ -545,18 +412,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<TopLevelArmResourceInner> updateAsync(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceUpdate properties) {
@@ -564,19 +420,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> updateWithResponse(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceUpdate properties, Context context) {
@@ -587,33 +431,14 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             properties, context);
     }
 
-    /**
-     * Update a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceUpdate properties) {
         return updateWithResponse(resourceGroupName, topLevelArmResourceName, properties, Context.NONE).getValue();
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -635,8 +460,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourceName) {
-        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, Context.NONE);
+        return deleteWithResponse(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
     /**
@@ -657,16 +481,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, context);
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -675,33 +490,13 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             this.client.getContext());
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName) {
-        Response<BinaryData> response = deleteWithResponse(resourceGroupName, topLevelArmResourceName);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+        return beginDelete(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName,
         Context context) {
@@ -709,46 +504,20 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourceName) {
         return beginDeleteAsync(resourceGroupName, topLevelArmResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName) {
-        this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelArmResourceName));
+        delete(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, Context context) {
         this.client.getLroFinalResultOrError(beginDelete(resourceGroupName, topLevelArmResourceName, context));
@@ -775,15 +544,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * List TopLevelArmResource resources by resource group.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<TopLevelArmResourceInner> listByResourceGroupAsync(String resourceGroupName) {
         return new PagedFlux<>(() -> listByResourceGroupSinglePageAsync(resourceGroupName),
@@ -801,11 +562,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listByResourceGroupSinglePage(String resourceGroupName) {
-        final String accept = "application/json";
-        Response<ResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByResourceGroupSinglePage(resourceGroupName, Context.NONE);
     }
 
     /**
@@ -828,31 +585,13 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List TopLevelArmResource resources by resource group.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> listByResourceGroup(String resourceGroupName) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName),
-            nextLink -> listByResourceGroupNextSinglePage(nextLink));
+        return listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
-    /**
-     * List TopLevelArmResource resources by resource group.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> listByResourceGroup(String resourceGroupName, Context context) {
         return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, context),
@@ -878,13 +617,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * List TopLevelArmResource resources by subscription ID.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<TopLevelArmResourceInner> listAsync() {
         return new PagedFlux<>(() -> listSinglePageAsync(),
@@ -900,11 +633,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listSinglePage() {
-        final String accept = "application/json";
-        Response<ResourceListResult> res = service.listSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listSinglePage(Context.NONE);
     }
 
     /**
@@ -925,43 +654,20 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List TopLevelArmResource resources by subscription ID.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list() {
-        return new PagedIterable<>(() -> listSinglePage(), nextLink -> listBySubscriptionNextSinglePage(nextLink));
+        return list(Context.NONE);
     }
 
-    /**
-     * List TopLevelArmResource resources by subscription ID.
-     * 
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(Context context) {
         return new PagedIterable<>(() -> listSinglePage(context),
             nextLink -> listBySubscriptionNextSinglePage(nextLink, context));
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -984,9 +690,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> actionWithResponse(String resourceGroupName, String topLevelArmResourceName) {
-        final String accept = "application/json";
-        return service.actionSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, Context.NONE);
+        return actionWithResponse(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
     /**
@@ -1008,16 +712,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, context);
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<ResultInner>, ResultInner> beginActionAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -1026,35 +721,14 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             ResultInner.class, ResultInner.class, this.client.getContext());
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ResultInner>, ResultInner> beginAction(String resourceGroupName,
         String topLevelArmResourceName) {
-        Response<BinaryData> response = actionWithResponse(resourceGroupName, topLevelArmResourceName);
-        return this.client.<ResultInner, ResultInner>getLroResult(response, ResultInner.class, ResultInner.class,
-            Context.NONE);
+        return beginAction(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ResultInner>, ResultInner> beginAction(String resourceGroupName,
         String topLevelArmResourceName, Context context) {
@@ -1063,63 +737,26 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             context);
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ResultInner> actionAsync(String resourceGroupName, String topLevelArmResourceName) {
         return beginActionAsync(resourceGroupName, topLevelArmResourceName).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResultInner action(String resourceGroupName, String topLevelArmResourceName) {
-        return this.client.getLroFinalResultOrError(beginAction(resourceGroupName, topLevelArmResourceName));
+        return action(resourceGroupName, topLevelArmResourceName, Context.NONE);
     }
 
-    /**
-     * The action operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResultInner action(String resourceGroupName, String topLevelArmResourceName, Context context) {
         return this.client.getLroFinalResultOrError(beginAction(resourceGroupName, topLevelArmResourceName, context));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> publishXmlWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName) {
@@ -1130,33 +767,14 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<BinaryData> publishXmlAsync(String resourceGroupName, String topLevelArmResourceName) {
         return publishXmlWithResponseAsync(resourceGroupName, topLevelArmResourceName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> publishXmlWithResponse(String resourceGroupName, String topLevelArmResourceName,
         Context context) {
@@ -1165,16 +783,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, context);
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData publishXml(String resourceGroupName, String topLevelArmResourceName) {
         return publishXmlWithResponse(resourceGroupName, topLevelArmResourceName, Context.NONE).getValue();
@@ -1212,11 +821,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listByResourceGroupNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<ResourceListResult> res
-            = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByResourceGroupNextSinglePage(nextLink, Context.NONE);
     }
 
     /**
@@ -1271,11 +876,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<TopLevelArmResourceInner> listBySubscriptionNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<ResourceListResult> res
-            = service.listBySubscriptionNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listBySubscriptionNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

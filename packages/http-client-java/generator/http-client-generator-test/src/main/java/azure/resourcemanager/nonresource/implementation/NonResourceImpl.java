@@ -54,11 +54,7 @@ public final class NonResourceImpl implements NonResource, NonResource.Definitio
     }
 
     public NonResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNonResourceOperations()
-            .createWithResponse(location, parameter, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public NonResource create(Context context) {
@@ -76,11 +72,7 @@ public final class NonResourceImpl implements NonResource, NonResource.Definitio
     }
 
     public NonResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNonResourceOperations()
-            .getWithResponse(location, parameter, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public NonResource refresh(Context context) {

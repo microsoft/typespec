@@ -45,12 +45,7 @@ public final class SingletonsImpl implements Singletons {
     }
 
     public SingletonTrackedResource createOrUpdate(String resourceGroupName, SingletonTrackedResourceInner resource) {
-        SingletonTrackedResourceInner inner = this.serviceClient().createOrUpdate(resourceGroupName, resource);
-        if (inner != null) {
-            return new SingletonTrackedResourceImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.createOrUpdate(resourceGroupName, resource, Context.NONE);
     }
 
     public SingletonTrackedResource createOrUpdate(String resourceGroupName, SingletonTrackedResourceInner resource,
@@ -81,9 +76,7 @@ public final class SingletonsImpl implements Singletons {
     }
 
     public PagedIterable<SingletonTrackedResource> listByResourceGroup(String resourceGroupName) {
-        PagedIterable<SingletonTrackedResourceInner> inner
-            = this.serviceClient().listByResourceGroup(resourceGroupName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new SingletonTrackedResourceImpl(inner1, this.manager()));
+        return this.listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
     public PagedIterable<SingletonTrackedResource> listByResourceGroup(String resourceGroupName, Context context) {

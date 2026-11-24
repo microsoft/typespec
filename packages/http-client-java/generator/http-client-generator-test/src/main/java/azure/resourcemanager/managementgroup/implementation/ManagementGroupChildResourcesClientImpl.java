@@ -214,17 +214,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ManagementGroupChildResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ManagementGroupChildResourceInner> getWithResponse(String managementGroupId,
         String managementGroupChildResourceName, Context context) {
@@ -233,16 +223,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             managementGroupChildResourceName, accept, context);
     }
 
-    /**
-     * Get a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ManagementGroupChildResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ManagementGroupChildResourceInner get(String managementGroupId, String managementGroupChildResourceName) {
         return getWithResponse(managementGroupId, managementGroupChildResourceName, Context.NONE).getValue();
@@ -286,10 +267,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(), managementGroupId,
-            managementGroupChildResourceName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(managementGroupId, managementGroupChildResourceName, resource, Context.NONE);
     }
 
     /**
@@ -337,41 +315,15 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             ManagementGroupChildResourceInner.class, this.client.getContext());
     }
 
-    /**
-     * Create a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete extension resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ManagementGroupChildResourceInner>, ManagementGroupChildResourceInner>
         beginCreateOrUpdate(String managementGroupId, String managementGroupChildResourceName,
             ManagementGroupChildResourceInner resource) {
-        Response<BinaryData> response
-            = createOrUpdateWithResponse(managementGroupId, managementGroupChildResourceName, resource);
-        return this.client.<ManagementGroupChildResourceInner, ManagementGroupChildResourceInner>getLroResult(response,
-            ManagementGroupChildResourceInner.class, ManagementGroupChildResourceInner.class, Context.NONE);
+        return beginCreateOrUpdate(managementGroupId, managementGroupChildResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete extension resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ManagementGroupChildResourceInner>, ManagementGroupChildResourceInner>
         beginCreateOrUpdate(String managementGroupId, String managementGroupChildResourceName,
@@ -401,36 +353,14 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ManagementGroupChildResourceInner createOrUpdate(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner resource) {
-        return this.client.getLroFinalResultOrError(
-            beginCreateOrUpdate(managementGroupId, managementGroupChildResourceName, resource));
+        return createOrUpdate(managementGroupId, managementGroupChildResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ManagementGroupChildResourceInner createOrUpdate(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner resource, Context context) {
@@ -480,19 +410,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type
-     * along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ManagementGroupChildResourceInner> updateWithResponse(String managementGroupId,
         String managementGroupChildResourceName, ManagementGroupChildResourceInner properties, Context context) {
@@ -502,17 +420,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             managementGroupChildResourceName, contentType, accept, properties, context);
     }
 
-    /**
-     * Update a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ManagementGroupChildResourceInner update(String managementGroupId, String managementGroupChildResourceName,
         ManagementGroupChildResourceInner properties) {
@@ -555,17 +463,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             .flatMap(ignored -> Mono.empty());
     }
 
-    /**
-     * Delete a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String managementGroupId, String managementGroupChildResourceName,
         Context context) {
@@ -573,15 +471,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             managementGroupChildResourceName, context);
     }
 
-    /**
-     * Delete a ManagementGroupChildResource.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param managementGroupChildResourceName The name of the ManagementGroupChildResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String managementGroupId, String managementGroupChildResourceName) {
         deleteWithResponse(managementGroupId, managementGroupChildResourceName, Context.NONE);
@@ -636,11 +526,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ManagementGroupChildResourceInner> listByManagementGroupSinglePage(String managementGroupId) {
-        final String accept = "application/json";
-        Response<ManagementGroupChildResourceListResult> res = service.listByManagementGroupSync(
-            this.client.getEndpoint(), this.client.getApiVersion(), managementGroupId, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByManagementGroupSinglePage(managementGroupId, Context.NONE);
     }
 
     /**
@@ -663,33 +549,13 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List ManagementGroupChildResource resources by scope.
-     * 
-     * @param managementGroupId The management group ID.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ManagementGroupChildResource list operation as paginated response with
-     * {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ManagementGroupChildResourceInner> listByManagementGroup(String managementGroupId) {
-        return new PagedIterable<>(() -> listByManagementGroupSinglePage(managementGroupId),
-            nextLink -> listByManagementGroupNextSinglePage(nextLink));
+        return listByManagementGroup(managementGroupId, Context.NONE);
     }
 
-    /**
-     * List ManagementGroupChildResource resources by scope.
-     * 
-     * @param managementGroupId The management group ID.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ManagementGroupChildResource list operation as paginated response with
-     * {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ManagementGroupChildResourceInner> listByManagementGroup(String managementGroupId,
         Context context) {
@@ -730,11 +596,7 @@ public final class ManagementGroupChildResourcesClientImpl implements Management
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ManagementGroupChildResourceInner> listByManagementGroupNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<ManagementGroupChildResourceListResult> res
-            = service.listByManagementGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByManagementGroupNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

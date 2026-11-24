@@ -125,7 +125,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param isProtocolMethod whether the client method to be simplified for resilience to API changes.
      * @return the client methods created.
      */
-    private List<ClientMethod> createClientMethods(Operation operation, boolean isProtocolMethod) {
+    protected List<ClientMethod> createClientMethods(Operation operation, boolean isProtocolMethod) {
         final JavaSettings settings = JavaSettings.getInstance();
 
         // If this operation is part of a group it'll need to be referenced with a more specific target.
