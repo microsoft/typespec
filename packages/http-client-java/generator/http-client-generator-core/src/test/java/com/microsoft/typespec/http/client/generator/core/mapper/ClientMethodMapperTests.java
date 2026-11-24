@@ -380,6 +380,45 @@ public class ClientMethodMapperTests {
             ClientMethodsReturnDescription.create(operation, true, true).getSyncReturnType());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "200", "'200'" })
+    public void mapperExcludesSchemaAndBinaryStatusesFromBodylessResponses(String bodyStatus) {
+        useSseSettings(false);
+        Operation operation = sseOperation();
+        operation.setSseMetadata(null);
+        Response body = operation.getResponses().get(0);
+        body.getProtocol().getHttp().setStatusCodes(List.of(bodyStatus));
+        Response binary = responseWithStatuses("206");
+        binary.setBinary(true);
+        operation.setResponses(
+            List.of(body, binary, responseWithStatuses("204"), responseWithStatuses("200", "204", "206")));
+
+        var methods = new ProxyMethodMapper().map(operation)
+            .values()
+            .stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+        Assertions.assertFalse(methods.isEmpty());
+        methods.forEach(method -> {
+            Assertions.assertEquals(List.of(200, 204, 206),
+                method.getResponseExpectedStatusCodes().stream().distinct().collect(Collectors.toList()));
+            Assertions.assertEquals(List.of(204), method.getResponseBodylessStatusCodes());
+            Assertions.assertEquals(ClassType.BINARY_DATA, method.getRawResponseBodyType());
+        });
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+    }
+
+    private static Response responseWithStatuses(String... statuses) {
+        Response response = new Response();
+        Protocol http = new Protocol();
+        http.setStatusCodes(List.of(statuses));
+        Protocols protocols = new Protocols();
+        protocols.setHttp(http);
+        response.setProtocol(protocols);
+        return response;
+    }
+
     @Test
     public void testOverloadedSignatures() {
         List<ClientMethodParameter> parameters = new ArrayList<>();

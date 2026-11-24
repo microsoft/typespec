@@ -160,7 +160,11 @@ public final class PreviewVersionClient {
     public Widget getWidget(String id) {
         // Generated convenience method for getWidgetWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWidgetWithResponse(id, requestOptions).getValue().toObject(Widget.class);
+        Response<BinaryData> protocolMethodResponse = getWidgetWithResponse(id, requestOptions);
+        if (protocolMethodResponse.getStatusCode() == 404) {
+            return null;
+        }
+        return protocolMethodResponse.getValue().toObject(Widget.class);
     }
 
     /**
@@ -185,8 +189,12 @@ public final class PreviewVersionClient {
         // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
         colorUpdateInBinaryData.getLength();
         JsonMergePatchHelper.getUpdateWidgetColorRequestAccessor().prepareModelForJsonMergePatch(colorUpdate, false);
-        return updateWidgetColorWithResponse(id, colorUpdateInBinaryData, requestOptions).getValue()
-            .toObject(Widget.class);
+        Response<BinaryData> protocolMethodResponse
+            = updateWidgetColorWithResponse(id, colorUpdateInBinaryData, requestOptions);
+        if (protocolMethodResponse.getStatusCode() == 404) {
+            return null;
+        }
+        return protocolMethodResponse.getValue().toObject(Widget.class);
     }
 
     /**

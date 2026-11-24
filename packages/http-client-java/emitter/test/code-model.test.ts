@@ -233,6 +233,27 @@ describe("XML storage responses", () => {
     ]);
   });
 
+  it("diagnoses nested XML dictionaries and arrays", async () => {
+    const { program } = await build("NestedRecords");
+    expectDiagnostics(
+      program.diagnostics,
+      Array.from({ length: 6 }, () => ({
+        code: "@typespec/http-client-java/xml-additional-properties-not-supported",
+        message: /XML additional properties.*Query/,
+      })),
+    );
+  });
+
+  it("diagnoses direct XML dictionary request and response bodies", async () => {
+    const { program } = await build("BodyRecords");
+    expectDiagnostics(
+      program.diagnostics,
+      Array.from({ length: 6 }, () => ({
+        code: "@typespec/http-client-java/xml-additional-properties-not-supported",
+      })),
+    );
+  });
+
   it.each(["AlternateRecords", "TypedRecords", "JsonRecords"])("supports %s", async (namespace) => {
     const { program } = await build(namespace);
     expectDiagnosticEmpty(program.diagnostics);

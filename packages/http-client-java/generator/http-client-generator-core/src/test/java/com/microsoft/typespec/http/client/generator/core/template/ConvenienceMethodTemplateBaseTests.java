@@ -8,8 +8,16 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.BinaryData;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodsReturnDescription;
 import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -405,6 +413,79 @@ public class ConvenienceMethodTemplateBaseTests {
                             Assertions.assertNull(result);
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void generatedMixedBinaryResponsesPreservePayloads(@TempDir Path directory) throws Exception {
+        useFlavor("azure");
+        Operation operation = new Operation();
+        Language language = new Language();
+        language.setName("read");
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        operation.setLanguage(languages);
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        var schemaResponse = new com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response();
+        schemaResponse.setSchema(schema);
+        var binaryResponse = new com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response();
+        binaryResponse.setBinary(true);
+        operation.setResponses(List.of(binaryResponse, schemaResponse));
+        for (var response : operation.getResponses()) {
+            Protocol http = new Protocol();
+            http.setStatusCodes(List.of(response == binaryResponse ? "200" : "206"));
+            http.setMediaTypes(List.of("application/xml"));
+            Protocols protocols = new Protocols();
+            protocols.setHttp(http);
+            response.setProtocol(protocols);
+        }
+        IType returnType = ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType();
+        Assertions.assertEquals(ClassType.BINARY_DATA, returnType);
+
+        List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+            directory.toString()));
+        for (boolean async : List.of(false, true)) {
+            String className = "MixedResponse" + async;
+            String conversion = renderConversion(async, returnType, returnType, "application/xml");
+            Assertions.assertFalse(conversion.contains("toObject"), conversion);
+            Path file = directory.resolve(className + ".java");
+            Files.writeString(file,
+                "import com.azure.core.http.rest.*;\nimport com.azure.core.util.*;\n"
+                    + "import reactor.core.publisher.Mono;\npublic class " + className + " {\n"
+                    + "public Response<BinaryData> response;\n" + "public " + (async ? "Mono<BinaryData>" : returnType)
+                    + " read() {\n" + "RequestOptions requestOptions = null;\n" + conversion + "\n}\n" + "private "
+                    + (async ? "Mono<Response<BinaryData>>" : "Response<BinaryData>")
+                    + " readWithResponse(RequestOptions options) { return "
+                    + (async ? "Mono.just(response)" : "response") + "; }\n}\n");
+            arguments.add(file.toString());
+        }
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        Assertions.assertEquals(0,
+            ToolProvider.getSystemJavaCompiler().run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+            () -> diagnostics.toString(StandardCharsets.UTF_8));
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
+            for (boolean async : List.of(false, true)) {
+                Class<?> type = loader.loadClass("MixedResponse" + async);
+                Object instance = type.getConstructor().newInstance();
+                for (int status : List.of(200, 206)) {
+                    byte[] bytes = status == 200
+                        ? new byte[] { 0, 1, (byte) 255 }
+                        : "<Layout/>".getBytes(StandardCharsets.UTF_8);
+                    BinaryData payload = BinaryData.fromBytes(bytes);
+                    type.getField("response")
+                        .set(instance, new SimpleResponse<>(null, status, new HttpHeaders(), payload));
+                    Object result = type.getMethod("read").invoke(instance);
+                    if (async) {
+                        result = ((reactor.core.publisher.Mono<?>) result).block();
+                    }
+                    Assertions.assertSame(payload, result);
+                    Assertions.assertArrayEquals(bytes, ((BinaryData) result).toBytes());
                 }
             }
         }

@@ -139,17 +139,18 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     private static List<Integer> getBodylessResponseStatusCodes(Operation operation) {
         // A status can appear in both body-bearing and bodyless response variants. Status alone can skip
         // deserialization only when every variant for that status is bodyless.
-        Set<String> bodyStatusCodes = operation.getResponses()
+        Set<Integer> bodyStatusCodes = operation.getResponses()
             .stream()
             .filter(response -> response.getSchema() != null || Boolean.TRUE.equals(response.getBinary()))
             .flatMap(response -> response.getProtocol().getHttp().getStatusCodes().stream())
+            .map(status -> Integer.parseInt(status.replace("'", "")))
             .collect(Collectors.toSet());
         return operation.getResponses()
             .stream()
             .filter(response -> response.getSchema() == null && !Boolean.TRUE.equals(response.getBinary()))
             .flatMap(response -> response.getProtocol().getHttp().getStatusCodes().stream())
-            .filter(status -> !bodyStatusCodes.contains(status))
             .map(status -> Integer.parseInt(status.replace("'", "")))
+            .filter(status -> !bodyStatusCodes.contains(status))
             .distinct()
             .sorted()
             .collect(Collectors.toList());

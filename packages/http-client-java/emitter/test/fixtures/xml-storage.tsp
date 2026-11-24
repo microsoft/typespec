@@ -105,6 +105,55 @@ namespace InlineRecords {
   op query(@header contentType: "application/xml", @body body: Query): void;
 }
 
+namespace NestedRecords {
+  model Query {
+    nested?: Record<Record<unknown>>;
+    nullableNested?: Record<Record<unknown> | null> | null;
+    array?: Record<unknown>[];
+    nullableArray?: (Record<unknown> | null)[] | null;
+    arrayValues?: Record<string[]>;
+    typedArray?: Record<string>[];
+  }
+
+  @post
+  op query(@header contentType: "application/xml", @body body: Query): void;
+}
+
+namespace BodyRecords {
+  @post
+  @route("/unknown")
+  op query(@header contentType: "application/xml", @body body: Record<unknown>): void;
+
+  @post
+  @route("/strings")
+  op queryStrings(@header contentType: "application/xml", @body body: Record<string>): void;
+
+  @get
+  @route("/response")
+  op read(): {
+    @header contentType: "application/xml";
+    @body body: Record<unknown>;
+  };
+
+  @get
+  @route("/string-response")
+  op readStrings(): {
+    @header contentType: "application/xml";
+    @body body: Record<string>;
+  };
+
+  @get
+  @route("/nullable-response")
+  op readNullable(): {
+    @header contentType: "application/xml";
+    @body body: Record<string> | null;
+  };
+
+  @post
+  @route("/nullable")
+  op queryNullable(@header contentType: "application/xml", @body body: Record<string> | null): void;
+}
+
 namespace TypedRecords {
   model Query {
     configuration?: Record<string>;
@@ -124,4 +173,8 @@ namespace JsonRecords {
 
   @post
   op query(@body body: Query): void;
+
+  @post
+  @route("/record")
+  op queryRecord(@body body: Record<unknown>): Record<unknown>;
 }
