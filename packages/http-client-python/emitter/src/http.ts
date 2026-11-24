@@ -798,7 +798,10 @@ function emitHttpResponse(
     if (response.type && !isAzureCoreErrorResponse(response.type)) {
       type = getType(context, response.type);
     }
-  } else if (method && !method.kind.includes("basic")) {
+  } else if (
+    method &&
+    (!method.kind.includes("basic") || (method.isOverride && method.response.type === undefined))
+  ) {
     if (method.response.type) {
       type = getType(context, method.response.type);
     }

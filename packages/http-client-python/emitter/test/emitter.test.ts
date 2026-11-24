@@ -69,6 +69,56 @@ it("preserves an XML response body with the legacy bytes encoding", async () => 
   );
 });
 
+it("honors void response replacements without changing the wire response", async () => {
+  const { codeModel, diagnostics } = await emitCodeModel(`
+    import "@typespec/http";
+    import "@azure-tools/typespec-client-generator-core";
+    using TypeSpec.Http;
+    using Azure.ClientGenerator.Core;
+
+    @service namespace Test;
+    model Widget { name: string; }
+    @post op discard(): Widget;
+    #suppress "@azure-tools/typespec-client-generator-core/override-response-replacement" "Intentional void response."
+    @@override(discard, replaceResponseWithVoid(discard));
+  `);
+
+  expectDiagnostics(diagnostics, []);
+  expect(codeModel.clients).toContainEqual(
+    expect.objectContaining({
+      operationGroups: expect.arrayContaining([
+        expect.objectContaining({
+          operations: expect.arrayContaining([
+            expect.objectContaining({
+              name: "discard",
+              responses: [
+                expect.objectContaining({
+                  statusCodes: [200],
+                  contentTypes: ["application/json"],
+                }),
+              ],
+            }),
+          ]),
+        }),
+      ]),
+    }),
+  );
+  expect(codeModel.clients).toContainEqual(
+    expect.objectContaining({
+      operationGroups: expect.arrayContaining([
+        expect.objectContaining({
+          operations: expect.arrayContaining([
+            expect.objectContaining({
+              name: "discard",
+              responses: [expect.not.objectContaining({ type: expect.anything() })],
+            }),
+          ]),
+        }),
+      ]),
+    }),
+  );
+});
+
 it.each([undefined, false, true])(
   "propagates enable-sse-reconnect=%s to the Python generator",
   async (enabled) => {
