@@ -115,17 +115,7 @@ public final class NetworkInterfacesClientImpl implements NetworkInterfacesClien
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a NetworkInterface.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param networkInterfaceName The name of the NetworkInterface.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a NetworkInterface along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NetworkInterfaceInner> getByResourceGroupWithResponse(String resourceGroupName,
         String networkInterfaceName, Context context) {
@@ -135,16 +125,7 @@ public final class NetworkInterfacesClientImpl implements NetworkInterfacesClien
             resourceGroupName, networkInterfaceName, accept, context);
     }
 
-    /**
-     * Get a NetworkInterface.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param networkInterfaceName The name of the NetworkInterface.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a NetworkInterface.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NetworkInterfaceInner getByResourceGroup(String resourceGroupName, String networkInterfaceName) {
         return getByResourceGroupWithResponse(resourceGroupName, networkInterfaceName, Context.NONE).getValue();

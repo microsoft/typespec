@@ -134,16 +134,7 @@ public final class WidgetsClientImpl implements WidgetsClient {
             @HeaderParam("Accept") String accept, Context context);
     }
 
-    /**
-     * Get a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Widget along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<WidgetInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String widgetName) {
@@ -154,33 +145,14 @@ public final class WidgetsClientImpl implements WidgetsClient {
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * Get a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Widget on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<WidgetInner> getByResourceGroupAsync(String resourceGroupName, String widgetName) {
         return getByResourceGroupWithResponseAsync(resourceGroupName, widgetName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Widget along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<WidgetInner> getByResourceGroupWithResponse(String resourceGroupName, String widgetName,
         Context context) {
@@ -189,16 +161,7 @@ public final class WidgetsClientImpl implements WidgetsClient {
             this.client.getSubscriptionId(), resourceGroupName, widgetName, accept, context);
     }
 
-    /**
-     * Get a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Widget.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public WidgetInner getByResourceGroup(String resourceGroupName, String widgetName) {
         return getByResourceGroupWithResponse(resourceGroupName, widgetName, Context.NONE).getValue();
@@ -396,16 +359,7 @@ public final class WidgetsClientImpl implements WidgetsClient {
         return inspectSharedWithResponse(resourceGroupName, widgetName, Context.NONE).getValue();
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<SharedResultInner>> readSharedWithResponseAsync(String resourceGroupName, String widgetName) {
         final String accept = "application/json";
@@ -415,33 +369,14 @@ public final class WidgetsClientImpl implements WidgetsClient {
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<SharedResultInner> readSharedAsync(String resourceGroupName, String widgetName) {
         return readSharedWithResponseAsync(resourceGroupName, widgetName)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SharedResultInner> readSharedWithResponse(String resourceGroupName, String widgetName,
         Context context) {
@@ -450,16 +385,7 @@ public final class WidgetsClientImpl implements WidgetsClient {
             this.client.getSubscriptionId(), resourceGroupName, widgetName, accept, context);
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SharedResultInner readShared(String resourceGroupName, String widgetName) {
         return readSharedWithResponse(resourceGroupName, widgetName, Context.NONE).getValue();

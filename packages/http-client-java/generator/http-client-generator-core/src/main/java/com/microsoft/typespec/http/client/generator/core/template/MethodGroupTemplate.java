@@ -122,7 +122,9 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
                     Templates.getProxyTemplate().write(methodGroupClient.getProxy(), classBlock);
                 }
 
-                TemplateUtil.writeClientMethodsAndHelpers(classBlock, methodGroupClient.getClientMethods());
+                TemplateUtil.writeClientMethodsAndHelpers(classBlock, methodGroupClient.getClientMethods(),
+                    settings.isFluent()
+                        && methodGroupClient.getImplementedInterfaces().contains(methodGroupClient.getInterfaceName()));
 
                 if (settings.isUseClientLogger()) {
                     TemplateUtil.addClientLogger(classBlock, methodGroupClient.getClassName(), javaFile.getContents());

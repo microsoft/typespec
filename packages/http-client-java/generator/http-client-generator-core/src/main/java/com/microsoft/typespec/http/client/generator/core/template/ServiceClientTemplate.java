@@ -269,7 +269,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
             Templates.getProxyTemplate().write(serviceClient.getProxy(), classBlock);
 
-            TemplateUtil.writeClientMethodsAndHelpers(classBlock, serviceClient.getClientMethods());
+            TemplateUtil.writeClientMethodsAndHelpers(classBlock, serviceClient.getClientMethods(),
+                settings.isFluent() && settings.isGenerateClientInterfaces());
 
             additionalMethods.forEach(method -> method.writeMethod(classBlock));
 

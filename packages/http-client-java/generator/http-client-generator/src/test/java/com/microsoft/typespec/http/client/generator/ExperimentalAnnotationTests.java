@@ -55,6 +55,7 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceCollection;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
@@ -99,6 +100,86 @@ import org.yaml.snakeyaml.Yaml;
 
 public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
     private static final String ANNOTATION = "com.example.annotations.Preview";
+
+    @ParameterizedTest
+    @ValueSource(strings = { "getById", "deleteById" })
+    public void forwardsByIdMethodsWithOptionalArguments(String name, @TempDir Path directory) throws Exception {
+        new TypeSpecFluentPlugin(new EmitterOptions().setNamespace("com.example"), false);
+        configureJavaSettings(Map.of("namespace", "com.example", "fluent", "lite"));
+        ClientMethodParameter optional = new ClientMethodParameter.Builder().name("filter")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .requestParameterLocation(RequestParameterLocation.QUERY)
+            .build();
+        ClientMethod method = new ClientMethod.Builder().name("read")
+            .description("Reads a value.")
+            .type(ClientMethodType.SimpleSyncRestResponse)
+            .parameters(List.of(optional, ClientMethodParameter.CONTEXT_PARAMETER))
+            .returnValue(new ReturnValue("a value",
+                GenericType.response(name.equals("getById") ? ClassType.STRING : ClassType.VOID)))
+            .proxyMethod(new ProxyMethod.Builder().name("read").parameters(List.of()).allParameters(List.of()).build())
+            .build();
+        Client previousClient = FluentStatic.getClient();
+        FluentStatic.setClient(new Client.Builder().responseModels(List.of()).build());
+        try {
+            FluentResourceModel model = new FluentResourceModel(new ClientModel.Builder().name("WidgetInner")
+                .packageName("com.example.fluent.models")
+                .properties(List.of())
+                .build(), List.of());
+            ResourceLocalVariables locals = new ResourceLocalVariables(method);
+            LocalVariable variable
+                = new LocalVariable("localFilter", ClassType.STRING, RequestParameterLocation.QUERY, optional);
+            variable.setInitializeExpression("null");
+            locals.getLocalVariablesMap().put(optional, variable);
+            var helper = new CollectionMethodOperationByIdTemplate(model, name, List.of(),
+                new UrlPathSegments("/widgets"), false, locals, new FluentCollectionMethod(method)).getMethodTemplate();
+            JavaFile implementation = new JavaFile("WidgetHelpersImpl.java");
+            implementation.declareImport(List.of("com.azure.core.http.HttpHeaders", "com.azure.core.http.rest.Response",
+                "com.azure.core.http.rest.SimpleResponse", "com.azure.core.util.Context"));
+            implementation.publicFinalClass("WidgetHelpersImpl", block -> {
+                block.privateMemberVariable("Object[]", "arguments");
+                block.publicMethod("Object[] getArguments()", body -> body.methodReturn("arguments"));
+                helper.writeMethod(block);
+                String resultType = name.equals("getById") ? "String" : "Void";
+                block.publicMethod(
+                    "Response<" + resultType + "> " + name + "WithResponse(String id, String filter, Context context)",
+                    body -> {
+                        body.ifBlock("id == null",
+                            invalid -> invalid.line("throw new IllegalArgumentException(\"id is required\");"));
+                        body.line("arguments = new Object[] {id, filter, context};");
+                        body.methodReturn("new SimpleResponse<>(null, 200, new HttpHeaders(), "
+                            + (name.equals("getById") ? "\"result\"" : "null") + ")");
+                    });
+            });
+            String source = implementation.getContents().toString();
+            Assertions.assertTrue(source.contains("String localFilter = null;"), source);
+            String call = "this." + name + "WithResponse(id, localFilter, Context.NONE)";
+            Assertions.assertTrue(source.contains(call + (name.equals("getById") ? ".getValue();" : ";")), source);
+            Assertions.assertFalse(source.contains("this.read("), source);
+            Path file = directory.resolve("WidgetHelpersImpl.java");
+            Files.writeString(file, source);
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+            int result = ToolProvider.getSystemJavaCompiler()
+                .run(null, diagnostics, diagnostics, "-classpath",
+                    System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+                    directory.toString(), file.toString());
+            Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
+            try (URLClassLoader loader
+                = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
+                Class<?> type = loader.loadClass("WidgetHelpersImpl");
+                Object instance = type.getConstructor().newInstance();
+                var byId = type.getMethod(name, String.class);
+                Assertions.assertEquals(name.equals("getById") ? "result" : null, byId.invoke(instance, "widget"));
+                Assertions.assertArrayEquals(new Object[] { "widget", null, com.azure.core.util.Context.NONE },
+                    (Object[]) type.getMethod("getArguments").invoke(instance));
+                var exception = Assertions.assertThrows(java.lang.reflect.InvocationTargetException.class,
+                    () -> byId.invoke(instance, new Object[] { null }));
+                Assertions.assertInstanceOf(IllegalArgumentException.class, exception.getCause());
+            }
+        } finally {
+            FluentStatic.setClient(previousClient);
+        }
+    }
 
     @ParameterizedTest
     @CsvSource({ "getById, QUERY", "getById, HEADER", "deleteById, QUERY", "deleteById, HEADER" })

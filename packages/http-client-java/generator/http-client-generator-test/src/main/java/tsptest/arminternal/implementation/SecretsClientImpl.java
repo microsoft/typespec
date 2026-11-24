@@ -284,11 +284,7 @@ public final class SecretsClientImpl implements SecretsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String secretName,
         Secret resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, secretName, contentType, accept, resource,
-            Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, secretName, resource, Context.NONE);
     }
 
     /**
@@ -349,8 +345,7 @@ public final class SecretsClientImpl implements SecretsClient {
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     SyncPoller<PollResult<Secret>, Secret> beginCreateOrUpdate(String resourceGroupName, String secretName,
         Secret resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, secretName, resource);
-        return this.client.<Secret, Secret>getLroResult(response, Secret.class, Secret.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, secretName, resource, Context.NONE);
     }
 
     /**
@@ -404,7 +399,7 @@ public final class SecretsClientImpl implements SecretsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     Secret createOrUpdate(String resourceGroupName, String secretName, Secret resource) {
-        return this.client.getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, secretName, resource));
+        return createOrUpdate(resourceGroupName, secretName, resource, Context.NONE);
     }
 
     /**
@@ -549,11 +544,7 @@ public final class SecretsClientImpl implements SecretsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Secret> listByResourceGroupSinglePage(String resourceGroupName) {
-        final String accept = "application/json";
-        Response<SecretListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByResourceGroupSinglePage(resourceGroupName, Context.NONE);
     }
 
     /**
@@ -586,8 +577,7 @@ public final class SecretsClientImpl implements SecretsClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     PagedIterable<Secret> listByResourceGroup(String resourceGroupName) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName),
-            nextLink -> listByResourceGroupNextSinglePage(nextLink));
+        return listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
     /**
@@ -702,11 +692,7 @@ public final class SecretsClientImpl implements SecretsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Secret> listByResourceGroupNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<SecretListResult> res
-            = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByResourceGroupNextSinglePage(nextLink, Context.NONE);
     }
 
     /**
