@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -56,6 +58,20 @@ namespace Microsoft.TypeSpec.Generator
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
 
             Type? type = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(fullyQualifiedName);
+            if (typeSymbol.ContainingAssembly.Name != "GeneratedCode"
+                && typeSymbol.ContainingAssembly.Identity.Version != null
+                && type == null)
+            {
+                // Finally, if project depends on alpha version, this information is not contained in Assembly
+                if (type == null)
+                {
+                    InputExternalTypeMetadata metadata = new(
+                        identity: fullyQualifiedName,
+                        package: typeSymbol.ContainingAssembly.Name,
+                        minVersion: null);
+                    type = ExternalTypeReferenceResolver.TryResolve(metadata);
+                }
+            }
 
             if (type is null)
             {
