@@ -41,7 +41,6 @@ import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -134,14 +133,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         // Parameter expressions to validate for non-null value.
         final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
         // Parameter expressions for custom validation (key is the expression, value is the validation).
-        final Map<String, String> validateParamExpressions = new LinkedHashMap<>(clientMethod.getValidateExpressions());
-        if (clientMethod.getOverloadedClientMethod() != null) {
-            clientMethod.getOverloadedClientMethod()
-                .getMethodParameters()
-                .stream()
-                .filter(parameter -> !parameter.isRequired() && !clientMethod.getMethodParameters().contains(parameter))
-                .forEach(parameter -> validateParamExpressions.remove(parameter.getName()));
-        }
+        final Map<String, String> validateParamExpressions = TemplateUtil.getValidationExpressions(clientMethod);
 
         if (settings.isAzureV1()) {
             addSharedValidations(function, clientMethod, settings, paramReferenceExpressions, validateParamExpressions,
@@ -205,16 +197,15 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String expression = required.get(index);
             String check;
             String validation;
-            if (method.getClientPropertiesValidationMethodName() != null && clientProperties.contains(expression)) {
-                List<String> group = new ArrayList<>();
+            String validatorName = method.getClientPropertiesValidationMethodName(index);
+            if (validatorName != null) {
                 do {
                     String property = required.get(index);
-                    group.add(ClassType.STRING.defaultValueExpression(property));
                     validations.remove(property);
                     index++;
                 } while (index < required.size() && clientProperties.contains(required.get(index)));
                 index--;
-                check = method.getClientPropertiesValidationMethodName() + "(" + String.join(", ", group) + ")";
+                check = validatorName + "()";
                 validation = null;
             } else {
                 check = ClientUtilitiesTemplate.getClassName() + ".validateNotNull(" + expression + ", "

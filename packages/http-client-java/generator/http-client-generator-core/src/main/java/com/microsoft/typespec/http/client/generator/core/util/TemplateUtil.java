@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -230,56 +232,97 @@ public class TemplateUtil {
 
     private static void writeClientPropertyValidator(JavaClass classBlock, List<ClientMethod> methods) {
         JavaSettings settings = JavaSettings.getInstance();
+        methods.forEach(method -> method.setClientPropertiesValidationMethodNames(Map.of()));
         if (!settings.isAzureV1() || !settings.isClientSideValidations()) {
             return;
         }
-        Map<String, String> properties = new LinkedHashMap<>();
+        // Keep client checks contiguous to preserve their order relative to method and nested validations.
+        Map<List<Map.Entry<String, String>>, String> validators = new LinkedHashMap<>();
+        Set<String> methodNames = methods.stream().map(ClientMethod::getName).collect(Collectors.toSet());
         for (ClientMethod method : methods) {
             if (method.getProxyMethod() == null) {
                 continue;
             }
-            method.getProxyMethod()
+            Set<String> properties = method.getProxyMethod()
                 .getParameters()
                 .stream()
-                .filter(parameter -> parameter.isFromClient()
-                    && method.getRequiredNullableParameterExpressions().contains(parameter.getParameterReference()))
-                .forEach(parameter -> properties.put(parameter.getParameterReference(),
-                    method.getValidateExpressions().get(parameter.getParameterReference())));
+                .filter(ProxyMethodParameter::isFromClient)
+                .map(ProxyMethodParameter::getParameterReference)
+                .collect(Collectors.toSet());
+            if (properties.isEmpty()) {
+                continue;
+            }
+            List<String> required = method.getRequiredNullableParameterExpressions();
+            if (required.stream().noneMatch(properties::contains)) {
+                continue;
+            }
+            Map<String, String> validations = getValidationExpressions(method);
+            Map<Integer, String> methodValidators = new LinkedHashMap<>();
+            for (int index = 0; index < required.size(); index++) {
+                if (!properties.contains(required.get(index))) {
+                    validations.remove(required.get(index));
+                    continue;
+                }
+                int startIndex = index;
+                List<Map.Entry<String, String>> group = new ArrayList<>();
+                do {
+                    String expression = required.get(index++);
+                    group.add(new AbstractMap.SimpleImmutableEntry<>(expression, validations.remove(expression)));
+                } while (index < required.size() && properties.contains(required.get(index)));
+                index--;
+                String name = validators.get(group);
+                if (name == null) {
+                    String baseName = "validateClientProperties";
+                    name = baseName;
+                    for (int suffix = 2; !methodNames.add(name); suffix++) {
+                        name = baseName + suffix;
+                    }
+                    validators.put(group, name);
+                }
+                methodValidators.put(startIndex, name);
+            }
+            method.setClientPropertiesValidationMethodNames(methodValidators);
         }
-        if (properties.isEmpty()) {
-            return;
+        validators
+            .forEach((group, name) -> classBlock.privateMethod("IllegalArgumentException " + name + "()", block -> {
+                for (int index = 0; index < group.size(); index++) {
+                    Map.Entry<String, String> property = group.get(index);
+                    String expression = property.getKey();
+                    String check = ClientUtilitiesTemplate.getClassName() + ".validateNotNull(" + expression + ", "
+                        + ClassType.STRING.defaultValueExpression(expression) + ")";
+                    boolean last = index == group.size() - 1;
+                    if (last && property.getValue() == null) {
+                        block.methodReturn(check);
+                    } else {
+                        block.line("%serror = %s;", index == 0 ? "IllegalArgumentException " : "", check);
+                        block.ifBlock("error != null", invalid -> invalid.methodReturn("error"));
+                        if (property.getValue() != null) {
+                            block.line(property.getValue() + ";");
+                        }
+                        if (last) {
+                            block.methodReturn("null");
+                        }
+                    }
+                }
+            }));
+    }
+
+    /**
+     * Gets validations applicable to a method after omitting optional overload parameters.
+     *
+     * @param clientMethod The method to validate.
+     * @return An ordered, mutable map of validation expressions.
+     */
+    public static Map<String, String> getValidationExpressions(ClientMethod clientMethod) {
+        Map<String, String> validations = new LinkedHashMap<>(clientMethod.getValidateExpressions());
+        if (clientMethod.getOverloadedClientMethod() != null) {
+            clientMethod.getOverloadedClientMethod()
+                .getMethodParameters()
+                .stream()
+                .filter(parameter -> !parameter.isRequired() && !clientMethod.getMethodParameters().contains(parameter))
+                .forEach(parameter -> validations.remove(parameter.getName()));
         }
-        Set<String> methodNames = methods.stream().map(ClientMethod::getName).collect(Collectors.toSet());
-        String baseName = "validateClientProperties";
-        String methodName = baseName;
-        for (int suffix = 2; methodNames.contains(methodName); suffix++) {
-            methodName = baseName + suffix;
-        }
-        String validatorName = methodName;
-        methods.forEach(method -> method.setClientPropertiesValidationMethodName(validatorName));
-        classBlock.privateMethod("IllegalArgumentException " + methodName + "(String... properties)", block -> {
-            block.block("for (String property : properties)", loop -> {
-                loop.line("IllegalArgumentException error;");
-                loop.block("switch (property)", cases -> {
-                    properties.forEach((expression, validation) -> {
-                        cases.line("case %s:", ClassType.STRING.defaultValueExpression(expression));
-                        cases.indent(() -> {
-                            cases.line("error = %s.validateNotNull(%s, property);",
-                                ClientUtilitiesTemplate.getClassName(), expression);
-                            cases.ifBlock("error != null", invalid -> invalid.methodReturn("error"));
-                            if (validation != null) {
-                                cases.line(validation + ";");
-                            }
-                            cases.line("break;");
-                        });
-                    });
-                    cases.line("default:");
-                    cases.indent(() -> cases
-                        .line("throw new IllegalArgumentException(\"Unknown client property: \" + property);"));
-                });
-            });
-            block.methodReturn("null");
-        });
+        return validations;
     }
 
     /**

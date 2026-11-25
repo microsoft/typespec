@@ -55,6 +55,30 @@ public class ArmVersionedTests {
         Assertions.assertEquals("header", request.get().getHeaders().getValue("new-header"));
     }
 
+    @Test
+    public void validatesOnlyClientPropertiesRequiredByTheOperation() {
+        ArmVersionedClient withoutSubscription
+            = new ArmVersionedClientBuilder().endpoint("https://management.azure.com")
+                .pipeline(new HttpPipelineBuilder().httpClient(httpRequest -> {
+                    request.set(httpRequest);
+                    return Mono.just(new MockHttpResponse(httpRequest, 200,
+                        new HttpHeaders().set("Content-Type", "application/json"),
+                        "{}".getBytes(StandardCharsets.UTF_8)));
+                }).build())
+                .buildClient();
+
+        withoutSubscription.getTopLevelArmResources().getLimitsWithResponseAsync("westus").block();
+        Assertions.assertNotNull(request.get());
+        request.set(null);
+
+        Mono<?> operation = Assertions.assertDoesNotThrow(
+            () -> withoutSubscription.getTopLevelArmResources().getByResourceGroupWithResponseAsync(null, null));
+        IllegalArgumentException error = Assertions.assertThrows(IllegalArgumentException.class, operation::block);
+        Assertions.assertEquals("Parameter this.client.getSubscriptionId() is required and cannot be null.",
+            error.getMessage());
+        Assertions.assertNull(request.get());
+    }
+
     // only to test compilation
     public void testVersionedApi() {
         ArmVersionedManager manager = Mockito.mock(ArmVersionedManager.class);

@@ -87,29 +87,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
 
     private static final String APPLICATION_JSON = "application/json";
 
-    private IllegalArgumentException validateClientProperties(String... properties) {
-        for (String property : properties) {
-            IllegalArgumentException error;
-            switch (property) {
-                case "this.client.getEndpoint()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                case "this.client.getSubscriptionId()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Unknown client property: " + property);
-            }
+    private IllegalArgumentException validateClientProperties() {
+        IllegalArgumentException error
+            = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        if (error != null) {
+            return error;
         }
-        return null;
+        return ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), "this.client.getSubscriptionId()");
     }
 
     /**
@@ -128,8 +112,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -184,8 +167,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Response<BinaryData> updateWithResponse(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {

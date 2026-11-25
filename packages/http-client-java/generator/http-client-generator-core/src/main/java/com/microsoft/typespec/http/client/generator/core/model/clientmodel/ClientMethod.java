@@ -120,14 +120,14 @@ public class ClientMethod {
     private final ClientMethod overloadedClientMethod;
     private final ClientMethodSseMetadata sseMetadata;
     private Map<String, String> constantStringNames = Map.of();
-    private String clientPropertiesValidationMethodName;
+    private Map<Integer, String> clientPropertiesValidationMethodNames = Map.of();
 
-    public String getClientPropertiesValidationMethodName() {
-        return clientPropertiesValidationMethodName;
+    public String getClientPropertiesValidationMethodName(int requiredParameterIndex) {
+        return clientPropertiesValidationMethodNames.get(requiredParameterIndex);
     }
 
-    public void setClientPropertiesValidationMethodName(String name) {
-        clientPropertiesValidationMethodName = name;
+    public void setClientPropertiesValidationMethodNames(Map<Integer, String> names) {
+        clientPropertiesValidationMethodNames = Map.copyOf(names);
     }
 
     public void setConstantStringNames(Map<String, String> names) {

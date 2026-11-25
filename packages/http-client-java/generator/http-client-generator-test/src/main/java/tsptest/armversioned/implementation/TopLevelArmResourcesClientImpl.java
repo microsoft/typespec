@@ -159,29 +159,17 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
 
     private static final String APPLICATION_JSON = "application/json";
 
-    private IllegalArgumentException validateClientProperties(String... properties) {
-        for (String property : properties) {
-            IllegalArgumentException error;
-            switch (property) {
-                case "this.client.getEndpoint()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                case "this.client.getSubscriptionId()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Unknown client property: " + property);
-            }
+    private IllegalArgumentException validateClientProperties() {
+        IllegalArgumentException error
+            = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        if (error != null) {
+            return error;
         }
-        return null;
+        return ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), "this.client.getSubscriptionId()");
+    }
+
+    private IllegalArgumentException validateClientProperties2() {
+        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     @Override
@@ -190,8 +178,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink,
         String newHeader) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -232,8 +219,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String nextLink, String newHeader,
         Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -271,8 +257,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -300,8 +285,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -532,8 +516,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(String nextLink, String newHeader) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(context -> service
@@ -560,8 +543,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(String nextLink, String newHeader,
         Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);
@@ -585,8 +567,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         final String nextLink = null;
@@ -610,8 +591,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listSinglePageAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         final String nextLink = null;
@@ -709,8 +689,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter, String newParameter) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -741,8 +720,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter, String newParameter, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -772,8 +750,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -803,8 +780,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupSinglePageAsync(String resourceGroupName,
         String parameter) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -908,8 +884,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String nextLink, String newHeader) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -942,8 +917,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String nextLink, String newHeader, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -974,8 +948,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -998,8 +971,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<TopLevelArmResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1058,8 +1030,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1091,8 +1062,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1123,8 +1093,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1145,8 +1114,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1200,8 +1168,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1233,8 +1200,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1265,8 +1231,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1287,8 +1252,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public Mono<Response<Void>> actionWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
-            != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
@@ -1341,7 +1305,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> getLimitsWithResponseAsync(String location, ActionRequest body) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
@@ -1368,7 +1332,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> getLimitsWithResponseAsync(String location, ActionRequest body, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
@@ -1394,7 +1358,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> getLimitsWithResponseAsync(String location, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
@@ -1409,7 +1373,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> getLimitsWithResponseAsync(String location) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
@@ -1464,7 +1428,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(context -> service
@@ -1493,7 +1457,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);
@@ -1520,7 +1484,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         final String newHeader = null;
@@ -1546,7 +1510,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         final String newHeader = null;
@@ -1573,7 +1537,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(
@@ -1601,7 +1565,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);

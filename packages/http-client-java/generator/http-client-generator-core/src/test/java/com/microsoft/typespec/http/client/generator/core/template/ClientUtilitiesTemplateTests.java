@@ -16,10 +16,13 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -113,6 +116,186 @@ public class ClientUtilitiesTemplateTests {
             .constant(true)
             .required(true)
             .defaultValue(value)
+            .build();
+    }
+
+    @Test
+    public void clientPropertyValidatorsAreSimpleAndPreserveOperationSpecificChecks() throws Exception {
+        configureClientValidation(true, false);
+        String endpoint = "this.getEndpoint()";
+        String subscription = "this.getSubscriptionId()";
+        Map<String, String> nestedValidation = Map.of(endpoint, "recordEndpointValidation()");
+        List<ClientMethod> methods
+            = List.of(clientValidationMethod("both", List.of(endpoint, subscription, "input"), nestedValidation, false),
+                clientValidationMethod("only", List.of(endpoint, "input"), Map.of(), false),
+                clientValidationMethod("interleaved", List.of(endpoint, "input", subscription), nestedValidation,
+                    false),
+                clientValidationMethod("reversed", List.of(subscription, endpoint, "input"), nestedValidation, false),
+                clientValidationMethod("sync", List.of(endpoint, subscription, "input"), nestedValidation, true));
+
+        JavaFileContents contents = new JavaFileContents();
+        TemplateUtil.writeClientMethodsAndHelpers(new JavaClass(contents), methods);
+        String generated = contents.toString();
+        Assertions.assertTrue(generated.contains("private IllegalArgumentException validateClientProperties()"),
+            generated);
+        Assertions.assertTrue(generated.contains("if (error != null)"), generated);
+        Assertions.assertFalse(generated.contains("switch (property)"), generated);
+        Assertions.assertFalse(generated.contains("String... properties"), generated);
+
+        JavaFile utilities = new JavaFile("ClientUtils.java");
+        utilities.declarePackage("test");
+        ClientUtilitiesTemplate.write(Set.of(ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL), utilities);
+        Path utilityFile = directory.resolve("ClientUtils.java");
+        Files.writeString(utilityFile, utilities.getContents().toString());
+        Path fixtureFile = directory.resolve("ValidationFixture.java");
+        String fixture = "package test;\n"
+            + "import com.azure.core.annotation.*;\nimport com.azure.core.util.Context;\n"
+            + "import reactor.core.publisher.Mono;\n" + "public class ValidationFixture {\n"
+            + "public String endpoint, subscriptionId;\n" + "public int endpointValidations;\n"
+            + "public boolean rejectEndpoint;\n" + "private final Service service = new Service();\n"
+            + "public String getEndpoint() { return endpoint; }\n"
+            + "public String getSubscriptionId() { return subscriptionId; }\n"
+            + "private void recordEndpointValidation() { endpointValidations++; "
+            + "if (rejectEndpoint) throw new IllegalStateException(\"nested\"); }\n" + generated + "\n"
+            + "private static class Service {\n" + "Mono<String> both(Object... args) { return Mono.just(\"ok\"); }\n"
+            + "Mono<String> only(Object... args) { return Mono.just(\"ok\"); }\n"
+            + "Mono<String> interleaved(Object... args) { return Mono.just(\"ok\"); }\n"
+            + "Mono<String> reversed(Object... args) { return Mono.just(\"ok\"); }\n"
+            + "String syncSync(Object... args) { return \"ok\"; }\n" + "}\n}\n";
+        Files.writeString(fixtureFile, fixture);
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int result = javax.tools.ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, "--release", "11", "-classpath",
+                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+                directory.toString(), utilityFile.toString(), fixtureFile.toString());
+        Assertions.assertEquals(0, result, () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + fixture);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> type = loader.loadClass("test.ValidationFixture");
+            Object client = type.getConstructor().newInstance();
+            Method both = type.getMethod("both", String.class, Context.class);
+            Method only = type.getMethod("only", String.class, Context.class);
+            Method interleaved = type.getMethod("interleaved", String.class, Context.class);
+            Method reversed = type.getMethod("reversed", String.class, Context.class);
+            Method sync = type.getMethod("sync", String.class, Context.class);
+
+            Mono<?> invalid = (Mono<?>) both.invoke(client, "input", Context.NONE);
+            IllegalArgumentException failure = Assertions.assertThrows(IllegalArgumentException.class, invalid::block);
+            Assertions.assertEquals("Parameter " + endpoint + " is required and cannot be null.", failure.getMessage());
+            Assertions.assertEquals(0, type.getField("endpointValidations").getInt(client));
+
+            type.getField("endpoint").set(client, "endpoint");
+            invalid = (Mono<?>) both.invoke(client, "input", Context.NONE);
+            failure = Assertions.assertThrows(IllegalArgumentException.class, invalid::block);
+            Assertions.assertEquals("Parameter " + subscription + " is required and cannot be null.",
+                failure.getMessage());
+            Assertions.assertEquals(1, type.getField("endpointValidations").getInt(client));
+            Assertions.assertEquals("ok", ((Mono<?>) only.invoke(client, "input", Context.NONE)).block());
+            Assertions.assertEquals(1, type.getField("endpointValidations").getInt(client));
+
+            invalid = (Mono<?>) interleaved.invoke(client, null, Context.NONE);
+            failure = Assertions.assertThrows(IllegalArgumentException.class, invalid::block);
+            Assertions.assertEquals("Parameter input is required and cannot be null.", failure.getMessage());
+            type.getField("endpoint").set(client, null);
+            invalid = (Mono<?>) reversed.invoke(client, "input", Context.NONE);
+            failure = Assertions.assertThrows(IllegalArgumentException.class, invalid::block);
+            Assertions.assertEquals("Parameter " + subscription + " is required and cannot be null.",
+                failure.getMessage());
+
+            java.lang.reflect.InvocationTargetException syncFailure = Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class, () -> sync.invoke(client, "input", Context.NONE));
+            Assertions.assertInstanceOf(IllegalArgumentException.class, syncFailure.getCause());
+            Assertions.assertEquals("Parameter " + endpoint + " is required and cannot be null.",
+                syncFailure.getCause().getMessage());
+            type.getField("endpoint").set(client, "endpoint");
+            type.getField("rejectEndpoint").setBoolean(client, true);
+            java.lang.reflect.InvocationTargetException nestedFailure = Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class, () -> both.invoke(client, "input", Context.NONE));
+            Assertions.assertInstanceOf(IllegalStateException.class, nestedFailure.getCause());
+            Assertions.assertEquals("nested", nestedFailure.getCause().getMessage());
+        }
+    }
+
+    @Test
+    public void clientPropertyValidatorAvoidsNameCollisionsAndRespectsConfiguration() {
+        configureClientValidation(true, true);
+        ClientMethod method
+            = clientValidationMethod("validateClientProperties", List.of("this.getEndpoint()"), Map.of(), true);
+        JavaFileContents enabled = new JavaFileContents();
+        TemplateUtil.writeClientMethodsAndHelpers(new JavaClass(enabled), List.of(method));
+        String source = enabled.toString();
+        Assertions.assertTrue(source.contains("private IllegalArgumentException validateClientProperties2()"), source);
+        Assertions.assertTrue(source.contains("throw LOGGER.atError().log(validationError);"), source);
+
+        configureClientValidation(false, true);
+        JavaFileContents disabled = new JavaFileContents();
+        TemplateUtil.writeClientMethodsAndHelpers(new JavaClass(disabled), List.of(method));
+        source = disabled.toString();
+        Assertions.assertFalse(source.contains("private IllegalArgumentException validateClientProperties"), source);
+        Assertions.assertFalse(source.contains("validationError = validateClientProperties"), source);
+    }
+
+    private static void configureClientValidation(boolean enabled, boolean logger) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("client-side-validations".equals(key)) {
+                    return (T) Boolean.valueOf(enabled);
+                }
+                if ("enable-sync-stack".equals(key)) {
+                    return (T) Boolean.TRUE;
+                }
+                if ("client-logger".equals(key)) {
+                    return (T) Boolean.valueOf(logger);
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+    }
+
+    private static ClientMethod clientValidationMethod(String name, List<String> required,
+        Map<String, String> validations, boolean sync) {
+        List<ProxyMethodParameter> proxyParameters = List.of(clientProperty("endpoint", "this.getEndpoint()"),
+            clientProperty("subscriptionId", "this.getSubscriptionId()"),
+            new ProxyMethodParameter.Builder().name("input")
+                .parameterReference("input")
+                .wireType(ClassType.STRING)
+                .clientType(ClassType.STRING)
+                .required(true)
+                .build(),
+            ProxyMethodParameter.CONTEXT_PARAMETER);
+        ClientMethodParameter input = new ClientMethodParameter.Builder().name("input")
+            .description("Input.")
+            .wireType(ClassType.STRING)
+            .annotations(List.of())
+            .required(true)
+            .build();
+        return new ClientMethod.Builder().name(name)
+            .description("Validates client properties.")
+            .type(sync ? ClientMethodType.SimpleSyncRestResponse : ClientMethodType.SimpleAsyncRestResponse)
+            .parameters(List.of(input, ClientMethodParameter.CONTEXT_PARAMETER))
+            .parameterTransformations(new ParameterTransformations(List.of()))
+            .requiredNullableParameterExpressions(required)
+            .validateExpressions(validations)
+            .returnValue(new ReturnValue("The response.", sync ? ClassType.STRING : GenericType.mono(ClassType.STRING)))
+            .proxyMethod(new ProxyMethod.Builder().name(name)
+                .parameters(proxyParameters)
+                .allParameters(proxyParameters)
+                .responseContentTypes(Set.of())
+                .returnType(GenericType.mono(ClassType.STRING))
+                .build())
+            .build();
+    }
+
+    private static ProxyMethodParameter clientProperty(String name, String reference) {
+        return new ProxyMethodParameter.Builder().name(name)
+            .parameterReference(reference)
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .required(true)
+            .fromClient(true)
             .build();
     }
 

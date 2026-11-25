@@ -104,22 +104,8 @@ public final class FishesClientImpl implements FishesClient {
 
     private static final String APPLICATION_JSON = "application/json";
 
-    private IllegalArgumentException validateClientProperties(String... properties) {
-        for (String property : properties) {
-            IllegalArgumentException error;
-            switch (property) {
-                case "this.client.getEndpoint()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Unknown client property: " + property);
-            }
-        }
-        return null;
+    private IllegalArgumentException validateClientProperties() {
+        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -133,7 +119,7 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> getModelWithResponseAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(
@@ -158,7 +144,7 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FishInner> getModelWithResponse(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         return service.getModelSync(this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -183,7 +169,7 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> putModelWithResponseAsync(FishInner fish) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(fish, "fish")) != null) {
@@ -215,7 +201,7 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FishInner> putModelWithResponse(FishInner fish, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(fish, "fish")) != null) {
@@ -243,7 +229,7 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<OutputOnlyModelInner>> getOutputOnlyModelWithResponseAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(
@@ -267,7 +253,7 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputOnlyModelInner> getOutputOnlyModelWithResponse(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         return service.getOutputOnlyModelSync(this.client.getEndpoint(), APPLICATION_JSON, context);

@@ -32,6 +32,8 @@ Async ARM helpers evaluate the default client `Context` at subscription time,
 with client entries taking precedence over subscriber entries. Configured client
 validation preserves parameter order, nested validation, logging, and the distinction
 between synchronous throws and asynchronous errors.
+Client-property validators use direct checks for each ordered group required by an
+operation, with separate helpers when the required properties or their order differ.
 
 ## Build and Pack
 

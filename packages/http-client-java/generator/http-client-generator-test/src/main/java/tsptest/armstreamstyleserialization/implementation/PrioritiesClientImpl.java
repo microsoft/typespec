@@ -73,22 +73,8 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
 
     private static final String APPLICATION_JSON = "application/json";
 
-    private IllegalArgumentException validateClientProperties(String... properties) {
-        for (String property : properties) {
-            IllegalArgumentException error;
-            switch (property) {
-                case "this.client.getEndpoint()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Unknown client property: " + property);
-            }
-        }
-        return null;
+    private IllegalArgumentException validateClientProperties() {
+        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -103,7 +89,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Priority>> setPriorityWithResponseAsync(Priority priority) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(priority, "priority")) != null) {
@@ -132,7 +118,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Priority> setPriorityWithResponse(Priority priority, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(priority, "priority")) != null) {

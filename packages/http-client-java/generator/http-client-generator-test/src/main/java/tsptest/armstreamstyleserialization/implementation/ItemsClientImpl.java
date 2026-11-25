@@ -212,22 +212,8 @@ public final class ItemsClientImpl implements ItemsClient {
 
     private static final String APPLICATION_JSON = "application/json";
 
-    private IllegalArgumentException validateClientProperties(String... properties) {
-        for (String property : properties) {
-            IllegalArgumentException error;
-            switch (property) {
-                case "this.client.getEndpoint()":
-                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
-                    if (error != null) {
-                        return error;
-                    }
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Unknown client property: " + property);
-            }
-        }
-        return null;
+    private IllegalArgumentException validateClientProperties() {
+        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -240,7 +226,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> listSinglePageAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(context -> {
@@ -282,7 +268,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> listSinglePage(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<BinaryData> res = service.listSync(this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -314,7 +300,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> summarySinglePageAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -348,7 +334,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> summarySinglePage(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResultSummary> res = service.summarySync(this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -378,7 +364,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list2SinglePageAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -412,7 +398,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list2SinglePage(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult2> res = service.list2Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -441,7 +427,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<ListResultSummary2Inner>> summary2WithResponseAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils.withContext(
@@ -465,7 +451,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ListResultSummary2Inner> summary2WithResponse(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         return service.summary2Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -487,7 +473,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list3SinglePageAsync() {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -521,7 +507,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list3SinglePage(Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult3> res = service.list3Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -552,7 +538,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> postWithResponseAsync(ListResult3 body) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(body, "body")) != null) {
@@ -583,7 +569,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postWithResponse(ListResult3 body, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = ResourceManagerUtils.validateNotNull(body, "body")) != null) {
@@ -615,7 +601,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -655,7 +641,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult> res = service.listNextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
@@ -677,7 +663,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -717,7 +703,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResultSummary> res
@@ -740,7 +726,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -780,7 +766,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult2> res
@@ -803,7 +789,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
         return ResourceManagerUtils
@@ -843,7 +829,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+        if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult3> res
