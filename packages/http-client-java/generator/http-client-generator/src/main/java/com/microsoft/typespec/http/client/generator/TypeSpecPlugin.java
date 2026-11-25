@@ -207,7 +207,9 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         // OperationLocationPollingStrategy
-        if (ClientModelUtil.requireOperationLocationPollingStrategy(codeModel)) {
+        final boolean requireOperationLocationPollingStrategy
+            = ClientModelUtil.requireOperationLocationPollingStrategy(codeModel);
+        if (requireOperationLocationPollingStrategy) {
             if (JavaSettings.getInstance().isAzureV2()) {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY,
@@ -233,6 +235,10 @@ public class TypeSpecPlugin extends Javagen {
                 ClientModelUtil.OPERATION_ID_POLLING_STRATEGY);
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                 ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY);
+            if (!requireOperationLocationPollingStrategy) {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.POLLING_UTILS);
+            }
         }
     }
 
