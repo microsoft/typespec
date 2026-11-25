@@ -17,14 +17,17 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
@@ -235,6 +238,137 @@ public class ClientUtilitiesTemplateTests {
         Assertions.assertFalse(source.contains("validationError = validateClientProperties"), source);
     }
 
+    @Test
+    public void clientImplementationsStaticallyImportOnlyReferencedUtilities() {
+        configureClientValidation(true, false);
+        for (boolean serviceClient : List.of(false, true)) {
+            ClientMethod method
+                = clientValidationMethod("read", List.of("this.getEndpoint()", "input"), Map.of(), true);
+            JavaFile file = writeClientImplementation(List.of(method), serviceClient);
+            String source = file.getContents().toString();
+            Assertions.assertTrue(
+                source.contains("import static " + ClientUtilitiesTemplate.getFullClassName() + ".validateNotNull;"),
+                source);
+            Assertions.assertTrue(source.contains("validateNotNull(input, \"input\")"), source);
+            Assertions.assertFalse(source.contains("ClientUtils.validateNotNull("), source);
+            Assertions.assertFalse(source.contains(
+                "import static " + ClientUtilitiesTemplate.getFullClassName() + ".createPagedResponse;"), source);
+            Assertions.assertEquals(Set.of(ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL),
+                ClientUtilitiesTemplate.getUsedMethods(List.of(file)));
+        }
+
+        configureClientValidation(false, false);
+        JavaFile file = writeClientImplementation(
+            List.of(clientValidationMethod("read", List.of("input"), Map.of(), true)), false);
+        Assertions.assertFalse(file.getContents().toString().contains("import static "), file.getContents().toString());
+        Assertions.assertTrue(ClientUtilitiesTemplate.getUsedMethods(List.of(file)).isEmpty());
+    }
+
+    @Test
+    public void clientImplementationQualifiesUtilitiesWhenMethodNamesConflict() {
+        configureClientValidation(true, false);
+        List<ClientMethod> methods
+            = List.of(clientValidationMethod("validateNotNull", List.of("input"), Map.of(), true),
+                clientValidationMethod("read", List.of("input"), Map.of(), true));
+        JavaFile file = writeClientImplementation(methods, false);
+        String source = file.getContents().toString();
+        Assertions.assertFalse(
+            source.contains("import static " + ClientUtilitiesTemplate.getFullClassName() + ".validateNotNull;"),
+            source);
+        Assertions.assertTrue(source.contains("ClientUtils.validateNotNull(input, \"input\")"), source);
+        Assertions.assertEquals(Set.of(ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL),
+            ClientUtilitiesTemplate.getUsedMethods(List.of(file)));
+    }
+
+    @Test
+    public void staticImportsAndConflictingClientMethodsCompileAndValidate() throws Exception {
+        configureClientValidation(true, false);
+        String utilityType = ClientUtilitiesTemplate.getFullClassName();
+        JavaFile utilities = new JavaFile("ClientUtils.java");
+        utilities.declarePackage(utilityType.substring(0, utilityType.lastIndexOf('.')));
+        ClientUtilitiesTemplate.write(Set.of(ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL), utilities);
+        Path utilityFile = directory.resolve("ClientUtils.java");
+        Files.writeString(utilityFile, utilities.getContents().toString());
+
+        for (boolean conflict : List.of(false, true)) {
+            String name = conflict ? "validateNotNull" : "read";
+            String className = conflict ? "ConflictingClient" : "StaticImportClient";
+            ClientMethod method = clientValidationMethod(name, List.of("input"), Map.of(), true);
+            JavaFile file = new JavaFile(className + ".java");
+            file.declarePackage("test");
+            file.line();
+            file.declareImport("com.azure.core.annotation.ServiceMethod", "com.azure.core.annotation.ReturnType",
+                "com.azure.core.util.Context", utilityType);
+            file.publicFinalClass(className, block -> {
+                block.privateFinalMemberVariable("Service", "service", "new Service()");
+                block.publicMethod("String getEndpoint()", getter -> getter.methodReturn("\"endpoint\""));
+                block.publicMethod("String getSubscriptionId()", getter -> getter.methodReturn("\"subscription\""));
+                TemplateUtil.writeClientMethodsAndHelpers(block, List.of(method));
+                block.staticFinalClass(JavaVisibility.Private, "Service",
+                    service -> service.packagePrivateMethod("String " + name + "Sync(Object... args)",
+                        body -> body.methodReturn("\"ok\"")));
+            });
+            String source = file.getContents().toString();
+            Assertions.assertEquals(!conflict, source.contains("import static " + utilityType + ".validateNotNull;"),
+                source);
+            Path clientFile = directory.resolve(className + ".java");
+            Files.writeString(clientFile, source);
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+            int result = javax.tools.ToolProvider.getSystemJavaCompiler()
+                .run(null, diagnostics, diagnostics, "--release", "11", "-classpath",
+                    System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+                    directory.toString(), utilityFile.toString(), clientFile.toString());
+            Assertions.assertEquals(0, result, () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + source);
+
+            try (URLClassLoader loader
+                = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
+                Class<?> type = loader.loadClass("test." + className);
+                Object client = type.getConstructor().newInstance();
+                Method operation = type.getMethod(name, String.class, Context.class);
+                java.lang.reflect.InvocationTargetException failure
+                    = Assertions.assertThrows(java.lang.reflect.InvocationTargetException.class,
+                        () -> operation.invoke(client, null, Context.NONE));
+                Assertions.assertInstanceOf(IllegalArgumentException.class, failure.getCause());
+                Assertions.assertEquals("Parameter input is required and cannot be null.",
+                    failure.getCause().getMessage());
+                Assertions.assertEquals("ok", operation.invoke(client, "value", Context.NONE));
+            }
+        }
+    }
+
+    private static JavaFile writeClientImplementation(List<ClientMethod> methods, boolean serviceClient) {
+        JavaSettings settings = JavaSettings.getInstance();
+        String packageName = settings.getPackage(settings.getImplementationSubpackage());
+        JavaFile file = new JavaFile("ClientImpl.java");
+        file.declarePackage(packageName);
+        file.line();
+        if (serviceClient) {
+            ServiceClient client = new ServiceClient.Builder().packageName(packageName)
+                .className("ClientImpl")
+                .interfaceName("Client")
+                .builderDisabled(true)
+                .methodGroupClients(List.of())
+                .properties(List.of())
+                .constructors(List.of())
+                .clientAccessorMethods(List.of())
+                .clientMethods(methods)
+                .build();
+            ServiceClientTemplate.getInstance().write(client, file);
+        } else {
+            MethodGroupClient client = new MethodGroupClient.Builder().packageName(packageName)
+                .className("ClientImpl")
+                .interfaceName("Client")
+                .serviceClientName("ServiceClientImpl")
+                .implementedInterfaces(List.of())
+                .supportedInterfaces(List.of())
+                .properties(List.of())
+                .clientMethods(methods)
+                .build();
+            MethodGroupTemplate.getInstance().write(client, file);
+        }
+        return file;
+    }
+
     private static void configureClientValidation(boolean enabled, boolean logger) {
         new MockUnitJavagen() {
             @Override
@@ -281,6 +415,7 @@ public class ClientUtilitiesTemplateTests {
             .validateExpressions(validations)
             .returnValue(new ReturnValue("The response.", sync ? ClassType.STRING : GenericType.mono(ClassType.STRING)))
             .proxyMethod(new ProxyMethod.Builder().name(name)
+                .httpMethod(io.clientcore.core.http.models.HttpMethod.GET)
                 .parameters(proxyParameters)
                 .allParameters(proxyParameters)
                 .responseContentTypes(Set.of())

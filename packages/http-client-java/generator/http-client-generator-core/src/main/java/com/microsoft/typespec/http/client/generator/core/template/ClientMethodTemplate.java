@@ -208,7 +208,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 check = validatorName + "()";
                 validation = null;
             } else {
-                check = ClientUtilitiesTemplate.getClassName() + ".validateNotNull(" + expression + ", "
+                check = ClientUtilitiesTemplate.reference(function,
+                    ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL) + "(" + expression + ", "
                     + ClassType.STRING.defaultValueExpression(expression) + ")";
                 validation = validations.remove(expression);
             }
@@ -1158,7 +1159,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void pagedSinglePageResponseConversion(ProxyMethod restAPIMethod, ClientMethod clientMethod,
         JavaSettings settings, JavaBlock function) {
-        function.line("return %s.createPagedResponse(res,", ClientUtilitiesTemplate.getClassName());
+        function.line("return %s(res,",
+            ClientUtilitiesTemplate.reference(function, ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
         if (isXmlPagingResponse(clientMethod, settings)) {
             function.line("%s,", xmlPageItemsExpression(clientMethod));
         } else if (settings.isDataPlaneClient()) {
@@ -1753,7 +1755,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("return FluxUtil.withContext(context -> " + serviceMethodCall + ")");
             }
             function.indent(() -> {
-                function.line(".map(res -> %s.createPagedResponse(res,", ClientUtilitiesTemplate.getClassName());
+                function.line(".map(res -> %s(res,", ClientUtilitiesTemplate.reference(function,
+                    ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
                 function.indent(() -> {
                     if (isXmlPagingResponse(clientMethod, settings)) {
                         function.line("%s,", xmlPageItemsExpression(clientMethod));

@@ -4,6 +4,8 @@
 
 package tsptest.response.implementation;
 
+import static tsptest.response.implementation.ClientUtils.createPagedResponse;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
@@ -1324,7 +1326,7 @@ public final class ResponseClientImpl {
     private Mono<PagedResponse<BinaryData>> listStringsSinglePageAsync(RequestOptions requestOptions) {
         return FluxUtil
             .withContext(context -> service.listStrings(this.getEndpoint(), APPLICATION_JSON, requestOptions, context))
-            .map(res -> ClientUtils.createPagedResponse(res, getValues(res.getValue(), "items_value"),
+            .map(res -> createPagedResponse(res, getValues(res.getValue(), "items_value"),
                 getNextLink(res.getValue(), "next_link"), null));
     }
 
@@ -1375,7 +1377,7 @@ public final class ResponseClientImpl {
     private PagedResponse<BinaryData> listStringsSinglePage(RequestOptions requestOptions) {
         Response<BinaryData> res
             = service.listStringsSync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
-        return ClientUtils.createPagedResponse(res, getValues(res.getValue(), "items_value"),
+        return createPagedResponse(res, getValues(res.getValue(), "items_value"),
             getNextLink(res.getValue(), "next_link"), null);
     }
 
@@ -1426,7 +1428,7 @@ public final class ResponseClientImpl {
     private Mono<PagedResponse<BinaryData>> listIntegersSinglePageAsync(RequestOptions requestOptions) {
         return FluxUtil
             .withContext(context -> service.listIntegers(this.getEndpoint(), APPLICATION_JSON, requestOptions, context))
-            .map(res -> ClientUtils.createPagedResponse(res, getValues(res.getValue(), "value"), null, null));
+            .map(res -> createPagedResponse(res, getValues(res.getValue(), "value"), null, null));
     }
 
     /**
@@ -1472,7 +1474,7 @@ public final class ResponseClientImpl {
     private PagedResponse<BinaryData> listIntegersSinglePage(RequestOptions requestOptions) {
         Response<BinaryData> res
             = service.listIntegersSync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
-        return ClientUtils.createPagedResponse(res, getValues(res.getValue(), "value"), null, null);
+        return createPagedResponse(res, getValues(res.getValue(), "value"), null, null);
     }
 
     /**
@@ -1993,7 +1995,7 @@ public final class ResponseClientImpl {
         RequestOptions requestOptions) {
         return FluxUtil.withContext(
             context -> service.listStringsNext(nextLink, this.getEndpoint(), APPLICATION_JSON, requestOptions, context))
-            .map(res -> ClientUtils.createPagedResponse(res, getValues(res.getValue(), "items_value"),
+            .map(res -> createPagedResponse(res, getValues(res.getValue(), "items_value"),
                 getNextLink(res.getValue(), "next_link"), null));
     }
 
@@ -2019,7 +2021,7 @@ public final class ResponseClientImpl {
     private PagedResponse<BinaryData> listStringsNextSinglePage(String nextLink, RequestOptions requestOptions) {
         Response<BinaryData> res
             = service.listStringsNextSync(nextLink, this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
-        return ClientUtils.createPagedResponse(res, getValues(res.getValue(), "items_value"),
+        return createPagedResponse(res, getValues(res.getValue(), "items_value"),
             getNextLink(res.getValue(), "next_link"), null);
     }
 

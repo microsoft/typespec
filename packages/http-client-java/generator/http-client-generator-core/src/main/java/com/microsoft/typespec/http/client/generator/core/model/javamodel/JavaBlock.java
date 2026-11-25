@@ -12,6 +12,10 @@ public class JavaBlock implements JavaContext {
         this.contents = contents;
     }
 
+    public final String staticMethodReference(String owner, String methodName) {
+        return contents.staticMethodReference(owner, methodName);
+    }
+
     public final void indent(Runnable indentAction) {
         contents.indent(indentAction);
     }

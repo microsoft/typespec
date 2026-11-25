@@ -4,6 +4,9 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
@@ -105,7 +108,7 @@ public final class FishesClientImpl implements FishesClient {
     private static final String APPLICATION_JSON = "application/json";
 
     private IllegalArgumentException validateClientProperties() {
-        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -122,8 +125,7 @@ public final class FishesClientImpl implements FishesClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(
-            context -> service.getModel(this.client.getEndpoint(), APPLICATION_JSON, context),
+        return withContext(context -> service.getModel(this.client.getEndpoint(), APPLICATION_JSON, context),
             () -> this.client.getContext());
     }
 
@@ -172,12 +174,12 @@ public final class FishesClientImpl implements FishesClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(fish, "fish")) != null) {
+        if ((validationError = validateNotNull(fish, "fish")) != null) {
             return Mono.error(validationError);
         } else {
             fish.validate();
         }
-        return ResourceManagerUtils.withContext(
+        return withContext(
             context -> service.putModel(this.client.getEndpoint(), APPLICATION_JSON, APPLICATION_JSON, fish, context),
             () -> this.client.getContext());
     }
@@ -204,7 +206,7 @@ public final class FishesClientImpl implements FishesClient {
         if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(fish, "fish")) != null) {
+        if ((validationError = validateNotNull(fish, "fish")) != null) {
             throw LOGGER.atError().log(validationError);
         } else {
             fish.validate();
@@ -232,8 +234,7 @@ public final class FishesClientImpl implements FishesClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(
-            context -> service.getOutputOnlyModel(this.client.getEndpoint(), APPLICATION_JSON, context),
+        return withContext(context -> service.getOutputOnlyModel(this.client.getEndpoint(), APPLICATION_JSON, context),
             () -> this.client.getContext());
     }
 

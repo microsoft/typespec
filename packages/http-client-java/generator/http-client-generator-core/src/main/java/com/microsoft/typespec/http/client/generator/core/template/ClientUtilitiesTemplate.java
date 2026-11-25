@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
@@ -45,12 +46,17 @@ public final class ClientUtilitiesTemplate {
         return settings.getPackage(settings.getImplementationSubpackage()) + "." + getClassName();
     }
 
+    public static String reference(JavaBlock block, UtilityMethod method) {
+        return block.staticMethodReference(getFullClassName(), method.methodName);
+    }
+
     public static Set<UtilityMethod> getUsedMethods(List<JavaFile> files) {
         Set<UtilityMethod> used = EnumSet.noneOf(UtilityMethod.class);
         for (JavaFile file : files) {
             String source = file.getContents().toString();
             for (UtilityMethod method : UtilityMethod.values()) {
-                if (source.contains(getClassName() + "." + method.methodName + "(")) {
+                if (source.contains(getClassName() + "." + method.methodName + "(")
+                    || source.contains("import static " + getFullClassName() + "." + method.methodName + ";")) {
                     used.add(method);
                 }
             }

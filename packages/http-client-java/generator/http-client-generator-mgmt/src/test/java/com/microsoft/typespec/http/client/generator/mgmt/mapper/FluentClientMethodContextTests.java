@@ -33,6 +33,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
@@ -51,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -317,6 +319,46 @@ public class FluentClientMethodContextTests {
                     Assertions.assertTrue(syncSource.contains("Async("), syncSource);
                 }
             }
+        }
+    }
+
+    @Test
+    public void implementationStaticallyImportsUsedContextPagingAndValidationHelpers() {
+        useSettings(true);
+        Templates.setFactory(new FluentTemplateFactory());
+        for (String conflictingMethod : List.of("", "withContext", "createPagedResponse", "validateNotNull")) {
+            List<ClientMethod> methods = new ArrayList<>(map(new FluentClientMethodMapper(), operation(true, false)));
+            if (!conflictingMethod.isEmpty()) {
+                methods.add(methods.get(0).newBuilder().name(conflictingMethod).build());
+            }
+            JavaSettings settings = JavaSettings.getInstance();
+            String packageName = settings.getPackage(settings.getImplementationSubpackage());
+            MethodGroupClient client = new MethodGroupClient.Builder().packageName(packageName)
+                .className("WidgetsClientImpl")
+                .interfaceName("WidgetsClient")
+                .implementedInterfaces(List.of())
+                .supportedInterfaces(List.of())
+                .serviceClientName("MockClient")
+                .clientMethods(methods)
+                .build();
+            JavaFile file = new JavaFile("WidgetsClientImpl.java");
+            file.declarePackage(packageName);
+            file.line();
+            Templates.getMethodGroupTemplate().write(client, file);
+
+            String source = file.getContents().toString();
+            String utility = ClientUtilitiesTemplate.getFullClassName();
+            for (String method : List.of("withContext", "createPagedResponse", "validateNotNull")) {
+                boolean collision = method.equals(conflictingMethod);
+                Assertions.assertEquals(!collision, source.contains("import static " + utility + "." + method + ";"),
+                    source);
+                Assertions.assertEquals(collision, source.contains("ResourceManagerUtils." + method + "("), source);
+            }
+            Assertions.assertEquals(
+                Set.of(ClientUtilitiesTemplate.UtilityMethod.WITH_CONTEXT,
+                    ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE,
+                    ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL),
+                ClientUtilitiesTemplate.getUsedMethods(List.of(file)));
         }
     }
 

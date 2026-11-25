@@ -4,6 +4,9 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.HeaderParam;
@@ -73,7 +76,7 @@ public final class FunctionsClientImpl implements FunctionsClient {
     private static final String APPLICATION_JSON = "application/json";
 
     private IllegalArgumentException validateClientProperties() {
-        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -91,13 +94,13 @@ public final class FunctionsClientImpl implements FunctionsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(function, "function")) != null) {
+        if ((validationError = validateNotNull(function, "function")) != null) {
             return Mono.error(validationError);
         } else {
             function.validate();
         }
-        return ResourceManagerUtils.withContext(context -> service.createFunction(this.client.getEndpoint(),
-            APPLICATION_JSON, APPLICATION_JSON, function, context), () -> this.client.getContext());
+        return withContext(context -> service.createFunction(this.client.getEndpoint(), APPLICATION_JSON,
+            APPLICATION_JSON, function, context), () -> this.client.getContext());
     }
 
     /**
@@ -121,7 +124,7 @@ public final class FunctionsClientImpl implements FunctionsClient {
         if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(function, "function")) != null) {
+        if ((validationError = validateNotNull(function, "function")) != null) {
             throw LOGGER.atError().log(validationError);
         } else {
             function.validate();

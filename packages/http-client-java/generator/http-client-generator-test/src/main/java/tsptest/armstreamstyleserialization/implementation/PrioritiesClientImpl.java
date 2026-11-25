@@ -4,6 +4,9 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Headers;
@@ -74,7 +77,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     private static final String APPLICATION_JSON = "application/json";
 
     private IllegalArgumentException validateClientProperties() {
-        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -92,10 +95,10 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(priority, "priority")) != null) {
+        if ((validationError = validateNotNull(priority, "priority")) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(
+        return withContext(
             context -> service.setPriority(this.client.getEndpoint(), priority, APPLICATION_JSON, context),
             () -> this.client.getContext());
     }
@@ -121,7 +124,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(priority, "priority")) != null) {
+        if ((validationError = validateNotNull(priority, "priority")) != null) {
             throw LOGGER.atError().log(validationError);
         }
         return service.setPrioritySync(this.client.getEndpoint(), priority, APPLICATION_JSON, context);

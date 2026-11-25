@@ -143,6 +143,9 @@ public class TemplateUtil {
     public static void writeClientMethodsAndHelpers(JavaClass classBlock, List<ClientMethod> clientMethods,
         boolean implementsGeneratedInterface) {
         JavaSettings settings = JavaSettings.getInstance();
+        // A client method shadows a static import of the same name, even with a different signature.
+        classBlock
+            .reserveStaticMethodNames(clientMethods.stream().map(ClientMethod::getName).collect(Collectors.toSet()));
         writeStringConstants(classBlock, clientMethods);
         writeClientPropertyValidator(classBlock, clientMethods);
 
@@ -288,7 +291,8 @@ public class TemplateUtil {
                 for (int index = 0; index < group.size(); index++) {
                     Map.Entry<String, String> property = group.get(index);
                     String expression = property.getKey();
-                    String check = ClientUtilitiesTemplate.getClassName() + ".validateNotNull(" + expression + ", "
+                    String check = ClientUtilitiesTemplate.reference(block,
+                        ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL) + "(" + expression + ", "
                         + ClassType.STRING.defaultValueExpression(expression) + ")";
                     boolean last = index == group.size() - 1;
                     if (last && property.getValue() == null) {

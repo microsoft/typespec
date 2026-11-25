@@ -4,6 +4,10 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.createPagedResponse;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
@@ -213,7 +217,7 @@ public final class ItemsClientImpl implements ItemsClient {
     private static final String APPLICATION_JSON = "application/json";
 
     private IllegalArgumentException validateClientProperties() {
-        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     /**
@@ -229,7 +233,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> {
+        return withContext(context -> {
             Mono<Response<Flux<ByteBuffer>>> mono
                 = service.list(this.client.getEndpoint(), APPLICATION_JSON, context).cache();
             return Mono
@@ -239,8 +243,8 @@ public final class ItemsClientImpl implements ItemsClient {
                             ListResult.class, this.client.getContext())
                         .last()
                         .flatMap(this.client::getLroFinalResultOrError))
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res.getT1(),
-                    res.getT2().items(), res.getT2().nextLink(), null));
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res.getT1(), res.getT2().items(), res.getT2().nextLink(), null));
         }, () -> this.client.getContext());
     }
 
@@ -274,8 +278,7 @@ public final class ItemsClientImpl implements ItemsClient {
         Response<BinaryData> res = service.listSync(this.client.getEndpoint(), APPLICATION_JSON, context);
         ListResult lroPageableResult = this.client.getLroFinalResultOrError(
             this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, context));
-        return ResourceManagerUtils.createPagedResponse(res, lroPageableResult.items(), lroPageableResult.nextLink(),
-            null);
+        return createPagedResponse(res, lroPageableResult.items(), lroPageableResult.nextLink(), null);
     }
 
     @Override
@@ -303,11 +306,11 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.summary(this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.summary(this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -338,7 +341,7 @@ public final class ItemsClientImpl implements ItemsClient {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResultSummary> res = service.summarySync(this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     @Override
@@ -367,11 +370,11 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.list2(this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.list2(this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -402,7 +405,7 @@ public final class ItemsClientImpl implements ItemsClient {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult2> res = service.list2Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     @Override
@@ -430,8 +433,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(
-            context -> service.summary2(this.client.getEndpoint(), APPLICATION_JSON, context),
+        return withContext(context -> service.summary2(this.client.getEndpoint(), APPLICATION_JSON, context),
             () -> this.client.getContext());
     }
 
@@ -476,11 +478,11 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.list3(this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.list3(this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -511,7 +513,7 @@ public final class ItemsClientImpl implements ItemsClient {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult3> res = service.list3Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     @Override
@@ -541,13 +543,12 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(body, "body")) != null) {
+        if ((validationError = validateNotNull(body, "body")) != null) {
             return Mono.error(validationError);
         } else {
             body.validate();
         }
-        return ResourceManagerUtils.withContext(
-            context -> service.post(this.client.getEndpoint(), APPLICATION_JSON, body, context),
+        return withContext(context -> service.post(this.client.getEndpoint(), APPLICATION_JSON, body, context),
             () -> this.client.getContext());
     }
 
@@ -572,7 +573,7 @@ public final class ItemsClientImpl implements ItemsClient {
         if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(body, "body")) != null) {
+        if ((validationError = validateNotNull(body, "body")) != null) {
             throw LOGGER.atError().log(validationError);
         } else {
             body.validate();
@@ -598,17 +599,17 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> listNextSinglePageAsync(String nextLink) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.listNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.listNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -638,14 +639,14 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> listNextSinglePage(String nextLink, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
         Response<ListResult> res = service.listNextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     /**
@@ -660,17 +661,17 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> summaryNextSinglePageAsync(String nextLink) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.summaryNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.summaryNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -700,7 +701,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> summaryNextSinglePage(String nextLink, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
@@ -708,7 +709,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         Response<ListResultSummary> res
             = service.summaryNextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     /**
@@ -723,17 +724,17 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list2NextSinglePageAsync(String nextLink) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.list2Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.list2Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -763,7 +764,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list2NextSinglePage(String nextLink, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
@@ -771,7 +772,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         Response<ListResult2> res
             = service.list2NextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     /**
@@ -786,17 +787,17 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list3NextSinglePageAsync(String nextLink) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.list3Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().items(),
-                    res.getValue().nextLink(), null)),
-                () -> this.client.getContext());
+        return withContext(
+            context -> service.list3Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .<PagedResponse<Result>>map(
+                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -826,7 +827,7 @@ public final class ItemsClientImpl implements ItemsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list3NextSinglePage(String nextLink, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             throw LOGGER.atError().log(validationError);
         }
         if ((validationError = validateClientProperties()) != null) {
@@ -834,7 +835,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         Response<ListResult3> res
             = service.list3NextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
-        return ResourceManagerUtils.createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(ItemsClientImpl.class);

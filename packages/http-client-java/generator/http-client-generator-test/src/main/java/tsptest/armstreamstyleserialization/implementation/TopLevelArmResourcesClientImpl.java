@@ -4,6 +4,9 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.HeaderParam;
@@ -88,12 +91,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private static final String APPLICATION_JSON = "application/json";
 
     private IllegalArgumentException validateClientProperties() {
-        IllegalArgumentException error
-            = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        IllegalArgumentException error = validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
         if (error != null) {
             return error;
         }
-        return ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), "this.client.getSubscriptionId()");
+        return validateNotNull(this.client.getSubscriptionId(), "this.client.getSubscriptionId()");
     }
 
     /**
@@ -115,21 +117,20 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourceName, "topLevelArmResourceName"))
-            != null) {
+        if ((validationError = validateNotNull(topLevelArmResourceName, "topLevelArmResourceName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(properties, "properties")) != null) {
+        if ((validationError = validateNotNull(properties, "properties")) != null) {
             return Mono.error(validationError);
         } else {
             properties.validate();
         }
-        return ResourceManagerUtils.withContext(context -> service.update(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName,
-            APPLICATION_JSON, APPLICATION_JSON, properties, context), () -> this.client.getContext());
+        return withContext(context -> service.update(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, APPLICATION_JSON,
+            APPLICATION_JSON, properties, context), () -> this.client.getContext());
     }
 
     /**
@@ -170,14 +171,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourceName, "topLevelArmResourceName"))
-            != null) {
+        if ((validationError = validateNotNull(topLevelArmResourceName, "topLevelArmResourceName")) != null) {
             throw LOGGER.atError().log(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(properties, "properties")) != null) {
+        if ((validationError = validateNotNull(properties, "properties")) != null) {
             throw LOGGER.atError().log(validationError);
         } else {
             properties.validate();

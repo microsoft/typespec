@@ -4,6 +4,10 @@
 
 package tsptest.armversioned.implementation;
 
+import static tsptest.armversioned.implementation.ResourceManagerUtils.createPagedResponse;
+import static tsptest.armversioned.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armversioned.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
@@ -160,16 +164,15 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private static final String APPLICATION_JSON = "application/json";
 
     private IllegalArgumentException validateClientProperties() {
-        IllegalArgumentException error
-            = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        IllegalArgumentException error = validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
         if (error != null) {
             return error;
         }
-        return ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), "this.client.getSubscriptionId()");
+        return validateNotNull(this.client.getSubscriptionId(), "this.client.getSubscriptionId()");
     }
 
     private IllegalArgumentException validateClientProperties2() {
-        return ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
     }
 
     @Override
@@ -181,22 +184,21 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resource, "resource")) != null) {
+        if ((validationError = validateNotNull(resource, "resource")) != null) {
             return Mono.error(validationError);
         } else {
             resource.validate();
         }
-        return ResourceManagerUtils
-            .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
-                newHeader, APPLICATION_JSON, APPLICATION_JSON, resource, context), () -> this.client.getContext());
+        return withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            APPLICATION_JSON, APPLICATION_JSON, resource, context), () -> this.client.getContext());
     }
 
     /**
@@ -222,14 +224,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resource, "resource")) != null) {
+        if ((validationError = validateNotNull(resource, "resource")) != null) {
             return Mono.error(validationError);
         } else {
             resource.validate();
@@ -260,14 +262,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resource, "resource")) != null) {
+        if ((validationError = validateNotNull(resource, "resource")) != null) {
             return Mono.error(validationError);
         } else {
             resource.validate();
@@ -288,24 +290,23 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resource, "resource")) != null) {
+        if ((validationError = validateNotNull(resource, "resource")) != null) {
             return Mono.error(validationError);
         } else {
             resource.validate();
         }
         final String nextLink = null;
         final String newHeader = null;
-        return ResourceManagerUtils
-            .withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink,
-                newHeader, APPLICATION_JSON, APPLICATION_JSON, resource, context), () -> this.client.getContext());
+        return withContext(context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            APPLICATION_JSON, APPLICATION_JSON, resource, context), () -> this.client.getContext());
     }
 
     @Override
@@ -519,11 +520,12 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> service
-            .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
-                newHeader, APPLICATION_JSON, context)
-            .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                res.getValue().value(), res.getValue().nextLink(), null)),
+        return withContext(
+            context -> service
+                .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
+                    newHeader, APPLICATION_JSON, context)
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -550,8 +552,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return service
             .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
                 newHeader, APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**
@@ -576,8 +577,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return service
             .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
                 newHeader, APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**
@@ -596,11 +596,12 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         }
         final String nextLink = null;
         final String newHeader = null;
-        return ResourceManagerUtils.withContext(context -> service
-            .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
-                newHeader, APPLICATION_JSON, context)
-            .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                res.getValue().value(), res.getValue().nextLink(), null)),
+        return withContext(
+            context -> service
+                .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
+                    newHeader, APPLICATION_JSON, context)
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -692,14 +693,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> service
-            .listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
+        return withContext(
+            context -> service.listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, APPLICATION_JSON, context)
-            .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                res.getValue().value(), res.getValue().nextLink(), null)),
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -723,15 +724,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);
         return service
             .listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**
@@ -753,7 +753,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
         final String newParameter = null;
@@ -761,8 +761,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return service
             .listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**
@@ -783,15 +782,15 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
         final String newParameter = null;
-        return ResourceManagerUtils.withContext(context -> service
-            .listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
+        return withContext(
+            context -> service.listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, APPLICATION_JSON, context)
-            .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                res.getValue().value(), res.getValue().nextLink(), null)),
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -887,17 +886,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> service.getByResourceGroup(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
-            topLevelArmResourcePropertiesName, nextLink, newHeader, APPLICATION_JSON, context),
-            () -> this.client.getContext());
+        return withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            APPLICATION_JSON, context), () -> this.client.getContext());
     }
 
     /**
@@ -920,11 +918,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);
@@ -951,11 +949,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         final String nextLink = null;
@@ -974,19 +972,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         final String nextLink = null;
         final String newHeader = null;
-        return ResourceManagerUtils.withContext(context -> service.getByResourceGroup(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
-            topLevelArmResourcePropertiesName, nextLink, newHeader, APPLICATION_JSON, context),
-            () -> this.client.getContext());
+        return withContext(context -> service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, nextLink, newHeader,
+            APPLICATION_JSON, context), () -> this.client.getContext());
     }
 
     @Override
@@ -1033,16 +1030,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> service.delete(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
-            topLevelArmResourcePropertiesName, parameter, newParameter, context), () -> this.client.getContext());
+        return withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+            newParameter, context), () -> this.client.getContext());
     }
 
     /**
@@ -1065,11 +1062,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);
@@ -1096,11 +1093,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         final String newParameter = null;
@@ -1117,17 +1114,17 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         final String newParameter = null;
-        return ResourceManagerUtils.withContext(context -> service.delete(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
-            topLevelArmResourcePropertiesName, parameter, newParameter, context), () -> this.client.getContext());
+        return withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+            newParameter, context), () -> this.client.getContext());
     }
 
     @Override
@@ -1171,16 +1168,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> service.action(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
-            topLevelArmResourcePropertiesName, parameter, newParameter, context), () -> this.client.getContext());
+        return withContext(context -> service.action(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+            newParameter, context), () -> this.client.getContext());
     }
 
     /**
@@ -1203,11 +1200,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         context = this.client.mergeContext(context);
@@ -1234,11 +1231,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         final String newParameter = null;
@@ -1255,17 +1252,17 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+        if ((validationError = validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourcePropertiesName,
-            "topLevelArmResourcePropertiesName")) != null) {
+        if ((validationError = validateNotNull(topLevelArmResourcePropertiesName, "topLevelArmResourcePropertiesName"))
+            != null) {
             return Mono.error(validationError);
         }
         final String newParameter = null;
-        return ResourceManagerUtils.withContext(context -> service.action(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
-            topLevelArmResourcePropertiesName, parameter, newParameter, context), () -> this.client.getContext());
+        return withContext(context -> service.action(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+            newParameter, context), () -> this.client.getContext());
     }
 
     @Override
@@ -1308,13 +1305,13 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
+        if ((validationError = validateNotNull(location, "location")) != null) {
             return Mono.error(validationError);
         }
         if (body != null) {
             body.validate();
         }
-        return ResourceManagerUtils.withContext(context -> service.getLimits(this.client.getEndpoint(), location,
+        return withContext(context -> service.getLimits(this.client.getEndpoint(), location,
             this.client.getApiVersion(), body, context), () -> this.client.getContext());
     }
 
@@ -1335,7 +1332,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
+        if ((validationError = validateNotNull(location, "location")) != null) {
             return Mono.error(validationError);
         }
         if (body != null) {
@@ -1361,7 +1358,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
+        if ((validationError = validateNotNull(location, "location")) != null) {
             return Mono.error(validationError);
         }
         final ActionRequest body = null;
@@ -1376,11 +1373,11 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
-        if ((validationError = ResourceManagerUtils.validateNotNull(location, "location")) != null) {
+        if ((validationError = validateNotNull(location, "location")) != null) {
             return Mono.error(validationError);
         }
         final ActionRequest body = null;
-        return ResourceManagerUtils.withContext(context -> service.getLimits(this.client.getEndpoint(), location,
+        return withContext(context -> service.getLimits(this.client.getEndpoint(), location,
             this.client.getApiVersion(), body, context), () -> this.client.getContext());
     }
 
@@ -1425,16 +1422,17 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         String newHeader) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(context -> service
-            .listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
-            .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                res.getValue().value(), res.getValue().nextLink(), null)),
+        return withContext(
+            context -> service
+                .listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -1454,7 +1452,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         String newHeader, Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties2()) != null) {
@@ -1462,8 +1460,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         }
         context = this.client.mergeContext(context);
         return service.listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**
@@ -1481,7 +1478,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties2()) != null) {
@@ -1490,8 +1487,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         final String newHeader = null;
         context = this.client.mergeContext(context);
         return service.listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**
@@ -1507,17 +1503,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
         final String newHeader = null;
-        return ResourceManagerUtils.withContext(context -> service
-            .listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
-            .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                res.getValue().value(), res.getValue().nextLink(), null)),
+        return withContext(
+            context -> service
+                .listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -1534,16 +1531,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupNextSinglePageAsync(String nextLink) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties2()) != null) {
             return Mono.error(validationError);
         }
-        return ResourceManagerUtils.withContext(
+        return withContext(
             context -> service.listByResourceGroupNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(res -> ResourceManagerUtils.createPagedResponse(res,
-                    res.getValue().value(), res.getValue().nextLink(), null)),
+                .<PagedResponse<TopLevelArmResourceInner>>map(
+                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -1562,7 +1559,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<PagedResponse<TopLevelArmResourceInner>> listByResourceGroupNextSinglePageAsync(String nextLink,
         Context context) {
         IllegalArgumentException validationError;
-        if ((validationError = ResourceManagerUtils.validateNotNull(nextLink, "nextLink")) != null) {
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
             return Mono.error(validationError);
         }
         if ((validationError = validateClientProperties2()) != null) {
@@ -1570,7 +1567,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         }
         context = this.client.mergeContext(context);
         return service.listByResourceGroupNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-            .map(res -> ResourceManagerUtils.createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(),
-                null));
+            .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null));
     }
 }
