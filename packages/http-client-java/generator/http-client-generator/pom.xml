@@ -117,9 +117,9 @@
                 <filter>
                   <!-- cspell:words condpermadmin dtree jdom jface osgi -->
                   <!-- Eclipse JDT Core is only used for its code formatter and doesn't run inside an OSGi/Eclipse workspace.
-                       Exclude its unused subsystems, along with the unused parts of the Eclipse platform, OSGi,
-                       and SnakeYAML. These package trees are never loaded while generating code. minimizeJar cannot remove
-                       most of them because JDT's static references reach them. -->
+                       Exclude its unused subsystems, along with the unused parts of the Eclipse platform and OSGi.
+                       These package trees are never loaded while generating code. minimizeJar cannot remove most of them
+                       because JDT's static references reach them. -->
                   <artifact>*:*</artifact>
                   <excludes>
                     <exclude>org/apache/**</exclude>
@@ -235,12 +235,16 @@
                     <exclude>org/osgi/service/startlevel/**</exclude>
                     <exclude>org/osgi/service/url/**</exclude>
                     <exclude>org/osgi/util/**</exclude>
-                    <exclude>org/yaml/snakeyaml/env/**</exclude>
-                    <exclude>org/yaml/snakeyaml/extensions/**</exclude>
-                    <exclude>org/yaml/snakeyaml/external/biz/**</exclude>
                     <exclude>ant_tasks/**</exclude>
                     <exclude>jdtCompilerAdapter.jar</exclude>
                   </excludes>
+                </filter>
+                <!-- Retain all SnakeYAML classes when minimizing. -->
+                <filter>
+                  <artifact>org.yaml:snakeyaml</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
                 </filter>
                 <!-- Customizations are compiled against, and run with, this JAR's classpath. Keep the APIs they may
                      use whole so minimizeJar doesn't remove classes the generator itself doesn't reference. -->
