@@ -103,7 +103,7 @@ catalog:
   concurrently: ^10.0.7
   cross-env: ^10.1.0
   cross-spawn: ^7.0.6
-  cspell: ^10.4.1
+  cspell: ^10.5.1
   debounce: ^3.0.0
   decimal.js: ^10.6.0
   ecmarkup: ^23.0.2
