@@ -415,7 +415,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             Assert.That(model.Constructors.Single(), Is.SameAs(generated));
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
+            Assert.That(model.CanonicalView.Constructors, Has.Count.EqualTo(2));
             var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
                 .Append(typeof(BinaryData).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path));
@@ -475,7 +475,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var custom = model.CustomCodeView!.Constructors.Single();
             Assert.That(custom.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static), Is.True);
             Assert.That(model.Constructors, Is.Empty);
-            Assert.That(model.EffectiveConstructors.Single(), Is.SameAs(custom));
+            Assert.That(model.CanonicalView.Constructors.Single(), Is.SameAs(custom));
             AssertGeneratedAndCustomCodeCompiles(model, customCode);
         }
 
@@ -501,7 +501,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
-        public async Task GeneratedAndEffectiveConstructorsReflectSignatureChanges()
+        public async Task GeneratedAndCanonicalConstructorsReflectSignatureChanges()
         {
             var model = new MutableConstructorModelProvider();
             var generated = new ConstructorProvider(
@@ -515,15 +515,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Assert.That(model.Constructors, Is.Empty);
             Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(1));
-            Assert.That(model.EffectiveConstructors.Single().Signature.Modifiers, Is.EqualTo(MethodSignatureModifiers.Internal));
+            Assert.That(model.CanonicalView.Constructors, Has.Count.EqualTo(1));
+            Assert.That(model.CanonicalView.Constructors.Single().Signature.Modifiers, Is.EqualTo(MethodSignatureModifiers.Internal));
 
             generated.Signature.Parameters.Single().Update(type: typeof(int));
 
             Assert.That(model.Constructors.Single(), Is.SameAs(generated));
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
-            Assert.That(model.EffectiveConstructors, Does.Contain(generated));
-            Assert.That(model.EffectiveConstructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Internal)
+            Assert.That(model.CanonicalView.Constructors, Has.Count.EqualTo(2));
+            Assert.That(model.CanonicalView.Constructors, Does.Contain(generated));
+            Assert.That(model.CanonicalView.Constructors.Single(c => c.Signature.Modifiers == MethodSignatureModifiers.Internal)
                 .Signature.Parameters.Single().Type.FrameworkType, Is.EqualTo(typeof(string)));
         }
 
@@ -547,9 +547,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.That(canonical.GeneratedConstructors.Single(), Is.SameAs(generated));
             generated.Signature.Parameters.Single().Update(type: initiallyMatching ? typeof(int) : typeof(string));
 
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(initiallyMatching ? 2 : 1));
             Assert.That(canonical.Constructors, Has.Count.EqualTo(initiallyMatching ? 2 : 1));
-            Assert.That(canonical.EffectiveConstructors, Has.Count.EqualTo(initiallyMatching ? 2 : 1));
         }
 
         [Test]
@@ -571,7 +569,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Assert.That(canonical.Constructors.Single(), Is.SameAs(replacement));
             Assert.That(canonical.GeneratedConstructors.Single(), Is.SameAs(replacement));
-            Assert.That(canonical.EffectiveConstructors.Single(), Is.SameAs(replacement));
             Assert.That(model.GeneratedConstructors.Single(), Is.SameAs(generated));
 
             canonical.Reset();
@@ -579,7 +576,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Assert.That(canonical.Constructors.Single(), Is.SameAs(generated));
             Assert.That(canonical.GeneratedConstructors.Single(), Is.SameAs(generated));
-            Assert.That(canonical.EffectiveConstructors.Single(), Is.SameAs(generated));
         }
 
         [Test]
@@ -659,7 +655,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Assert.That(model.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
             Assert.That(model.GeneratedConstructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.True);
-            Assert.That(model.EffectiveConstructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
+            Assert.That(model.CanonicalView.Constructors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)), Is.False);
         }
 
         [TestCase(false)]
@@ -682,11 +678,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
             model.Update(serializations: [serialization], reset: true);
 
-            Assert.That(model.EffectiveConstructors.Count, Is.EqualTo(byReference ? 2 : 1));
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             Assert.That(serialization.Constructors.Count, Is.EqualTo(byReference ? 1 : 0));
-            Assert.That(model.EffectiveConstructors.Count, Is.EqualTo(byReference ? 2 : 1));
         }
 
         [Test]
@@ -708,11 +702,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
             model.Update(serializations: [serialization], reset: true);
 
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             Assert.That(serialization.Constructors.Single(), Is.SameAs(serializationConstructor));
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
         }
 
         [TestCase(false)]
@@ -731,7 +723,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
             model.Update(constructors: [modelConstructor], serializations: [serialization], reset: true);
 
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             Assert.That(serialization.Constructors.Single(), Is.SameAs(serializationConstructor));
@@ -765,11 +756,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var generator = await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
             model.Update(constructors: [modelConstructor], serializations: [serialization], reset: true);
 
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
             CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
 
             Assert.That(serialization.Constructors.Single(), Is.SameAs(serializationConstructor));
-            Assert.That(model.EffectiveConstructors, Has.Count.EqualTo(2));
         }
 
         [Test]
@@ -788,7 +777,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
             CSharpGen.FilterAllCustomizedMembers(CodeModelGenerator.Instance.OutputLibrary);
 
             Assert.That(serialization.Constructors, Is.EqualTo(new[] { constructor }));
-            Assert.That(model.EffectiveConstructors, Does.Not.Contain(constructor));
 
             static TestConstructorTypeProvider CreateNestedType(string outerName) => new("Widget", "Test",
                 new TestConstructorTypeProvider("Common", "Test", new TestConstructorTypeProvider(outerName, "Test")));

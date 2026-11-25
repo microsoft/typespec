@@ -339,56 +339,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
-        private protected IReadOnlyList<ConstructorProvider>? CachedConstructors => _constructors;
+        private protected virtual TypeProvider? ConstructorSource => null;
 
         /// <summary>
         /// Gets the generated constructors before customization filtering, for visitor transformations.
         /// </summary>
-        public IReadOnlyList<ConstructorProvider> GeneratedConstructors => GetGeneratedConstructors();
-
-        private protected virtual IReadOnlyList<ConstructorProvider> GetGeneratedConstructors() => _constructors ??= BuildConstructors();
+        public IReadOnlyList<ConstructorProvider> GeneratedConstructors
+            => _constructors ?? (ConstructorSource is { } source ? source.GeneratedConstructors : (_constructors = BuildConstructors()));
 
         /// <summary>
         /// Gets generated constructors that are not replaced or suppressed by custom code.
         /// </summary>
-        public IReadOnlyList<ConstructorProvider> Constructors => GetConstructors();
-
-        private protected virtual IReadOnlyList<ConstructorProvider> GetConstructors() => ApplyCustomizationFilter(GeneratedConstructors);
-
-        /// <summary>
-        /// Gets explicitly declared constructors after customization, including constructors from generated
-        /// serialization partials of the same type. Compiler-synthesized constructors are not included.
-        /// </summary>
-        public IReadOnlyList<ConstructorProvider> EffectiveConstructors => GetEffectiveConstructors();
+        public IReadOnlyList<ConstructorProvider> Constructors => ConstructorSource is { } source
+            ? _constructors ?? source.GetEffectiveDeclaredConstructors()
+            : ApplyCustomizationFilter(GeneratedConstructors);
 
         internal IReadOnlyList<ConstructorProvider> GetEffectiveDeclaredConstructors() => FilterCustomizedMembers
             ? [.. Constructors, .. CustomCodeView?.Constructors ?? []]
             : Constructors;
-
-        private protected virtual IReadOnlyList<ConstructorProvider> GetEffectiveConstructors()
-            => MergeSerializationConstructors(GetEffectiveDeclaredConstructors());
-
-        internal IReadOnlyList<ConstructorProvider> MergeSerializationConstructors(IReadOnlyList<ConstructorProvider> declaredConstructors)
-        {
-            var owner = SerializationProviderOwner;
-            if (owner is null || !owner.GetSerializationPartials().Contains(this))
-            {
-                owner = this;
-            }
-
-            var constructors = new List<ConstructorProvider>(owner == this ? declaredConstructors : owner.GetEffectiveDeclaredConstructors());
-            foreach (var serialization in owner.GetSerializationPartials())
-            {
-                foreach (var constructor in serialization == this ? declaredConstructors : serialization.Constructors)
-                {
-                    if (!constructors.Any(existing => ConstructorProvider.HasSameSignature(existing, constructor)))
-                    {
-                        constructors.Add(constructor);
-                    }
-                }
-            }
-            return constructors;
-        }
 
         internal IEnumerable<TypeProvider> GetSerializationPartials()
             => SerializationProviders.Where(serialization => ConstructorProvider.HaveSameType(Type, serialization.Type));

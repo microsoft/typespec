@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         [TestCase(false)]
         [TestCase(true)]
-        public void EffectiveConstructorsIncludeSerializationPartial(bool multipart)
+        public void CanonicalConstructorsAreDeclarationLocal(bool multipart)
         {
             var usage = InputModelTypeUsage.Input | (multipart ? InputModelTypeUsage.MultipartFormData : InputModelTypeUsage.Json);
             var input = InputFactory.Model("Widget", usage: usage,
@@ -81,16 +81,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serializationConstructor = serialization.Constructors.Single(c => c.Signature.Parameters.Count == 0);
 
             Assert.That(model.CanonicalView.Constructors, Does.Not.Contain(serializationConstructor));
-            Assert.That(model.EffectiveConstructors, Does.Contain(serializationConstructor));
-            Assert.That(serialization.EffectiveConstructors, Is.EqualTo(model.EffectiveConstructors));
-            Assert.That(serialization.CanonicalView.EffectiveConstructors, Is.EqualTo(model.EffectiveConstructors));
-            var canonical = model.CanonicalView;
-            Assert.That(canonical.EffectiveConstructors, Does.Contain(serializationConstructor));
-
-            canonical.Update(constructors: []);
-
-            Assert.That(canonical.Constructors, Is.Empty);
-            Assert.That(canonical.EffectiveConstructors, Is.EqualTo(new[] { serializationConstructor }));
+            Assert.That(serialization.CanonicalView.Constructors, Does.Contain(serializationConstructor));
         }
 
         [TestCase(false)]
