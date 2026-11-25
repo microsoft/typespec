@@ -9,7 +9,6 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils;
 
 /**
  * The FunctionConfiguration model.
@@ -104,8 +103,8 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
      * @throws IOException If an error occurs while reading the FunctionConfiguration.
      */
     public static FunctionConfiguration fromJson(JsonReader jsonReader) throws IOException {
-        return ResourceManagerUtils.readObject(jsonReader, FunctionConfiguration::new,
-            (deserializedFunctionConfiguration, fieldName, reader) -> {
+        return tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.readObject(jsonReader,
+            FunctionConfiguration::new, (deserializedFunctionConfiguration, fieldName, reader) -> {
                 if ("input".equals(fieldName)) {
                     deserializedFunctionConfiguration.input = reader.getString();
                 } else if ("output".equals(fieldName)) {

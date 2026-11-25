@@ -16,7 +16,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -37,7 +40,9 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +53,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
 
 @Isolated
@@ -146,7 +153,8 @@ public class ClientUtilitiesTemplateTests {
         Assertions.assertFalse(generated.contains("String... properties"), generated);
 
         JavaFile utilities = new JavaFile("ClientUtils.java");
-        utilities.declarePackage("test");
+        utilities.declarePackage(
+            JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()));
         ClientUtilitiesTemplate.write(Set.of(ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL), utilities);
         Path utilityFile = directory.resolve("ClientUtils.java");
         Files.writeString(utilityFile, utilities.getContents().toString());
@@ -298,7 +306,7 @@ public class ClientUtilitiesTemplateTests {
             file.declarePackage("test");
             file.line();
             file.declareImport("com.azure.core.annotation.ServiceMethod", "com.azure.core.annotation.ReturnType",
-                "com.azure.core.util.Context", utilityType);
+                "com.azure.core.util.Context");
             file.publicFinalClass(className, block -> {
                 block.privateFinalMemberVariable("Service", "service", "new Service()");
                 block.publicMethod("String getEndpoint()", getter -> getter.methodReturn("\"endpoint\""));
@@ -370,10 +378,20 @@ public class ClientUtilitiesTemplateTests {
     }
 
     private static void configureClientValidation(boolean enabled, boolean logger) {
+        configureClientValidation(enabled, logger, false);
+    }
+
+    private static void configureClientValidation(boolean enabled, boolean logger, boolean fluent) {
         new MockUnitJavagen() {
             @Override
             @SuppressWarnings("unchecked")
             public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("fluent".equals(key) && fluent) {
+                    return (T) "lite";
+                }
+                if ("stream-style-serialization".equals(key)) {
+                    return (T) Boolean.TRUE;
+                }
                 if ("client-side-validations".equals(key)) {
                     return (T) Boolean.valueOf(enabled);
                 }
@@ -387,6 +405,88 @@ public class ClientUtilitiesTemplateTests {
             }
         };
         JavaSettings.clear();
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void helperNamesDoNotCollideWithModelsOrOperationParameters(boolean fluent) throws Exception {
+        configureClientValidation(true, false, fluent);
+        String helperName = ClientUtilitiesTemplate.getClassName();
+        ClassType modelType = new ClassType.Builder().name(helperName).packageName("test.models").build();
+        List<JavaFile> files = new ArrayList<>();
+        for (boolean payload : List.of(false, true)) {
+            String name = payload ? "Payload" : helperName;
+            ClassType propertyType = payload ? modelType : ClassType.STRING;
+            ClientModel model = new ClientModel.Builder().name(name)
+                .packageName("test.models")
+                .description("A model.")
+                .properties(List.of(new ClientModelProperty.Builder().name("value")
+                    .serializedName("value")
+                    .description("A value.")
+                    .wireType(propertyType)
+                    .clientType(propertyType)
+                    .build()))
+                .implementationDetails(
+                    new ImplementationDetails.Builder().usages(Set.of(ImplementationDetails.Usage.PUBLIC,
+                        ImplementationDetails.Usage.INPUT, ImplementationDetails.Usage.OUTPUT)).build())
+                .build();
+            JavaFile file = new JavaFile("models/" + name + ".java");
+            file.declarePackage("test.models");
+            StreamSerializationModelTemplate.getInstance().write(model, file);
+            files.add(file);
+        }
+
+        for (String className : List.of("StaticImportClient", "ConflictingClient", "PublicAsyncClient")) {
+            boolean async = className.equals("PublicAsyncClient");
+            String methodName = className.equals("ConflictingClient") ? "validateNotNull" : "read";
+            ClientMethod original
+                = clientValidationMethod(methodName, List.of("this.getEndpoint()", "input"), Map.of(), !async);
+            ClientMethod method = original.newBuilder()
+                .parameters(List.of(new ClientMethodParameter.Builder().name("input")
+                    .description("Input.")
+                    .wireType(modelType)
+                    .annotations(List.of())
+                    .required(true)
+                    .build(), ClientMethodParameter.CONTEXT_PARAMETER))
+                .build();
+            JavaFile file = new JavaFile(className + ".java");
+            file.declarePackage(async
+                ? "test"
+                : JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()));
+            Set<String> imports = new LinkedHashSet<>();
+            method.addImportsTo(imports, true, JavaSettings.getInstance());
+            Assertions.assertFalse(imports.contains(ClientUtilitiesTemplate.getFullClassName()), imports.toString());
+            file.declareImport(imports);
+            file.publicFinalClass(className, block -> {
+                block.privateFinalMemberVariable("Service", "service", "new Service()");
+                block.publicMethod("String getEndpoint()", getter -> getter.methodReturn("\"endpoint\""));
+                block.publicMethod("String getSubscriptionId()", getter -> getter.methodReturn("\"subscription\""));
+                TemplateUtil.writeClientMethodsAndHelpers(block, List.of(method));
+                block.staticFinalClass(JavaVisibility.Private, "Service",
+                    service -> service.packagePrivateMethod(
+                        (async ? "Mono<String> " + methodName : "String " + methodName + "Sync") + "(Object... args)",
+                        body -> body.methodReturn(async ? "Mono.just(\"ok\")" : "\"ok\"")));
+            });
+            files.add(file);
+        }
+        JavaFile utilities = new JavaFile(helperName + ".java");
+        utilities.declarePackage(
+            JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()));
+        ClientUtilitiesTemplate.write(ClientUtilitiesTemplate.getUsedMethods(files), utilities);
+        files.add(utilities);
+        List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+            directory.toString()));
+        for (JavaFile file : files) {
+            Path source = directory.resolve(file.getFilePath());
+            Files.createDirectories(source.getParent());
+            Files.writeString(source, file.getContents().toString());
+            arguments.add(source.toString());
+        }
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        int result = javax.tools.ToolProvider.getSystemJavaCompiler()
+            .run(null, diagnostics, diagnostics, arguments.toArray(new String[0]));
+        Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
     }
 
     private static ClientMethod clientValidationMethod(String name, List<String> required,
@@ -442,15 +542,16 @@ public class ClientUtilitiesTemplateTests {
         new MockUnitJavagen();
         JavaSettings.clear();
         JavaFile utilities = new JavaFile("ClientUtils.java");
-        utilities.declarePackage("test");
+        utilities.declarePackage(
+            JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()));
         ClientUtilitiesTemplate.write(EnumSet.allOf(ClientUtilitiesTemplate.UtilityMethod.class), utilities);
         Path utilityFile = directory.resolve("ClientUtils.java");
         Files.writeString(utilityFile, utilities.getContents().toString());
         Path checks = directory.resolve("UtilityChecks.java");
         Files.writeString(checks,
             "package test;\n" + "import com.azure.core.util.Context;\nimport com.azure.json.*;\nimport java.util.*;\n"
-                + "import java.util.function.Supplier;\nimport reactor.core.publisher.Mono;\n"
-                + "public class UtilityChecks {\n"
+                + "import java.util.function.Supplier;\nimport reactor.core.publisher.Mono;\n" + "import "
+                + ClientUtilitiesTemplate.getFullClassName() + ";\n" + "public class UtilityChecks {\n"
                 + "public static Map<String, Object> read(String json) throws Exception {\n"
                 + "try (JsonReader reader = JsonProviders.createReader(json)) {\n"
                 + "return ClientUtils.readObject(reader, LinkedHashMap<String, Object>::new, (model, name, r) -> {\n"
@@ -472,7 +573,7 @@ public class ClientUtilitiesTemplateTests {
         Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
         try (URLClassLoader loader
             = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
-            Class<?> helper = loader.loadClass("test.ClientUtils");
+            Class<?> helper = loader.loadClass(ClientUtilitiesTemplate.getFullClassName());
             Class<?> wrapper = loader.loadClass("test.UtilityChecks");
             Method read = wrapper.getMethod("read", String.class);
             Assertions.assertNull(read.invoke(null, "null"));

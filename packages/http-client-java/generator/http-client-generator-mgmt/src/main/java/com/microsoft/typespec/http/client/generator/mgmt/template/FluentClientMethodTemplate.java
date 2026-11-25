@@ -129,14 +129,8 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                     }
                 }
                 function.indent(() -> {
-                    if (addContextParameter) {
-                        function.line(".<%s>map(res -> %s(",
-                            returnTypeWithoutMono(clientMethod.getReturnValue().getType()), ClientUtilitiesTemplate
-                                .reference(function, ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
-                    } else {
-                        function.line(".map(res -> %s(", ClientUtilitiesTemplate.reference(function,
-                            ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
-                    }
+                    function.line(".map(res -> %s(", ClientUtilitiesTemplate.reference(function,
+                        ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
                     function.indent(() -> {
                         if (!isLroPagination) {
                             function.line("res,");
@@ -215,14 +209,8 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                     }
                 }
                 function.indent(() -> {
-                    if (addContextParameter) {
-                        function.line(".<%s>map(res -> %s(",
-                            returnTypeWithoutMono(clientMethod.getReturnValue().getType()), ClientUtilitiesTemplate
-                                .reference(function, ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
-                    } else {
-                        function.line(".map(res -> %s(", ClientUtilitiesTemplate.reference(function,
-                            ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
-                    }
+                    function.line(".map(res -> %s(", ClientUtilitiesTemplate.reference(function,
+                        ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE));
                     function.indent(() -> {
                         if (!isLroPagination) {
                             function.line("res,");
@@ -412,14 +400,5 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             function.methodReturn(String.format("this.client.<%3$s, %3$s>getLroResult(response, %1$s, %1$s, %2$s)",
                 typeExpression, contextArgument, classType));
         });
-    }
-
-    private static IType returnTypeWithoutMono(IType returnType) {
-        // need e.g. PagedResponse<T>
-        IType returnTypeWithoutMono = returnType;
-        if (returnType instanceof GenericType && ((GenericType) returnType).getName().equals("Mono")) {
-            returnTypeWithoutMono = ((GenericType) returnType).getTypeArguments()[0];
-        }
-        return returnTypeWithoutMono;
     }
 }

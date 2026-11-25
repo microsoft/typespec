@@ -23,6 +23,9 @@ Import cleanup does not require resolving the generated SDK's dependencies.
 
 Azure clients share implementation helpers in `ClientUtils`, or in the existing
 `ResourceManagerUtils` for ARM libraries. Only referenced helpers are emitted.
+Client implementations statically import helper methods, with fully qualified calls
+when method names conflict. Model readers use fully qualified helper calls; do not
+import helper types, which can shadow models with the same name.
 JSON object-reading boilerplate is shared for final, non-polymorphic models that
 can be populated without constructor-local state; constructor-required, inherited,
 flattened, and merge-patch models retain their existing readers. Field callbacks

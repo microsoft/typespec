@@ -10,7 +10,6 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.Map;
-import tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils;
 
 /**
  * The type used for updating tags in TopLevelArmResource resources.
@@ -75,8 +74,8 @@ public final class TopLevelArmResourceTagsUpdate implements JsonSerializable<Top
      * @throws IOException If an error occurs while reading the TopLevelArmResourceTagsUpdate.
      */
     public static TopLevelArmResourceTagsUpdate fromJson(JsonReader jsonReader) throws IOException {
-        return ResourceManagerUtils.readObject(jsonReader, TopLevelArmResourceTagsUpdate::new,
-            (deserializedTopLevelArmResourceTagsUpdate, fieldName, reader) -> {
+        return tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.readObject(jsonReader,
+            TopLevelArmResourceTagsUpdate::new, (deserializedTopLevelArmResourceTagsUpdate, fieldName, reader) -> {
                 if ("tags".equals(fieldName)) {
                     Map<String, String> tags = reader.readMap(reader1 -> reader1.getString());
                     deserializedTopLevelArmResourceTagsUpdate.tags = tags;

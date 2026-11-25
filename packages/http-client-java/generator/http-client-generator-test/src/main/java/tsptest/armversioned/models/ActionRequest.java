@@ -9,7 +9,6 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import tsptest.armversioned.implementation.ResourceManagerUtils;
 
 /**
  * The ActionRequest model.
@@ -74,7 +73,7 @@ public final class ActionRequest implements JsonSerializable<ActionRequest> {
      * @throws IOException If an error occurs while reading the ActionRequest.
      */
     public static ActionRequest fromJson(JsonReader jsonReader) throws IOException {
-        return ResourceManagerUtils.readObject(jsonReader, ActionRequest::new,
+        return tsptest.armversioned.implementation.ResourceManagerUtils.readObject(jsonReader, ActionRequest::new,
             (deserializedActionRequest, fieldName, reader) -> {
                 if ("value".equals(fieldName)) {
                     deserializedActionRequest.value = reader.getString();

@@ -275,6 +275,16 @@ public class FluentClientMethodContextTests {
         next.getExtensions().getXmsPageable().setNextLinkName("nextLink");
         next.getExtensions().getXmsPageable().setNextLinkProperty(List.of(nextLink));
         List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation);
+        methods.stream()
+            .filter(method -> method.getType() == ClientMethodType.PagingAsyncSinglePage)
+            .forEach(method -> {
+                String pagingSource = write(method);
+                Assertions.assertTrue(
+                    pagingSource.contains(
+                        ".map(res -> " + ClientUtilitiesTemplate.getFullClassName() + ".createPagedResponse("),
+                    pagingSource);
+                Assertions.assertFalse(pagingSource.contains(".<PagedResponse<"), pagingSource);
+            });
         ClientMethod withContext = find(methods, ClientMethodType.PagingSync, true, false);
         String source = write(withContext);
         Assertions.assertTrue(source.contains("listSinglePage(id, filter, added, context)"), source);
@@ -311,6 +321,13 @@ public class FluentClientMethodContextTests {
                 Assertions.assertTrue(asyncSource.contains("ResourceManagerUtils.withContext"), asyncSource);
                 Assertions.assertTrue(asyncSource.contains("() -> this.client.getContext()"), asyncSource);
                 Assertions.assertFalse(asyncSource.contains("Context.NONE"), asyncSource);
+                if (pageable) {
+                    Assertions.assertTrue(
+                        asyncSource.contains(
+                            ".map(res -> " + ClientUtilitiesTemplate.getFullClassName() + ".createPagedResponse("),
+                        asyncSource);
+                    Assertions.assertFalse(asyncSource.contains(".<PagedResponse<"), asyncSource);
+                }
                 if (!syncStack) {
                     ClientMethodType syncType
                         = pageable ? ClientMethodType.PagingSync : ClientMethodType.LongRunningBeginSync;

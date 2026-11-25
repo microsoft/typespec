@@ -148,9 +148,11 @@ public class XmlContinuationTokenTests {
             "package test;\n" + TemplateUtil.loadTextFromResource("XmlSerializerProviders.java"));
         Files.writeString(serializer, "package test;\n" + TemplateUtil.loadTextFromResource("XmlSerializer.java"));
         JavaFile utilities = new JavaFile("ClientUtils.java");
+        utilities.declarePackage(
+            JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()));
         ClientUtilitiesTemplate.write(Set.of(ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE), utilities);
         Path utilityFile = compilationDirectory.resolve("ClientUtils.java");
-        Files.writeString(utilityFile, "package test;\n" + utilities.getContents());
+        Files.writeString(utilityFile, utilities.getContents().toString());
         ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
         int result = ToolProvider.getSystemJavaCompiler()
             .run(null, diagnostics, diagnostics, "--release", "11", "-classpath",

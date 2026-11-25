@@ -524,8 +524,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             context -> service
                 .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
                     newHeader, APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -600,8 +599,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             context -> service
                 .list(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(), nextLink,
                     newHeader, APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -699,8 +697,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return withContext(
             context -> service.listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -789,8 +786,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return withContext(
             context -> service.listByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -1431,8 +1427,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return withContext(
             context -> service
                 .listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -1513,8 +1508,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         return withContext(
             context -> service
                 .listBySubscriptionNext(nextLink, this.client.getEndpoint(), newHeader, APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -1539,8 +1533,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         }
         return withContext(
             context -> service.listByResourceGroupNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<TopLevelArmResourceInner>>map(
-                    res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().value(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 

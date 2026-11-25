@@ -18,7 +18,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import tsptest.optional.implementation.ClientUtils;
 
 /**
  * The AllPropertiesOptional model.
@@ -399,7 +398,7 @@ public final class AllPropertiesOptional implements JsonSerializable<AllProperti
      */
     @Generated
     public static AllPropertiesOptional fromJson(JsonReader jsonReader) throws IOException {
-        return ClientUtils.readObject(jsonReader, AllPropertiesOptional::new,
+        return tsptest.optional.implementation.ClientUtils.readObject(jsonReader, AllPropertiesOptional::new,
             (deserializedAllPropertiesOptional, fieldName, reader) -> {
                 if ("boolean".equals(fieldName)) {
                     deserializedAllPropertiesOptional.booleanProperty = reader.getNullable(JsonReader::getBoolean);

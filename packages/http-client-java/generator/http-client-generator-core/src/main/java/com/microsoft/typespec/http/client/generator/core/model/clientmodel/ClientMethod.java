@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
@@ -499,9 +498,6 @@ public class ClientMethod {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        if (includeImplementationImports && settings.isAzureV1()) {
-            imports.add(ClientUtilitiesTemplate.getFullClassName());
-        }
         ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         Annotation.SERVICE_METHOD.addImportsTo(imports);
         Annotation.RETURN_TYPE.addImportsTo(imports);

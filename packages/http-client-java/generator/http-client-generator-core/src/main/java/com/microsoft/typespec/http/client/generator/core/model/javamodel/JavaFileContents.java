@@ -195,7 +195,7 @@ public class JavaFileContents {
             staticImports.add(owner + "." + methodName);
             return methodName;
         }
-        return owner.substring(owner.lastIndexOf('.') + 1) + "." + methodName;
+        return owner + "." + methodName;
     }
 
     public void lineComment(String text) {

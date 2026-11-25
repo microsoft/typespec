@@ -87,10 +87,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             ClassType.JSON_WRITER.addImportsTo(imports, false);
             ClassType.JSON_READER.addImportsTo(imports, false);
             ClassType.JSON_TOKEN.addImportsTo(imports, false);
-            if (!model.getName().equals(ClientUtilitiesTemplate.getClassName())
-                && canUseReadObjectHelper(new ClientModelPropertiesManager(model, settings))) {
-                imports.add(ClientUtilitiesTemplate.getFullClassName());
-            }
         }
 
         ClassType.CORE_UTILS.addImportsTo(imports, false);
@@ -1332,10 +1328,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 modelName + " " + methodName + "(JsonReader jsonReader) throws IOException", methodBlock -> {
                     if (canUseReadObjectHelper(propertiesManager)) {
                         methodBlock.line("return %s.readObject(jsonReader, %s::new, (%s, %s, reader) -> {",
-                            modelName.equals(ClientUtilitiesTemplate.getClassName())
-                                ? ClientUtilitiesTemplate.getFullClassName()
-                                : ClientUtilitiesTemplate.getClassName(),
-                            modelName, propertiesManager.getDeserializedModelName(),
+                            ClientUtilitiesTemplate.getFullClassName(), modelName,
+                            propertiesManager.getDeserializedModelName(),
                             propertiesManager.getJsonReaderFieldNameVariableName());
                         methodBlock.indent(() -> {
                             AtomicReference<JavaIfBlock> ifBlockReference = new AtomicReference<>();

@@ -243,8 +243,7 @@ public final class ItemsClientImpl implements ItemsClient {
                             ListResult.class, this.client.getContext())
                         .last()
                         .flatMap(this.client::getLroFinalResultOrError))
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res.getT1(), res.getT2().items(), res.getT2().nextLink(), null));
+                .map(res -> createPagedResponse(res.getT1(), res.getT2().items(), res.getT2().nextLink(), null));
         }, () -> this.client.getContext());
     }
 
@@ -308,8 +307,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.summary(this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -372,8 +370,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.list2(this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -480,8 +477,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.list3(this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -607,8 +603,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.listNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -669,8 +664,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.summaryNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -732,8 +726,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.list2Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
@@ -795,8 +788,7 @@ public final class ItemsClientImpl implements ItemsClient {
         }
         return withContext(
             context -> service.list3Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
-                .<PagedResponse<Result>>map(
-                    res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
             () -> this.client.getContext());
     }
 
