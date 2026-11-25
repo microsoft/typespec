@@ -279,7 +279,7 @@ describe("nullable union", () => {
           X{"\n"}Y
         </cs.EnumDeclaration>
         <hbr />
-        <TypeExpression type={variant.type as ModelProperty["type"]} />
+        <TypeExpression type={variant} />
       </Wrapper>,
     ).toRenderTo(`
       enum Inner

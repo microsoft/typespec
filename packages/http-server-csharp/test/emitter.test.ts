@@ -261,6 +261,64 @@ it("emits shared nested-union members once in diamond-shaped union graphs", asyn
   expect(diamondState?.match(/JsonStringEnumMemberName\("shared"\)/g)).toHaveLength(1);
 });
 
+it("resolves flattened union-enum defaults in emitted error constructors", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      union Terminal {
+        Done: "done",
+      }
+
+      union State {
+        Pending: "pending",
+        Terminal,
+      }
+
+      @error
+      model ApiError {
+        state: State = "done";
+      }
+
+      op read(): ApiError;
+    `),
+    { "skip-format": true },
+  );
+  const error = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/ApiError.cs"),
+  )?.[1];
+
+  expect(error).toContain("State state = State.Done");
+  expect(error).not.toContain('State state = "done"');
+});
+
+it("preserves same-valued members in flat union enums", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      union Status {
+        First: "same",
+        Second: "same",
+      }
+
+      model Resource {
+        status: Status;
+      }
+
+      op read(): Resource;
+    `),
+    { "skip-format": true },
+  );
+  const files = [...result.fs.fs.entries()];
+  const status = files.find(([path]) => path.endsWith("/generated/models/Status.cs"))?.[1];
+  const resource = files.find(([path]) => path.endsWith("/generated/models/Resource.cs"))?.[1];
+
+  expect(status).toContain("public enum Status");
+  expect(status?.match(/JsonStringEnumMemberName\("same"\)/g)).toHaveLength(2);
+  expect(status).toContain("First,");
+  expect(status).toMatch(/Second,?\r?\n}/);
+  expect(resource).toContain("public Status Status { get; set; }");
+});
+
 it("terminates safely for recursive string unions without emitting enums", async () => {
   const [result] = await compileAndDiagnose(
     tester,

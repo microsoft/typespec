@@ -12,6 +12,7 @@ import {
 import {
   getAllProperties,
   getDefaultValueString,
+  getEnumDefaultInitializer,
   getErrorStatusCode,
   getLiteralValue,
   isDuplicateExceptionName,
@@ -32,7 +33,9 @@ export function getErrorConstructor(program: Program, model: Model, className: s
   const sortedProps = props
     .filter((p) => !isStatusCode(program, p))
     .map((prop) => {
-      const defaultValue = prop.defaultValue ? getDefaultValueString(prop.defaultValue) : undefined;
+      const defaultValue =
+        getEnumDefaultInitializer(prop, namePolicy) ??
+        (prop.defaultValue ? getDefaultValueString(prop.defaultValue) : undefined);
       const literalValue = getLiteralValue(prop.type);
       return { prop, defaultValue: defaultValue ?? literalValue };
     })

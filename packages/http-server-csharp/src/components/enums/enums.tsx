@@ -204,18 +204,15 @@ function getFlattenedUnionEnumMembers(
       const name = typeof variant.name === "string" ? variant.name : variant.type.value;
       const generatedName = namePolicy.getName(name, "enum-member");
       const existingValue = memberNames.get(generatedName);
-      const existingName = memberValues.get(variant.type.value);
 
-      // Identical members can be reached through multiple nested unions, but
-      // conflicting names or values cannot be represented unambiguously in the
-      // generated C# enum or its default-value references.
-      if (
-        (existingValue !== undefined && existingValue !== variant.type.value) ||
-        (existingName !== undefined && existingName !== generatedName)
-      ) {
+      // Conflicting names cannot be represented unambiguously in the generated
+      // C# enum or its default-value references. Same-valued direct aliases are
+      // valid TypeSpec union members, however, and must remain distinct public
+      // enum members just as they were before nested-union flattening.
+      if (existingValue !== undefined && existingValue !== variant.type.value) {
         return undefined;
       }
-      if (existingValue === undefined && existingName === undefined) {
+      if (existingValue === undefined) {
         memberNames.set(generatedName, variant.type.value);
         memberValues.set(variant.type.value, generatedName);
         members.push({ name, value: variant.type.value, variant });
