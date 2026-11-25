@@ -684,6 +684,52 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task SerializationReconciliationDistinguishesNullableValueTypesFromReferenceAnnotations()
+        {
+            var model = new TestTypeProvider();
+            var serialization = new TestConstructorTypeProvider("TestName", "Test");
+            await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            var nullableValue = new CSharpType("Value", "Test", true, true, null, [], true, true);
+            var reference = new CSharpType("Value", "Test", false, false, null, [], true, false);
+            var valueConstructor = CreateConstructor(model, nullableValue);
+            var referenceConstructor = CreateConstructor(model, reference.WithNullable(true));
+            model.Update(constructors: [valueConstructor, referenceConstructor], serializations: [serialization]);
+            serialization.ConstructorProviders = [CreateConstructor(serialization, reference)];
+
+            CSharpGen.FilterAllCustomizedMembers(CodeModelGenerator.Instance.OutputLibrary);
+
+            Assert.That(model.Constructors, Is.EqualTo(new[] { valueConstructor, referenceConstructor }));
+            Assert.That(serialization.Constructors, Is.Empty);
+
+            static ConstructorProvider CreateConstructor(TypeProvider provider, CSharpType type) => new(
+                new ConstructorSignature(provider.Type, $"", MethodSignatureModifiers.Internal, [new ParameterProvider("value", $"", type)]),
+                MethodBodyStatement.Empty,
+                provider);
+        }
+
+        [Test]
+        public async Task DuplicateConstructorKeepsFirstSerializationDeclaration()
+        {
+            var model = new TestTypeProvider();
+            var first = new TestConstructorTypeProvider("TestName", "Test");
+            var second = new TestConstructorTypeProvider("TestName", "Test");
+            await MockHelpers.LoadMockGeneratorAsync(createOutputLibrary: () => new TestOutputLibrary(model));
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(first.Type, $"", MethodSignatureModifiers.Internal, []),
+                MethodBodyStatement.Empty, first);
+            first.ConstructorProviders = [constructor];
+            second.ConstructorProviders = [new ConstructorProvider(
+                new ConstructorSignature(second.Type, $"", MethodSignatureModifiers.Internal, []),
+                MethodBodyStatement.Empty, second)];
+            model.Update(serializations: [first, second]);
+
+            CSharpGen.FilterAllCustomizedMembers(CodeModelGenerator.Instance.OutputLibrary);
+
+            Assert.That(first.Constructors, Is.EqualTo(new[] { constructor }));
+            Assert.That(second.Constructors, Is.Empty);
+        }
+
+        [Test]
         public async Task SerializationConstructorsWithDifferentNestedValueNullabilityRemainDistinct()
         {
             var model = new MutableConstructorModelProvider();

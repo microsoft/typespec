@@ -359,7 +359,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             : Constructors;
 
         internal IEnumerable<TypeProvider> GetSerializationPartials()
-            => SerializationProviders.Where(serialization => ConstructorProvider.HaveSameType(Type, serialization.Type));
+            => SerializationProviders.Where(serialization => Type.HasSameSignatureType(serialization.Type));
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= ApplyCustomizationFilter(BuildFields());
@@ -1356,7 +1356,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
             foreach (var customConstructor in customConstructors)
             {
-                if (ConstructorProvider.HasSameSignature(customConstructor, constructor, allowUnqualifiedTypes: true))
+                if (ConstructorProvider.MatchesCustomization(customConstructor, constructor))
                 {
                     return false;
                 }

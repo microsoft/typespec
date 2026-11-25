@@ -203,20 +203,12 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void RemoveDuplicateSerializationConstructors(TypeProvider typeProvider)
         {
-            var constructors = new List<ConstructorProvider>(typeProvider.GetEffectiveDeclaredConstructors());
+            var seen = new HashSet<ConstructorProvider>(typeProvider.GetEffectiveDeclaredConstructors(), ConstructorProvider.SignatureComparer);
             foreach (var serialization in typeProvider.GetSerializationPartials())
             {
                 var serializationConstructors = serialization.Constructors;
-                var uniqueConstructors = new List<ConstructorProvider>();
-                foreach (var constructor in serializationConstructors)
-                {
-                    if (!constructors.Any(existing => ConstructorProvider.HasSameSignature(existing, constructor)))
-                    {
-                        constructors.Add(constructor);
-                        uniqueConstructors.Add(constructor);
-                    }
-                }
-                if (uniqueConstructors.Count != serializationConstructors.Count)
+                var uniqueConstructors = serializationConstructors.Where(seen.Add).ToArray();
+                if (uniqueConstructors.Length != serializationConstructors.Count)
                 {
                     serialization.Update(constructors: uniqueConstructors);
                 }

@@ -74,46 +74,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
-        internal static bool HasSameSignature(ConstructorProvider first, ConstructorProvider second, bool allowUnqualifiedTypes = false)
+        internal static IEqualityComparer<ConstructorProvider> SignatureComparer { get; } = new ConstructorSignatureComparer();
+
+        internal static bool MatchesCustomization(ConstructorProvider custom, ConstructorProvider generated)
+            => HasSameSignature(custom, generated, allowUnqualifiedTypes: true);
+
+        private static bool HasSameSignature(ConstructorProvider first, ConstructorProvider second, bool allowUnqualifiedTypes = false)
             => first.Signature.Name == second.Signature.Name &&
                 first.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) == second.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
                 first.Signature.Parameters.Count == second.Signature.Parameters.Count &&
                 first.Signature.Parameters.Zip(second.Signature.Parameters).All(parameters =>
-                    HaveSameType(parameters.First.Type, parameters.Second.Type, allowUnqualifiedTypes) &&
+                    parameters.First.Type.HasSameSignatureType(parameters.Second.Type, allowUnqualifiedTypes) &&
                     IsByReference(parameters.First) == IsByReference(parameters.Second));
 
         private static bool IsByReference(ParameterProvider parameter)
             => parameter.IsRef || parameter.IsIn || parameter.IsOut || parameter.HasUnsupportedParameterModifiers;
 
-        internal static bool HaveSameType(CSharpType first, CSharpType second, bool allowUnqualifiedTypes = false)
+        private sealed class ConstructorSignatureComparer : IEqualityComparer<ConstructorProvider>
         {
-            if (first.IsArray || second.IsArray)
-            {
-                return first.IsArray && second.IsArray && first.ArrayRank == second.ArrayRank &&
-                    HaveSameType(first.ElementType, second.ElementType, allowUnqualifiedTypes);
-            }
-            if (first.Arguments.Count != second.Arguments.Count ||
-                ((first.IsValueType || second.IsValueType) && first.IsNullable != second.IsNullable))
-            {
-                return false;
-            }
-            if ((first.Namespace != second.Namespace && (!allowUnqualifiedTypes || first.Namespace.Length != 0)) ||
-                first.Name != second.Name)
-            {
-                return false;
-            }
-            if (first.DeclaringType is { } firstDeclaringType)
-            {
-                if (second.DeclaringType is not { } secondDeclaringType || !HaveSameType(firstDeclaringType, secondDeclaringType, allowUnqualifiedTypes))
-                {
-                    return false;
-                }
-            }
-            else if (second.DeclaringType is not null && (!allowUnqualifiedTypes || first.Namespace.Length != 0))
-            {
-                return false;
-            }
-            return first.Arguments.Zip(second.Arguments).All(arguments => HaveSameType(arguments.First, arguments.Second, allowUnqualifiedTypes));
+            public bool Equals(ConstructorProvider? x, ConstructorProvider? y)
+                => ReferenceEquals(x, y) || (x is not null && y is not null && HasSameSignature(x, y));
+
+            public int GetHashCode(ConstructorProvider constructor)
+                => System.HashCode.Combine(constructor.Signature.Name, constructor.Signature.Parameters.Count,
+                    constructor.Signature.Modifiers & MethodSignatureModifiers.Static);
         }
 
         public void Update(

@@ -713,6 +713,35 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return true;
         }
 
+        internal bool HasSameSignatureType(CSharpType? other, bool allowUnqualifiedTypes = false)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (other is null)
+            {
+                return false;
+            }
+            if (IsArray || other.IsArray)
+            {
+                return IsArray && other.IsArray && ArrayRank == other.ArrayRank &&
+                    ElementType.HasSameSignatureType(other.ElementType, allowUnqualifiedTypes);
+            }
+
+            var isUnqualified = allowUnqualifiedTypes && Namespace.Length == 0;
+            return Name == other.Name &&
+                (isUnqualified || Namespace == other.Namespace) &&
+                (allowUnqualifiedTypes
+                    ? !(IsValueType || other.IsValueType) || IsNullable == other.IsNullable
+                    : (IsValueType && IsNullable) == (other.IsValueType && other.IsNullable)) &&
+                (DeclaringType is null
+                    ? isUnqualified || other.DeclaringType is null
+                    : DeclaringType.HasSameSignatureType(other.DeclaringType, allowUnqualifiedTypes)) &&
+                Arguments.Count == other.Arguments.Count &&
+                Arguments.Zip(other.Arguments).All(pair => pair.First.HasSameSignatureType(pair.Second, allowUnqualifiedTypes));
+        }
+
         private bool IsNameMatch(CSharpType other)
         {
             if (string.IsNullOrEmpty(Namespace))
