@@ -718,15 +718,19 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 new ConstructorSignature(first.Type, $"", MethodSignatureModifiers.Internal, []),
                 MethodBodyStatement.Empty, first);
             first.ConstructorProviders = [constructor];
-            second.ConstructorProviders = [new ConstructorProvider(
-                new ConstructorSignature(second.Type, $"", MethodSignatureModifiers.Internal, []),
-                MethodBodyStatement.Empty, second)];
+            var before = CreateConstructor([new ParameterProvider("value", $"", typeof(int))]);
+            var after = CreateConstructor([new ParameterProvider("value", $"", typeof(string))]);
+            second.ConstructorProviders = [before, CreateConstructor([]), after, CreateConstructor([])];
             model.Update(serializations: [first, second]);
 
             CSharpGen.FilterAllCustomizedMembers(CodeModelGenerator.Instance.OutputLibrary);
 
             Assert.That(first.Constructors, Is.EqualTo(new[] { constructor }));
-            Assert.That(second.Constructors, Is.Empty);
+            Assert.That(second.Constructors, Is.EqualTo(new[] { before, after }));
+
+            ConstructorProvider CreateConstructor(IReadOnlyList<ParameterProvider> parameters) => new(
+                new ConstructorSignature(second.Type, $"", MethodSignatureModifiers.Internal, parameters),
+                MethodBodyStatement.Empty, second);
         }
 
         [Test]

@@ -207,8 +207,20 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var serialization in typeProvider.GetSerializationPartials())
             {
                 var serializationConstructors = serialization.Constructors;
-                var uniqueConstructors = serializationConstructors.Where(seen.Add).ToArray();
-                if (uniqueConstructors.Length != serializationConstructors.Count)
+                List<ConstructorProvider>? uniqueConstructors = null;
+                for (int i = 0; i < serializationConstructors.Count; i++)
+                {
+                    var constructor = serializationConstructors[i];
+                    if (seen.Add(constructor))
+                    {
+                        uniqueConstructors?.Add(constructor);
+                    }
+                    else
+                    {
+                        uniqueConstructors ??= [.. serializationConstructors.Take(i)];
+                    }
+                }
+                if (uniqueConstructors is not null)
                 {
                     serialization.Update(constructors: uniqueConstructors);
                 }
