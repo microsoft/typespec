@@ -1,5 +1,5 @@
 import type { AstPath, Doc, Printer } from "prettier";
-import { builders } from "prettier/doc";
+import { builders, utils as docUtils } from "prettier/doc";
 import { compilerAssert } from "../../core/diagnostics.js";
 import {
   printIdentifier as printIdentifierString,
@@ -68,7 +68,12 @@ import { NodeFlags, SyntaxKind } from "../../core/types.js";
 import type { FlattenedNamespaceStatementNode } from "../types.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
-import type { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
+import type {
+  DecorableNode,
+  InlineDecoratorsLayout,
+  PrettierChildPrint,
+  TypeSpecPrettierOptions,
+} from "./types.js";
 import { util } from "./util.js";
 
 const {
@@ -77,6 +82,7 @@ const {
   conditionalGroup,
   group,
   hardline,
+  hardlineWithoutBreakParent,
   ifBreak,
   indent,
   join,
@@ -110,6 +116,7 @@ export function printTypeSpec(
   path: AstPath<Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
+  args?: unknown,
 ): Doc {
   const node = path.node;
   if (isDeclarationExpressionNode(node)) {
@@ -119,7 +126,10 @@ export function printTypeSpec(
   }
   const docs = printDocComments(path, options, print);
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
-  const printedNode = printNode(path, options, print);
+  // `args` comes from joinMembersInBlock, or is the node index from `path.map(print, ...)`.
+  const decoratorsLayout =
+    typeof args === "object" && args !== null ? (args as InlineDecoratorsLayout) : undefined;
+  const printedNode = printNode(path, options, print, decoratorsLayout);
   const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
   const parts: Doc[] = [docs, directives, value];
   if (node.kind === SyntaxKind.TypeSpecScript) {
@@ -196,6 +206,7 @@ export function printNode(
   path: AstPath<Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
+  decoratorsLayout?: InlineDecoratorsLayout,
 ): Doc {
   const node: Node = path.node;
 
@@ -262,7 +273,12 @@ export function printNode(
     case SyntaxKind.ModelExpression:
       return printModelExpression(path as AstPath<ModelExpressionNode>, options, print);
     case SyntaxKind.ModelProperty:
-      return printModelProperty(path as AstPath<ModelPropertyNode>, options, print);
+      return printModelProperty(
+        path as AstPath<ModelPropertyNode>,
+        options,
+        print,
+        decoratorsLayout,
+      );
     case SyntaxKind.DecoratorExpression:
       return printDecorator(path as AstPath<DecoratorExpressionNode>, options, print);
     case SyntaxKind.AugmentDecoratorStatement:
@@ -280,11 +296,11 @@ export function printNode(
     case SyntaxKind.MemberExpression:
       return printMemberExpression(path as AstPath<MemberExpressionNode>, options, print);
     case SyntaxKind.EnumMember:
-      return printEnumMember(path as AstPath<EnumMemberNode>, options, print);
+      return printEnumMember(path as AstPath<EnumMemberNode>, options, print, decoratorsLayout);
     case SyntaxKind.EnumSpreadMember:
       return printEnumSpreadMember(path as AstPath<EnumSpreadMemberNode>, options, print);
     case SyntaxKind.UnionVariant:
-      return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
+      return printUnionVariant(path as AstPath<UnionVariantNode>, options, print, decoratorsLayout);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
     case SyntaxKind.TemplateArgument:
@@ -631,7 +647,7 @@ export function printDecorators(
   path: AstPath<DecorableNode>,
   options: object,
   print: PrettierChildPrint,
-  { tryInline }: { tryInline: boolean },
+  { tryInline, layout }: { tryInline: boolean; layout?: InlineDecoratorsLayout },
 ): { decorators: Doc; multiline: boolean } {
   const node = path.node;
   if (node.decorators.length === 0) {
@@ -641,8 +657,15 @@ export function printDecorators(
   const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline });
   const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
+  if (layout?.kind === "keep-inline") {
+    // Also removes the line breaks in the decorator arguments.
+    return { decorators: docUtils.removeLines(decorators), multiline: false };
+  }
+  const mayBreak = layout?.kind === "may-break" ? layout : undefined;
   return {
-    decorators: group([shouldBreak ? breakParent : "", decorators]),
+    decorators: group([shouldBreak ? breakParent : "", mayBreak?.leading ?? "", decorators], {
+      id: mayBreak?.groupId,
+    }),
     multiline: shouldBreak,
   };
 }
@@ -870,12 +893,14 @@ export function printEnumMember(
   path: AstPath<EnumMemberNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
+  decoratorsLayout?: InlineDecoratorsLayout,
 ) {
   const node = path.node;
   const id = printIdentifier(node.id, "allow-reserved");
   const value = node.value ? [": ", path.call(print, "value")] : "";
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
+    layout: decoratorsLayout,
   });
   return [decorators, id, value];
 }
@@ -934,11 +959,13 @@ export function printUnionVariant(
   path: AstPath<UnionVariantNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
+  decoratorsLayout?: InlineDecoratorsLayout,
 ) {
   const id =
     path.node.id === undefined ? "" : [printIdentifier(path.node.id, "allow-reserved"), ": "];
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
+    layout: decoratorsLayout,
   });
   return [decorators, id, path.call(print, "value")];
 }
@@ -1333,30 +1360,90 @@ function joinMembersInBlock<T extends Node>(
   regularLine: Doc = hardline,
 ): Doc {
   const doc: Doc[] = [regularLine];
-  const propertyContainerNode = path.node;
+  const layouts: MemberLayout[] = [];
+  path.each((item) => {
+    layouts.push(getMemberLayout(item, options, print, layouts[layouts.length - 1]));
+  }, member as any);
 
-  let newLineBeforeNextProp = false;
-  path.each((item, propertyIndex) => {
-    const isFirst = propertyIndex === 0;
-    const isLast = propertyIndex === (propertyContainerNode[member] as any).length - 1;
-    const shouldWrapInNewLines = shouldWrapMemberInNewLines(item as any, options);
+  path.each((item, index) => {
+    const previous = index > 0 ? layouts[index - 1] : undefined;
+    const current = layouts[index];
+    const next = index < layouts.length - 1 ? layouts[index + 1] : undefined;
 
-    if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
+    if (previous && (previous.kind === "wrap" || current.kind === "wrap")) {
       doc.push(hardline);
-      newLineBeforeNextProp = false;
     }
-    doc.push(print(item));
-    if (isLast) {
+    doc.push(print(item, getDecoratorsLayout(previous, current)));
+    if (next === undefined) {
       doc.push(ifBreak(separator));
     } else {
       doc.push(separator);
       doc.push(regularLine);
-      if (shouldWrapInNewLines) {
-        newLineBeforeNextProp = true;
+      // Blank line after the member if its decorators broke. A wrapped next member adds its own.
+      if (current.kind === "may-break" && next.kind !== "wrap") {
+        doc.push(ifBreak(hardlineWithoutBreakParent, "", { groupId: current.groupId }));
       }
     }
   }, member as any);
   return doc;
+}
+
+/**
+ * - `wrap`: always has blank lines around it.
+ * - `may-break`: has blank lines around it only if its inline decorators break (line too long).
+ * - `keep-inline`: has a directive, which prints above the decorators. A blank line before the member
+ *   would have to print before Prettier decides whether the decorators break, so they stay inline.
+ * - `plain`: no blank lines.
+ */
+type MemberLayout =
+  | { readonly kind: "wrap" | "keep-inline" | "plain" }
+  | { readonly kind: "may-break"; readonly groupId: symbol };
+
+function getMemberLayout(
+  path: AstPath<any>,
+  options: any,
+  print: PrettierChildPrint,
+  previous: MemberLayout | undefined,
+): MemberLayout {
+  if (shouldWrapMemberInNewLines(path, options)) {
+    return { kind: "wrap" };
+  }
+  const node = path.node;
+  if (!node.decorators?.length) {
+    return { kind: "plain" };
+  }
+  // Decorators with a forced line break, e.g. from a line comment, keep the existing layout.
+  if (docUtils.willBreak(path.map((x) => print(x), "decorators"))) {
+    return { kind: "plain" };
+  }
+  // No blank line is needed before the first member or after a wrapped member.
+  if (node.directives?.length && previous !== undefined && previous.kind !== "wrap") {
+    return { kind: "keep-inline" };
+  }
+  return { kind: "may-break", groupId: Symbol("decorators") };
+}
+
+function getDecoratorsLayout(
+  previous: MemberLayout | undefined,
+  current: MemberLayout,
+): InlineDecoratorsLayout | undefined {
+  if (current.kind === "keep-inline") {
+    return { kind: "keep-inline" };
+  }
+  if (current.kind !== "may-break") {
+    return undefined;
+  }
+  // Blank line before the member, at the start of the decorator group so it prints only if the
+  // group breaks. None after `{`, and none if the previous member already printed one after itself.
+  let leading: Doc = "";
+  if (previous !== undefined && previous.kind !== "wrap") {
+    const blankLineIfBreak = ifBreak(hardlineWithoutBreakParent, "");
+    leading =
+      previous.kind === "may-break"
+        ? ifBreak("", blankLineIfBreak, { groupId: previous.groupId })
+        : blankLineIfBreak;
+  }
+  return { kind: "may-break", groupId: current.groupId, leading };
 }
 
 /**
@@ -1418,10 +1505,12 @@ export function printModelProperty(
   path: AstPath<ModelPropertyNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
+  decoratorsLayout?: InlineDecoratorsLayout,
 ) {
   const node = path.node;
   const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
     tryInline: DecoratorsTryInline.modelProperty,
+    layout: decoratorsLayout,
   });
   const id = printIdentifier(node.id, "allow-reserved");
   return [

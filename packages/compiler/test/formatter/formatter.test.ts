@@ -443,6 +443,36 @@ model Foo {
       });
     });
 
+    it("wrap in new lines properties whose inline decorators split because the line is too long", async () => {
+      await assertFormat({
+        code: `
+model Pet {
+  name: string;
+  @minItems(1) @maxItems(10) favoriteToysAndOtherBelongingsAtHome?: PetToyName[];
+  @minItems(1) @maxItems(10) favoriteFoodsAndOtherTreatsForTheEvening?: PetFood[];
+  @foo
+  age: int32;
+}
+  `,
+        expected: `
+model Pet {
+  name: string;
+
+  @minItems(1)
+  @maxItems(10)
+  favoriteToysAndOtherBelongingsAtHome?: PetToyName[];
+
+  @minItems(1)
+  @maxItems(10)
+  favoriteFoodsAndOtherTreatsForTheEvening?: PetFood[];
+
+  @foo
+  age: int32;
+}
+  `,
+      });
+    });
+
     it("wrap in new lines properties with line comments", async () => {
       await assertFormat({
         code: `
@@ -2196,6 +2226,26 @@ enum Foo {
     });
   });
 
+  it("separate members whose inline decorators split because the line is too long", async () => {
+    await assertFormat({
+      code: `
+enum Color {
+  @doc("the color of the sky on a clear day") @summary("light blue") skyBlue: "sky-blue",
+  green,
+}
+`,
+      expected: `
+enum Color {
+  @doc("the color of the sky on a clear day")
+  @summary("light blue")
+  skyBlue: "sky-blue",
+
+  green,
+}
+`,
+    });
+  });
+
   it("format spread members", async () => {
     await assertFormat({
       code: `
@@ -2303,6 +2353,29 @@ union Foo {
 
   @doc("third")
   c: C,
+}
+`,
+    });
+  });
+
+  it("separate variants whose inline decorators split because the line is too long", async () => {
+    await assertFormat({
+      code: `
+union Pet {
+  cat: Cat,
+  @doc("a dog that lives in the house with the family") @summary("indoor") indoorDog: Dog,
+  fish: Fish,
+}
+`,
+      expected: `
+union Pet {
+  cat: Cat,
+
+  @doc("a dog that lives in the house with the family")
+  @summary("indoor")
+  indoorDog: Dog,
+
+  fish: Fish,
 }
 `,
     });
@@ -2829,6 +2902,27 @@ model Foo {
   @decorate("args")
   @decorate
   prop2: string;
+}
+`,
+    });
+  });
+
+  it("keeps inline decorators of a model property with a directive on one line even if too long", async () => {
+    await assertFormat({
+      code: `
+model Pet {
+  name: string;
+  #suppress "some-error" "because"
+  @minItems(1) @maxItems(10) favoriteToysAndOtherBelongingsAtHome?: PetToyName[];
+  age: int32;
+}
+`,
+      expected: `
+model Pet {
+  name: string;
+  #suppress "some-error" "because"
+  @minItems(1) @maxItems(10) favoriteToysAndOtherBelongingsAtHome?: PetToyName[];
+  age: int32;
 }
 `,
     });
