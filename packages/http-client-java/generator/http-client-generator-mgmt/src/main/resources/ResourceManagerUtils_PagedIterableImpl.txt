@@ -32,6 +32,11 @@ private static final class PagedIterableImpl<T, S> extends PagedIterable<S> {
     }
 
     @Override
+    public <U> PagedIterable<U> mapPage(Function<S, U> mapper) {
+        return new PagedIterableImpl<>(this, mapper);
+    }
+
+    @Override
     public Stream<PagedResponse<S>> streamByPage() {
         return pagedIterable.streamByPage().map(pageMapper);
     }

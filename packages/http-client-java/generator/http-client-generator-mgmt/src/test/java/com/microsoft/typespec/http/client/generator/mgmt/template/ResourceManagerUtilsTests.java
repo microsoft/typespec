@@ -6,6 +6,13 @@ package com.microsoft.typespec.http.client.generator.mgmt.template;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.HttpMethod;
+import com.azure.core.http.HttpRequest;
+import com.azure.core.http.rest.PagedFlux;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.http.rest.PagedResponse;
+import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.util.logging.ClientLogger;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -36,8 +43,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -46,7 +60,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import reactor.core.publisher.Mono;
 
 @Isolated("Fluent generation uses shared settings")
 public class ResourceManagerUtilsTests {
@@ -59,6 +76,7 @@ public class ResourceManagerUtilsTests {
     static Path compilationDirectory;
     private static URLClassLoader classLoader;
     private static Method parse;
+    private static Method mapPage;
 
     @BeforeAll
     public static void compileGeneratedHelper() throws Exception {
@@ -74,6 +92,9 @@ public class ResourceManagerUtilsTests {
         parse = classLoader.loadClass("ResourceManagerUtils")
             .getDeclaredMethod("getValueFromIdByParameterName", String.class, String.class, String.class);
         parse.setAccessible(true);
+        mapPage = classLoader.loadClass("ResourceManagerUtils")
+            .getDeclaredMethod("mapPage", PagedIterable.class, Function.class);
+        mapPage.setAccessible(true);
     }
 
     private static void compile(Path... sources) {
@@ -99,6 +120,108 @@ public class ResourceManagerUtilsTests {
 
     private static String value(String id, String template, String parameter) throws Exception {
         return (String) parse.invoke(null, id, template, parameter);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T, S> PagedIterable<S> mapPage(PagedIterable<T> source, Function<T, S> mapper) throws Exception {
+        return (PagedIterable<S>) mapPage.invoke(null, source, mapper);
+    }
+
+    private static PagedIterable<Integer> pagedSource(boolean async, List<String> requests) {
+        BiFunction<String, Integer, PagedResponse<Integer>> fetch = (token, size) -> {
+            requests.add(token + ":" + size);
+            return new PagedResponseBase<Void, Integer>(
+                new HttpRequest(HttpMethod.GET, "https://example.com/resources"), 206,
+                new HttpHeaders().set("x-ms-request-id", "request-id"), token == null ? List.of(1, 2) : List.of(3, 4),
+                token == null ? "next" : null, null);
+        };
+        return async
+            ? new PagedIterable<>(new PagedFlux<>(size -> Mono.fromSupplier(() -> fetch.apply(null, size)),
+                (token, size) -> Mono.fromSupplier(() -> fetch.apply(token, size))))
+            : new PagedIterable<>(size -> fetch.apply(null, size), fetch);
+    }
+
+    private static Stream<Arguments> pageMappingCases() {
+        return Stream.of(false, true)
+            .flatMap(async -> Stream.of(false, true)
+                .flatMap(useStream -> Stream.of(false, true)
+                    .flatMap(resume -> Stream.of(false, true)
+                        .map(withPageSize -> Arguments.of(async, useStream, resume, withPageSize)))));
+    }
+
+    @ParameterizedTest
+    @MethodSource("pageMappingCases")
+    public void chainedPageMappingPreservesPagingOptionsAndMetadata(boolean async, boolean useStream, boolean resume,
+        boolean withPageSize) throws Exception {
+        List<String> requests = new ArrayList<>();
+        PagedIterable<String> mapped
+            = mapPage(pagedSource(async, requests), value -> value + 10).mapPage(value -> "item-" + value)
+                .mapPage(String::toUpperCase);
+        Assertions.assertTrue(requests.isEmpty());
+
+        List<PagedResponse<String>> pages;
+        if (useStream) {
+            Stream<PagedResponse<String>> stream = resume
+                ? (withPageSize ? mapped.streamByPage("next", 2) : mapped.streamByPage("next"))
+                : (withPageSize ? mapped.streamByPage(2) : mapped.streamByPage());
+            try (stream) {
+                pages = stream.collect(Collectors.toList());
+            }
+        } else {
+            Iterable<PagedResponse<String>> iterable = resume
+                ? (withPageSize ? mapped.iterableByPage("next", 2) : mapped.iterableByPage("next"))
+                : (withPageSize ? mapped.iterableByPage(2) : mapped.iterableByPage());
+            pages = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
+        }
+
+        String size = withPageSize ? "2" : "null";
+        Assertions.assertEquals(resume ? List.of("next:" + size) : List.of("null:" + size, "next:" + size), requests);
+        Assertions.assertEquals(resume ? 1 : 2, pages.size());
+        Assertions.assertEquals(resume ? List.of("ITEM-13", "ITEM-14") : List.of("ITEM-11", "ITEM-12"),
+            pages.get(0).getValue());
+        Assertions.assertEquals(List.of("ITEM-13", "ITEM-14"), pages.get(pages.size() - 1).getValue());
+        Assertions.assertEquals(resume ? null : "next", pages.get(0).getContinuationToken());
+        Assertions.assertNull(pages.get(pages.size() - 1).getContinuationToken());
+        pages.forEach(page -> {
+            Assertions.assertEquals("https://example.com/resources", page.getRequest().getUrl().toString());
+            Assertions.assertEquals(206, page.getStatusCode());
+            Assertions.assertEquals("request-id", page.getHeaders().getValue("x-ms-request-id"));
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void chainedPageMappingIsLazyForItems(boolean async) throws Exception {
+        AtomicInteger mappedItems = new AtomicInteger();
+        AtomicInteger chainedItems = new AtomicInteger();
+        PagedIterable<String> mapped = mapPage(pagedSource(async, new ArrayList<>()), value -> {
+            mappedItems.incrementAndGet();
+            return value;
+        }).mapPage(value -> {
+            chainedItems.incrementAndGet();
+            if (value == 2) {
+                throw new IllegalArgumentException("Unconsumed resource");
+            }
+            return value.toString();
+        });
+        Assertions.assertEquals(0, mappedItems.get());
+        Assertions.assertEquals(0, chainedItems.get());
+        try (Stream<String> stream = mapped.stream()) {
+            Assertions.assertEquals("1", stream.findFirst().orElseThrow());
+        }
+        Assertions.assertEquals(1, mappedItems.get());
+        Assertions.assertEquals(1, chainedItems.get());
+
+        mappedItems.set(0);
+        chainedItems.set(0);
+        Iterator<String> iterator = mapped.iterator();
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals(0, mappedItems.get());
+        Assertions.assertEquals(0, chainedItems.get());
+        Assertions.assertEquals("1", iterator.next());
+        Assertions.assertEquals(1, mappedItems.get());
+        Assertions.assertEquals(1, chainedItems.get());
+        Assertions.assertThrows(IllegalArgumentException.class, iterator::next);
     }
 
     @ParameterizedTest
