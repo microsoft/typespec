@@ -115,17 +115,17 @@ catalogs:
       specifier: ^1.65.0
       version: 1.65.0
     '@scalar/json-magic':
-      specifier: ^0.19.0
-      version: 0.19.0
+      specifier: ^0.20.1
+      version: 0.20.1
     '@scalar/openapi-parser':
-      specifier: ^0.29.21
-      version: 0.29.21
+      specifier: ^0.29.24
+      version: 0.29.24
     '@scalar/openapi-types':
-      specifier: ^0.9.9
-      version: 0.9.9
+      specifier: ^0.9.10
+      version: 0.9.10
     '@scalar/types':
-      specifier: ^0.28.0
-      version: 0.28.0
+      specifier: ^0.30.0
+      version: 0.30.0
     '@storybook/react-vite':
       specifier: ^10.6.7
       version: 10.6.7
@@ -1696,16 +1696,16 @@ importers:
     dependencies:
       '@scalar/json-magic':
         specifier: 'catalog:'
-        version: 0.19.0
+        version: 0.20.1
       '@scalar/openapi-parser':
         specifier: 'catalog:'
-        version: 0.29.21
+        version: 0.29.24
       '@scalar/openapi-types':
         specifier: 'catalog:'
-        version: 0.9.9
+        version: 0.9.10
       '@scalar/types':
         specifier: 'catalog:'
-        version: 0.28.0
+        version: 0.30.0
       '@typespec/asset-emitter':
         specifier: workspace:^
         version: link:../asset-emitter
@@ -6141,36 +6141,36 @@ packages:
     resolution: {integrity: sha512-acP68tGx/DJEIQgTqj/xStBRaghN7axV+uAjNasDjVXgHgHaLQ1f16/bbXtw6mNLjURhTORD4fdfbOZM7kyWcw==}
     engines: {node: '>=20.9.0'}
 
-  '@scalar/helpers@0.17.1':
-    resolution: {integrity: sha512-zkVpcxCzaQfZ0GrPPbqXZUH4N2sHubFyW+aIRln7Ovv1P6jAN3we3O0/LD5qCRAROalA14pEqplp6eOtc7BWlA==}
+  '@scalar/helpers@0.18.1':
+    resolution: {integrity: sha512-5/FsnE/4bCbr+h0OOgT1Zlnl4G7MKgPsZlzDN4KiBjpVCCZNHn7Px9gLOqtQSfsSqM/JFwUW+voZNVTODiL2BA==}
     engines: {node: '>=22'}
 
-  '@scalar/json-magic@0.19.0':
-    resolution: {integrity: sha512-o/0FhpT5dw1VInLmxXrzZ8p+ptx77R3yUOdwkJasAcBfKCHdvBNZPyB2qzJV4qclbGio/IVj6uh05XxmzLo36w==}
+  '@scalar/json-magic@0.20.1':
+    resolution: {integrity: sha512-yF9eqxwa+A0ZMw8Pr8dgcHPs4gI0+OCknhxXbtC+5eCb5FS25kbLASl9TfbBS27LrbcXwg0fIsEpVZtliWhexQ==}
     engines: {node: '>=22.19.0'}
 
-  '@scalar/json-schema-validator@0.1.19':
-    resolution: {integrity: sha512-dSEgij9KhA2EWoJQtqzxwWzxUiGi6sGjvzoed+fLalIU7JVMbvtKzUXvUFG7L4R5Yjh3DVK483F/jGfpn7T4qQ==}
+  '@scalar/json-schema-validator@0.1.22':
+    resolution: {integrity: sha512-XqrXFeaQpUjIOf95pn6jz6fEulS6GWCTEi8rNIJqIE+QywZWSIEg3EnBJMkZNunGebJceKpF3t9O/5zzQQeF/w==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-parser@0.29.21':
-    resolution: {integrity: sha512-W7bltAuSGQLQ4vljdUOBFdVIXQlOK15rXLIFfHndmvHLWZ6QfA7Kt67gQFb2Aec+ET28Yru5Z9Bv59gsVB4iiQ==}
+  '@scalar/openapi-parser@0.29.24':
+    resolution: {integrity: sha512-sJhb1UqVg47n00u3slRHN+kkNH6NV6UGnFA/Sc8QG0GAixPxpQXiNACqoDNdoUnK8iCH/Zm3/Ska8CLHGGKJTQ==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-types@0.9.9':
-    resolution: {integrity: sha512-Z2NfKMNhtWJaEiYVU1pzVS+BT53ygotVA6y9reCx0jTcwqml9WPrNPumgjlgoZnBdP9pZU3+u86RNwwVAyArvA==}
+  '@scalar/openapi-types@0.9.10':
+    resolution: {integrity: sha512-rQVlvSLXvP3ljCY7BqKeJ07EjqtzJyaj1OTMVRVRBftmNmxupmmx1xNTnuLnaJIfGnrNEFLW7kyJofzH43wUPg==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-upgrader@0.4.8':
-    resolution: {integrity: sha512-HsOVdONiIwUm2Rwx6t8XY0uFqBRJrUmXWSi5aA3lhT5j1kwGVAbH3c3NC42Ku87/EC3KHVD1TwTosr8XULsjPQ==}
+  '@scalar/openapi-upgrader@0.4.11':
+    resolution: {integrity: sha512-Kpd6O0fx1QqrM8evUGeTh5b4NBDET3TnwWeeQkDvV9NSOiQ/asM58sLCnqRzwRid1JN+0xJRG2fX4dgIoX4m8g==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-validator@0.1.19':
-    resolution: {integrity: sha512-sUVk2/GO3OOrldTbnrB9VAiNmtmXoIAdEfZ+frEqw1LZmrWkJxOF0at3JPDdQPLhL+DRyYu10RzlpYrCM7D1eg==}
+  '@scalar/openapi-validator@0.1.22':
+    resolution: {integrity: sha512-ZH/1jEgO84CtoiF2xd1w0TXULjV0LspiT/KW41ApF6HDeNNZKqxYhJ7vhP376h7/olux3JyFL2FN0S/mlJ2ZwA==}
     engines: {node: '>=22'}
 
-  '@scalar/types@0.28.0':
-    resolution: {integrity: sha512-+VQQYE8ef8BCHHmHhdzQnt8dpKZwsiUurDq8d5hvExeXGP9OwtGlsGTzSOlPtMdEFswIaq43ZfjDoaqnS0EECQ==}
+  '@scalar/types@0.30.0':
+    resolution: {integrity: sha512-RK0fGYk+vR0ck424RmLMDdwVh8NzPkUHeKIUX6GroxlhG2kygRDdC9pC3zx6AhYSAVhmS3uTsbnspUV1rYTbyw==}
     engines: {node: '>=22'}
 
   '@scarf/scarf@1.4.0':
@@ -6800,6 +6800,7 @@ packages:
   '@typespec/ts-http-runtime@0.3.10':
     resolution: {integrity: sha512-vddvvtZ7sejSlCv+OIkn2ztjB1O31Fc2JsxI/YK725r3elXXlF/J3o3lbXJFRhoeWRWK1tjdZ+GTi6Fdtrp+EA==}
     engines: {node: '>=22.0.0'}
+    deprecated: A newer version 0.3.11 has been published.
 
   '@ungap/structured-clone@1.4.0':
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
@@ -10705,10 +10706,6 @@ packages:
 
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
-
-  undici@8.12.3:
-    resolution: {integrity: sha512-+fdndUTwBP86cVjihTp21hZHo7d6oj1c/47XPA3lL8mM0XHs+C4EkcjmgRsFnFk2f/UONGDy9ItBItmXsLOQHw==}
-    engines: {node: '>=22.19.0'}
 
   undici@8.12.4:
     resolution: {integrity: sha512-8Mx+uNKKER2bA4AdtedkqRbwUCIJFr2nJckXRe5yrDqzePqwLP7VNcctN8/XdmDSbF7mS+jJKIszlL+vbam1VA==}
@@ -15095,51 +15092,51 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@scalar/helpers@0.17.1': {}
+  '@scalar/helpers@0.18.1': {}
 
-  '@scalar/json-magic@0.19.0':
+  '@scalar/json-magic@0.20.1':
     dependencies:
-      '@scalar/helpers': 0.17.1
+      '@scalar/helpers': 0.18.1
       pathe: 2.0.3
-      undici: 8.12.3
+      undici: 8.12.4
       yaml: 2.9.1
 
-  '@scalar/json-schema-validator@0.1.19':
+  '@scalar/json-schema-validator@0.1.22':
     dependencies:
-      '@scalar/helpers': 0.17.1
-      '@scalar/types': 0.28.0
+      '@scalar/helpers': 0.18.1
+      '@scalar/types': 0.30.0
       ajv: 8.20.0
       ajv-draft-04: 1.0.0(ajv@8.20.0)
       ajv-formats: 3.0.1(ajv@8.20.0)
       yaml: 2.9.1
 
-  '@scalar/openapi-parser@0.29.21':
+  '@scalar/openapi-parser@0.29.24':
     dependencies:
-      '@scalar/helpers': 0.17.1
-      '@scalar/json-magic': 0.19.0
-      '@scalar/openapi-types': 0.9.9
-      '@scalar/openapi-upgrader': 0.4.8
-      '@scalar/openapi-validator': 0.1.19
-      '@scalar/types': 0.28.0
+      '@scalar/helpers': 0.18.1
+      '@scalar/json-magic': 0.20.1
+      '@scalar/openapi-types': 0.9.10
+      '@scalar/openapi-upgrader': 0.4.11
+      '@scalar/openapi-validator': 0.1.22
+      '@scalar/types': 0.30.0
       yaml: 2.9.1
 
-  '@scalar/openapi-types@0.9.9': {}
+  '@scalar/openapi-types@0.9.10': {}
 
-  '@scalar/openapi-upgrader@0.4.8':
+  '@scalar/openapi-upgrader@0.4.11':
     dependencies:
-      '@scalar/helpers': 0.17.1
-      '@scalar/openapi-types': 0.9.9
+      '@scalar/helpers': 0.18.1
+      '@scalar/openapi-types': 0.9.10
 
-  '@scalar/openapi-validator@0.1.19':
+  '@scalar/openapi-validator@0.1.22':
     dependencies:
-      '@scalar/helpers': 0.17.1
-      '@scalar/json-schema-validator': 0.1.19
-      '@scalar/types': 0.28.0
+      '@scalar/helpers': 0.18.1
+      '@scalar/json-schema-validator': 0.1.22
+      '@scalar/types': 0.30.0
       yaml: 2.9.1
 
-  '@scalar/types@0.28.0':
+  '@scalar/types@0.30.0':
     dependencies:
-      '@scalar/helpers': 0.17.1
+      '@scalar/helpers': 0.18.1
       nanoid: 5.1.16
       type-fest: 5.10.0
       zod: 4.6.7
@@ -20542,8 +20539,6 @@ snapshots:
   undici-types@7.24.6: {}
 
   undici-types@8.9.0: {}
-
-  undici@8.12.3: {}
 
   undici@8.12.4: {}
 
