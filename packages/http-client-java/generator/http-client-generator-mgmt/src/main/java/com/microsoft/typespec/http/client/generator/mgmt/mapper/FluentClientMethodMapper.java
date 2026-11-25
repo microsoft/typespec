@@ -34,7 +34,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             return methods;
         }
 
-        return methods.stream().map(method -> {
+        List<ClientMethod> contextMethods = methods.stream().map(method -> {
             if (!method.getType().isSync() || method.hasMethodParameterOfType(ClassType.CONTEXT)) {
                 return method;
             }
@@ -56,6 +56,30 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                         && candidate.getParametersDeclaration().equals(contextDeclaration));
             return method.newBuilder().hasWithContextOverload(hasContextOverload).build();
         }).collect(Collectors.toList());
+        return contextMethods.stream()
+            .filter(method -> !isUnusedContextForwarder(method, contextMethods))
+            .collect(Collectors.toList());
+    }
+
+    private static boolean isUnusedContextForwarder(ClientMethod method, List<ClientMethod> methods) {
+        if (method.getMethodVisibility() != JavaVisibility.Private
+            || method.hasMethodParameterOfType(ClassType.CONTEXT)
+            || !method.hasWithContextOverload()) {
+            return false;
+        }
+        ClientMethodType callerType;
+        if (method.getType() == ClientMethodType.PagingSyncSinglePage) {
+            callerType = ClientMethodType.PagingSync;
+        } else if (method.getType() == ClientMethodType.LongRunningBeginSync) {
+            callerType = ClientMethodType.LongRunningSync;
+        } else {
+            return false;
+        }
+        List<ClientMethod> callers = methods.stream()
+            .filter(candidate -> candidate.getType() == callerType
+                && !candidate.hasMethodParameterOfType(ClassType.CONTEXT))
+            .collect(Collectors.toList());
+        return !callers.isEmpty() && callers.stream().allMatch(ClientMethod::hasWithContextOverload);
     }
 
     @Override

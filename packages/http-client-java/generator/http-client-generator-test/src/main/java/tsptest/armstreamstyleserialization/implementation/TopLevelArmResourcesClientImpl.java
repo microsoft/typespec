@@ -22,7 +22,6 @@ import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
-import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
@@ -86,6 +85,33 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             @BodyParam("application/json") TopLevelArmResourceTagsUpdate properties, Context context);
     }
 
+    private static final String APPLICATION_JSON = "application/json";
+
+    private IllegalArgumentException validateClientProperties(String... properties) {
+        for (String property : properties) {
+            IllegalArgumentException error;
+            switch (property) {
+                case "this.client.getEndpoint()":
+                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
+                    if (error != null) {
+                        return error;
+                    }
+                    break;
+
+                case "this.client.getSubscriptionId()":
+                    error = ResourceManagerUtils.validateNotNull(this.client.getSubscriptionId(), property);
+                    if (error != null) {
+                        return error;
+                    }
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown client property: " + property);
+            }
+        }
+        return null;
+    }
+
     /**
      * Update a TopLevelArmResource.
      * 
@@ -101,34 +127,26 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
+            != null) {
+            return Mono.error(validationError);
         }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+            return Mono.error(validationError);
         }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourceName, "topLevelArmResourceName"))
+            != null) {
+            return Mono.error(validationError);
         }
-        if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(properties, "properties")) != null) {
+            return Mono.error(validationError);
         } else {
             properties.validate();
         }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.update(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept,
-                properties, context))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return ResourceManagerUtils.withContext(context -> service.update(this.client.getEndpoint(),
+            this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName,
+            APPLICATION_JSON, APPLICATION_JSON, properties, context), () -> this.client.getContext());
     }
 
     /**
@@ -165,35 +183,26 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> updateWithResponse(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties("this.client.getEndpoint()", "this.client.getSubscriptionId()"))
+            != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(resourceGroupName, "resourceGroupName")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(topLevelArmResourceName, "topLevelArmResourceName"))
+            != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(properties, "properties")) != null) {
+            throw LOGGER.atError().log(validationError);
         } else {
             properties.validate();
         }
-        final String contentType = "application/json";
-        final String accept = "application/json";
         return service.updateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept,
-            properties, context);
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, APPLICATION_JSON,
+            APPLICATION_JSON, properties, context);
     }
 
     /**

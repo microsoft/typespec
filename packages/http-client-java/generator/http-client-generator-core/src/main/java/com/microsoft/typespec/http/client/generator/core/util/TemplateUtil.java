@@ -15,9 +15,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.utils.CoreUtils;
@@ -28,8 +30,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -137,6 +141,8 @@ public class TemplateUtil {
     public static void writeClientMethodsAndHelpers(JavaClass classBlock, List<ClientMethod> clientMethods,
         boolean implementsGeneratedInterface) {
         JavaSettings settings = JavaSettings.getInstance();
+        writeStringConstants(classBlock, clientMethods);
+        writeClientPropertyValidator(classBlock, clientMethods);
 
         // collect types of TypeReference<T>
         Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
@@ -178,6 +184,102 @@ public class TemplateUtil {
                 writeXmlPagingHelperMethods(classBlock);
             }
         }
+    }
+
+    private static void writeStringConstants(JavaClass classBlock, List<ClientMethod> methods) {
+        Map<String, String> constants = new LinkedHashMap<>();
+        Set<String> names = new LinkedHashSet<>(List.of("LOGGER", "XML_SERIALIZER"));
+        methods.forEach(method -> method.getParameters().forEach(parameter -> names.add(parameter.getName())));
+        methods.stream()
+            .map(ClientMethod::getMethodPollingDetails)
+            .filter(java.util.Objects::nonNull)
+            .forEach(details -> {
+                for (IType type : Arrays.asList(details.getPollResultType(), details.getFinalResultType())) {
+                    if (type instanceof GenericType) {
+                        names.add(
+                            CodeNamer.getEnumMemberName("TypeReference" + ((GenericType) type).toJavaPropertyString()));
+                    }
+                }
+            });
+        for (ClientMethod method : methods) {
+            if (method.getProxyMethod() == null) {
+                continue;
+            }
+            for (ProxyMethodParameter parameter : method.getProxyMethod().getParameters()) {
+                if (!ClientMethod.isHoistableStringConstant(parameter)
+                    || constants.containsKey(parameter.getDefaultValue())) {
+                    continue;
+                }
+                String baseName = parameter.getDefaultValue().isEmpty()
+                    ? "EMPTY_STRING"
+                    : CodeNamer.getEnumMemberName(parameter.getDefaultValue());
+                if (baseName == null || baseName.isBlank()) {
+                    baseName = "STRING_CONSTANT";
+                }
+                String name = baseName;
+                for (int suffix = 2; !names.add(name); suffix++) {
+                    name = baseName + "_" + suffix;
+                }
+                constants.put(parameter.getDefaultValue(), name);
+                classBlock.privateStaticFinalVariable(
+                    "String " + name + " = " + ClassType.STRING.defaultValueExpression(parameter.getDefaultValue()));
+            }
+        }
+        methods.forEach(method -> method.setConstantStringNames(constants));
+    }
+
+    private static void writeClientPropertyValidator(JavaClass classBlock, List<ClientMethod> methods) {
+        JavaSettings settings = JavaSettings.getInstance();
+        if (!settings.isAzureV1() || !settings.isClientSideValidations()) {
+            return;
+        }
+        Map<String, String> properties = new LinkedHashMap<>();
+        for (ClientMethod method : methods) {
+            if (method.getProxyMethod() == null) {
+                continue;
+            }
+            method.getProxyMethod()
+                .getParameters()
+                .stream()
+                .filter(parameter -> parameter.isFromClient()
+                    && method.getRequiredNullableParameterExpressions().contains(parameter.getParameterReference()))
+                .forEach(parameter -> properties.put(parameter.getParameterReference(),
+                    method.getValidateExpressions().get(parameter.getParameterReference())));
+        }
+        if (properties.isEmpty()) {
+            return;
+        }
+        Set<String> methodNames = methods.stream().map(ClientMethod::getName).collect(Collectors.toSet());
+        String baseName = "validateClientProperties";
+        String methodName = baseName;
+        for (int suffix = 2; methodNames.contains(methodName); suffix++) {
+            methodName = baseName + suffix;
+        }
+        String validatorName = methodName;
+        methods.forEach(method -> method.setClientPropertiesValidationMethodName(validatorName));
+        classBlock.privateMethod("IllegalArgumentException " + methodName + "(String... properties)", block -> {
+            block.block("for (String property : properties)", loop -> {
+                loop.line("IllegalArgumentException error;");
+                loop.block("switch (property)", cases -> {
+                    properties.forEach((expression, validation) -> {
+                        cases.line("case %s:", ClassType.STRING.defaultValueExpression(expression));
+                        cases.indent(() -> {
+                            cases.line("error = %s.validateNotNull(%s, property);",
+                                ClientUtilitiesTemplate.getClassName(), expression);
+                            cases.ifBlock("error != null", invalid -> invalid.methodReturn("error"));
+                            if (validation != null) {
+                                cases.line(validation + ";");
+                            }
+                            cases.line("break;");
+                        });
+                    });
+                    cases.line("default:");
+                    cases.indent(() -> cases
+                        .line("throw new IllegalArgumentException(\"Unknown client property: \" + property);"));
+                });
+            });
+            block.methodReturn("null");
+        });
     }
 
     /**

@@ -115,8 +115,15 @@ public class FluentClientMethodContextTests {
                 : List.of(ClientMethodType.SimpleSyncRestResponse, ClientMethodType.LongRunningBeginSync,
                     ClientMethodType.LongRunningSync);
             for (ClientMethodType type : types) {
-                ClientMethod noContext = find(methods, type, false, false);
                 ClientMethod withContext = find(methods, type, true, false);
+                if (type == ClientMethodType.PagingSyncSinglePage) {
+                    Assertions.assertTrue(methods.stream()
+                        .noneMatch(
+                            method -> method.getType() == type && !method.hasMethodParameterOfType(ClassType.CONTEXT)));
+                    Assertions.assertTrue(write(withContext).contains("service."));
+                    continue;
+                }
+                ClientMethod noContext = find(methods, type, false, false);
                 Assertions.assertTrue(noContext.hasWithContextOverload(), noContext.getDeclaration());
                 Assertions.assertFalse(withContext.hasWithContextOverload(), withContext.getDeclaration());
                 Assertions.assertEquals(noContext.getReturnValue().getType(), withContext.getReturnValue().getType());
@@ -128,7 +135,8 @@ public class FluentClientMethodContextTests {
                 String contextSource = write(withContext);
                 Assertions.assertFalse(contextSource.contains("Context.NONE"), contextSource);
                 if (type == ClientMethodType.SimpleSyncRestResponse || type == ClientMethodType.PagingSyncSinglePage) {
-                    Assertions.assertTrue(contextSource.contains("if (id == null)"), contextSource);
+                    Assertions.assertTrue(contextSource.contains("ResourceManagerUtils.validateNotNull(id, \"id\")"),
+                        contextSource);
                     Assertions.assertTrue(contextSource.contains("service."), contextSource);
                 } else if (type == ClientMethodType.PagingSync) {
                     Assertions.assertTrue(contextSource.contains("new PagedIterable"), contextSource);
@@ -137,6 +145,18 @@ public class FluentClientMethodContextTests {
                 }
             }
         }
+    }
+
+    @Test
+    public void removesPrivateLroBeginOverloadsSupersededByContextForwarding() {
+        useSettings(true);
+        List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation(false, true));
+        Assertions.assertTrue(methods.stream()
+            .noneMatch(method -> method.getType() == ClientMethodType.LongRunningBeginSync
+                && method.getMethodVisibility() == JavaVisibility.Private
+                && !method.hasMethodParameterOfType(ClassType.CONTEXT)));
+        Assertions.assertNotNull(find(methods, ClientMethodType.LongRunningBeginSync, true, false));
+        Assertions.assertNotNull(find(methods, ClientMethodType.LongRunningBeginSync, false, true));
     }
 
     @Test
@@ -286,8 +306,8 @@ public class FluentClientMethodContextTests {
                 ClientMethodType asyncType
                     = pageable ? ClientMethodType.PagingAsyncSinglePage : ClientMethodType.SimpleAsyncRestResponse;
                 String asyncSource = write(find(methods, asyncType, false, false));
-                Assertions.assertTrue(asyncSource.contains("FluxUtil.withContext"), asyncSource);
-                Assertions.assertTrue(asyncSource.contains(".contextWrite("), asyncSource);
+                Assertions.assertTrue(asyncSource.contains("ResourceManagerUtils.withContext"), asyncSource);
+                Assertions.assertTrue(asyncSource.contains("() -> this.client.getContext()"), asyncSource);
                 Assertions.assertFalse(asyncSource.contains("Context.NONE"), asyncSource);
                 if (!syncStack) {
                     ClientMethodType syncType

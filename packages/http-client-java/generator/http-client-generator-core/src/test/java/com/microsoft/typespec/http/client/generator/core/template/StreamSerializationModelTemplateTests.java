@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
@@ -167,6 +168,44 @@ public class StreamSerializationModelTemplateTests {
             Assertions.assertTrue(generated.contains("deserializedHierarchy.prefixes.add(reader.getStringElement());"),
                 generated);
             Assertions.assertFalse(generated.contains("List<String> prefixes = null;"), generated);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "false,false", "false,true", "true,false", "true,true" })
+    public void sharesOnlyLeafReadersWithoutConstructorState(boolean required, boolean additionalProperties) {
+        ClientModelProperty value = new ClientModelProperty.Builder().name("value")
+            .serializedName("value")
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .required(required)
+            .build();
+        MapType map = new MapType(ClassType.OBJECT);
+        ClientModelProperty extra = new ClientModelProperty.Builder().name("additionalProperties")
+            .serializedName("")
+            .wireType(map)
+            .clientType(map)
+            .additionalProperties(true)
+            .build();
+        ClientModel model = new ClientModel.Builder().name("Payload")
+            .packageName("com.azure.mock.models")
+            .properties(additionalProperties ? List.of(value, extra) : List.of(value))
+            .build();
+        JavaFile file = new JavaFile("Payload.java");
+        file.publicFinalClass("Payload", block -> StreamSerializationModelTemplate.getInstance()
+            .writeStreamStyleSerialization(block, new ClientModelPropertiesManager(model, JavaSettings.getInstance())));
+        String source = file.getContents().toString();
+        Assertions.assertEquals(!required, source.contains("ClientUtils.readObject(jsonReader, Payload::new"), source);
+        if (required) {
+            Assertions.assertTrue(source.contains("boolean valueFound = false;"), source);
+            Assertions.assertTrue(source.contains("Missing required property: value"), source);
+        } else {
+            Assertions.assertTrue(source.contains("deserializedPayload.value = reader.getString();"), source);
+            if (additionalProperties) {
+                Assertions.assertTrue(source.contains("deserializedPayload.additionalProperties.put("), source);
+            } else {
+                Assertions.assertTrue(source.contains("reader.skipChildren();"), source);
+            }
         }
     }
 

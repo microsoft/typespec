@@ -88,6 +88,8 @@ public final class OptionalOpsImpl {
             RequestOptions requestOptions, Context context);
     }
 
+    private static final String APPLICATION_JSON = "application/json";
+
     /**
      * The put operation.
      * <p><strong>Query Parameters</strong></p>
@@ -200,16 +202,15 @@ public final class OptionalOpsImpl {
     public Mono<Response<BinaryData>> putWithResponseAsync(String requestHeaderRequired, boolean booleanRequired,
         Boolean booleanRequiredNullable, String stringRequired, String stringRequiredNullable,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
         RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
         requestOptionsLocal.addRequestCallback(requestLocal -> {
             if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                 requestLocal.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
             }
         });
-        return FluxUtil
-            .withContext(context -> service.put(this.client.getEndpoint(), requestHeaderRequired, booleanRequired,
-                booleanRequiredNullable, stringRequired, stringRequiredNullable, accept, requestOptionsLocal, context));
+        return FluxUtil.withContext(context -> service.put(this.client.getEndpoint(), requestHeaderRequired,
+            booleanRequired, booleanRequiredNullable, stringRequired, stringRequiredNullable, APPLICATION_JSON,
+            requestOptionsLocal, context));
     }
 
     /**
@@ -324,7 +325,6 @@ public final class OptionalOpsImpl {
     public Response<BinaryData> putWithResponse(String requestHeaderRequired, boolean booleanRequired,
         Boolean booleanRequiredNullable, String stringRequired, String stringRequiredNullable,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
         RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
         requestOptionsLocal.addRequestCallback(requestLocal -> {
             if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
@@ -332,6 +332,7 @@ public final class OptionalOpsImpl {
             }
         });
         return service.putSync(this.client.getEndpoint(), requestHeaderRequired, booleanRequired,
-            booleanRequiredNullable, stringRequired, stringRequiredNullable, accept, requestOptionsLocal, Context.NONE);
+            booleanRequiredNullable, stringRequired, stringRequiredNullable, APPLICATION_JSON, requestOptionsLocal,
+            Context.NONE);
     }
 }

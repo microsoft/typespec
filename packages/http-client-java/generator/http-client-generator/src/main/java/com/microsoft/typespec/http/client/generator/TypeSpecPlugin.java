@@ -104,6 +104,9 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
+        if (!settings.isFluent()) {
+            javaPackage.addClientUtils();
+        }
         if (settings.isAzureV1()) {
             List<ClientModel> sseBaseModels = client.getModels()
                 .stream()

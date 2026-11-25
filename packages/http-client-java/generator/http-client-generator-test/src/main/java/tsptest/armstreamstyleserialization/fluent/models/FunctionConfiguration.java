@@ -7,9 +7,9 @@ package tsptest.armstreamstyleserialization.fluent.models;
 import com.azure.core.annotation.Fluent;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
-import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
+import tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils;
 
 /**
  * The FunctionConfiguration model.
@@ -104,12 +104,8 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
      * @throws IOException If an error occurs while reading the FunctionConfiguration.
      */
     public static FunctionConfiguration fromJson(JsonReader jsonReader) throws IOException {
-        return jsonReader.readObject(reader -> {
-            FunctionConfiguration deserializedFunctionConfiguration = new FunctionConfiguration();
-            while (reader.nextToken() != JsonToken.END_OBJECT) {
-                String fieldName = reader.getFieldName();
-                reader.nextToken();
-
+        return ResourceManagerUtils.readObject(jsonReader, FunctionConfiguration::new,
+            (deserializedFunctionConfiguration, fieldName, reader) -> {
                 if ("input".equals(fieldName)) {
                     deserializedFunctionConfiguration.input = reader.getString();
                 } else if ("output".equals(fieldName)) {
@@ -117,9 +113,6 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
                 } else {
                     reader.skipChildren();
                 }
-            }
-
-            return deserializedFunctionConfiguration;
-        });
+            });
     }
 }

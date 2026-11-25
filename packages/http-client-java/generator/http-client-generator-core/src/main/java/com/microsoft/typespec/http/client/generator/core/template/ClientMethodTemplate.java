@@ -143,6 +143,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 .forEach(parameter -> validateParamExpressions.remove(parameter.getName()));
         }
 
+        if (settings.isAzureV1()) {
+            addSharedValidations(function, clientMethod, settings, paramReferenceExpressions, validateParamExpressions,
+                isSync);
+            return;
+        }
+
         for (String paramReferenceExpression : paramReferenceExpressions) {
             final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {
                 final String paramRequiredException = "new IllegalArgumentException(\"Parameter "
@@ -170,6 +176,65 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             function.ifBlock(paramReferenceExpression + " != null",
                 ifBlock -> ifBlock.line(validateParamExpression + ";"));
         }
+    }
+
+    private static void addSharedValidations(JavaBlock function, ClientMethod method, JavaSettings settings,
+        List<String> required, Map<String, String> validations, boolean sync) {
+        Set<String> parameterNames
+            = method.getParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.toSet());
+        if (method.getProxyMethod() != null) {
+            method.getProxyMethod().getParameters().forEach(parameter -> parameterNames.add(parameter.getName()));
+        }
+        String errorName = "validationError";
+        for (int suffix = 2; parameterNames.contains(errorName); suffix++) {
+            errorName = "validationError" + suffix;
+        }
+        final String error = errorName;
+        if (!required.isEmpty()) {
+            function.line("IllegalArgumentException %s;", error);
+        }
+        Set<String> clientProperties = method.getProxyMethod() == null
+            ? Set.of()
+            : method.getProxyMethod()
+                .getParameters()
+                .stream()
+                .filter(ProxyMethodParameter::isFromClient)
+                .map(ProxyMethodParameter::getParameterReference)
+                .collect(Collectors.toSet());
+        for (int index = 0; index < required.size(); index++) {
+            String expression = required.get(index);
+            String check;
+            String validation;
+            if (method.getClientPropertiesValidationMethodName() != null && clientProperties.contains(expression)) {
+                List<String> group = new ArrayList<>();
+                do {
+                    String property = required.get(index);
+                    group.add(ClassType.STRING.defaultValueExpression(property));
+                    validations.remove(property);
+                    index++;
+                } while (index < required.size() && clientProperties.contains(required.get(index)));
+                index--;
+                check = method.getClientPropertiesValidationMethodName() + "(" + String.join(", ", group) + ")";
+                validation = null;
+            } else {
+                check = ClientUtilitiesTemplate.getClassName() + ".validateNotNull(" + expression + ", "
+                    + ClassType.STRING.defaultValueExpression(expression) + ")";
+                validation = validations.remove(expression);
+            }
+            JavaIfBlock invalid = function.ifBlock("(" + error + " = " + check + ") != null", block -> {
+                if (sync) {
+                    block.line("throw " + (settings.isUseClientLogger() ? "LOGGER.atError().log(" + error + ")" : error)
+                        + ";");
+                } else {
+                    block.methodReturn("Mono.error(" + error + ")");
+                }
+            });
+            if (validation != null) {
+                invalid.elseBlock(block -> block.line(validation + ";"));
+            }
+        }
+        validations.forEach((expression, validation) -> function.ifBlock(expression + " != null",
+            block -> block.line(validation + ";")));
     }
 
     /**
@@ -245,7 +310,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 : MethodUtil.getParameters(clientMethod.getOverloadedClientMethod(), false);
 
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
-            if (parameter.isFromClient()) {
+            if (parameter.isFromClient() || clientMethod.getConstantStringName(parameter) != null) {
                 // parameter is scoped to the client, hence no local variable instantiation for it.
                 continue;
             }
@@ -1102,10 +1167,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void pagedSinglePageResponseConversion(ProxyMethod restAPIMethod, ClientMethod clientMethod,
         JavaSettings settings, JavaBlock function) {
-        function.line("return new PagedResponseBase<>(");
-        function.line("res.getRequest(),");
-        function.line("res.getStatusCode(),");
-        function.line("res.getHeaders(),");
+        function.line("return %s.createPagedResponse(res,", ClientUtilitiesTemplate.getClassName());
         if (isXmlPagingResponse(clientMethod, settings)) {
             function.line("%s,", xmlPageItemsExpression(clientMethod));
         } else if (settings.isDataPlaneClient()) {
@@ -1700,11 +1762,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("return FluxUtil.withContext(context -> " + serviceMethodCall + ")");
             }
             function.indent(() -> {
-                function.line(".map(res -> new PagedResponseBase<>(");
+                function.line(".map(res -> %s.createPagedResponse(res,", ClientUtilitiesTemplate.getClassName());
                 function.indent(() -> {
-                    function.line("res.getRequest(),");
-                    function.line("res.getStatusCode(),");
-                    function.line("res.getHeaders(),");
                     if (isXmlPagingResponse(clientMethod, settings)) {
                         function.line("%s,", xmlPageItemsExpression(clientMethod));
                     } else if (settings.isDataPlaneClient() && settings.isAzureV1()) {

@@ -99,19 +99,19 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 }
                 if (addContextParameter) {
                     if (!isLroPagination) {
-                        function.line(String.format("return FluxUtil.withContext(context -> %s)", serviceMethodCall));
+                        function.line(
+                            String.format("return ResourceManagerUtils.withContext(context -> %s", serviceMethodCall));
                     } else {
-                        function.line("return FluxUtil.withContext(context -> {");
+                        function.line("return ResourceManagerUtils.withContext(context -> {");
                         function.indent(() -> {
                             function.line(String.format("%s mono = %s.cache();",
                                 clientMethod.getProxyMethod().getReturnType().toString(), serviceMethodCall));
 
                             IType classType = clientMethod.getMethodPageDetails().getLroIntermediateType();
                             function.line(String.format(
-                                "return Mono.zip(mono, %1$s.<%2$s, %2$s>getLroResult(mono, %1$s.getHttpPipeline(), %2$s.class, %2$s.class, %3$s).last().flatMap(%1$s::getLroFinalResultOrError));",
+                                "return Mono.zip(mono, %1$s.<%2$s, %2$s>getLroResult(mono, %1$s.getHttpPipeline(), %2$s.class, %2$s.class, %3$s).last().flatMap(%1$s::getLroFinalResultOrError))",
                                 clientMethod.getClientReference(), classType, contextParam));
                         });
-                        function.line("})");
                     }
                 } else {
                     if (!isLroPagination) {
@@ -128,16 +128,14 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 }
                 function.indent(() -> {
                     if (addContextParameter) {
-                        function.line(String.format(".<%s>map(res -> new PagedResponseBase<>(",
+                        function.line(String.format(".<%s>map(res -> ResourceManagerUtils.createPagedResponse(",
                             returnTypeWithoutMono(clientMethod.getReturnValue().getType())));
                     } else {
-                        function.line(".map(res -> new PagedResponseBase<>(");
+                        function.line(".map(res -> ResourceManagerUtils.createPagedResponse(");
                     }
                     function.indent(() -> {
                         if (!isLroPagination) {
-                            function.line("res.getRequest(),");
-                            function.line("res.getStatusCode(),");
-                            function.line("res.getHeaders(),");
+                            function.line("res,");
                             function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                                 .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                             function.line(nextLinkLine(clientMethod));
@@ -149,9 +147,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                                 function.line(String.format("null))%s", endOfLine));
                             }
                         } else {
-                            function.line("res.getT1().getRequest(),");
-                            function.line("res.getT1().getStatusCode(),");
-                            function.line("res.getT1().getHeaders(),");
+                            function.line("res.getT1(),");
                             function.line("res.getT2().%s(),", CodeNamer.getModelNamer()
                                 .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                             function.line(nextLinkLine(clientMethod, "getT2()"));
@@ -165,9 +161,8 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                         }
                     });
                     if (addContextParameter) {
-                        function.line(String.format(
-                            ".contextWrite(context -> context.putAll(FluxUtil.toReactorContext(%s.getContext()).readOnly()));",
-                            clientMethod.getClientReference()));
+                        function.line((isLroPagination ? "; }" : "")
+                            + String.format(", () -> %s.getContext());", clientMethod.getClientReference()));
                     }
                 });
             });
@@ -183,21 +178,21 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 }
                 if (addContextParameter) {
                     if (!isLroPagination) {
-                        function.line(String.format("return FluxUtil.withContext(context -> %s)", serviceMethodCall));
+                        function.line(
+                            String.format("return ResourceManagerUtils.withContext(context -> %s", serviceMethodCall));
                     } else {
-                        function.line("return FluxUtil.withContext(context -> {");
+                        function.line("return ResourceManagerUtils.withContext(context -> {");
                         function.indent(() -> {
                             function.line(String.format("%s mono = %s.cache();",
                                 clientMethod.getProxyMethod().getReturnType().toString(), serviceMethodCall));
 
                             IType classType = clientMethod.getMethodPageDetails().getLroIntermediateType();
                             function.line(String.format(
-                                "return Mono.zip(mono, %s.<%s, %s>getLroResult(mono, %s.getHttpPipeline(), %s.class, %s.class, %s).last().flatMap(%s::getLroFinalResultOrError));",
+                                "return Mono.zip(mono, %s.<%s, %s>getLroResult(mono, %s.getHttpPipeline(), %s.class, %s.class, %s).last().flatMap(%s::getLroFinalResultOrError))",
                                 clientMethod.getClientReference(), classType.toString(), classType,
                                 clientMethod.getClientReference(), classType, classType, contextParam,
                                 clientMethod.getClientReference()));
                         });
-                        function.line("})");
                     }
                 } else {
                     if (!isLroPagination) {
@@ -216,16 +211,14 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 }
                 function.indent(() -> {
                     if (addContextParameter) {
-                        function.line(String.format(".<%s>map(res -> new PagedResponseBase<>(",
+                        function.line(String.format(".<%s>map(res -> ResourceManagerUtils.createPagedResponse(",
                             returnTypeWithoutMono(clientMethod.getReturnValue().getType())));
                     } else {
-                        function.line(".map(res -> new PagedResponseBase<>(");
+                        function.line(".map(res -> ResourceManagerUtils.createPagedResponse(");
                     }
                     function.indent(() -> {
                         if (!isLroPagination) {
-                            function.line("res.getRequest(),");
-                            function.line("res.getStatusCode(),");
-                            function.line("res.getHeaders(),");
+                            function.line("res,");
                             function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                                 .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                             function.line("null,");
@@ -237,9 +230,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                                 function.line(String.format("null))%s", endOfLine));
                             }
                         } else {
-                            function.line("res.getT1().getRequest(),");
-                            function.line("res.getT1().getStatusCode(),");
-                            function.line("res.getT1().getHeaders(),");
+                            function.line("res.getT1(),");
                             function.line("res.getT2().%s(),", CodeNamer.getModelNamer()
                                 .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                             function.line("null,");
@@ -253,9 +244,8 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                         }
                     });
                     if (addContextParameter) {
-                        function.line(String.format(
-                            ".contextWrite(context -> context.putAll(FluxUtil.toReactorContext(%s.getContext()).readOnly()));",
-                            clientMethod.getClientReference()));
+                        function.line((isLroPagination ? "; }" : "")
+                            + String.format(", () -> %s.getContext());", clientMethod.getClientReference()));
                     }
                 });
             });
@@ -278,9 +268,9 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             String nextLink = clientMethod.getMethodPageDetails().nonNullNextLink()
                 ? nextLinkLine(clientMethod, null, "lroPageableResult")
                 : "null";
-            function.methodReturn(String.format(
-                "new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), lroPageableResult.%1$s(), %2$s, null)",
-                clientMethod.getMethodPageDetails().getSerializedItemName(), nextLink));
+            function.methodReturn(
+                String.format("ResourceManagerUtils.createPagedResponse(res, lroPageableResult.%1$s(), %2$s, null)",
+                    clientMethod.getMethodPageDetails().getSerializedItemName(), nextLink));
         } else {
             super.pagedSinglePageResponseConversion(restAPIMethod, clientMethod, settings, function);
         }
@@ -307,10 +297,9 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 function.line(String.format("context = %s.mergeContext(context);", clientMethod.getClientReference()));
             }
             if (addContextParameter) {
-                function.line(String.format("return FluxUtil.withContext(context -> %s)", serviceMethodCall));
-                function.indent(() -> function.line(String.format(
-                    ".contextWrite(context -> context.putAll(FluxUtil.toReactorContext(%s.getContext()).readOnly()));",
-                    clientMethod.getClientReference())));
+                function.methodReturn(
+                    String.format("ResourceManagerUtils.withContext(context -> %s, () -> %s.getContext())",
+                        serviceMethodCall, clientMethod.getClientReference()));
             } else {
                 function.methodReturn(serviceMethodCall);
             }

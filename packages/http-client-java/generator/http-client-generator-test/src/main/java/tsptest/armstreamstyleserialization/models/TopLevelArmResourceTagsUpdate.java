@@ -7,10 +7,10 @@ package tsptest.armstreamstyleserialization.models;
 import com.azure.core.annotation.Fluent;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
-import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.Map;
+import tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils;
 
 /**
  * The type used for updating tags in TopLevelArmResource resources.
@@ -75,22 +75,14 @@ public final class TopLevelArmResourceTagsUpdate implements JsonSerializable<Top
      * @throws IOException If an error occurs while reading the TopLevelArmResourceTagsUpdate.
      */
     public static TopLevelArmResourceTagsUpdate fromJson(JsonReader jsonReader) throws IOException {
-        return jsonReader.readObject(reader -> {
-            TopLevelArmResourceTagsUpdate deserializedTopLevelArmResourceTagsUpdate
-                = new TopLevelArmResourceTagsUpdate();
-            while (reader.nextToken() != JsonToken.END_OBJECT) {
-                String fieldName = reader.getFieldName();
-                reader.nextToken();
-
+        return ResourceManagerUtils.readObject(jsonReader, TopLevelArmResourceTagsUpdate::new,
+            (deserializedTopLevelArmResourceTagsUpdate, fieldName, reader) -> {
                 if ("tags".equals(fieldName)) {
                     Map<String, String> tags = reader.readMap(reader1 -> reader1.getString());
                     deserializedTopLevelArmResourceTagsUpdate.tags = tags;
                 } else {
                     reader.skipChildren();
                 }
-            }
-
-            return deserializedTopLevelArmResourceTagsUpdate;
-        });
+            });
     }
 }

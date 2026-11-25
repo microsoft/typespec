@@ -803,6 +803,7 @@ public class ExperimentalAnnotationTests extends JavaSettingsTestBase {
         Assertions.assertEquals(2, source.split("warningText = \"Property warning\"", -1).length - 1, source);
         assertImportedAnnotation(source);
         Assertions.assertEquals(annotateModel, source.contains("@Preview(warningText = Preview.WARNING_TEXT)"), source);
+        javaPackage.addClientUtils();
         compile(directory, javaPackage.getJavaFiles());
     }
 

@@ -87,6 +87,10 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             ClassType.JSON_WRITER.addImportsTo(imports, false);
             ClassType.JSON_READER.addImportsTo(imports, false);
             ClassType.JSON_TOKEN.addImportsTo(imports, false);
+            if (!model.getName().equals(ClientUtilitiesTemplate.getClassName())
+                && canUseReadObjectHelper(new ClientModelPropertiesManager(model, settings))) {
+                imports.add(ClientUtilitiesTemplate.getFullClassName());
+            }
         }
 
         ClassType.CORE_UTILS.addImportsTo(imports, false);
@@ -286,6 +290,20 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         return propertiesManager.getSettings().isShareJsonSerializableCode()
             && !propertiesManager.hasConstructorArguments()
             && propertiesManager.getModel().isAllPolymorphicModelsInSamePackage();
+    }
+
+    private static boolean canUseReadObjectHelper(ClientModelPropertiesManager properties) {
+        ClientModel model = properties.getModel();
+        return properties.getSettings().isAzureV1()
+            && model.getParentModelName() == null
+            && model.getDerivedModels().isEmpty()
+            && !model.getNeedsFlatten()
+            && !model.isPolymorphic()
+            && !model.isStronglyTypedHeader()
+            && !ClientModelUtil.isJsonMergePatchModel(model, properties.getSettings())
+            && !properties.hasConstructorArguments()
+            && !properties.hasRequiredProperties()
+            && properties.getJsonFlattenedPropertiesTree().getChildrenNodes().isEmpty();
     }
 
     /**
@@ -1311,8 +1329,27 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
             addGeneratedAnnotation.accept(classBlock);
             classBlock.staticMethod(visibility,
-                modelName + " " + methodName + "(JsonReader jsonReader) throws IOException",
-                methodBlock -> readJsonObjectMethodBody(methodBlock, deserializationBlock));
+                modelName + " " + methodName + "(JsonReader jsonReader) throws IOException", methodBlock -> {
+                    if (canUseReadObjectHelper(propertiesManager)) {
+                        methodBlock.line("return %s.readObject(jsonReader, %s::new, (%s, %s, reader) -> {",
+                            modelName.equals(ClientUtilitiesTemplate.getClassName())
+                                ? ClientUtilitiesTemplate.getFullClassName()
+                                : ClientUtilitiesTemplate.getClassName(),
+                            modelName, propertiesManager.getDeserializedModelName(),
+                            propertiesManager.getJsonReaderFieldNameVariableName());
+                        methodBlock.indent(() -> {
+                            AtomicReference<JavaIfBlock> ifBlockReference = new AtomicReference<>();
+                            BiConsumer<ClientModelProperty, Boolean> consumer
+                                = (property, fromSuper) -> handleJsonPropertyDeserialization(property, methodBlock,
+                                    ifBlockReference, fromSuper, false);
+                            generateThisFromJson(ifBlockReference, consumer, methodBlock, false, false);
+                            generateUnknownFieldLogic(methodBlock, ifBlockReference.get());
+                        });
+                        methodBlock.line("});");
+                    } else {
+                        readJsonObjectMethodBody(methodBlock, deserializationBlock);
+                    }
+                });
 
             if (superTypeReading && useFromJsonShared && model.isPolymorphicParent()) {
                 // Add a package-private 'fromJsonShared' method that can handle deserializing properties defined in the
@@ -1796,15 +1833,18 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             String fieldNameVariableName = propertiesManager.getJsonReaderFieldNameVariableName();
             Consumer<JavaBlock> unknownFieldConsumer = javaBlock -> {
                 if (additionalProperties != null) {
-                    javaBlock.ifBlock(additionalProperties.getName() + " == null",
-                        ifAction -> ifAction.line(additionalProperties.getName() + " = new LinkedHashMap<>();"));
+                    String additionalPropertiesReference = canUseReadObjectHelper(propertiesManager)
+                        ? propertiesManager.getDeserializedModelName() + "." + additionalProperties.getName()
+                        : additionalProperties.getName();
+                    javaBlock.ifBlock(additionalPropertiesReference + " == null",
+                        ifAction -> ifAction.line(additionalPropertiesReference + " = new LinkedHashMap<>();"));
                     javaBlock.line();
 
                     // Assumption, additional properties is a Map of String-Object
                     IType valueType = ((MapType) additionalProperties.getWireType()).getValueType();
                     if (valueType == ClassType.OBJECT) {
                         // String fieldName should be a local variable accessible in this spot of code.
-                        javaBlock.line(additionalProperties.getName() + ".put(" + fieldNameVariableName
+                        javaBlock.line(additionalPropertiesReference + ".put(" + fieldNameVariableName
                             + ", reader.readUntyped());");
                     } else if (valueType instanceof IterableType) {
                         // The case that element is a List
@@ -1814,10 +1854,10 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                             ((IterableType) valueType).getElementType(), ((IterableType) valueType).getElementType(),
                             0);
                         javaBlock.line(
-                            additionalProperties.getName() + ".put(" + fieldNameVariableName + ", " + varName + ");");
+                            additionalPropertiesReference + ".put(" + fieldNameVariableName + ", " + varName + ");");
                     } else {
                         // Another assumption, the additional properties value type is simple.
-                        javaBlock.line(additionalProperties.getName() + ".put(" + fieldNameVariableName + ", "
+                        javaBlock.line(additionalPropertiesReference + ".put(" + fieldNameVariableName + ", "
                             + getSimpleJsonDeserialization(valueType, "reader") + ");");
                     }
                 } else {

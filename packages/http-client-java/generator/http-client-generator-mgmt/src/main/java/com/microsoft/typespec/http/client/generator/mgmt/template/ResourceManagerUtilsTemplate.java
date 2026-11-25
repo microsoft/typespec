@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.IJavaTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
@@ -77,6 +78,11 @@ public class ResourceManagerUtilsTemplate
 
     @Override
     public void write(Set<UtilityMethod> usedMethods, JavaFile javaFile) {
+        write(usedMethods, Set.of(), javaFile);
+    }
+
+    public void write(Set<UtilityMethod> usedMethods, Set<ClientUtilitiesTemplate.UtilityMethod> commonMethods,
+        JavaFile javaFile) {
         List<MethodTemplate> methods = new ArrayList<>();
         // The validating helper calls the nullable parser even when no client calls it directly.
         if (usedMethods.contains(UtilityMethod.GET_VALUE_FROM_ID)
@@ -92,13 +98,18 @@ public class ResourceManagerUtilsTemplate
             imports.addAll(IMPORTS_UTILS_PAGED_ITERABLE);
         }
         javaFile.declareImport(imports);
+        ClientUtilitiesTemplate.addImports(commonMethods, javaFile);
 
-        javaFile.classBlock(JavaVisibility.PackagePrivate, List.of(JavaModifier.Final),
-            ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, classBlock -> {
+        javaFile.classBlock(
+            commonMethods.contains(ClientUtilitiesTemplate.UtilityMethod.READ_OBJECT)
+                ? JavaVisibility.Public
+                : JavaVisibility.PackagePrivate,
+            List.of(JavaModifier.Final), ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, classBlock -> {
                 classBlock.constructor(JavaVisibility.Private, ModelNaming.CLASS_RESOURCE_MANAGER_UTILS + "()",
                     constructorBlock -> {
                     });
                 methods.forEach(mt -> mt.writeMethod(classBlock));
+                ClientUtilitiesTemplate.writeMethods(commonMethods, classBlock);
 
                 if (usedMethods.contains(UtilityMethod.MAP_PAGE)) {
                     javaFile.line();

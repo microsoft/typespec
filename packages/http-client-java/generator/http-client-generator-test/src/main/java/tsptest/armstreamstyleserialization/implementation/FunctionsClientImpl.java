@@ -17,7 +17,6 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
-import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
@@ -71,6 +70,26 @@ public final class FunctionsClientImpl implements FunctionsClient {
             @BodyParam("application/json") FunctionInner function, Context context);
     }
 
+    private static final String APPLICATION_JSON = "application/json";
+
+    private IllegalArgumentException validateClientProperties(String... properties) {
+        for (String property : properties) {
+            IllegalArgumentException error;
+            switch (property) {
+                case "this.client.getEndpoint()":
+                    error = ResourceManagerUtils.validateNotNull(this.client.getEndpoint(), property);
+                    if (error != null) {
+                        return error;
+                    }
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown client property: " + property);
+            }
+        }
+        return null;
+    }
+
     /**
      * The createFunction operation.
      * 
@@ -82,21 +101,17 @@ public final class FunctionsClientImpl implements FunctionsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<FunctionsCreateFunctionResponse> createFunctionWithResponseAsync(FunctionInner function) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+            return Mono.error(validationError);
         }
-        if (function == null) {
-            return Mono.error(new IllegalArgumentException("Parameter function is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(function, "function")) != null) {
+            return Mono.error(validationError);
         } else {
             function.validate();
         }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(
-                context -> service.createFunction(this.client.getEndpoint(), contentType, accept, function, context))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return ResourceManagerUtils.withContext(context -> service.createFunction(this.client.getEndpoint(),
+            APPLICATION_JSON, APPLICATION_JSON, function, context), () -> this.client.getContext());
     }
 
     /**
@@ -116,20 +131,17 @@ public final class FunctionsClientImpl implements FunctionsClient {
     @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FunctionsCreateFunctionResponse createFunctionWithResponse(FunctionInner function, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties("this.client.getEndpoint()")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (function == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter function is required and cannot be null."));
+        if ((validationError = ResourceManagerUtils.validateNotNull(function, "function")) != null) {
+            throw LOGGER.atError().log(validationError);
         } else {
             function.validate();
         }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createFunctionSync(this.client.getEndpoint(), contentType, accept, function, context);
+        return service.createFunctionSync(this.client.getEndpoint(), APPLICATION_JSON, APPLICATION_JSON, function,
+            context);
     }
 
     @Override

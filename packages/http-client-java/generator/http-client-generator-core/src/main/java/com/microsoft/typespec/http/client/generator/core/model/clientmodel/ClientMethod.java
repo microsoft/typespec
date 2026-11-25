@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
@@ -118,6 +119,34 @@ public class ClientMethod {
 
     private final ClientMethod overloadedClientMethod;
     private final ClientMethodSseMetadata sseMetadata;
+    private Map<String, String> constantStringNames = Map.of();
+    private String clientPropertiesValidationMethodName;
+
+    public String getClientPropertiesValidationMethodName() {
+        return clientPropertiesValidationMethodName;
+    }
+
+    public void setClientPropertiesValidationMethodName(String name) {
+        clientPropertiesValidationMethodName = name;
+    }
+
+    public void setConstantStringNames(Map<String, String> names) {
+        constantStringNames = Map.copyOf(names);
+    }
+
+    public String getConstantStringName(ProxyMethodParameter parameter) {
+        return isHoistableStringConstant(parameter) ? constantStringNames.get(parameter.getDefaultValue()) : null;
+    }
+
+    public static boolean isHoistableStringConstant(ProxyMethodParameter parameter) {
+        JavaSettings settings = JavaSettings.getInstance();
+        return !parameter.isFromClient()
+            && parameter.isConstant()
+            && parameter.getClientType() == ClassType.STRING
+            && parameter.getWireType() == ClassType.STRING
+            && parameter.getDefaultValue() != null
+            && (!settings.isOptionalConstantAsEnum() || parameter.isRequired());
+    }
 
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
@@ -378,6 +407,10 @@ public class ClientMethod {
 
     public final List<String> getProxyMethodArguments(JavaSettings settings) {
         return getProxyMethod().getParameters().stream().map(parameter -> {
+            String constantName = getConstantStringName(parameter);
+            if (constantName != null) {
+                return constantName;
+            }
             String parameterName = parameter.getParameterReference();
             IType parameterWireType = parameter.getWireType();
             if (parameter.isNullable()) {
@@ -466,6 +499,9 @@ public class ClientMethod {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
+        if (includeImplementationImports && settings.isAzureV1()) {
+            imports.add(ClientUtilitiesTemplate.getFullClassName());
+        }
         ExperimentalAnnotationUtil.addImportsTo(imports, getApiMetadata());
         Annotation.SERVICE_METHOD.addImportsTo(imports);
         Annotation.RETURN_TYPE.addImportsTo(imports);
