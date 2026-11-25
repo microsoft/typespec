@@ -208,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 nugetCacheDir: nugetCacheDir,
                 packageName: pkgName,
                 version: fixedPkgVersion,
-                sourceCode: $"namespace {pkgName} {{ public class MyExternalType {{ public class MyInnerExternalType {{ public class My2InnerExternalType {{}} }} }} }}",
+                sourceCode: $"namespace {pkgName} {{ public class MyExternalType {{ public class MyInnerExternalType {{ private class My2InnerExternalType {{}} }} }} }}",
                 assemblyVersion: assemblyVersion);
             InputExternalTypeMetadata external = new(typeName, pkgName, null);
             InputModelType model = InputFactory.Model(
@@ -247,7 +247,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 // Run the tests.
                 AssertFramework(testAssembly, typeName, shouldBeFramework);
                 AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType", shouldBeFramework);
-                AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType+My2InnerExternalType", shouldBeFramework);
+                AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType+My2InnerExternalType", shouldBeFramework, false);
             }
             finally
             {
@@ -316,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             }
         }
 
-        private static void AssertFramework(IAssemblySymbol? testAssembly, string symbolName, bool shouldBeFramework)
+        private static void AssertFramework(IAssemblySymbol? testAssembly, string symbolName, bool shouldBeFramework, bool shouldBePublic=true)
         {
             // Sanity check that we do have a symbol.
             INamedTypeSymbol? typeReflection = testAssembly?.GetTypeByMetadataName(symbolName);
@@ -326,6 +326,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.That(typespecType, Is.Not.Null);
             Assert.That(typespecType?.IsFrameworkType, Is.EqualTo(shouldBeFramework));
             Assert.That(typespecType?.IsEnum, Is.False);
+            Assert.That(typespecType?.IsPublic, Is.EqualTo(shouldBePublic));
         }
     }
 }
