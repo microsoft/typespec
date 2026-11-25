@@ -31,12 +31,13 @@ export function generateOperation(operation: TypeSpecOperation, context: Context
   ];
 
   const responses = generateOperationReturnType(operation, context);
+  operationParts.push(...responses.examples);
 
   if (operation.fixmes?.length) {
     operationParts.push("\n", ...operation.fixmes.map((f) => `// FIXME: ${f}\n`));
   }
 
-  operationParts.push(`op ${operation.name}(${parameters.join(", ")}): ${responses};`);
+  operationParts.push(`op ${operation.name}(${parameters.join(", ")}): ${responses.returnType};`);
 
   const preambleStr = preamble.join("\n");
   const operationStr = operationParts.join(" ");
@@ -84,9 +85,13 @@ function generateRequestBodyParameters(
 
   const definitions: string[] = [];
 
-  // Generate the content-type header if defined content-types is not just 'application/json'
+  // Keep the declared media type when HTTP might infer a different one for an example body.
   const contentTypes = requestBodies.map((r) => r.contentType);
-  if (!supportsOnlyJson(contentTypes)) {
+  const hasReferencedBodyExamples = requestBodies.some(({ schema }) => {
+    const referenced = schema && "$ref" in schema && context.getSchemaByRef(schema.$ref);
+    return referenced && "examples" in referenced;
+  });
+  if (!supportsOnlyJson(contentTypes) || hasReferencedBodyExamples) {
     definitions.push(`@header contentType: ${contentTypes.map((c) => `"${c}"`).join(" | ")}`);
   }
 

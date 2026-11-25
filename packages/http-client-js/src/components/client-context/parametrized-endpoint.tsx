@@ -21,8 +21,9 @@ export function ParametrizedEndpoint(props: ParametrizedEndpointProps) {
           {(p) => {
             const applicationName = propNamer.getApplicationName(p);
             const transportName = propNamer.getTransportName(p);
-            const defaultValue = p.defaultValue ? ` ?? ${getDefaultValue(p)}` : "";
-            const itemRef = p.optional
+            const isOptional = p.optional || p.defaultValue !== undefined;
+            const defaultValue = p.defaultValue !== undefined ? ` ?? ${getDefaultValue(p)}` : "";
+            const itemRef = isOptional
               ? `options?.${applicationName}${defaultValue}`
               : applicationName;
             return <ts.ObjectProperty name={transportName} value={itemRef} />;

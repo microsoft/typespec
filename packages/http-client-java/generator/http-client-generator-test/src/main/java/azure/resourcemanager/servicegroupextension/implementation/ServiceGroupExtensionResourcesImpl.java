@@ -47,13 +47,7 @@ public final class ServiceGroupExtensionResourcesImpl implements ServiceGroupExt
 
     public ServiceGroupExtensionResource createOrUpdate(String serviceGroupId, String serviceGroupExtensionResourceName,
         ServiceGroupExtensionResourceInner resource) {
-        ServiceGroupExtensionResourceInner inner
-            = this.serviceClient().createOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource);
-        if (inner != null) {
-            return new ServiceGroupExtensionResourceImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.createOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, Context.NONE);
     }
 
     public ServiceGroupExtensionResource createOrUpdate(String serviceGroupId, String serviceGroupExtensionResourceName,
@@ -92,14 +86,11 @@ public final class ServiceGroupExtensionResourcesImpl implements ServiceGroupExt
     }
 
     public void deleteByResourceGroup(String serviceGroupId, String serviceGroupExtensionResourceName) {
-        this.serviceClient().delete(serviceGroupId, serviceGroupExtensionResourceName);
+        this.deleteByResourceGroupWithResponse(serviceGroupId, serviceGroupExtensionResourceName, Context.NONE);
     }
 
     public PagedIterable<ServiceGroupExtensionResource> listByServiceGroup(String serviceGroupId) {
-        PagedIterable<ServiceGroupExtensionResourceInner> inner
-            = this.serviceClient().listByServiceGroup(serviceGroupId);
-        return ResourceManagerUtils.mapPage(inner,
-            inner1 -> new ServiceGroupExtensionResourceImpl(inner1, this.manager()));
+        return this.listByServiceGroup(serviceGroupId, Context.NONE);
     }
 
     public PagedIterable<ServiceGroupExtensionResource> listByServiceGroup(String serviceGroupId, Context context) {

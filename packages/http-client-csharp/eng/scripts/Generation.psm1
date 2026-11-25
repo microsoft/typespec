@@ -38,8 +38,12 @@ function Get-TspCommand {
     $command += " --trace @typespec/http-client-csharp"
     $command += " --emit $emitterDir"
     $configFile = Join-Path $generationDir "tspconfig.yaml"
-    if (Test-Path $configFile) {
+    if ((Test-Path $configFile) -and (Split-Path $specFile) -ne $generationDir) {
         $command += " --config=$configFile"
+    }
+    $clientFile = Join-Path $generationDir "client.tsp"
+    if (Test-Path $clientFile) {
+        $command += " --import $clientFile"
     }
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
     $command += " --option @typespec/http-client-csharp.save-inputs=true"

@@ -115,9 +115,7 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> two6kWithResponse(String resourceGroupName, String largeHeaderName) {
-        final String accept = "application/json";
-        return service.two6kSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, largeHeaderName, accept, Context.NONE);
+        return two6kWithResponse(resourceGroupName, largeHeaderName, Context.NONE);
     }
 
     /**
@@ -156,35 +154,14 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
             CancelResultInner.class, CancelResultInner.class, this.client.getContext());
     }
 
-    /**
-     * The two6k operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param largeHeaderName The name of the LargeHeader.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<CancelResultInner>, CancelResultInner> beginTwo6k(String resourceGroupName,
         String largeHeaderName) {
-        Response<BinaryData> response = two6kWithResponse(resourceGroupName, largeHeaderName);
-        return this.client.<CancelResultInner, CancelResultInner>getLroResult(response, CancelResultInner.class,
-            CancelResultInner.class, Context.NONE);
+        return beginTwo6k(resourceGroupName, largeHeaderName, Context.NONE);
     }
 
-    /**
-     * The two6k operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param largeHeaderName The name of the LargeHeader.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<CancelResultInner>, CancelResultInner> beginTwo6k(String resourceGroupName,
         String largeHeaderName, Context context) {
@@ -209,34 +186,15 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The two6k operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param largeHeaderName The name of the LargeHeader.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CancelResultInner two6k(String resourceGroupName, String largeHeaderName) {
-        return beginTwo6k(resourceGroupName, largeHeaderName).getFinalResult();
+        return two6k(resourceGroupName, largeHeaderName, Context.NONE);
     }
 
-    /**
-     * The two6k operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param largeHeaderName The name of the LargeHeader.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CancelResultInner two6k(String resourceGroupName, String largeHeaderName, Context context) {
-        return beginTwo6k(resourceGroupName, largeHeaderName, context).getFinalResult();
+        return this.client.getLroFinalResultOrError(beginTwo6k(resourceGroupName, largeHeaderName, context));
     }
 }

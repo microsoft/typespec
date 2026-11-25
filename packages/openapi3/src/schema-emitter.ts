@@ -176,7 +176,10 @@ export class OpenAPI3SchemaEmitterBase<
         getDiscriminatedUnionFromInheritance(program, type, discriminator),
       );
       if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
+        schema.discriminator.mapping = this.getDiscriminatorMapping(
+          discriminatedUnion.variants,
+          (variant) => this.#emitDerivedModelReference(variant),
+        );
       }
     }
   }
@@ -235,16 +238,9 @@ export class OpenAPI3SchemaEmitterBase<
 
     this.applyModelIndexer(schema, model);
 
-    const derivedModels = model.derivedModels.filter(includeDerivedModel);
-    // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of derivedModels) {
-      if (this._visibilityUsage.isUnreachable(child)) {
-        // Unreachable derived models will be emitted by processUnreferencedSchemas with
-        // Visibility.All context. Force the same context here to avoid a duplicate declaration.
-        this.emitter.emitTypeReference(child, { referenceContext: { visibility: Visibility.All } });
-      } else {
-        this.emitter.emitTypeReference(child);
-      }
+    // Include all children in components.schemas.
+    for (const child of model.derivedModels.filter(includeDerivedModel)) {
+      this.#emitDerivedModelReference(child);
     }
 
     this.applyDiscriminator(model, schema as any);
@@ -263,6 +259,13 @@ export class OpenAPI3SchemaEmitterBase<
     const name = isMultipart ? baseName + "MultiPart" : baseName;
 
     return this.#createDeclaration(model, name, this.applyConstraints(model, schema as any));
+  }
+
+  #emitDerivedModelReference(model: Model) {
+    // Match the visibility used by processUnreferencedSchemas to avoid duplicate declarations.
+    return this._visibilityUsage.isUnreachable(model)
+      ? this.emitter.emitTypeReference(model, { referenceContext: { visibility: Visibility.All } })
+      : this.emitter.emitTypeReference(model);
   }
 
   #applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
@@ -755,10 +758,13 @@ export class OpenAPI3SchemaEmitterBase<
     return undefined;
   }
 
-  getDiscriminatorMapping(variants: Map<string, Type>) {
+  getDiscriminatorMapping<T extends Type>(
+    variants: Map<string, T>,
+    emitReference = (variant: T) => this.emitter.emitTypeReference(variant),
+  ) {
     const mapping: Record<string, string> | undefined = {};
     for (const [key, model] of variants.entries()) {
-      const ref = this.emitter.emitTypeReference(model);
+      const ref = emitReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
       if (ref.value instanceof Placeholder) {
         ref.value.onValue((resolvedValue) => {

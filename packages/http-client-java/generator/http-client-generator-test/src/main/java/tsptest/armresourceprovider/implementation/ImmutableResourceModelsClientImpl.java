@@ -86,18 +86,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
             @BodyParam("application/json") NginxConfigurationRequest properties, Context context);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String configurationName, NginxConfigurationRequest properties) {
@@ -123,9 +112,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties) {
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, configurationName, accept, properties, Context.NONE);
+        return createOrUpdateWithResponse(resourceGroupName, configurationName, properties, Context.NONE);
     }
 
     /**
@@ -149,18 +136,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
             this.client.getSubscriptionId(), resourceGroupName, configurationName, accept, properties, context);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of concrete proxy resource types can be created by aliasing this type
-     * using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse> beginCreateOrUpdateAsync(
         String resourceGroupName, String configurationName, NginxConfigurationRequest properties) {
@@ -171,17 +147,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
             this.client.getContext());
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of concrete proxy resource types can be created by aliasing this type
-     * using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdateAsync(String resourceGroupName, String configurationName) {
@@ -208,44 +174,18 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     private SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName, NginxConfigurationRequest properties) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, configurationName, properties);
-        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
-            NginxConfigurationResponse.class, NginxConfigurationResponse.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, configurationName, properties, Context.NONE);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete proxy resource types can be created by aliasing this type
-     * using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse>
         beginCreateOrUpdate(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, configurationName, properties);
-        return this.client.<NginxConfigurationResponse, NginxConfigurationResponse>getLroResult(response,
-            NginxConfigurationResponse.class, NginxConfigurationResponse.class, Context.NONE);
+        return beginCreateOrUpdate(resourceGroupName, configurationName, properties, Context.NONE);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete proxy resource types can be created by aliasing this type
-     * using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<NginxConfigurationResponse>, NginxConfigurationResponse> beginCreateOrUpdate(
         String resourceGroupName, String configurationName, NginxConfigurationRequest properties, Context context) {
@@ -255,18 +195,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
             NginxConfigurationResponse.class, NginxConfigurationResponse.class, context);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<NginxConfigurationResponse> createOrUpdateAsync(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties) {
@@ -274,17 +203,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<NginxConfigurationResponse> createOrUpdateAsync(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
@@ -292,37 +211,18 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName) {
         final NginxConfigurationRequest properties = null;
-        return beginCreateOrUpdate(resourceGroupName, configurationName, properties).getFinalResult();
+        return createOrUpdate(resourceGroupName, configurationName, properties, Context.NONE);
     }
 
-    /**
-     * The createOrUpdate operation.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param configurationName The name of the NginxConfigurationResponse.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NginxConfigurationResponse createOrUpdate(String resourceGroupName, String configurationName,
         NginxConfigurationRequest properties, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, configurationName, properties, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceGroupName, configurationName, properties, context));
     }
 }

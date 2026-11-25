@@ -15,7 +15,6 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import response.bodyornocontent.implementation.BodyOrNoContentClientImpl;
 import response.bodyornocontent.models.BlobLayout;
@@ -117,8 +116,12 @@ public final class BodyOrNoContentAsyncClient {
     public Mono<BlobLayout> getBody() {
         // Generated convenience method for getBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getBodyWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(BlobLayout.class));
+        return getBodyWithResponse(requestOptions).flatMap(protocolMethodResponse -> {
+            if (protocolMethodResponse.getStatusCode() == 204) {
+                return Mono.empty();
+            }
+            return Mono.justOrEmpty(protocolMethodResponse.getValue().toObject(BlobLayout.class));
+        });
     }
 
     /**
@@ -136,7 +139,11 @@ public final class BodyOrNoContentAsyncClient {
     public Mono<BlobLayout> getNoContent() {
         // Generated convenience method for getNoContentWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getNoContentWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(BlobLayout.class));
+        return getNoContentWithResponse(requestOptions).flatMap(protocolMethodResponse -> {
+            if (protocolMethodResponse.getStatusCode() == 204) {
+                return Mono.empty();
+            }
+            return Mono.justOrEmpty(protocolMethodResponse.getValue().toObject(BlobLayout.class));
+        });
     }
 }

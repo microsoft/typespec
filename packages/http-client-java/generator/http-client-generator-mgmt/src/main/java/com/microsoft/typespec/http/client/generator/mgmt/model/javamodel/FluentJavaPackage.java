@@ -30,9 +30,12 @@ import com.microsoft.typespec.http.client.generator.mgmt.template.FluentResource
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentResourceModelInterfaceTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.template.ResourceManagerUtilsTemplate;
+import com.microsoft.typespec.http.client.generator.mgmt.template.ResourceManagerUtilsTemplate.UtilityMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.template.SampleTemplate;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class FluentJavaPackage extends JavaPackage {
 
@@ -90,10 +93,22 @@ public class FluentJavaPackage extends JavaPackage {
     }
 
     public final void addResourceManagerUtils() {
+        Set<UtilityMethod> usedMethods = EnumSet.noneOf(UtilityMethod.class);
+        for (JavaFile file : getJavaFiles()) {
+            String source = file.getContents().toString();
+            for (UtilityMethod method : UtilityMethod.values()) {
+                if (source.contains(ModelNaming.CLASS_RESOURCE_MANAGER_UTILS + "." + method.getMethodName() + "(")) {
+                    usedMethods.add(method);
+                }
+            }
+        }
+        if (usedMethods.isEmpty()) {
+            return;
+        }
         JavaSettings settings = JavaSettings.getInstance();
         JavaFile javaFile = getJavaFileFactory().createSourceFile(
             settings.getPackage(settings.getImplementationSubpackage()), ModelNaming.CLASS_RESOURCE_MANAGER_UTILS);
-        ResourceManagerUtilsTemplate.getInstance().write(javaFile);
+        ResourceManagerUtilsTemplate.getInstance().write(usedMethods, javaFile);
         addJavaFile(javaFile);
     }
 

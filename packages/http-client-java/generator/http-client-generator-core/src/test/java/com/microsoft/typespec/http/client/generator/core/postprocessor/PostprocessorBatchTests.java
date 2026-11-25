@@ -4,10 +4,12 @@
 package com.microsoft.typespec.http.client.generator.core.postprocessor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
@@ -62,6 +64,22 @@ public class PostprocessorBatchTests {
         Postprocessor.writeToFiles(new LinkedHashMap<>(), host, LoggerFactory.getLogger(PostprocessorBatchTests.class));
 
         assertEquals(0, host.configurationReads);
+        assertTrue(host.output.isEmpty());
+    }
+
+    @Test
+    public void invalidJavaIsReportedAcrossTheBatchBeforeWritingFiles() {
+        Host host = new Host();
+        Map<String, String> files = new LinkedHashMap<>();
+        files.put("Valid.java", "class Valid {}");
+        files.put("First.java", "class First { void broken(;) {} }");
+        files.put("Second.java", "class Second { void broken(;) {} }");
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> CodeFormatterUtil.formatCode(files, host, LoggerFactory.getLogger(PostprocessorBatchTests.class)));
+
+        assertTrue(exception.getMessage().contains("First.java"));
+        assertTrue(exception.getMessage().contains("Second.java"));
         assertTrue(host.output.isEmpty());
     }
 

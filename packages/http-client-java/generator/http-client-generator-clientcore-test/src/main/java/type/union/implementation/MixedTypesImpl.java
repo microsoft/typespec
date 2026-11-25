@@ -1,20 +1,23 @@
 package type.union.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
 import type.union.GetResponse9;
 import type.union.MixedTypesCases;
 
@@ -49,37 +52,90 @@ public final class MixedTypesImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientMixedTypes to be used by the proxy service to perform REST
-     * calls.
+     * The HTTP operations for UnionClientMixedTypes.
      */
-    @ServiceInterface(name = "UnionClientMixedTypes", host = "{endpoint}")
     public interface MixedTypesService {
         static MixedTypesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.MixedTypesServiceImpl");
-                return (MixedTypesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new MixedTypesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/mixed-types",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse9> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<GetResponse9> get(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/mixed-types",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest9 sendRequest9, RequestContext requestContext);
+        Response<Void> send(String endpoint, String contentType, SendRequest9 sendRequest9,
+            RequestContext requestContext);
+    }
+
+    private static final class MixedTypesServiceImpl implements MixedTypesService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(MixedTypesService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private MixedTypesServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<GetResponse9> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/type/union/mixed-types");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, GetResponse9.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Void> send(String endpoint, String contentType, SendRequest9 sendRequest9,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/type/union/mixed-types");
+            if (sendRequest9 != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(sendRequest9,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        private <T> T decodeResponse(BinaryData value, ParameterizedType type, SerializationFormat format) {
+            if (this.jsonSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.jsonSerializer, type);
+            }
+            if (this.xmlSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.xmlSerializer, type);
+            }
+            throw HTTP_LOG.throwableAtError()
+                .addKeyValue("serializationFormat", format.name())
+                .log("None of the provided serializers support the format.", UnsupportedOperationException::new);
+        }
     }
 
     /**

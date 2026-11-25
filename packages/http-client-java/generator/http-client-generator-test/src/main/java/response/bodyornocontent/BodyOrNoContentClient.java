@@ -115,7 +115,11 @@ public final class BodyOrNoContentClient {
     public BlobLayout getBody() {
         // Generated convenience method for getBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getBodyWithResponse(requestOptions).getValue().toObject(BlobLayout.class);
+        Response<BinaryData> protocolMethodResponse = getBodyWithResponse(requestOptions);
+        if (protocolMethodResponse.getStatusCode() == 204) {
+            return null;
+        }
+        return protocolMethodResponse.getValue().toObject(BlobLayout.class);
     }
 
     /**
@@ -133,6 +137,10 @@ public final class BodyOrNoContentClient {
     public BlobLayout getNoContent() {
         // Generated convenience method for getNoContentWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getNoContentWithResponse(requestOptions).getValue().toObject(BlobLayout.class);
+        Response<BinaryData> protocolMethodResponse = getNoContentWithResponse(requestOptions);
+        if (protocolMethodResponse.getStatusCode() == 204) {
+            return null;
+        }
+        return protocolMethodResponse.getValue().toObject(BlobLayout.class);
     }
 }

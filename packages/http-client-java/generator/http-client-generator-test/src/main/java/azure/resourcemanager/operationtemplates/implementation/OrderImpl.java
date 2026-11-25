@@ -24,6 +24,12 @@ public final class OrderImpl implements Order, Order.Definition {
         azure.resourcemanager.operationtemplates.OperationTemplatesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
+            "resourceGroupName");
+        this.orderName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/orders/{orderName}",
+            "orderName");
     }
 
     public String id() {
@@ -85,10 +91,7 @@ public final class OrderImpl implements Order, Order.Definition {
     }
 
     public Order create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getLroes()
-            .createOrReplace(resourceGroupName, orderName, this.innerModel(), Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public Order create(Context context) {

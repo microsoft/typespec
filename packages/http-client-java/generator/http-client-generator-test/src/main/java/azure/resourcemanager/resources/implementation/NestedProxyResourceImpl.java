@@ -62,11 +62,7 @@ public final class NestedProxyResourceImpl
     }
 
     public NestedProxyResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNesteds()
-            .createOrReplace(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, this.innerModel(),
-                Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public NestedProxyResource create(Context context) {
@@ -88,11 +84,7 @@ public final class NestedProxyResourceImpl
     }
 
     public NestedProxyResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNesteds()
-            .update(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, this.innerModel(),
-                Context.NONE);
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public NestedProxyResource apply(Context context) {
@@ -119,11 +111,7 @@ public final class NestedProxyResourceImpl
     }
 
     public NestedProxyResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getNesteds()
-            .getWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public NestedProxyResource refresh(Context context) {

@@ -6,20 +6,23 @@ import encode.datetime.Rfc7231DatetimeProperty;
 import encode.datetime.UnixTimestampArrayDatetimeProperty;
 import encode.datetime.UnixTimestampDatetimeProperty;
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
 
 /**
  * An instance of this class provides access to all the operations defined in Properties.
@@ -52,66 +55,203 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The interface defining all the services for DatetimeClientProperties to be used by the proxy service to perform
-     * REST calls.
+     * The HTTP operations for DatetimeClientProperties.
      */
-    @ServiceInterface(name = "DatetimeClientProperties", host = "{endpoint}")
     public interface PropertiesService {
         static PropertiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.datetime.implementation.PropertiesServiceImpl");
-                return (PropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new PropertiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/datetime/property/default",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<DefaultDatetimeProperty> defaultMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") DefaultDatetimeProperty body, RequestContext requestContext);
+        Response<DefaultDatetimeProperty> defaultMethod(String endpoint, String contentType, String accept,
+            DefaultDatetimeProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/datetime/property/rfc3339",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Rfc3339DatetimeProperty> rfc3339(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Rfc3339DatetimeProperty body, RequestContext requestContext);
+        Response<Rfc3339DatetimeProperty> rfc3339(String endpoint, String contentType, String accept,
+            Rfc3339DatetimeProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/datetime/property/rfc7231",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Rfc7231DatetimeProperty> rfc7231(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Rfc7231DatetimeProperty body, RequestContext requestContext);
+        Response<Rfc7231DatetimeProperty> rfc7231(String endpoint, String contentType, String accept,
+            Rfc7231DatetimeProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/datetime/property/unix-timestamp",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<UnixTimestampDatetimeProperty> unixTimestamp(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") UnixTimestampDatetimeProperty body, RequestContext requestContext);
+        Response<UnixTimestampDatetimeProperty> unixTimestamp(String endpoint, String contentType, String accept,
+            UnixTimestampDatetimeProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/datetime/property/unix-timestamp-array",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<UnixTimestampArrayDatetimeProperty> unixTimestampArray(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") UnixTimestampArrayDatetimeProperty body, RequestContext requestContext);
+        Response<UnixTimestampArrayDatetimeProperty> unixTimestampArray(String endpoint, String contentType,
+            String accept, UnixTimestampArrayDatetimeProperty body, RequestContext requestContext);
+    }
+
+    private static final class PropertiesServiceImpl implements PropertiesService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(PropertiesService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private PropertiesServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<DefaultDatetimeProperty> defaultMethod(String endpoint, String contentType, String accept,
+            DefaultDatetimeProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/datetime/property/default");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, DefaultDatetimeProperty.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Rfc3339DatetimeProperty> rfc3339(String endpoint, String contentType, String accept,
+            Rfc3339DatetimeProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/datetime/property/rfc3339");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Rfc3339DatetimeProperty.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Rfc7231DatetimeProperty> rfc7231(String endpoint, String contentType, String accept,
+            Rfc7231DatetimeProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/datetime/property/rfc7231");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, Rfc7231DatetimeProperty.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<UnixTimestampDatetimeProperty> unixTimestamp(String endpoint, String contentType, String accept,
+            UnixTimestampDatetimeProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/datetime/property/unix-timestamp");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, UnixTimestampDatetimeProperty.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<UnixTimestampArrayDatetimeProperty> unixTimestampArray(String endpoint, String contentType,
+            String accept, UnixTimestampArrayDatetimeProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/datetime/property/unix-timestamp-array");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, UnixTimestampArrayDatetimeProperty.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        private <T> T decodeResponse(BinaryData value, ParameterizedType type, SerializationFormat format) {
+            if (this.jsonSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.jsonSerializer, type);
+            }
+            if (this.xmlSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.xmlSerializer, type);
+            }
+            throw HTTP_LOG.throwableAtError()
+                .addKeyValue("serializationFormat", format.name())
+                .log("None of the provided serializers support the format.", UnsupportedOperationException::new);
+        }
     }
 
     /**
