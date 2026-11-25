@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -66,11 +68,42 @@ namespace Microsoft.TypeSpec.Generator
                 // Finally, if project depends on alpha version, this information is not contained in Assembly
                 if (type == null)
                 {
+                    StringBuilder sbTypeName = new();
+                    ITypeSymbol nextTypeSymbol = typeSymbol;
+                    while (nextTypeSymbol.ContainingType != null)
+                    {
+                        sbTypeName.Insert(0, nextTypeSymbol.Name);
+                        sbTypeName.Insert(0, '+');
+                        nextTypeSymbol = nextTypeSymbol.ContainingType;
+                    }
+                    sbTypeName.Insert(0, GetFullyQualifiedName(nextTypeSymbol));
                     InputExternalTypeMetadata metadata = new(
-                        identity: fullyQualifiedName,
+                        identity: sbTypeName.ToString(),
                         package: assembly.Name,
                         minVersion: null);
                     type = ExternalTypeReferenceResolver.TryResolve(metadata);
+                }
+
+                if (type != null && type.IsValueType && !type.IsEnum)
+                {
+                    // A referenced extensible enum is implemented as a value-type struct, so the resolved
+                    // framework type is not recognized as an enum via reflection and loses its enum semantics.
+                    // Rebuild it preserving the underlying enum type so downstream serialization emits inline
+                    // construction (e.g. new Kind(value)) instead of a broken ModelReaderWriter.Read<T> fallback.
+                    IMethodSymbol? oneConstructor = typeSymbol
+                        .GetMembers()
+                        .Where(m => m is IMethodSymbol constructor && constructor.MethodKind == MethodKind.Constructor && constructor.Parameters.Length == 1)
+                        .Select(p => (IMethodSymbol)p)
+                        .FirstOrDefault();
+
+                    if (oneConstructor != null)
+                    {
+                        Type? underlyingType = CodeModelGenerator.Instance.TypeFactory.CreateFrameworkType(GetFullyQualifiedName(oneConstructor.Parameters[0].Type));
+                        if (underlyingType != null)
+                        {
+                            return (new CSharpType(type)).WithUnderlyingEnumType(underlyingType);
+                        }
+                    }
                 }
             }
 

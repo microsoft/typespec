@@ -14,6 +14,7 @@ using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using static Microsoft.TypeSpec.Generator.Primitives.CSharpType;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -207,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 nugetCacheDir: nugetCacheDir,
                 packageName: pkgName,
                 version: fixedPkgVersion,
-                sourceCode: $"namespace {pkgName} {{ public class MyExternalType {{ }} }}",
+                sourceCode: $"namespace {pkgName} {{ public class MyExternalType {{ public class MyInnerExternalType {{ public class My2InnerExternalType {{}} }} }} }}",
                 assemblyVersion: assemblyVersion);
             InputExternalTypeMetadata external = new(typeName, pkgName, null);
             InputModelType model = InputFactory.Model(
@@ -231,6 +232,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     assemblyName: pkgName,
                     references: [myExternalRef]
                 );
+                // Load the assembly.
                 IAssemblySymbol? testAssembly = (IAssemblySymbol?)compilation.GetAssemblyOrModuleSymbol(myExternalRef);
                 Assert.That(testAssembly, Is.Not.Null);
                 if(pkgVersion.Length == 5)
@@ -242,17 +244,88 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 {
                     Assert.That(testAssembly?.Identity.Version, Is.EqualTo(assemblyVersion));
                 }
-                INamedTypeSymbol ? myTypeReflection = testAssembly?.GetTypeByMetadataName(typeName);
-                Assert.That(myTypeReflection, Is.Not.Null);
-                CSharpType? typespecType = myTypeReflection?.GetCSharpType();
-                Assert.That(typespecType, Is.Not.Null);
-                Assert.That(typespecType?.IsFrameworkType, Is.EqualTo(shouldBeFramework));
+                // Run the tests.
+                AssertFramework(testAssembly, typeName, shouldBeFramework);
+                AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType", shouldBeFramework);
+                AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType+My2InnerExternalType", shouldBeFramework);
             }
             finally
             {
                 ExternalTypeReferenceResolver.Reset();
                 Directory.Delete(tempDir, true);
             }
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalEnumNotInFramework()
+        {
+            // Create a temporary directory for project and cache
+            string tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
+            string nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
+            Directory.CreateDirectory(nugetCacheDir);
+            // Create an external test package.
+            const string pkgName = "Test.ModelProvider.External";
+            string typeName = $"{pkgName}.MyEnumType";
+            const string pkgVersion = "1.0.0";
+            Version assemblyVersion = Version.Parse(pkgVersion);
+            FakeNuGetPackage.Create(
+                nugetCacheDir: nugetCacheDir,
+                packageName: pkgName,
+                version: pkgVersion,
+                sourceCode: File.ReadAllText(Helpers.GetAssetFileOrDirectoryPath(true)),
+                assemblyVersion: assemblyVersion);
+            InputExternalTypeMetadata external = new(typeName, pkgName, null);
+            InputModelType model = InputFactory.Model(
+                "ModelWithResolvableExternal",
+                external: external
+            );
+            // Make sure we are reading the temporary NuGetCache.
+            string ns = "TestProject";
+            try
+            {
+                MockHelpers.LoadMockGenerator(
+                    inputNamespaceName: ns,
+                    outputPath: Path.Combine(tempDir, "ProjectDir"),
+                    inputModelTypes: [model],
+                    configuration: $"{{\"package-name\": \"{ns}\"}}");
+                string dllPath = Path.Combine(nugetCacheDir, pkgName.ToLowerInvariant(), pkgVersion, "lib", "netstandard2.0", $"{pkgName}.dll");
+                CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(dllPath));
+                MetadataReference myExternalRef = MetadataReference.CreateFromFile(dllPath);
+                CSharpCompilation compilation = CSharpCompilation.Create(
+                    assemblyName: pkgName,
+                    references: [myExternalRef]
+                );
+                // Load the assembly.
+                IAssemblySymbol? testAssembly = (IAssemblySymbol?)compilation.GetAssemblyOrModuleSymbol(myExternalRef);
+                Assert.That(testAssembly, Is.Not.Null);
+                Version correctedVersion = new(pkgVersion + ".0");
+                Assert.That(testAssembly?.Identity.Version, Is.EqualTo(correctedVersion));
+                // Sanity check that we do have a symbol.
+                INamedTypeSymbol? typeReflection = testAssembly?.GetTypeByMetadataName(typeName);
+                Assert.That(typeReflection, Is.Not.Null);
+                CSharpType? typespecType = typeReflection?.GetCSharpType();
+                Assert.That(typespecType, Is.Not.Null);
+                Assert.That(typespecType?.IsFrameworkType, Is.True);
+                Assert.That(typespecType?.IsEnum, Is.True);
+            }
+            finally
+            {
+                ExternalTypeReferenceResolver.Reset();
+                Directory.Delete(tempDir, true);
+            }
+        }
+
+        private static void AssertFramework(IAssemblySymbol? testAssembly, string symbolName, bool shouldBeFramework)
+        {
+            // Sanity check that we do have a symbol.
+            INamedTypeSymbol? typeReflection = testAssembly?.GetTypeByMetadataName(symbolName);
+            Assert.That(typeReflection, Is.Not.Null);
+            // Check is we return the right class.
+            CSharpType? typespecType = typeReflection?.GetCSharpType();
+            Assert.That(typespecType, Is.Not.Null);
+            Assert.That(typespecType?.IsFrameworkType, Is.EqualTo(shouldBeFramework));
+            Assert.That(typespecType?.IsEnum, Is.False);
         }
     }
 }
