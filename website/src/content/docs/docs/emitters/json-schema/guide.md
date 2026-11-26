@@ -26,6 +26,16 @@ If you want to treat all TypeSpec types as JSON Schema types (even if they don't
 
 If you want to treat all TypeSpec types referenced from JSON Schema types as JSON Schema types (even if they don't have the `@jsonSchema` decorator), you can set the `emitAllRefs` option to true. With this set, data types which are referenced from JSON Schema types will get their own schema file, and all references to them will be relative URIs.
 
+## Unions
+
+Unconstrained union variants are combined into a JSON Schema `type` array. For example, `string | null` emits:
+
+```json
+{ "type": ["string", "null"] }
+```
+
+In mixed unions, unconstrained types are combined into one `anyOf` branch. Variants with constraints, annotations, references, or `@extension` decorators remain separate so their validation behavior and metadata are preserved. Unions marked with `@oneOf`, including inline unions on properties marked with `@oneOf`, keep their separate branches.
+
 ## Configuring file names
 
 Use the `file-name` option to customize the name of each schema file. The default is `"{name}.{ext}"`, where `{name}` is the declaration name and `{ext}` is `yaml` or `json`, selected by `file-type` (defaults to `yaml`).

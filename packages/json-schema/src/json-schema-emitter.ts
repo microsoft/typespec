@@ -313,7 +313,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<object> {
-    const propertyType = this.emitter.emitTypeReference(property.type);
+    const propertyType =
+      isOneOf(this.emitter.getProgram(), property) &&
+      property.type.kind === "Union" &&
+      (!property.type.name || !this.declarationName(property.type))
+        ? this.emitter.result.rawCode(this.#unionSchema(property.type, true))
+        : this.emitter.emitTypeReference(property.type);
     compilerAssert(propertyType.kind === "code", "Unexpected non-code result from emit reference");
 
     const result = new ObjectBuilder(propertyType.value);
@@ -419,22 +424,59 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
-    const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
-
-    const withConstraints = this.#initializeSchema(union, name, {
-      [key]: this.emitter.emitUnionVariants(union),
-    });
+    const withConstraints = this.#initializeSchema(union, name, this.#unionSchema(union));
 
     this.#applyConstraints(union, withConstraints);
     return this.#createDeclaration(union, name, withConstraints);
   }
 
   unionLiteral(union: Union): EmitterOutput<object> {
-    const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
+    return this.#unionSchema(union);
+  }
 
-    return new ObjectBuilder({
-      [key]: this.emitter.emitUnionVariants(union),
-    });
+  #unionSchema(
+    union: Union,
+    oneOf = isOneOf(this.emitter.getProgram(), union),
+  ): ObjectBuilder<unknown> {
+    const emitted = this.emitter.emitUnionVariants(union);
+    if (oneOf) {
+      return new ObjectBuilder({ oneOf: emitted });
+    }
+
+    compilerAssert(
+      emitted.kind === "code" && Array.isArray(emitted.value),
+      "Expected union variants",
+    );
+    const schemas: Record<string, unknown>[] = emitted.value;
+    const variants = new ArrayBuilder();
+    const types = new Set<string>();
+    const combined = new ObjectBuilder();
+    const unionVariants = [...union.variants.values()];
+    for (const [index, schema] of schemas.entries()) {
+      const schemaTypes: unknown[] = Array.isArray(schema.type) ? schema.type : [schema.type];
+      if (
+        getExtensions(this.emitter.getProgram(), unionVariants[index]).length === 0 &&
+        Object.keys(schema).length === 1 &&
+        schemaTypes.every((type) => typeof type === "string")
+      ) {
+        if (types.size === 0) {
+          variants.push(combined);
+        }
+        for (const type of schemaTypes) {
+          types.add(type);
+        }
+      } else {
+        variants.push(schema);
+      }
+    }
+
+    if (types.size > 0) {
+      combined.type = types.size === 1 ? [...types][0] : [...types];
+      if (variants.length === 1) {
+        return combined;
+      }
+    }
+    return new ObjectBuilder({ anyOf: variants });
   }
 
   unionVariants(union: Union): EmitterOutput<object> {
