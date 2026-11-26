@@ -184,7 +184,7 @@ export async function createSourceLoader(
   function parseOrReuse(file: SourceFile): TypeSpecScriptNode {
     if (options?.getCachedScript) {
       const old = options.getCachedScript(file);
-      if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions)) {
+      if (old?.file === file && deepEquals(old.parseOptions, options.parseOptions ?? {})) {
         return old;
       }
     }
