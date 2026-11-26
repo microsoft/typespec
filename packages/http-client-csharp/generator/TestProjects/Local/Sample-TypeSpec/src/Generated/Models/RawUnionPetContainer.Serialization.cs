@@ -101,7 +101,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(Pet);
 #else
-            using (JsonDocument document = JsonDocument.Parse(Pet))
+            using (JsonDocument document = JsonDocument.Parse(Pet, ModelSerializationExtensions.JsonDocumentOptions))
             {
                 JsonSerializer.Serialize(writer, document.RootElement);
             }
@@ -112,7 +112,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(NullablePet);
 #else
-                using (JsonDocument document = JsonDocument.Parse(NullablePet))
+                using (JsonDocument document = JsonDocument.Parse(NullablePet, ModelSerializationExtensions.JsonDocumentOptions))
                 {
                     JsonSerializer.Serialize(writer, document.RootElement);
                 }
@@ -132,7 +132,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item))
+                    using (JsonDocument document = JsonDocument.Parse(item, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -155,7 +155,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }
@@ -169,7 +169,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(RawPets);
 #else
-                using (JsonDocument document = JsonDocument.Parse(RawPets))
+                using (JsonDocument document = JsonDocument.Parse(RawPets, ModelSerializationExtensions.JsonDocumentOptions))
                 {
                     JsonSerializer.Serialize(writer, document.RootElement);
                 }
@@ -181,7 +181,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(RawLookup);
 #else
-                using (JsonDocument document = JsonDocument.Parse(RawLookup))
+                using (JsonDocument document = JsonDocument.Parse(RawLookup, ModelSerializationExtensions.JsonDocumentOptions))
                 {
                     JsonSerializer.Serialize(writer, document.RootElement);
                 }
@@ -195,7 +195,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    using (JsonDocument document = JsonDocument.Parse(item.Value, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         JsonSerializer.Serialize(writer, document.RootElement);
                     }

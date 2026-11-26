@@ -14,7 +14,7 @@ public override async global::System.Threading.Tasks.Task WriteToAsync(global::S
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(data);
 #else
-                using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
+                using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                 {
                     global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                 }

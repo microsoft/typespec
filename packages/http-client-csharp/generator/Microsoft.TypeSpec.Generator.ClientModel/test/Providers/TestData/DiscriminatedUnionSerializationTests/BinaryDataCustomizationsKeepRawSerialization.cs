@@ -9,7 +9,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
     writer.WriteRawValue(Pet);
 #else
-    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(Pet))
+    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(Pet, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
     {
         global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
     }
@@ -20,7 +20,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
         writer.WriteRawValue(NullablePet);
 #else
-        using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(NullablePet))
+        using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(NullablePet, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
         {
             global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
         }
@@ -40,7 +40,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(item);
 #else
-            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item))
+            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
             {
                 global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
             }
@@ -63,7 +63,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(item.Value);
 #else
-            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
             {
                 global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
             }
@@ -77,7 +77,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
         writer.WriteRawValue(RawPets);
 #else
-        using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(RawPets))
+        using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(RawPets, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
         {
             global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
         }
@@ -89,7 +89,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
         writer.WriteRawValue(RawLookup);
 #else
-        using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(RawLookup))
+        using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(RawLookup, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
         {
             global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
         }
@@ -103,7 +103,7 @@ protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWrite
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(item.Value);
 #else
-            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+            using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
             {
                 global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
             }

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
+using Sample;
 
 namespace Sample.Models
 {
@@ -27,7 +28,7 @@ namespace Sample.Models
 #if NET6_0_OR_GREATER
                     writer.WriteRawValue(item.Value);
 #else
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                     }

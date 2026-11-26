@@ -1,15 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
@@ -19,6 +26,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         public TypedSnippetsTests()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void WriteBinaryDataUsesConfiguredJsonDocumentOptions()
+        {
+            var writer = new ParameterProvider("writer", $"The JSON writer.", typeof(Utf8JsonWriter)).As<Utf8JsonWriter>();
+            var value = new VariableExpression(typeof(BinaryData), "value");
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.WriteBinaryData(value).ToDisplayString());
+        }
+
+        [TestCase(32)]
+        [TestCase(80)]
+        public void WriteBinaryDataNetStandardFallbackRoundTripsNestedJson(int depth)
+        {
+            var json = new string('[', depth) + "0" + new string(']', depth);
+
+            Assert.AreEqual(json, CompileBinaryDataWriter()(json));
+        }
+
+        [Test]
+        public void WriteBinaryDataNetStandardFallbackPreservesDepthLimit()
+        {
+            var write = CompileBinaryDataWriter();
+            var json = new string('[', 257) + "0" + new string(']', 257);
+
+            Assert.Catch<JsonException>(() => write(json));
+        }
+
+        private static Func<string, string> CompileBinaryDataWriter()
+        {
+            var writer = new VariableExpression(typeof(Utf8JsonWriter), "writer").As<Utf8JsonWriter>();
+            var value = new VariableExpression(typeof(BinaryData), "value");
+            var options = new ModelSerializationExtensionsDefinition().Fields.Single(field => field.Name == "JsonDocumentOptions").InitializationValue!;
+            var source = Helpers.GetExpectedFromFile()
+                .Replace("/* json document options */", options.ToDisplayString())
+                .Replace("/* write binary data */", writer.WriteBinaryData(value).ToDisplayString());
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(BinaryData).Assembly.Location)
+                .Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create(
+                "BinaryDataWriter" + Guid.NewGuid().ToString("N"),
+                [CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(preprocessorSymbols: ["NETSTANDARD2_0"]))],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+
+            var method = Assembly.Load(stream.ToArray()).GetType("Sample.BinaryDataWriter")!.GetMethod("Write")!;
+            return (Func<string, string>)method.CreateDelegate(typeof(Func<string, string>));
         }
 
         [Test]
