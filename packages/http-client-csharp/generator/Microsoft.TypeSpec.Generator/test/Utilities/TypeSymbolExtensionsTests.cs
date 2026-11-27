@@ -2,15 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using static Microsoft.TypeSpec.Generator.Primitives.CSharpType;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -179,6 +183,150 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             var propertySymbol = typeSymbol!.GetMembers(propertyName).OfType<IPropertySymbol>().FirstOrDefault();
             Assert.IsNotNull(propertySymbol, $"Failed to resolve property '{propertyName}'.");
             return propertySymbol!;
+        }
+
+        [Test]
+        [TestCase("1.0.0", true, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0", false, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0.4", false, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0.4", true, "Test.ModelProvider.External", true)]
+        [TestCase("1.0.0", true, "GeneratedCode", false)]
+        [TestCase("1.0.0", false, "GeneratedCode", false)]
+        [TestCase("1.0.0.4", false, "GeneratedCode", false)]
+        [TestCase("1.0.0.4", true, "GeneratedCode", false)]
+        public void CreateCSharpType_ExternalTypeNotInFramework(string pkgVersion, bool isAlpha, string pkgName, bool shouldBeFramework)
+        {
+            // Create a temporary directory for project and cache
+            string tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
+            string nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
+            Directory.CreateDirectory(nugetCacheDir);
+            // Create an external test package.
+            Version assemblyVersion = Version.Parse(pkgVersion);
+            string typeName = $"{pkgName}.MyExternalType";
+            string fixedPkgVersion = isAlpha ? pkgVersion + "-alpha.20261027.4" : pkgVersion;
+            FakeNuGetPackage.Create(
+                nugetCacheDir: nugetCacheDir,
+                packageName: pkgName,
+                version: fixedPkgVersion,
+                sourceCode: $"namespace {pkgName} {{ public class MyExternalType {{ public class MyInnerExternalType {{ private class My2InnerExternalType {{}} }} }} }}",
+                assemblyVersion: assemblyVersion);
+            InputExternalTypeMetadata external = new(typeName, pkgName, null);
+            InputModelType model = InputFactory.Model(
+                "ModelWithResolvableExternal",
+                external: external
+            );
+            // Make sure we are reading the temporary NuGetCache.
+            string ns = "TestProject";
+            try
+            {
+                MockHelpers.LoadMockGenerator(
+                    inputNamespaceName: ns,
+                    outputPath: Path.Combine(tempDir, "ProjectDir"),
+                    inputModelTypes: [model],
+                    configuration: $"{{\"package-name\": \"{ns}\"}}");
+                string dllPath = Path.Combine(nugetCacheDir, pkgName.ToLowerInvariant(), fixedPkgVersion, "lib", "netstandard2.0", $"{pkgName}.dll");
+                CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(dllPath));
+                MetadataReference myExternalRef = MetadataReference.CreateFromFile(dllPath);
+                CSharpCompilation compilation = CSharpCompilation.Create(
+                    assemblyName: pkgName,
+                    references: [myExternalRef]
+                );
+                // Load the assembly.
+                IAssemblySymbol? testAssembly = (IAssemblySymbol?)compilation.GetAssemblyOrModuleSymbol(myExternalRef);
+                Assert.That(testAssembly, Is.Not.Null);
+                if(pkgVersion.Length == 5)
+                {
+                    Version correctedVersion = new(pkgVersion + ".0");
+                    Assert.That(testAssembly?.Identity.Version, Is.EqualTo(correctedVersion));
+                }
+                else
+                {
+                    Assert.That(testAssembly?.Identity.Version, Is.EqualTo(assemblyVersion));
+                }
+                // Run the tests.
+                AssertFramework(testAssembly, typeName, shouldBeFramework);
+                AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType", shouldBeFramework);
+                AssertFramework(testAssembly, $"{pkgName}.MyExternalType+MyInnerExternalType+My2InnerExternalType", shouldBeFramework, false);
+            }
+            finally
+            {
+                ExternalTypeReferenceResolver.Reset();
+                Directory.Delete(tempDir, true);
+            }
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalEnumNotInFramework()
+        {
+            // Create a temporary directory for project and cache
+            string tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
+            string nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
+            Directory.CreateDirectory(nugetCacheDir);
+            // Create an external test package.
+            const string pkgName = "Test.ModelProvider.External";
+            string typeName = $"{pkgName}.MyEnumType";
+            const string pkgVersion = "1.0.0";
+            Version assemblyVersion = Version.Parse(pkgVersion);
+            FakeNuGetPackage.Create(
+                nugetCacheDir: nugetCacheDir,
+                packageName: pkgName,
+                version: pkgVersion,
+                sourceCode: File.ReadAllText(Helpers.GetAssetFileOrDirectoryPath(true)),
+                assemblyVersion: assemblyVersion);
+            InputExternalTypeMetadata external = new(typeName, pkgName, null);
+            InputModelType model = InputFactory.Model(
+                "ModelWithResolvableExternal",
+                external: external
+            );
+            // Make sure we are reading the temporary NuGetCache.
+            string ns = "TestProject";
+            try
+            {
+                MockHelpers.LoadMockGenerator(
+                    inputNamespaceName: ns,
+                    outputPath: Path.Combine(tempDir, "ProjectDir"),
+                    inputModelTypes: [model],
+                    configuration: $"{{\"package-name\": \"{ns}\"}}");
+                string dllPath = Path.Combine(nugetCacheDir, pkgName.ToLowerInvariant(), pkgVersion, "lib", "netstandard2.0", $"{pkgName}.dll");
+                CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(dllPath));
+                MetadataReference myExternalRef = MetadataReference.CreateFromFile(dllPath);
+                CSharpCompilation compilation = CSharpCompilation.Create(
+                    assemblyName: pkgName,
+                    references: [myExternalRef]
+                );
+                // Load the assembly.
+                IAssemblySymbol? testAssembly = (IAssemblySymbol?)compilation.GetAssemblyOrModuleSymbol(myExternalRef);
+                Assert.That(testAssembly, Is.Not.Null);
+                Version correctedVersion = new(pkgVersion + ".0");
+                Assert.That(testAssembly?.Identity.Version, Is.EqualTo(correctedVersion));
+                // Sanity check that we do have a symbol.
+                INamedTypeSymbol? typeReflection = testAssembly?.GetTypeByMetadataName(typeName);
+                Assert.That(typeReflection, Is.Not.Null);
+                CSharpType? typespecType = typeReflection?.GetCSharpType();
+                Assert.That(typespecType, Is.Not.Null);
+                Assert.That(typespecType?.IsFrameworkType, Is.True);
+                Assert.That(typespecType?.IsEnum, Is.True);
+            }
+            finally
+            {
+                ExternalTypeReferenceResolver.Reset();
+                Directory.Delete(tempDir, true);
+            }
+        }
+
+        private static void AssertFramework(IAssemblySymbol? testAssembly, string symbolName, bool shouldBeFramework, bool shouldBePublic=true)
+        {
+            // Sanity check that we do have a symbol.
+            INamedTypeSymbol? typeReflection = testAssembly?.GetTypeByMetadataName(symbolName);
+            Assert.That(typeReflection, Is.Not.Null);
+            // Check is we return the right class.
+            CSharpType? typespecType = typeReflection?.GetCSharpType();
+            Assert.That(typespecType, Is.Not.Null);
+            Assert.That(typespecType?.IsFrameworkType, Is.EqualTo(shouldBeFramework));
+            Assert.That(typespecType?.IsEnum, Is.False);
+            Assert.That(typespecType?.IsPublic, Is.EqualTo(shouldBePublic));
         }
     }
 }

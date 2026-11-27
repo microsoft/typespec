@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             Name = type.IsGenericType ? type.Name.Substring(0, type.Name.IndexOf('`')) : type.Name;
             IsValueType = type.IsValueType;
             Namespace = type.Namespace ?? string.Empty;
-            IsPublic = type.IsPublic && arguments.All(t => t.IsPublic);
+            IsPublic = (type.IsPublic || type.IsNestedPublic) && arguments.All(t => t.IsPublic);
             // open generic parameter such as the `T` in `List<T>` is considered as declared inside the `List<T>` type as well, but we just want this to be the pure nested type, therefore here we exclude the open generic parameter scenario
             // for a closed generic parameter such as the `string` in `List<string>`, it is just an ordinary type without a `DeclaringType`.
             DeclaringType = type.DeclaringType is not null && !type.IsGenericParameter ? new CSharpType(type.DeclaringType) : null;

@@ -44,7 +44,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string version,
             string sourceCode,
             IEnumerable<string>? referencedAssemblyPaths = null,
-            IEnumerable<(string Id, string VersionRange)>? dependencies = null)
+            IEnumerable<(string Id, string VersionRange)>? dependencies = null,
+            Version? assemblyVersion = null)
         {
             var versionDir = Path.Combine(nugetCacheDir, packageName.ToLowerInvariant(), version);
             var pkgDir = Path.Combine(versionDir, "lib", "netstandard2.0");
@@ -61,11 +62,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 references.AddRange(referencedAssemblyPaths.Select(p => MetadataReference.CreateFromFile(p)));
             }
 
+            List<SyntaxTree> syntaxTrees = assemblyVersion == null ? [CSharpSyntaxTree.ParseText(sourceCode)] : [CSharpSyntaxTree.ParseText(sourceCode), CSharpSyntaxTree.ParseText($"[assembly: System.Reflection.AssemblyVersion(\"{assemblyVersion}\")]")];
             var compilation = CSharpCompilation.Create(
-                packageName,
-                [CSharpSyntaxTree.ParseText(sourceCode)],
-                references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                assemblyName: packageName,
+                syntaxTrees: syntaxTrees,
+                references: references,
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             var dllPath = Path.Combine(pkgDir, $"{packageName}.dll");
             using (var fs = new FileStream(dllPath, FileMode.Create))
