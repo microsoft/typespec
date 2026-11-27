@@ -12,6 +12,7 @@ import {
 import {
   getAllProperties,
   getDefaultValueString,
+  getEnumDefaultInitializer,
   getErrorStatusCode,
   getLiteralValue,
   isDuplicateExceptionName,
@@ -32,7 +33,9 @@ export function getErrorConstructor(program: Program, model: Model, className: s
   const sortedProps = props
     .filter((p) => !isStatusCode(program, p))
     .map((prop) => {
-      const defaultValue = prop.defaultValue ? getDefaultValueString(prop.defaultValue) : undefined;
+      const defaultValue =
+        getEnumDefaultInitializer(prop, namePolicy) ??
+        (prop.defaultValue ? getDefaultValueString(prop.defaultValue) : undefined);
       const literalValue = getLiteralValue(prop.type);
       return { prop, defaultValue: defaultValue ?? literalValue };
     })
@@ -59,13 +62,13 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       propName = propName === "Value" ? "ValueName" : `${propName}Prop`;
     }
 
-    const csharpType = <TypeExpression type={prop.type} />;
     const nullableUnionInnerType =
       prop.type.kind === "Union" ? getNullableUnionInnerType(prop.type) : undefined;
     const typeExpressionIncludesNullable =
       getNullableValueTypeUnionInnerType($, prop.type) !== undefined;
     const needsNullable =
       !typeExpressionIncludesNullable && (prop.optional || nullableUnionInnerType !== undefined);
+    const csharpType = <TypeExpression type={prop.type} nullable={!needsNullable} />;
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
     parameters.push({
       name: prop.name,
