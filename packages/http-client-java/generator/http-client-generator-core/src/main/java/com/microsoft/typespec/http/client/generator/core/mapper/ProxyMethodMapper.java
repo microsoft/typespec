@@ -105,7 +105,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      * @param settings the settings that may use to resolve the operation id.
      * @return the operation id.
      */
-    private String getOperationId(Operation operation, JavaSettings settings) {
+    public String getOperationId(Operation operation, JavaSettings settings) {
         if (!CoreUtils.isNullOrEmpty(operation.getOperationId())) {
             return operation.getOperationId();
         }

@@ -17,6 +17,7 @@ import type {
   SdkHttpOperation,
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
+  SdkLroServiceMetadata,
   SdkLroServiceMethod,
   SdkMethodResponse,
   SdkModelPropertyType,
@@ -65,7 +66,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import type { Authentication, HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
-import { Visibility, getAuthentication } from "@typespec/http";
+import { Visibility, getAuthentication, getHeaderFieldName } from "@typespec/http";
 import type {} from "@typespec/http-client/typekit";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
@@ -83,7 +84,10 @@ import {
 } from "./common/client.js";
 import type { CodeModel } from "./common/code-model.js";
 import { addGlobalParameter, createCodeModel } from "./common/code-model.js";
-import type { LongRunningMetadata } from "./common/long-running-metadata.js";
+import type {
+  LongRunningMetadata,
+  LongRunningOperationIdMetadata,
+} from "./common/long-running-metadata.js";
 import { createLongRunningMetadata } from "./common/long-running-metadata.js";
 import type { Operation as CodeModelOperation, Request, SseMetadata } from "./common/operation.js";
 import {
@@ -1786,17 +1790,117 @@ export class CodeModelBuilder {
         }
       }
 
+      // operation ID, only for poll result model (not the PollOperationDetails, which already has it)
+      let operationId: LongRunningOperationIdMetadata | undefined = undefined;
+      if (pollingSchema && pollingSchema !== this._pollResultSchema) {
+        operationId = this.processLroOperationIdMetadata(lroMetadata);
+        if (operationId) {
+          pollingSchema.extensions = pollingSchema.extensions ?? {};
+          const previous = pollingSchema.extensions["x-ms-lro-operation-id"] as
+            LongRunningOperationIdMetadata | undefined;
+          if (
+            previous?.propertySerializedName &&
+            operationId.propertySerializedName &&
+            previous.propertySerializedName !== operationId.propertySerializedName
+          ) {
+            reportDiagnostic(this.program, {
+              code: "generator-error",
+              format: {
+                errorMessage:
+                  "Long-running operations using the same status model select different operation ID properties.",
+              },
+              target: lroMetadata.operation.__raw?.operation ?? NoTarget,
+            });
+          }
+          pollingSchema.extensions["x-ms-lro-operation-id"] = {
+            ...operationId,
+            ...previous,
+          };
+        }
+      }
+
       op.lroMetadata = createLongRunningMetadata(
         true,
         pollingSchema,
         finalSchema,
         pollingStrategy,
         finalResultPropertySerializedName,
+        operationId,
+        this.getLroPollingHeaderName(lroMetadata),
       );
       return op.lroMetadata;
     }
 
     return createLongRunningMetadata(false);
+  }
+
+  private getLroPollingHeaderName(lroMetadata: SdkLroServiceMetadata): string | undefined {
+    const step = lroMetadata.statusMonitorStep;
+    const link = step?.kind === "nextOperationReference" ? step.target.link : step?.target;
+    if (link?.location === "ResponseHeader" && link.property.__raw) {
+      const headerName = getHeaderFieldName(this.program, link.property.__raw).toLowerCase();
+      return headerName === "operation-location" ? undefined : headerName;
+    }
+    return undefined;
+  }
+
+  private processLroOperationIdMetadata(
+    lroMetadata: SdkLroServiceMetadata,
+  ): LongRunningOperationIdMetadata | undefined {
+    if (!lroMetadata.operationId || lroMetadata.operationId.length === 0) {
+      return undefined;
+    }
+    const operationId: LongRunningOperationIdMetadata = {};
+    for (const selection of lroMetadata.operationId) {
+      if (selection.kind === "path") {
+        const statusMonitorStep = lroMetadata.statusMonitorStep;
+        const selectedLink =
+          statusMonitorStep?.kind === "nextOperationReference"
+            ? statusMonitorStep.target.link
+            : statusMonitorStep?.target;
+        const statusMonitorOperation =
+          selectedLink === selection.source
+            ? statusMonitorStep?.kind === "nextOperationReference"
+              ? statusMonitorStep.target.operation
+              : statusMonitorStep?.operation
+            : undefined;
+        const source = selection.source;
+        const header = source.property.__raw;
+        if (
+          statusMonitorOperation &&
+          source.location === "ResponseHeader" &&
+          header &&
+          statusMonitorOperation.path.includes(`{${selection.pathParameter.serializedName}}`)
+        ) {
+          operationId.pathTemplate = statusMonitorOperation.path;
+          operationId.pathParameterSerializedName = selection.pathParameter.serializedName;
+          operationId.pollingHeaderName = getHeaderFieldName(this.program, header).toLowerCase();
+        } else {
+          reportDiagnostic(this.program, {
+            code: "generator-warning",
+            format: {
+              warningMessage:
+                "Cannot expose the long-running operation ID from the selected polling URL: its header or status-monitor path could not be resolved.",
+            },
+            target: selection.pathParameter.__raw ?? NoTarget,
+          });
+        }
+      } else if (selection.kind === "property" && selection.propertySegments.length === 1) {
+        // nested property is not supported, TCGC currently only provides a single segment
+        operationId.propertySerializedName = getPropertySerializedName(
+          selection.propertySegments[0],
+        );
+      } else if (selection.kind === "property") {
+        reportDiagnostic(this.program, {
+          code: "generator-warning",
+          format: {
+            warningMessage: "Nested long-running operation ID properties are not supported.",
+          },
+          target: selection.property.__raw ?? NoTarget,
+        });
+      }
+    }
+    return operationId.pathTemplate || operationId.propertySerializedName ? operationId : undefined;
   }
 
   private processRouteForLongRunning(op: CodeModelOperation, lroMetadata: LongRunningMetadata) {

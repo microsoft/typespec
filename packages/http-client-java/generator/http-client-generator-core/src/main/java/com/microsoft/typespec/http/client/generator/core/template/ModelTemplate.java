@@ -27,6 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfB
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.util.LroOperationIdModelHelper;
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ExperimentalAnnotationUtil;
@@ -82,9 +83,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         JavaSettings settings = JavaSettings.getInstance();
         ClientModelPropertiesManager propertiesManager = new ClientModelPropertiesManager(model, settings);
+        LroOperationIdModelHelper lroOperationId = new LroOperationIdModelHelper(model, this::addGeneratedAnnotation);
         Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new LinkedHashSet<>();
 
         addImports(imports, model, settings);
+        lroOperationId.addImports(imports, settings);
 
         List<ClientModelPropertyReference> propertyReferences = this.getClientModelPropertyReferences(model);
         propertyReferences.forEach(p -> p.addImportsTo(imports, false));
@@ -154,6 +157,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
             // properties
             addProperties(propertiesManager, classBlock);
+            lroOperationId.addField(classBlock);
 
             // add jsonMergePatch related properties and accessors
             if (ClientModelUtil.isJsonMergePatchModel(model, settings)) {
@@ -176,7 +180,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
                 if (!property.isPolymorphicDiscriminator()
                     || PolymorphicDiscriminatorHandler.generateGetter(model, property, settings)) {
-                    generateGetterJavadoc(classBlock, property);
+                    if (!lroOperationId.writeGetterJavadoc(classBlock, property)) {
+                        generateGetterJavadoc(classBlock, property);
+                    }
                     addGeneratedAnnotation(classBlock);
                     if (property.isAdditionalProperties() && !settings.isStreamStyleSerialization()) {
                         classBlock.annotation("JsonAnyGetter");
@@ -191,9 +197,12 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     }
                     ExperimentalAnnotationUtil.write(classBlock, property.getApiMetadata());
                     classBlock.method(methodVisibility, null,
-                        propertyClientType + " " + getGetterName(model, property) + "()",
-                        methodBlock -> addGetterMethod(propertyWireType, propertyClientType, property, treatAsXml,
-                            methodBlock, settings));
+                        propertyClientType + " " + getGetterName(model, property) + "()", methodBlock -> {
+                            if (!lroOperationId.writeGetterBody(methodBlock, property)) {
+                                addGetterMethod(propertyWireType, propertyClientType, property, treatAsXml, methodBlock,
+                                    settings);
+                            }
+                        });
                 }
 
                 if (ClientModelUtil.needsPublicSetter(property, settings) && !immutableModel) {
@@ -259,6 +268,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     });
                 }
             }
+
+            lroOperationId.addAccessors(classBlock);
 
             if (settings.getClientFlattenAnnotationTarget() == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
                 // reference to properties from flattened client model

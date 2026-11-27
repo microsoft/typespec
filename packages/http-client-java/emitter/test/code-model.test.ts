@@ -153,6 +153,70 @@ describe("ARM internal access", () => {
   });
 });
 
+describe("LRO operation ID metadata", () => {
+  it("uses the selected polling link and preserves both operation ID sources", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/lro-operation-id.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure", "dev-options": {} },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    expectDiagnosticEmpty(program.diagnostics);
+    const operations = model.clients.flatMap((client) =>
+      client.operationGroups.flatMap((group) => group.operations ?? []),
+    );
+    const path = operations.find((operation) => operation.operationId === "analyze")!;
+    const both = operations.find(
+      (operation) => operation.operationId === "startTranslationWithPath",
+    )!;
+    const body = operations.find((operation) => operation.operationId === "startBodyOnly")!;
+    expect(path.lroMetadata?.operationId).toMatchObject({
+      pathParameterSerializedName: "resultId",
+      pollingHeaderName: "operation-location",
+    });
+    expect(both.lroMetadata?.operationId).toMatchObject({
+      pathParameterSerializedName: "operationId",
+      propertySerializedName: "id",
+      pollingHeaderName: "operation-location",
+    });
+    expect(both.lroMetadata?.pollResultType?.extensions?.["x-ms-lro-operation-id"]).toMatchObject({
+      pathParameterSerializedName: "operationId",
+      propertySerializedName: "id",
+    });
+    expect(body.lroMetadata?.operationId).toMatchObject({ propertySerializedName: "id" });
+    expect(body.lroMetadata?.pollResultType?.extensions?.["x-ms-lro-operation-id"]).toMatchObject({
+      pathParameterSerializedName: "operationId",
+      propertySerializedName: "id",
+    });
+    for (const name of ["startLocation", "startLocationWithoutId"]) {
+      const operation = operations.find((operation) => operation.operationId === name)!;
+      expect(operation.lroMetadata?.pollingHeaderName).toBe("location");
+      expect(operation.lroMetadata?.pollingStrategy?.language.java?.name).toBe(
+        "OperationLocationPollingStrategy",
+      );
+    }
+    expect(
+      operations.find((operation) => operation.operationId === "startLocation")!.lroMetadata
+        ?.operationId?.pollingHeaderName,
+    ).toBe("location");
+    expect(
+      operations.find((operation) => operation.operationId === "startLocationWithoutId")!
+        .lroMetadata?.operationId,
+    ).toBeUndefined();
+  });
+});
+
 describe("XML storage responses", () => {
   async function build(namespace: string) {
     const entrypoint = fileURLToPath(new URL("./fixtures/xml-storage-test.tsp", import.meta.url));

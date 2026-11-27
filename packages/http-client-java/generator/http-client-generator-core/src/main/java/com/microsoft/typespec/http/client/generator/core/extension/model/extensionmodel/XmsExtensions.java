@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningOperationIdMetadata;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ public class XmsExtensions {
     private XmsExamples xmsExamples;
     private Boolean xmsSecret;
     private List<String> xmsVersioningAdded;
+    private LongRunningOperationIdMetadata xmsLroOperationId;
 
     /**
      * Creates a new instance of the XmsExtensions class.
@@ -319,5 +321,23 @@ public class XmsExtensions {
      */
     public void setXmsVersioningAdded(List<String> xmsVersioningAdded) {
         this.xmsVersioningAdded = xmsVersioningAdded;
+    }
+
+    /**
+     * Gets the sources of the long-running operation ID, for the status monitor model.
+     *
+     * @return the sources of the long-running operation ID.
+     */
+    public LongRunningOperationIdMetadata getXmsLroOperationId() {
+        return xmsLroOperationId;
+    }
+
+    /**
+     * Sets the sources of the long-running operation ID, for the status monitor model.
+     *
+     * @param xmsLroOperationId the sources of the long-running operation ID.
+     */
+    public void setXmsLroOperationId(LongRunningOperationIdMetadata xmsLroOperationId) {
+        this.xmsLroOperationId = xmsLroOperationId;
     }
 }
