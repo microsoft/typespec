@@ -1,8 +1,21 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
-import { t } from "../../src/testing/index.js";
+import {
+  getDocDiagnosticTarget,
+  getSourceLocation,
+  type DiagnosticTarget,
+} from "../../src/index.js";
+import { $doc, getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
+import { expectDiagnostics, t } from "../../src/testing/index.js";
+import { $ } from "../../src/typekit/index.js";
 import { Tester } from "../tester.js";
+
+function sourceText(target: DiagnosticTarget | undefined): string {
+  ok(target, "Expected a documentation diagnostic target.");
+  const location = getSourceLocation(target);
+  ok(!location.isSynthetic, "Expected a real source location.");
+  return location.file.text.slice(location.pos, location.end).trim();
+}
 
 describe("compiler: checker: doc comments", () => {
   const expectedMainDoc = "This is a doc comment.";
@@ -342,19 +355,23 @@ describe("@param", () => {
   });
 
   it("preserves @param docs through wrappers over templated operation instances", async () => {
-    const result = (await Tester.compile(`
+    const { program, target } = await Tester.compile(t.code`
       /**
        * @param wrappedSelection Doc comment
        */
-      op /*source*/source<T>(wrappedSelection: T, other: string): void;
+      op source<T>(wrappedSelection: T, other: string): void;
       model ParametersWrapper<O extends Reflection.Operation> {
         value: O::parameters;
       }
       alias WrappedParameters = ParametersWrapper<source<string>>;
-      op /*target*/target(...WrappedParameters.value::type): void;
-    `)) as any;
-    const doc = getDoc(result.program, result.target.parameters.properties.get("wrappedSelection"));
-    strictEqual(doc, "Doc comment");
+      op ${t.op("target")}(...WrappedParameters.value::type): void;
+    `);
+    const parameter = target.parameters.properties.get("wrappedSelection")!;
+    strictEqual(getDoc(program, parameter), "Doc comment");
+    strictEqual(
+      sourceText(getDocDiagnosticTarget(program, parameter)),
+      "@param wrappedSelection Doc comment",
+    );
   });
 
   it("preserves @param docs through nested wrappers over templated operation instances", async () => {
@@ -560,5 +577,160 @@ describe("@prop", () => {
     strictEqual(getDoc(program, Base), "This is the model doc.");
     strictEqual(getDoc(program, Base.properties.get("name")!), "This is the name prop doc.");
     strictEqual(getDoc(program, Base.properties.get("age")!), "This is the age prop doc.");
+  });
+});
+
+describe("getDocDiagnosticTarget", () => {
+  it("finds effective comment and decorator sources, or undefined when absent", async () => {
+    const { Foo, Decorated, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        /** Property documentation */
+        name: string;
+        other: string;
+      }
+      /** Original comment */
+      @doc("Explicit documentation")
+      model ${t.model("Decorated")} {}
+    `);
+
+    strictEqual(
+      sourceText(getDocDiagnosticTarget(program, Foo.properties.get("name")!)),
+      "/** Property documentation */",
+    );
+    strictEqual(getDocDiagnosticTarget(program, Foo.properties.get("other")!), undefined);
+    strictEqual(getDoc(program, Decorated), "Explicit documentation");
+    strictEqual(
+      sourceText(getDocDiagnosticTarget(program, Decorated)),
+      '@doc("Explicit documentation")',
+    );
+  });
+
+  it("returns undefined for documentation on a programmatically created type", async () => {
+    const { program } = await Tester.compile("");
+    const model = $(program).model.create({
+      name: "Programmatic",
+      properties: {},
+      decorators: [[$doc, "Programmatic documentation"]],
+    });
+
+    strictEqual(getDoc(program, model), "Programmatic documentation");
+    strictEqual(getDocDiagnosticTarget(program, model), undefined);
+  });
+
+  it("uses the declaration when multiple comments contribute to the main documentation", async () => {
+    const { Foo, program } = await Tester.compile(t.code`
+      /** First */
+      /** Second */
+      model ${t.model("Foo")} {}
+    `);
+
+    strictEqual(getDoc(program, Foo), "FirstSecond");
+    strictEqual(getDocDiagnosticTarget(program, Foo), Foo.node);
+  });
+
+  it("preserves an augmented decorator as the source through property spreads", async () => {
+    const { Source, Copy, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} { name: string; }
+      @@doc(Source.name, "Augmented documentation");
+      model ${t.model("Copy")} { ...Source; }
+    `);
+    const source = getDocDiagnosticTarget(program, Source.properties.get("name")!);
+    const copy = getDocDiagnosticTarget(program, Copy.properties.get("name")!);
+
+    strictEqual(sourceText(source), '@@doc(Source.name, "Augmented documentation");');
+    strictEqual(copy, source);
+  });
+
+  it("tracks property tag overrides, including unchanged and empty text", async () => {
+    const { Source, Middle, Copy, Empty, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} {
+        /** Shared text */
+        name: string;
+      }
+      /** @prop name Shared text */
+      model ${t.model("Middle")} { ...Source; }
+      model ${t.model("Copy")} { ...Middle; }
+      /** @prop name */
+      model ${t.model("Empty")} { ...Source; }
+    `);
+    const source = getDocDiagnosticTarget(program, Source.properties.get("name")!);
+    const middle = getDocDiagnosticTarget(program, Middle.properties.get("name")!);
+    const copy = getDocDiagnosticTarget(program, Copy.properties.get("name")!);
+
+    strictEqual(sourceText(source), "/** Shared text */");
+    strictEqual(sourceText(middle), "@prop name Shared text");
+    strictEqual(copy, middle);
+    strictEqual(getDocDiagnosticTarget(program, Empty.properties.get("name")!), source);
+    strictEqual(getDoc(program, Empty.properties.get("name")!), "Shared text");
+  });
+
+  it("preserves parameter comment overrides across copied operations", async () => {
+    const { source, middle, copy, program } = await Tester.compile(t.code`
+      /** @param name Original */
+      op ${t.op("source")}(name: string): void;
+      /** @param name Override */
+      op ${t.op("middle")} is source;
+      op ${t.op("copy")} is middle;
+    `);
+    const original = getDocDiagnosticTarget(program, source.parameters.properties.get("name")!);
+    const override = getDocDiagnosticTarget(program, middle.parameters.properties.get("name")!);
+    const copied = getDocDiagnosticTarget(program, copy.parameters.properties.get("name")!);
+
+    strictEqual(sourceText(original), "@param name Original");
+    strictEqual(sourceText(override), "@param name Override");
+    strictEqual(copied, override);
+  });
+
+  it("locates operation return and error documentation independently", async () => {
+    const { source, copy, program } = await Tester.compile(t.code`
+      /**
+       * @returns Result documentation
+       * @errors Error documentation
+       */
+      op ${t.op("source")}(): string;
+      @returnsDoc("Explicit result")
+      op ${t.op("copy")} is source;
+    `);
+
+    ok(
+      sourceText(getDocDiagnosticTarget(program, source, "returns")).startsWith(
+        "@returns Result documentation",
+      ),
+    );
+    strictEqual(
+      sourceText(getDocDiagnosticTarget(program, copy, "returns")),
+      '@returnsDoc("Explicit result")',
+    );
+    const errorSource = getDocDiagnosticTarget(program, source, "errors");
+    ok(sourceText(errorSource).startsWith("@errors Error documentation"));
+    strictEqual(getDocDiagnosticTarget(program, copy, "errors"), errorSource);
+  });
+
+  it("honors suppression at the source of copied documentation", async () => {
+    const { Middle, Copy, Other, program } = await Tester.compile(t.code`
+      model Source { name: string; }
+      #suppress "deprecated" "Intentional"
+      /** @prop name Suppressed documentation */
+      model ${t.model("Middle")} { ...Source; }
+      model ${t.model("Copy")} { ...Middle; }
+      /** @prop name Other documentation */
+      model ${t.model("Other")} { ...Source; }
+    `);
+    const target = getDocDiagnosticTarget(program, Copy.properties.get("name")!);
+    strictEqual(target, getDocDiagnosticTarget(program, Middle.properties.get("name")!));
+    ok(target);
+    const otherTarget = getDocDiagnosticTarget(program, Other.properties.get("name")!);
+    ok(otherTarget);
+
+    program.reportDiagnostic({ code: "deprecated", severity: "warning", message: "test", target });
+    program.reportDiagnostic({
+      code: "deprecated",
+      severity: "warning",
+      message: "test",
+      target: otherTarget,
+    });
+    expectDiagnostics(program.diagnostics, [{ code: "deprecated" }]);
+    strictEqual(program.diagnostics[0].target, otherTarget);
+    strictEqual(sourceText(otherTarget), "@prop name Other documentation");
   });
 });

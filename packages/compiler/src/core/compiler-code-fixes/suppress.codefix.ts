@@ -129,6 +129,14 @@ function findSuppressNode(node: Node): Node {
     case SyntaxKind.StringTemplateMiddle:
     case SyntaxKind.TemplateArgument:
     case SyntaxKind.OperationSignatureDeclaration:
+    case SyntaxKind.Doc:
+    case SyntaxKind.DocText:
+    case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocPropTag:
+    case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocErrorsTag:
+    case SyntaxKind.DocTemplateTag:
+    case SyntaxKind.DocUnknownTag:
       return findSuppressNode(node.parent!);
     default:
       return node;

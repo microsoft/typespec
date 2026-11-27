@@ -27,7 +27,11 @@ export const docFromCommentDecorator = (
   key: DocTarget,
   text: string,
 ) => {
-  setDocData(context.program, target, key, { value: text, source: "comment" });
+  setDocData(context.program, target, key, {
+    value: text,
+    source: "comment",
+    sourceTarget: context.decoratorTarget,
+  });
 };
 
 const prototypeGetterKey = Symbol.for(`TypeSpec.Prototypes.getter`);
