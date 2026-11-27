@@ -49,7 +49,7 @@ catalog:
   "@fluentui/react-list": ^9.7.0
   "@inquirer/checkbox": ^5.2.8
   "@inquirer/confirm": ^6.3.5
-  "@inquirer/input": ^5.1.9
+  "@inquirer/input": ^5.2.0
   "@inquirer/select": ^5.2.8
   "@microsoft/api-extractor": ^7.60.1
   "@microsoft/api-extractor-model": ^7.33.16
