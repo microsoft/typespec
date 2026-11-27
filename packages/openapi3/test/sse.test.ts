@@ -341,6 +341,59 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
     });
   });
 
+  describe("SSE stream with response examples", () => {
+    const code = `
+      model Message {
+        type: "message";
+        text: string;
+      }
+
+      @events
+      union MessageEvents {
+        Message,
+      }
+
+      @route("/stream")
+      @get op stream(): SSEStream<MessageEvents>;
+
+      @@opExample(stream,
+        #{
+          returnType: #{
+            contentType: "text/event-stream",
+            body: "data: {\\"type\\":\\"message\\",\\"text\\":\\"hello\\"}\\n\\n",
+          },
+        },
+        #{ title: "Example stream" }
+      );
+    `;
+    const expectedExamples = {
+      "Example stream": {
+        summary: "Example stream",
+        value: 'data: {"type":"message","text":"hello"}\n\n',
+      },
+    };
+
+    it("emits examples next to itemSchema for OpenAPI 3.2.0", async () => {
+      const openApi = await openApiFor(code);
+      const eventStreamContent =
+        openApi.paths["/stream"].get.responses["200"].content["text/event-stream"];
+      ok(eventStreamContent.itemSchema, "expected itemSchema for SSE");
+      deepStrictEqual(eventStreamContent.examples, expectedExamples);
+    });
+
+    it.each(["3.0.0", "3.1.0"])("emits examples next to schema for OpenAPI %s", async (version) => {
+      const { openApi, diagnostics } = await openApiWithDiagnosticsFor(code, version);
+      expectDiagnostics(diagnostics, [
+        { code: "@typespec/openapi3/streams-not-supported", severity: "warning" },
+      ]);
+      const eventStreamContent = (openApi.paths["/stream"].get as any).responses["200"].content[
+        "text/event-stream"
+      ];
+      deepStrictEqual(eventStreamContent.schema, { type: "string" });
+      deepStrictEqual(eventStreamContent.examples, expectedExamples);
+    });
+  });
+
   const versionsWithNoItemSchema = ["3.0.0", "3.1.0"];
 
   versionsWithNoItemSchema.forEach((version) => {
