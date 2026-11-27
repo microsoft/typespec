@@ -50,7 +50,7 @@ namespace SampleTypeSpec
 #if NET6_0_OR_GREATER
                         writer.WriteRawValue(data);
 #else
-                        using (JsonDocument document = JsonDocument.Parse(data))
+                        using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                         {
                             JsonSerializer.Serialize(writer, document.RootElement);
                         }

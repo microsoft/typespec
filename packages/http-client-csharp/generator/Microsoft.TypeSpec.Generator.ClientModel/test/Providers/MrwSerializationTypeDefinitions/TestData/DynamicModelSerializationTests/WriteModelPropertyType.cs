@@ -47,7 +47,7 @@ namespace Sample
 #if NET6_0_OR_GREATER
                 writer.WriteRawValue(Anything);
 #else
-                using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(Anything))
+                using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(Anything, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                 {
                     global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
                 }
