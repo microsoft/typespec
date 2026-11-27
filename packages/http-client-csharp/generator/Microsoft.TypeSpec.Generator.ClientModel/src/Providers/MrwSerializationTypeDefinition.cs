@@ -2139,9 +2139,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            IEnumerable<PropertyProvider> properties = _model.CanonicalView.Properties;
+            if (!ShouldOverrideJsonModelWriteCore &&
+                _model.BaseModelProvider is SystemObjectModelProvider { IsMappedBaseUpgrade: true } mappedBase)
+            {
+                properties = mappedBase.CanonicalView.Properties.Concat(properties);
+            }
+
             // we should only write those properties with wire info and are payload properties.
             // Those properties without wireinfo indicate they are not spec properties.
-            foreach (var property in _model.CanonicalView.Properties)
+            foreach (var property in properties)
             {
                 if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
                 {
