@@ -133,6 +133,9 @@ export function isAbstract<TServiceOperation extends SdkServiceOperation>(
 export function getDelimiterAndExplode(
   parameter: SdkQueryParameter | SdkHeaderParameter,
 ): [string | undefined, boolean] {
+  if (parameter.kind === "query" && parameter.type.kind === "model") {
+    return [undefined, parameter.explode];
+  }
   if (parameter.type.kind !== "array") return [undefined, false];
   let delimiter: string | undefined = undefined;
   let explode = parameter.kind === "query" && parameter.explode;

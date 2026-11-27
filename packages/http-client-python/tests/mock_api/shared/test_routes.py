@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from routes import RoutesClient
+from routes.models import ExpandParameters
 
 
 @pytest.fixture
@@ -211,6 +212,13 @@ def test_query_parameters_annotation_only(client: RoutesClient):
     client.query_parameters.annotation_only(
         param="a",
     )
+
+
+@pytest.mark.parametrize("expansion", ["query_expansion", "query_continuation"])
+@pytest.mark.parametrize("style", ["standard", "explode"])
+def test_query_parameters_model(client: RoutesClient, expansion: str, style: str):
+    operation = getattr(getattr(client.query_parameters, expansion), style)
+    operation.model(param=ExpandParameters(field="status", value="active"))
 
 
 def test_query_parameters_query_expansion_standard_primitive(client: RoutesClient):

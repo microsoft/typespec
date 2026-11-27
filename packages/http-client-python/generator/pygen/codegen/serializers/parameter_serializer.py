@@ -15,6 +15,7 @@ from ..models import (
     ClientParameter,
     ConfigParameter,
     ParameterType,
+    ModelType,
 )
 from ..models.parameter import _ParameterBase
 from ..models.parameter_list import BodyParameterType
@@ -164,11 +165,24 @@ class ParameterSerializer:
                 f"""    _headers[{python_string_literal(header_name)}] = _SERIALIZER.header("if_none_match", if_none_match, "str")""",
             ]
 
-        set_parameter = "_{}[{}] = {}".format(
-            kwarg_name,
-            python_string_literal(param.wire_name, quote="'"),
-            self.serialize_parameter(param, serializer_name),
-        )
+        if not is_legacy and param.location == ParameterLocation.QUERY and isinstance(param.type, ModelType):
+            serialized_model = (
+                f"{serializer_name}.query_model({python_string_literal(param.full_client_name)}, "
+                f"{param.full_client_name}, skip_quote={param.skip_url_encoding})"
+            )
+            if param.explode:
+                set_parameter = f"_{kwarg_name}.update({serialized_model})"
+            else:
+                set_parameter = (
+                    f"_{kwarg_name}[{python_string_literal(param.wire_name)}] = "
+                    f"','.join(component for pair in {serialized_model}.items() for component in pair)"
+                )
+        else:
+            set_parameter = "_{}[{}] = {}".format(
+                kwarg_name,
+                python_string_literal(param.wire_name, quote="'"),
+                self.serialize_parameter(param, serializer_name),
+            )
         # When the body is optional, the content-type may legitimately be ``None`` (no body
         # was sent). In that case the header must be omitted instead of serialized, otherwise
         # ``_SERIALIZER.header`` raises ``ValueError: No value for given attribute``.
