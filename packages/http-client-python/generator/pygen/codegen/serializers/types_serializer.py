@@ -362,13 +362,17 @@ class TypesSerializer(BaseSerializer):
 
         Uses functional form when any property wire_name is a Python keyword
         (e.g. 'and', 'class') since keywords can't be identifiers in class bodies.
+
+        Subclasses also get ``total=False``: TypedDict totality is not inherited and only applies
+        to the keys declared in that class body, so without it every optional field a subclass adds
+        would become required. Required fields are always wrapped in ``Required[...]``.
         """
         if self.has_keyword_wire_names(model):
             return ""  # functional form is rendered separately
         non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
         if non_discriminated_parents and not self.needs_flat_typeddict(model):
             basename = ", ".join([m.name for m in non_discriminated_parents])
-            return f"class {model.name}({basename}):{model.pylint_disable()}"
+            return f"class {model.name}({basename}, total=False):{model.pylint_disable()}"
         return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
 
     def declare_functional_model(self, model: ModelType) -> str:

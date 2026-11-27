@@ -1057,7 +1057,47 @@ def test_typeddict_inheritance_without_requiredness_change_still_subclasses():
 
     env = _make_env()
     output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
-    assert "class Derived(Base):" in output
+    assert "class Derived(Base, total=False):" in output
+
+
+def test_typeddict_subclass_keeps_own_optional_fields_optional():
+    """Optional fields declared on a TypedDict subclass must stay optional.
+
+    TypedDict totality is not inherited: without ``total=False`` on the subclass, every field it
+    declares becomes required, so partial request dicts fail type checking (issue #12625).
+    Required fields must stay required via ``Required[...]``.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    str_type = build_type({"type": "string"}, code_model)
+
+    parent = _make_model_with_usage(code_model, "Base", 2, DPGModelType)
+    parent.is_typed_dict_only = True
+    parent.properties = [_make_typed_property(code_model, "id", str_type, optional=True)]
+
+    child = DPGModelType(
+        yaml_data={"name": "Derived", "type": "model", "snakeCaseName": "derived", "usage": 2},
+        code_model=code_model,
+        properties=[
+            parent.properties[0],  # inherited unchanged
+            _make_typed_property(code_model, "location", str_type, optional=True),
+            _make_typed_property(code_model, "kind", str_type, optional=False),
+        ],
+        parents=[parent],
+    )
+    child.is_typed_dict_only = True
+    code_model.model_types = [parent, child]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[parent, child]).serialize()
+    assert "class Derived(Base, total=False):" in output
+    assert "location: str" in output
+    assert "kind: Required[str]" in output
+
+    namespace: dict = {}
+    exec(compile(output, "types.py", "exec"), namespace)  # pylint: disable=exec-used
+    derived = namespace["Derived"]
+    assert derived.__required_keys__ == frozenset({"kind"})
+    assert derived.__optional_keys__ == frozenset({"id", "location"})
 
 
 # ---------- Bug 1: internal enum reference/import in types.py (issue #11626) ----------
