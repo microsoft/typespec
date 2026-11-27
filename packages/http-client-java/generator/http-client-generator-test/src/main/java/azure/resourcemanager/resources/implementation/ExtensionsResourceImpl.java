@@ -54,10 +54,7 @@ public final class ExtensionsResourceImpl
     }
 
     public ExtensionsResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getExtensionsResources()
-            .createOrUpdate(resourceUri, extensionsResourceName, this.innerModel(), Context.NONE);
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ExtensionsResource create(Context context) {
@@ -78,11 +75,7 @@ public final class ExtensionsResourceImpl
     }
 
     public ExtensionsResource apply() {
-        this.innerObject = serviceManager.serviceClient()
-            .getExtensionsResources()
-            .updateWithResponse(resourceUri, extensionsResourceName, this.innerModel(), Context.NONE)
-            .getValue();
-        return this;
+        return this.apply(Context.NONE);
     }
 
     public ExtensionsResource apply(Context context) {
@@ -106,11 +99,7 @@ public final class ExtensionsResourceImpl
     }
 
     public ExtensionsResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getExtensionsResources()
-            .getWithResponse(resourceUri, extensionsResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ExtensionsResource refresh(Context context) {

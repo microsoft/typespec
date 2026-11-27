@@ -23,6 +23,12 @@ public final class ArmResourceIdentifierResourceImpl
         azure.resourcemanager.commonproperties.CommonPropertiesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/armResourceIdentifierResources/{armResourceIdentifierResourceName}",
+            "resourceGroupName");
+        this.armResourceIdentifierResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/armResourceIdentifierResources/{armResourceIdentifierResourceName}",
+            "armResourceIdentifierResourceName");
     }
 
     public String id() {
@@ -84,12 +90,7 @@ public final class ArmResourceIdentifierResourceImpl
     }
 
     public ArmResourceIdentifierResource create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getArmResourceIdentifiers()
-            .createOrReplaceWithResponse(resourceGroupName, armResourceIdentifierResourceName, this.innerModel(),
-                Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public ArmResourceIdentifierResource create(Context context) {
@@ -109,11 +110,7 @@ public final class ArmResourceIdentifierResourceImpl
     }
 
     public ArmResourceIdentifierResource refresh() {
-        this.innerObject = serviceManager.serviceClient()
-            .getArmResourceIdentifiers()
-            .getByResourceGroupWithResponse(resourceGroupName, armResourceIdentifierResourceName, Context.NONE)
-            .getValue();
-        return this;
+        return this.refresh(Context.NONE);
     }
 
     public ArmResourceIdentifierResource refresh(Context context) {

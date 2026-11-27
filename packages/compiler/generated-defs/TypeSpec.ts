@@ -13,6 +13,7 @@ import type {
   Scalar,
   ScalarValue,
   Type,
+  TypeRefValue,
   Union,
   UnionVariant,
 } from "../src/index.js";
@@ -465,7 +466,7 @@ export type MaxItemsDecorator = (
  * @example
  * ```typespec
  * @minValue(18)
- * scalar Age is int32;
+ * scalar Age extends int32;
  * ```
  */
 export type MinValueDecorator = (
@@ -481,7 +482,7 @@ export type MinValueDecorator = (
  * @example
  * ```typespec
  * @maxValue(200)
- * scalar Age is int32;
+ * scalar Age extends int32;
  * ```
  */
 export type MaxValueDecorator = (
@@ -498,7 +499,7 @@ export type MaxValueDecorator = (
  * @example
  * ```typespec
  * @minValueExclusive(0)
- * scalar distance is float64;
+ * scalar distance extends float64;
  * ```
  */
 export type MinValueExclusiveDecorator = (
@@ -515,7 +516,7 @@ export type MinValueExclusiveDecorator = (
  * @example
  * ```typespec
  * @maxValueExclusive(50)
- * scalar distance is float64;
+ * scalar distance extends float64;
  * ```
  */
 export type MaxValueExclusiveDecorator = (
@@ -530,7 +531,7 @@ export type MaxValueExclusiveDecorator = (
  * @example
  * ```typespec
  * @secret
- * scalar Password is string;
+ * scalar Password extends string;
  * ```
  */
 export type SecretDecorator = (
@@ -1286,6 +1287,24 @@ export type TypeSpecDecorators = {
   withLifecycleUpdate: WithLifecycleUpdateDecorator;
 };
 
+/**
+ * Creates an opaque value referencing an existing type.
+ * The reference preserves the type's identity and can be stored in object and array values.
+ * The result has type `TypeRef<target>`; JavaScript implementations receive a `TypeRefValue`.
+ * Requires the `typeref` compiler feature.
+ *
+ * @param target The type to reference.
+ * @example
+ * ```tsp
+ * model Item { id: string; }
+ * const entry = #{ name: "item", type: typeref(Item) };
+ * ```
+ */
+export type TyperefFunctionImplementation = (
+  context: FunctionContext,
+  target: Type,
+) => TypeRefValue;
+
 export type ApplyVisibilityFilterFunctionImplementation = (
   context: FunctionContext,
   input: Model,
@@ -1300,6 +1319,7 @@ export type ApplyLifecycleUpdateFunctionImplementation = (
 ) => Model;
 
 export type TypeSpecFunctions = {
+  typeref: TyperefFunctionImplementation;
   applyVisibilityFilter: ApplyVisibilityFilterFunctionImplementation;
   applyLifecycleUpdate: ApplyLifecycleUpdateFunctionImplementation;
 };

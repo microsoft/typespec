@@ -53,6 +53,7 @@ export interface TypeSpecCompileOptions {
   IsVersionNeeded?: boolean;
   IsSseNeeded?: boolean;
   IsHttpClientNeeded?: boolean;
+  Features?: string[];
 }
 
 export async function typeSpecCompile(
@@ -109,6 +110,7 @@ export async function typeSpecCompile(
   const cliOptions = {
     warningAsError: false,
     noEmit: options?.NoEmit ?? true,
+    configFile: { features: options?.Features ?? [] },
   } as CompilerOptions;
   await host.compile("./", cliOptions);
   return host.program;

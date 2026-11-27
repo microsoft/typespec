@@ -72,6 +72,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         final List<Integer> expectedStatusCodes = getExpectedResponseStatusCodes(operation);
         builder.responseExpectedStatusCodes(expectedStatusCodes);
+        builder.responseBodylessStatusCodes(getBodylessResponseStatusCodes(operation));
         builder.responseHeaders(getResponseHeaders(operation, settings));
         buildExpectedResponseFields(operation, settings, builder);
         buildUnexpectedResponseExceptionFields(builder, operation, expectedStatusCodes, settings);
@@ -104,7 +105,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      * @param settings the settings that may use to resolve the operation id.
      * @return the operation id.
      */
-    private String getOperationId(Operation operation, JavaSettings settings) {
+    public String getOperationId(Operation operation, JavaSettings settings) {
         if (!CoreUtils.isNullOrEmpty(operation.getOperationId())) {
             return operation.getOperationId();
         }
@@ -131,6 +132,26 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             .flatMap(r -> r.getProtocol().getHttp().getStatusCodes().stream())
             .map(s -> s.replace("'", ""))
             .map(Integer::parseInt)
+            .sorted()
+            .collect(Collectors.toList());
+    }
+
+    private static List<Integer> getBodylessResponseStatusCodes(Operation operation) {
+        // A status can appear in both body-bearing and bodyless response variants. Status alone can skip
+        // deserialization only when every variant for that status is bodyless.
+        Set<Integer> bodyStatusCodes = operation.getResponses()
+            .stream()
+            .filter(response -> response.getSchema() != null || Boolean.TRUE.equals(response.getBinary()))
+            .flatMap(response -> response.getProtocol().getHttp().getStatusCodes().stream())
+            .map(status -> Integer.parseInt(status.replace("'", "")))
+            .collect(Collectors.toSet());
+        return operation.getResponses()
+            .stream()
+            .filter(response -> response.getSchema() == null && !Boolean.TRUE.equals(response.getBinary()))
+            .flatMap(response -> response.getProtocol().getHttp().getStatusCodes().stream())
+            .map(status -> Integer.parseInt(status.replace("'", "")))
+            .filter(status -> !bodyStatusCodes.contains(status))
+            .distinct()
             .sorted()
             .collect(Collectors.toList());
     }

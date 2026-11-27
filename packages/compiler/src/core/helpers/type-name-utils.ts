@@ -106,6 +106,8 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
     case "Function": {
       return `fn ${value.name ?? "<anonymous>"}`;
     }
+    case "TypeRefValue":
+      return `typeref(${getTypeName(value.target, options)})`;
   }
 }
 

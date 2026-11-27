@@ -24,7 +24,6 @@ import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.ObjectSerializer;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -76,11 +75,11 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             imports.add(ClassType.JACKSON_ADAPTER.getFullName());
         }
 
-        imports.add(InvocationTargetException.class.getName());
         imports.add(ObjectSerializer.class.getName());
         ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
 
         serviceClient.addImportsTo(imports, true, false, settings);
+        ClientCoreHttpOperationTemplate.addImportsTo(serviceClient.getProxy(), imports, settings);
         additionalMethods.forEach(method -> method.addImportsTo(imports));
         javaFile.declareImport(imports);
 
@@ -270,7 +269,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
             Templates.getProxyTemplate().write(serviceClient.getProxy(), classBlock);
 
-            TemplateUtil.writeClientMethodsAndHelpers(classBlock, serviceClient.getClientMethods());
+            TemplateUtil.writeClientMethodsAndHelpers(classBlock, serviceClient.getClientMethods(),
+                settings.isFluent() && settings.isGenerateClientInterfaces());
 
             additionalMethods.forEach(method -> method.writeMethod(classBlock));
 

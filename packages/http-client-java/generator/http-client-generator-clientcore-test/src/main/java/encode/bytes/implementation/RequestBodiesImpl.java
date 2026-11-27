@@ -1,22 +1,23 @@
 package encode.bytes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.Base64Uri;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in RequestBodies.
@@ -49,66 +50,163 @@ public final class RequestBodiesImpl {
     }
 
     /**
-     * The interface defining all the services for BytesClientRequestBodies to be used by the proxy service to perform
-     * REST calls.
+     * The HTTP operations for BytesClientRequestBodies.
      */
-    @ServiceInterface(name = "BytesClientRequestBodies", host = "{endpoint}")
     public interface RequestBodiesService {
         static RequestBodiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.RequestBodiesServiceImpl");
-                return (RequestBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new RequestBodiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/default",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/octet-stream",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> octetStream(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/custom-content-type",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> customContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("image/png") BinaryData value,
-            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/base64",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/json") byte[] value, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/body/request/base64url",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64url(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/json") Base64Uri value,
+        Response<Void> defaultMethod(String endpoint, String contentType, BinaryData value, long contentLength,
             RequestContext requestContext);
+
+        Response<Void> octetStream(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext);
+
+        Response<Void> customContentType(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext);
+
+        Response<Void> base64(String endpoint, String contentType, byte[] value, RequestContext requestContext);
+
+        Response<Void> base64url(String endpoint, String contentType, Base64Uri value, RequestContext requestContext);
+    }
+
+    private static final class RequestBodiesServiceImpl implements RequestBodiesService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(RequestBodiesService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private RequestBodiesServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> defaultMethod(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/body/request/default");
+            httpRequest.getHeaders().add(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                if (value.getLength() != null) {
+                    httpRequest.setBody(value);
+                }
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> octetStream(String endpoint, String contentType, BinaryData value, long contentLength,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/body/request/octet-stream");
+            httpRequest.getHeaders().add(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                if (value.getLength() != null) {
+                    httpRequest.setBody(value);
+                }
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> customContentType(String endpoint, String contentType, BinaryData value,
+            long contentLength, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/body/request/custom-content-type");
+            httpRequest.getHeaders().add(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                if (value.getLength() != null) {
+                    httpRequest.setBody(value);
+                }
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> base64(String endpoint, String contentType, byte[] value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/body/request/base64");
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(value,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> base64url(String endpoint, String contentType, Base64Uri value,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/body/request/base64url");
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(value,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

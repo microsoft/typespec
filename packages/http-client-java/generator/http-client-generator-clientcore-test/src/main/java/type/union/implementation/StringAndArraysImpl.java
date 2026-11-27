@@ -1,20 +1,23 @@
 package type.union.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
 import type.union.GetResponse7;
 import type.union.StringAndArrayCases;
 
@@ -49,38 +52,90 @@ public final class StringAndArraysImpl {
     }
 
     /**
-     * The interface defining all the services for UnionClientStringAndArrays to be used by the proxy service to perform
-     * REST calls.
+     * The HTTP operations for UnionClientStringAndArrays.
      */
-    @ServiceInterface(name = "UnionClientStringAndArrays", host = "{endpoint}")
     public interface StringAndArraysService {
         static StringAndArraysService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.StringAndArraysServiceImpl");
-                return (StringAndArraysService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new StringAndArraysServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/string-and-array",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse7> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<GetResponse7> get(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/string-and-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest7 sendRequest7, RequestContext requestContext);
+        Response<Void> send(String endpoint, String contentType, SendRequest7 sendRequest7,
+            RequestContext requestContext);
+    }
+
+    private static final class StringAndArraysServiceImpl implements StringAndArraysService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(StringAndArraysService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private StringAndArraysServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<GetResponse7> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/type/union/string-and-array");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, GetResponse7.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Void> send(String endpoint, String contentType, SendRequest7 sendRequest7,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/type/union/string-and-array");
+            if (sendRequest7 != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(sendRequest7,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        private <T> T decodeResponse(BinaryData value, ParameterizedType type, SerializationFormat format) {
+            if (this.jsonSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.jsonSerializer, type);
+            }
+            if (this.xmlSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.xmlSerializer, type);
+            }
+            throw HTTP_LOG.throwableAtError()
+                .addKeyValue("serializationFormat", format.name())
+                .log("None of the provided serializers support the format.", UnsupportedOperationException::new);
+        }
     }
 
     /**

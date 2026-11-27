@@ -131,13 +131,22 @@ public class TemplateUtil {
      * @param clientMethods collection of client methods
      */
     public static void writeClientMethodsAndHelpers(JavaClass classBlock, List<ClientMethod> clientMethods) {
+        writeClientMethodsAndHelpers(classBlock, clientMethods, false);
+    }
+
+    public static void writeClientMethodsAndHelpers(JavaClass classBlock, List<ClientMethod> clientMethods,
+        boolean implementsGeneratedInterface) {
         JavaSettings settings = JavaSettings.getInstance();
 
         // collect types of TypeReference<T>
         Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
 
         for (ClientMethod clientMethod : clientMethods) {
-            Templates.getClientMethodTemplate().write(clientMethod, classBlock);
+            if (implementsGeneratedInterface) {
+                Templates.getClientMethodTemplate().writeWithInheritedDocumentation(clientMethod, classBlock);
+            } else {
+                Templates.getClientMethodTemplate().write(clientMethod, classBlock);
+            }
 
             // this is coupled with ClientMethodTemplate.generateLongRunningBeginAsync, see
             // getLongRunningOperationTypeReferenceExpression
@@ -358,6 +367,8 @@ public class TemplateUtil {
         switch (clientMethod.getType()) {
             case PagingSync:
             case PagingAsync:
+            case SseSync:
+            case SseAsync:
                 typeBlock.annotation("ServiceMethod(returns = ReturnType.COLLECTION)");
                 break;
 

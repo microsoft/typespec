@@ -63,8 +63,7 @@ public final class PagingsImpl implements Pagings {
     }
 
     public PagedIterable<Collection> markAsPageable(String resourceGroupName, String monitorName) {
-        PagedIterable<CollectionInner> inner = this.serviceClient().markAsPageable(resourceGroupName, monitorName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new CollectionImpl(inner1, this.manager()));
+        return this.markAsPageable(resourceGroupName, monitorName, Context.NONE);
     }
 
     public PagedIterable<Collection> markAsPageable(String resourceGroupName, String monitorName, Context context) {

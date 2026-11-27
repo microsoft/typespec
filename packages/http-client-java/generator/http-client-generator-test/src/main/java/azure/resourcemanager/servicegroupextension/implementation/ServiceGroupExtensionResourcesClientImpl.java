@@ -212,17 +212,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ServiceGroupExtensionResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ServiceGroupExtensionResourceInner> getWithResponse(String serviceGroupId,
         String serviceGroupExtensionResourceName, Context context) {
@@ -231,16 +221,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             serviceGroupExtensionResourceName, accept, context);
     }
 
-    /**
-     * Get a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ServiceGroupExtensionResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ServiceGroupExtensionResourceInner get(String serviceGroupId, String serviceGroupExtensionResourceName) {
         return getWithResponse(serviceGroupId, serviceGroupExtensionResourceName, Context.NONE).getValue();
@@ -284,10 +265,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String serviceGroupId,
         String serviceGroupExtensionResourceName, ServiceGroupExtensionResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(), serviceGroupId,
-            serviceGroupExtensionResourceName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(serviceGroupId, serviceGroupExtensionResourceName, resource, Context.NONE);
     }
 
     /**
@@ -335,41 +313,15 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             ServiceGroupExtensionResourceInner.class, this.client.getContext());
     }
 
-    /**
-     * Create a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete extension resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ServiceGroupExtensionResourceInner>, ServiceGroupExtensionResourceInner>
         beginCreateOrUpdate(String serviceGroupId, String serviceGroupExtensionResourceName,
             ServiceGroupExtensionResourceInner resource) {
-        Response<BinaryData> response
-            = createOrUpdateWithResponse(serviceGroupId, serviceGroupExtensionResourceName, resource);
-        return this.client.<ServiceGroupExtensionResourceInner, ServiceGroupExtensionResourceInner>getLroResult(
-            response, ServiceGroupExtensionResourceInner.class, ServiceGroupExtensionResourceInner.class, Context.NONE);
+        return beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete extension resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ServiceGroupExtensionResourceInner>, ServiceGroupExtensionResourceInner>
         beginCreateOrUpdate(String serviceGroupId, String serviceGroupExtensionResourceName,
@@ -399,40 +351,19 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ServiceGroupExtensionResourceInner createOrUpdate(String serviceGroupId,
         String serviceGroupExtensionResourceName, ServiceGroupExtensionResourceInner resource) {
-        return beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource).getFinalResult();
+        return createOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ServiceGroupExtensionResourceInner createOrUpdate(String serviceGroupId,
         String serviceGroupExtensionResourceName, ServiceGroupExtensionResourceInner resource, Context context) {
-        return beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, context)
-            .getFinalResult();
+        return this.client.getLroFinalResultOrError(
+            beginCreateOrUpdate(serviceGroupId, serviceGroupExtensionResourceName, resource, context));
     }
 
     /**
@@ -477,19 +408,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type
-     * along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ServiceGroupExtensionResourceInner> updateWithResponse(String serviceGroupId,
         String serviceGroupExtensionResourceName, ServiceGroupExtensionResourceInner properties, Context context) {
@@ -499,17 +418,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             serviceGroupExtensionResourceName, contentType, accept, properties, context);
     }
 
-    /**
-     * Update a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ServiceGroupExtensionResourceInner update(String serviceGroupId, String serviceGroupExtensionResourceName,
         ServiceGroupExtensionResourceInner properties) {
@@ -552,17 +461,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             .flatMap(ignored -> Mono.empty());
     }
 
-    /**
-     * Delete a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String serviceGroupId, String serviceGroupExtensionResourceName,
         Context context) {
@@ -570,15 +469,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             serviceGroupExtensionResourceName, context);
     }
 
-    /**
-     * Delete a ServiceGroupExtensionResource.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param serviceGroupExtensionResourceName The name of the ServiceGroupExtensionResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String serviceGroupId, String serviceGroupExtensionResourceName) {
         deleteWithResponse(serviceGroupId, serviceGroupExtensionResourceName, Context.NONE);
@@ -633,11 +524,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ServiceGroupExtensionResourceInner> listByServiceGroupSinglePage(String serviceGroupId) {
-        final String accept = "application/json";
-        Response<ServiceGroupExtensionResourceListResult> res = service.listByServiceGroupSync(
-            this.client.getEndpoint(), this.client.getApiVersion(), serviceGroupId, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByServiceGroupSinglePage(serviceGroupId, Context.NONE);
     }
 
     /**
@@ -660,33 +547,13 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List ServiceGroupExtensionResource resources by scope.
-     * 
-     * @param serviceGroupId The service group name.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ServiceGroupExtensionResource list operation as paginated response with
-     * {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ServiceGroupExtensionResourceInner> listByServiceGroup(String serviceGroupId) {
-        return new PagedIterable<>(() -> listByServiceGroupSinglePage(serviceGroupId),
-            nextLink -> listByServiceGroupNextSinglePage(nextLink));
+        return listByServiceGroup(serviceGroupId, Context.NONE);
     }
 
-    /**
-     * List ServiceGroupExtensionResource resources by scope.
-     * 
-     * @param serviceGroupId The service group name.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ServiceGroupExtensionResource list operation as paginated response with
-     * {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ServiceGroupExtensionResourceInner> listByServiceGroup(String serviceGroupId,
         Context context) {
@@ -727,11 +594,7 @@ public final class ServiceGroupExtensionResourcesClientImpl implements ServiceGr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ServiceGroupExtensionResourceInner> listByServiceGroupNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<ServiceGroupExtensionResourceListResult> res
-            = service.listByServiceGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByServiceGroupNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

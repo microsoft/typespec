@@ -1,18 +1,19 @@
 package routes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * Initializes a new instance of the RoutesClient type.
@@ -320,25 +321,44 @@ public final class RoutesClientImpl {
     }
 
     /**
-     * The interface defining all the services for RoutesClient to be used by the proxy service to perform REST calls.
+     * The HTTP operations for RoutesClient.
      */
-    @ServiceInterface(name = "RoutesClient", host = "{endpoint}")
     public interface RoutesClientService {
         static RoutesClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("routes.implementation.RoutesClientServiceImpl");
-                return (RoutesClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new RoutesClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/routes/fixed", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> fixed(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> fixed(String endpoint, RequestContext requestContext);
+    }
+
+    private static final class RoutesClientServiceImpl implements RoutesClientService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(RoutesClientService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private RoutesClientServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> fixed(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/routes/fixed");
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

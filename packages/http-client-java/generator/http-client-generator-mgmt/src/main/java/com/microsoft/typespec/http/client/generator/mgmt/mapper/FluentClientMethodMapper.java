@@ -3,16 +3,21 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodsReturnDescription;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FluentClientMethodMapper extends ClientMethodMapper {
 
@@ -20,6 +25,37 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
     public static FluentClientMethodMapper getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    protected List<ClientMethod> createClientMethods(Operation operation, boolean isProtocolMethod) {
+        List<ClientMethod> methods = super.createClientMethods(operation, isProtocolMethod);
+        if (!JavaSettings.getInstance().isSyncStackEnabled()) {
+            return methods;
+        }
+
+        return methods.stream().map(method -> {
+            if (!method.getType().isSync() || method.hasMethodParameterOfType(ClassType.CONTEXT)) {
+                return method;
+            }
+            List<ClientMethodParameter> parameters = new ArrayList<>(method.getParameters());
+            parameters.add(getContextParameter());
+            String contextDeclaration = method.newBuilder()
+                .parameters(parameters)
+                .onlyRequiredParameters(false)
+                .build()
+                .getParametersDeclaration();
+            // Match against the emitted methods, not visibility settings alone. Required-only methods
+            // forward to the maximum overload; historical signatures must have their own matching target.
+            boolean hasContextOverload = !isProtocolMethod
+                && methods.stream()
+                    .anyMatch(candidate -> candidate.getType() == method.getType()
+                        && candidate.getName().equals(method.getName())
+                        && candidate.getReturnValue().getType().equals(method.getReturnValue().getType())
+                        && candidate.hasMethodParameterOfType(ClassType.CONTEXT)
+                        && candidate.getParametersDeclaration().equals(contextDeclaration));
+            return method.newBuilder().hasWithContextOverload(hasContextOverload).build();
+        }).collect(Collectors.toList());
     }
 
     @Override

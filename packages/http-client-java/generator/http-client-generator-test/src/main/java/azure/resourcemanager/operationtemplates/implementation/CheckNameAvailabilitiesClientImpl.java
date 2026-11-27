@@ -127,16 +127,7 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
         return checkGlobalWithResponseAsync(body).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Implements global CheckNameAvailability operations.
-     * 
-     * @param body The CheckAvailability request.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the check availability result along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CheckNameAvailabilityResponseInner> checkGlobalWithResponse(CheckNameAvailabilityRequest body,
         Context context) {
@@ -146,15 +137,7 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
             this.client.getSubscriptionId(), contentType, accept, body, context);
     }
 
-    /**
-     * Implements global CheckNameAvailability operations.
-     * 
-     * @param body The CheckAvailability request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the check availability result.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CheckNameAvailabilityResponseInner checkGlobal(CheckNameAvailabilityRequest body) {
         return checkGlobalWithResponse(body, Context.NONE).getValue();
@@ -197,17 +180,7 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
         return checkLocalWithResponseAsync(location, body).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Implements local CheckNameAvailability operations.
-     * 
-     * @param location The name of the Azure region.
-     * @param body The CheckAvailability request.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the check availability result along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CheckNameAvailabilityResponseInner> checkLocalWithResponse(String location,
         CheckNameAvailabilityRequest body, Context context) {
@@ -217,16 +190,7 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
             this.client.getSubscriptionId(), location, contentType, accept, body, context);
     }
 
-    /**
-     * Implements local CheckNameAvailability operations.
-     * 
-     * @param location The name of the Azure region.
-     * @param body The CheckAvailability request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the check availability result.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CheckNameAvailabilityResponseInner checkLocal(String location, CheckNameAvailabilityRequest body) {
         return checkLocalWithResponse(location, body, Context.NONE).getValue();

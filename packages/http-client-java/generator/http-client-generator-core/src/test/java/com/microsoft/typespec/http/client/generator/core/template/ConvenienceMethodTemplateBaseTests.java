@@ -3,9 +3,23 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
+import com.azure.core.util.BinaryData;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodsReturnDescription;
+import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -14,8 +28,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
@@ -27,14 +44,25 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.api.parallel.ResourceLock;
 
@@ -46,6 +74,8 @@ public class ConvenienceMethodTemplateBaseTests {
     public void restoreSettings() {
         new MockUnitJavagen();
         JavaSettings.clear();
+        Mappers.setFactory(new DefaultMapperFactory());
+        Templates.setFactory(new DefaultTemplateFactory());
     }
 
     @Test
@@ -292,6 +322,226 @@ public class ConvenienceMethodTemplateBaseTests {
     }
 
     @Test
+    public void bodylessSuccessStatusesSkipXmlDeserialization() {
+        useFlavor("azure");
+        for (boolean async : List.of(false, true)) {
+            for (boolean withResponse : List.of(false, true)) {
+                for (int status : List.of(201, 204)) {
+                    String generated = renderConversion(async, ClassType.STRING, ClassType.STRING, "application/xml",
+                        withResponse, List.of(status));
+                    Assertions.assertTrue(generated.contains("protocolMethodResponse.getStatusCode() == " + status),
+                        generated);
+                    Assertions.assertTrue(generated.contains("toObject(String.class, XML_SERIALIZER)"), generated);
+                    if (withResponse) {
+                        Assertions.assertTrue(generated.contains("? null : "), generated);
+                    } else if (async) {
+                        Assertions.assertTrue(generated.contains("Mono.empty()"), generated);
+                    } else {
+                        Assertions.assertTrue(generated.contains("return null;"), generated);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void generatedXmlConversionsHandleBodylessResponses(@TempDir Path directory) throws Exception {
+        useFlavor("azure");
+        IType layoutType = new ClassType.Builder().name("XmlLayout").packageName("test").usedInXml(true).build();
+        List<Path> files = new ArrayList<>();
+        for (String resource : List.of("XmlSerializer", "XmlSerializerProviders")) {
+            Path file = directory.resolve(resource + ".java");
+            Files.writeString(file, "package test;\n" + TemplateUtil.loadTextFromResource(resource + ".java"));
+            files.add(file);
+        }
+        Path layout = directory.resolve("XmlLayout.java");
+        Files.writeString(layout,
+            "package test;\npublic class XmlLayout {\n"
+                + "public static XmlLayout fromXml(com.azure.xml.XmlReader reader)"
+                + " throws javax.xml.stream.XMLStreamException {\n"
+                + "return reader.readObject(\"Layout\", r -> { r.skipElement(); return new XmlLayout(); });\n}\n}\n");
+        files.add(layout);
+        for (boolean async : List.of(false, true)) {
+            for (boolean withResponse : List.of(false, true)) {
+                String className = "Conversion" + async + withResponse;
+                String conversion = renderConversion(async, layoutType, layoutType, "application/xml", withResponse,
+                    List.of(201, 204));
+                Path file = directory.resolve(className + ".java");
+                Files.writeString(file,
+                    "package test;\nimport com.azure.core.http.rest.*;\nimport com.azure.core.util.*;\n"
+                        + "import com.azure.core.util.serializer.*;\nimport reactor.core.publisher.Mono;\n"
+                        + "public class " + className + " {\n"
+                        + "private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();\n"
+                        + "public Response<BinaryData> response;\n"
+                        + "public Object invoke() { RequestOptions requestOptions = null;\n" + conversion + "\n}\n"
+                        + "private " + (async ? "Mono<Response<BinaryData>>" : "Response<BinaryData>")
+                        + " readWithResponse(RequestOptions options) { return "
+                        + (async ? "Mono.just(response)" : "response") + "; }\n}\n");
+                files.add(file);
+            }
+        }
+        List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+            directory.toString()));
+        files.forEach(file -> arguments.add(file.toString()));
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        Assertions.assertEquals(0,
+            ToolProvider.getSystemJavaCompiler().run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+            () -> diagnostics.toString(StandardCharsets.UTF_8));
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
+            for (boolean async : List.of(false, true)) {
+                for (boolean withResponse : List.of(false, true)) {
+                    Class<?> type = loader.loadClass("test.Conversion" + async + withResponse);
+                    Object instance = type.getConstructor().newInstance();
+                    for (int status : List.of(200, 201, 204)) {
+                        type.getField("response")
+                            .set(instance, new SimpleResponse<>(null, status, new HttpHeaders(),
+                                BinaryData.fromString(status == 200 ? "<Layout/>" : "")));
+                        Object result = type.getMethod("invoke").invoke(instance);
+                        if (async) {
+                            result = ((reactor.core.publisher.Mono<?>) result).block();
+                        }
+                        if (withResponse) {
+                            Response<?> response = (Response<?>) result;
+                            Assertions.assertEquals(status, response.getStatusCode());
+                            result = response.getValue();
+                        }
+                        if (status == 200) {
+                            Assertions.assertEquals("test.XmlLayout", result.getClass().getName());
+                        } else {
+                            Assertions.assertNull(result);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void generatedMixedBinaryResponsesPreservePayloads(@TempDir Path directory) throws Exception {
+        useFlavor("azure");
+        Operation operation = new Operation();
+        Language language = new Language();
+        language.setName("read");
+        Languages languages = new Languages();
+        languages.setDefault(language);
+        languages.setJava(language);
+        operation.setLanguage(languages);
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        var schemaResponse = new com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response();
+        schemaResponse.setSchema(schema);
+        var binaryResponse = new com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response();
+        binaryResponse.setBinary(true);
+        operation.setResponses(List.of(binaryResponse, schemaResponse));
+        for (var response : operation.getResponses()) {
+            Protocol http = new Protocol();
+            http.setStatusCodes(List.of(response == binaryResponse ? "200" : "206"));
+            http.setMediaTypes(List.of("application/xml"));
+            Protocols protocols = new Protocols();
+            protocols.setHttp(http);
+            response.setProtocol(protocols);
+        }
+        IType returnType = ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType();
+        Assertions.assertEquals(ClassType.BINARY_DATA, returnType);
+
+        List<String> arguments = new ArrayList<>(List.of("--release", "11", "-classpath",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
+            directory.toString()));
+        for (boolean async : List.of(false, true)) {
+            String className = "MixedResponse" + async;
+            String conversion = renderConversion(async, returnType, returnType, "application/xml");
+            Assertions.assertFalse(conversion.contains("toObject"), conversion);
+            Path file = directory.resolve(className + ".java");
+            Files.writeString(file,
+                "import com.azure.core.http.rest.*;\nimport com.azure.core.util.*;\n"
+                    + "import reactor.core.publisher.Mono;\npublic class " + className + " {\n"
+                    + "public Response<BinaryData> response;\n" + "public " + (async ? "Mono<BinaryData>" : returnType)
+                    + " read() {\n" + "RequestOptions requestOptions = null;\n" + conversion + "\n}\n" + "private "
+                    + (async ? "Mono<Response<BinaryData>>" : "Response<BinaryData>")
+                    + " readWithResponse(RequestOptions options) { return "
+                    + (async ? "Mono.just(response)" : "response") + "; }\n}\n");
+            arguments.add(file.toString());
+        }
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        Assertions.assertEquals(0,
+            ToolProvider.getSystemJavaCompiler().run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
+            () -> diagnostics.toString(StandardCharsets.UTF_8));
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { directory.toUri().toURL() }, getClass().getClassLoader())) {
+            for (boolean async : List.of(false, true)) {
+                Class<?> type = loader.loadClass("MixedResponse" + async);
+                Object instance = type.getConstructor().newInstance();
+                for (int status : List.of(200, 206)) {
+                    byte[] bytes = status == 200
+                        ? new byte[] { 0, 1, (byte) 255 }
+                        : "<Layout/>".getBytes(StandardCharsets.UTF_8);
+                    BinaryData payload = BinaryData.fromBytes(bytes);
+                    type.getField("response")
+                        .set(instance, new SimpleResponse<>(null, status, new HttpHeaders(), payload));
+                    Object result = type.getMethod("read").invoke(instance);
+                    if (async) {
+                        result = ((reactor.core.publisher.Mono<?>) result).block();
+                    }
+                    Assertions.assertSame(payload, result);
+                    Assertions.assertArrayEquals(bytes, ((BinaryData) result).toBytes());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void optionalByteHeadersAndQueriesUseBase64() {
+        useFlavor("azure");
+        for (boolean async : List.of(false, true)) {
+            for (RequestParameterLocation location : List.of(RequestParameterLocation.HEADER,
+                RequestParameterLocation.QUERY)) {
+                String output = renderByteParameter(async, location, ArrayType.BYTE_ARRAY, false, null, null);
+                Assertions.assertTrue(output.contains("if (data != null)"), output);
+                Assertions.assertTrue(output.contains("Base64Util.encodeToString(data)"), output);
+            }
+        }
+    }
+
+    @Test
+    public void optionalBase64UrlHeadersAndQueriesKeepUrlEncoding() {
+        useFlavor("azure");
+        for (RequestParameterLocation location : List.of(RequestParameterLocation.HEADER,
+            RequestParameterLocation.QUERY)) {
+            String output = renderByteParameter(false, location, ClassType.BASE_64_URL, false, null, null);
+            Assertions.assertTrue(output.contains(ClassType.BASE_64_URL.getName() + ".encode(data)"), output);
+        }
+    }
+
+    @Test
+    public void byteHeaderCollectionsAndExplodedQueriesImportBase64() {
+        useFlavor("azure");
+        Set<String> imports = new HashSet<>();
+        String header = renderByteParameter(false, RequestParameterLocation.HEADER, new MapType(ArrayType.BYTE_ARRAY),
+            false, "x-ms-meta-", imports);
+        Assertions.assertTrue(header.contains("Base64Util.encodeToString(value)"), header);
+        Assertions.assertTrue(imports.contains("com.azure.core.util.Base64Util"), imports.toString());
+
+        imports.clear();
+        String query = renderByteParameter(false, RequestParameterLocation.QUERY, new ListType(ArrayType.BYTE_ARRAY),
+            true, null, imports);
+        Assertions.assertTrue(query.contains("Base64Util.encodeToString(paramItemValue)"), query);
+        Assertions.assertTrue(imports.contains("com.azure.core.util.Base64Util"), imports.toString());
+    }
+
+    @Test
+    public void clientCoreByteParametersUseJdkBase64() {
+        useFlavor("unbranded");
+        Set<String> imports = new HashSet<>();
+        String output
+            = renderByteParameter(false, RequestParameterLocation.QUERY, ArrayType.BYTE_ARRAY, false, null, imports);
+        Assertions.assertTrue(output.contains("requestContext = requestContext.toBuilder().addQueryParam(\"data\", "
+            + "data == null ? null : Base64.getEncoder().encodeToString(data), false).build();"), output);
+        Assertions.assertTrue(imports.contains("java.util.Base64"), imports.toString());
+    }
+
+    @Test
     public void optionalMultipartTextFieldsPreserveNull() {
         for (IType type : List.of(ClassType.BOOLEAN, ClassType.INTEGER, ClassType.LONG, ClassType.DOUBLE)) {
             String getter = type == ClassType.BOOLEAN ? "isValue" : "getValue";
@@ -322,6 +572,75 @@ public class ConvenienceMethodTemplateBaseTests {
     public void multipartStringsKeepDirectSerialization() {
         Assertions.assertTrue(renderMultipartConversion(ClassType.STRING, false)
             .contains(".serializeTextField(\"value\", body.getValue())"));
+    }
+
+    private static void useFlavor(String flavor) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("flavor".equals(key)) {
+                    return (T) flavor;
+                }
+                if ("data-plane".equals(key) || "enable-sync-stack".equals(key)) {
+                    return (T) Boolean.TRUE;
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+    }
+
+    private static String renderByteParameter(boolean async, RequestParameterLocation location, IType wireType,
+        boolean explode, String headerPrefix, Set<String> imports) {
+        JavaSettings settings = JavaSettings.getInstance();
+        ProxyMethodParameter proxyParameter = new ProxyMethodParameter.Builder().name("data")
+            .requestParameterName(location == RequestParameterLocation.HEADER ? "Content-MD5" : "data")
+            .requestParameterLocation(location)
+            .rawType(wireType)
+            .wireType(wireType)
+            .clientType(wireType.getClientType())
+            .headerCollectionPrefix(headerPrefix)
+            .explode(explode)
+            .build();
+        ProxyMethod proxyMethod = new ProxyMethod.Builder().name("send")
+            .httpMethod(HttpMethod.GET)
+            .returnType(ClassType.VOID)
+            .parameters(List.of())
+            .allParameters(List.of(proxyParameter))
+            .responseBodyType(ClassType.BINARY_DATA)
+            .rawResponseBodyType(ClassType.VOID)
+            .responseContentTypes(Set.of("application/json"))
+            .build();
+        ClientMethodParameter parameter = new ClientMethodParameter.Builder().name("data")
+            .annotations(List.of())
+            .requestParameterLocation(location)
+            .wireType(wireType)
+            .build();
+        IType protocolReturnType = GenericType.response(ClassType.BINARY_DATA);
+        ClientMethod protocolMethod = new ClientMethod.Builder().name("sendWithResponse")
+            .parameters(List.of(settings.isAzureV1()
+                ? ClientMethodParameter.REQUEST_OPTIONS_PARAMETER
+                : ClientMethodParameter.REQUEST_CONTEXT_PARAMETER))
+            .proxyMethod(proxyMethod)
+            .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
+            .returnValue(new ReturnValue("response", async ? GenericType.mono(protocolReturnType) : protocolReturnType))
+            .build();
+        ClientMethod convenienceMethod = new ClientMethod.Builder().name("send")
+            .parameters(List.of(parameter))
+            .parameterTransformations(new ParameterTransformations(List.of()))
+            .proxyMethod(proxyMethod)
+            .type(async ? ClientMethodType.SimpleAsync : ClientMethodType.SimpleSync)
+            .returnValue(new ReturnValue("response", async ? GenericType.mono(ClassType.VOID) : ClassType.VOID))
+            .build();
+        JavaFileContents contents = new JavaFileContents();
+        ConvenienceMethodTemplateBase template
+            = async ? Templates.getConvenienceAsyncMethodTemplate() : Templates.getConvenienceSyncMethodTemplate();
+        template.writeMethodImplementation(protocolMethod, convenienceMethod, new JavaBlock(contents), new HashSet<>());
+        if (imports != null) {
+            template.addImports(imports, List.of(new ConvenienceMethod(protocolMethod, List.of(convenienceMethod))));
+        }
+        return contents.toString();
     }
 
     private static String renderMultipartConversion(IType type, boolean required) {
@@ -382,10 +701,16 @@ public class ConvenienceMethodTemplateBaseTests {
     }
 
     private static String renderConversion(boolean async, IType responseBodyType, IType rawType, String contentType) {
+        return renderConversion(async, responseBodyType, rawType, contentType, false, List.of());
+    }
+
+    private static String renderConversion(boolean async, IType responseBodyType, IType rawType, String contentType,
+        boolean withResponse, List<Integer> bodylessStatuses) {
         ProxyMethod proxyMethod = new ProxyMethod.Builder().name("read")
             .responseBodyType(ClassType.BINARY_DATA)
             .rawResponseBodyType(rawType)
             .responseContentTypes(Set.of(contentType))
+            .responseBodylessStatusCodes(bodylessStatuses)
             .build();
         IType protocolReturnType = GenericType.response(ClassType.BINARY_DATA);
         ClientMethod protocolMethod = new ClientMethod.Builder().name("readWithResponse")
@@ -394,11 +719,15 @@ public class ConvenienceMethodTemplateBaseTests {
             .type(async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
             .returnValue(new ReturnValue("response", async ? GenericType.mono(protocolReturnType) : protocolReturnType))
             .build();
+        IType convenienceReturnType = withResponse ? GenericType.response(responseBodyType) : responseBodyType;
         ClientMethod convenienceMethod = new ClientMethod.Builder().name("read")
             .parameters(List.of())
             .proxyMethod(proxyMethod)
-            .type(async ? ClientMethodType.SimpleAsync : ClientMethodType.SimpleSync)
-            .returnValue(new ReturnValue("response", async ? GenericType.mono(responseBodyType) : responseBodyType))
+            .type(withResponse
+                ? (async ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleSyncRestResponse)
+                : (async ? ClientMethodType.SimpleAsync : ClientMethodType.SimpleSync))
+            .returnValue(
+                new ReturnValue("response", async ? GenericType.mono(convenienceReturnType) : convenienceReturnType))
             .build();
         JavaFileContents contents = new JavaFileContents();
         ConvenienceMethodTemplateBase template

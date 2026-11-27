@@ -54,6 +54,7 @@ import {
   isArrayModelType,
   isNeverType,
   isSecret,
+  isTypeRefType,
   resolveEncodedEnumMemberValue,
   resolveEncodedName,
 } from "@typespec/compiler";
@@ -175,7 +176,10 @@ export class OpenAPI3SchemaEmitterBase<
         getDiscriminatedUnionFromInheritance(program, type, discriminator),
       );
       if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
+        schema.discriminator.mapping = this.getDiscriminatorMapping(
+          discriminatedUnion.variants,
+          (variant) => this.#emitDerivedModelReference(variant),
+        );
       }
     }
   }
@@ -234,16 +238,9 @@ export class OpenAPI3SchemaEmitterBase<
 
     this.applyModelIndexer(schema, model);
 
-    const derivedModels = model.derivedModels.filter(includeDerivedModel);
-    // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of derivedModels) {
-      if (this._visibilityUsage.isUnreachable(child)) {
-        // Unreachable derived models will be emitted by processUnreferencedSchemas with
-        // Visibility.All context. Force the same context here to avoid a duplicate declaration.
-        this.emitter.emitTypeReference(child, { referenceContext: { visibility: Visibility.All } });
-      } else {
-        this.emitter.emitTypeReference(child);
-      }
+    // Include all children in components.schemas.
+    for (const child of model.derivedModels.filter(includeDerivedModel)) {
+      this.#emitDerivedModelReference(child);
     }
 
     this.applyDiscriminator(model, schema as any);
@@ -262,6 +259,13 @@ export class OpenAPI3SchemaEmitterBase<
     const name = isMultipart ? baseName + "MultiPart" : baseName;
 
     return this.#createDeclaration(model, name, this.applyConstraints(model, schema as any));
+  }
+
+  #emitDerivedModelReference(model: Model) {
+    // Match the visibility used by processUnreferencedSchemas to avoid duplicate declarations.
+    return this._visibilityUsage.isUnreachable(model)
+      ? this.emitter.emitTypeReference(model, { referenceContext: { visibility: Visibility.All } })
+      : this.emitter.emitTypeReference(model);
   }
 
   #applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
@@ -754,10 +758,13 @@ export class OpenAPI3SchemaEmitterBase<
     return undefined;
   }
 
-  getDiscriminatorMapping(variants: Map<string, Type>) {
+  getDiscriminatorMapping<T extends Type>(
+    variants: Map<string, T>,
+    emitReference = (variant: T) => this.emitter.emitTypeReference(variant),
+  ) {
     const mapping: Record<string, string> | undefined = {};
     for (const [key, model] of variants.entries()) {
-      const ref = this.emitter.emitTypeReference(model);
+      const ref = emitReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
       if (ref.value instanceof Placeholder) {
         ref.value.onValue((resolvedValue) => {
@@ -831,12 +838,13 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<Schema> {
-    const isStd = isStdType(this.emitter.getProgram(), scalar);
+    const program = this.emitter.getProgram();
+    const shouldInline = isStdType(program, scalar) || isTypeRefType(program, scalar);
     const schema = this.#getSchemaForScalar(scalar);
     const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
 
-    // Don't create a declaration for std types
-    return isStd
+    // Built-in and compile-time scalars do not need declarations.
+    return shouldInline
       ? schema
       : (this.#createDeclaration(scalar, baseName, new ObjectBuilder(schema)) as any);
   }
@@ -854,15 +862,19 @@ export class OpenAPI3SchemaEmitterBase<
   }
   #getSchemaForScalar(scalar: Scalar): Schema {
     let result: Schema = {} as Schema;
-    const isStd = isStdType(this.emitter.getProgram(), scalar);
-    if (isStd) {
+    const program = this.emitter.getProgram();
+    const isStd = isStdType(program, scalar);
+    const isTypeReference = isTypeRefType(program, scalar);
+    if (isTypeReference) {
+      result.not = {};
+    } else if (isStd) {
       result = this.getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = this.#getSchemaForScalar(scalar.baseScalar);
     }
     const withDecorators = this.applyEncoding(scalar, this.applyConstraints(scalar, result) as any);
-    if (isStd) {
-      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+    if (isStd || isTypeReference) {
+      // Inline scalars do not carry the declaration's description.
       delete withDecorators.description;
     }
     return withDecorators;

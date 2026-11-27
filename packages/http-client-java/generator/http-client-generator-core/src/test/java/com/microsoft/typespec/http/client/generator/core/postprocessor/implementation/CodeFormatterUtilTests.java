@@ -4,20 +4,46 @@ package com.microsoft.typespec.http.client.generator.core.postprocessor.implemen
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.StaticJavaParser;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class CodeFormatterUtilTests {
+    @ParameterizedTest
+    @ValueSource(strings = { "TestStreamEventSerializer.java", "ServerSentEventStreamHelper.java" })
+    public void sortsSseHelperImports(String helperFileName) {
+        String fileName = "src/main/java/com/azure/mock/implementation/" + helperFileName;
+        String initial = String.join("\n", "package com.azure.mock.implementation;", "",
+            "import com.azure.mock.models.TestReferencesCompletedStreamEvent;",
+            "import com.azure.mock.models.TestReference;", "", "public final class TestStreamEventSerializer {",
+            "private TestReferencesCompletedStreamEvent referencesCompleted;", "private TestReference reference;", "}",
+            "");
+
+        List<String> formattingResult = CodeFormatterUtil.formatCode(Map.of(fileName, initial));
+
+        assertEquals(1, formattingResult.size());
+        String formatted = formattingResult.get(0);
+        int wrapperImport = formatted.indexOf("import com.azure.mock.models.TestReferencesCompletedStreamEvent;");
+        int payloadImport = formatted.indexOf("import com.azure.mock.models.TestReference;");
+        org.junit.jupiter.api.Assertions.assertTrue(payloadImport >= 0);
+        org.junit.jupiter.api.Assertions.assertTrue(wrapperImport > payloadImport);
+    }
+
     @ParameterizedTest
     @ValueSource(strings = { "module-info.java", "src/main/module-info.java" })
     public void moduleInfoFormatting(String fileName) {
@@ -100,6 +126,213 @@ public class CodeFormatterUtilTests {
     }
 
     @Test
+    public void sortsImportsWithoutRetainingBlankLinesBetweenThem() {
+        String source = String.join("\n", "package test;", "import reactor.core.publisher.Mono;", "",
+            "import java.time.Duration;", "import java.time.OffsetDateTime;", "",
+            "class Example { Mono<Duration> value; OffsetDateTime time; }", "");
+
+        String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+        assertTrue(formatted.contains(
+            "import java.time.Duration;\nimport java.time.OffsetDateTime;\n" + "import reactor.core.publisher.Mono;"));
+        assertEquals(formatted, CodeFormatterUtil.formatCode(Map.of("Example.java", formatted)).get(0));
+    }
+
+    @Test
+    public void preservesCommentsBetweenSortedImports() {
+        String source = String.join("\r\n", "package test;", "import java.util.Set;", "", "import java.time.Instant;",
+            "", "// Retain this comment.", "import java.util.List;", "",
+            "class Example { List<String> list; Set<String> set; }", "");
+
+        String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+        assertTrue(formatted.contains("// Retain this comment."));
+        assertTrue(formatted.contains("import java.util.List;"));
+        assertTrue(formatted.contains("import java.util.Set;"));
+        assertFalse(formatted.contains("import java.time.Instant;"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("importUsageCases")
+    public void removesOnlyUnusedImports(String description, String source, List<String> expectedImports) {
+        String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+        assertEquals(expectedImports,
+            formatted.lines().filter(line -> line.startsWith("import ")).collect(Collectors.toList()));
+        assertEquals(formatted, CodeFormatterUtil.formatCode(Map.of("Example.java", formatted)).get(0));
+    }
+
+    private static Stream<Arguments> importUsageCases() {
+        return Stream.of(
+            Arguments.of("strings, comments, and declaration names are not references",
+                String.join("\n", "package test;", "import java.util.ArrayList;", "import java.util.Locale;",
+                    "import java.util.Set;", "import java.util.function.Supplier;", "class Example {",
+                    "    // Set and Supplier are mentioned only in comments.", "    String text = \"ArrayList\";",
+                    "    int Set;", "    void Locale() {}", "}"),
+                List.of()),
+            Arguments.of("unresolved types, annotations, nested types, and static members are references",
+                String.join("\n", "package test;", "import com.example.Marker;", "import com.example.Model;",
+                    "import com.example.Outer.Inner;", "import static com.example.Outer.StaticInner;",
+                    "import static com.example.Values.VALUE;", "import static com.example.Values.create;",
+                    "@Marker class Example {", "    Model value = create();", "    Inner[] nested;",
+                    "    StaticInner other;", "    Object constant = VALUE;", "}"),
+                List.of("import static com.example.Outer.StaticInner;", "import static com.example.Values.VALUE;",
+                    "import static com.example.Values.create;", "import com.example.Marker;",
+                    "import com.example.Model;", "import com.example.Outer.Inner;")),
+            Arguments.of("qualified references do not use an imported selector",
+                String.join("\n", "package test;", "import java.util.List;",
+                    "import static java.util.Collections.emptyList;", "import static java.lang.Integer.MAX_VALUE;",
+                    "class Example {", "    java.util.List<String> values = java.util.Collections.emptyList();",
+                    "    int maximum = Integer.MAX_VALUE;", "}"),
+                List.of()),
+            Arguments.of("method references and qualified annotations do not use imported selectors",
+                String.join("\n", "package test;", "import com.example.Factory;", "import com.example.Marker;",
+                    "import java.util.function.Supplier;", "import static com.example.Factory.create;",
+                    "@com.example.Marker class Example {", "    Supplier<Factory> factory = Factory::create;", "}"),
+                List.of("import com.example.Factory;", "import java.util.function.Supplier;")),
+            Arguments.of("wildcard imports are retained conservatively",
+                String.join("\n", "package test;", "import java.util.*;", "import static java.util.Collections.*;",
+                    "class Example {}"),
+                List.of("import static java.util.Collections.*;", "import java.util.*;")),
+            Arguments.of("java.lang and same-package imports are redundant",
+                String.join("\n", "package test;", "import java.lang.String;", "import java.lang.*;",
+                    "import test.Model;", "import test.*;", "import static java.lang.Math.max;", "class Example {",
+                    "    String text;", "    Model model;", "    int value = max(1, 2);", "}"),
+                List.of("import static java.lang.Math.max;")),
+            Arguments.of("Javadoc links, values, see tags, and exceptions retain their imports",
+                String.join("\n", "package test;", "import com.example.Owner;", "import com.example.Argument;",
+                    "import com.example.Problem;", "import com.example.Useful;", "/**",
+                    " * {@link Owner#method(Argument) label}.", " * {@linkplain Useful Other}.",
+                    " * {@value Owner#VALUE}.", " * @see Owner#method(Argument argument)", " */", "class Example {",
+                    "    /** @throws Problem when the call fails */", "    void call() {}", "}"),
+                List.of("import com.example.Argument;", "import com.example.Owner;", "import com.example.Problem;",
+                    "import com.example.Useful;")),
+            Arguments.of("Javadoc separated from declarations by blank lines retains imports",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "/** {@link List} */", "", "class Example {", "    /** {@link Set} */", "", "    @Deprecated",
+                    "    void call() {}", "}"),
+                List.of("import java.util.List;", "import java.util.Set;")),
+            Arguments.of("Javadoc separated from a declaration by an ordinary comment retains imports",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;", "class Example {",
+                    "    /** {@link List} */", "    // Method documentation continues below.", "    void call() {}",
+                    "}"),
+                List.of("import java.util.List;")),
+            Arguments.of("nested Javadoc links retain imports except inside code and literal tags",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "import java.time.Instant;", "import java.util.Map;", "/**",
+                    " * {@summary Uses {@link List} and {@linkplain Map}.}",
+                    " * {@code {@link Set}} and {@literal {@link Instant}}.", " */", "class Example {}"),
+                List.of("import java.util.List;", "import java.util.Map;")),
+            Arguments.of("nested Javadoc links in block tags and labels retain imports",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "import java.util.Map;", "/** {@link Map a {@link Set}} */", "class Example {",
+                    "    /** @return {@summary Uses {@link List}} */", "    Object call() { return null; }", "}"),
+                List.of("import java.util.List;", "import java.util.Map;", "import java.util.Set;")),
+            Arguments.of("Javadoc parameter types include arrays and varargs but not qualified selectors",
+                String.join("\n", "package test;", "import com.example.Owner;", "import com.example.Parameter;",
+                    "import com.example.ArrayElement;", "import java.util.List;", "/**",
+                    " * {@link Owner#call(Parameter[], java.util.List, ArrayElement...) label}.", " */",
+                    "class Example {}"),
+                List.of("import com.example.ArrayElement;", "import com.example.Owner;",
+                    "import com.example.Parameter;")),
+            Arguments.of("Javadoc parameter names are not type references",
+                String.join("\n", "package test;", "import com.example.Owner;", "import com.example.Parameter;",
+                    "import com.example.ArrayElement;", "import com.example.Unused;", "/**",
+                    " * {@link Owner#call(Parameter Unused, ArrayElement... elements) label}.", " */",
+                    "class Example {}"),
+                List.of("import com.example.ArrayElement;", "import com.example.Owner;",
+                    "import com.example.Parameter;")),
+            Arguments.of("Javadoc prose, code, literal, HTML, and quoted see text are not references",
+                String.join("\n", "package test;", "import java.util.List;", "import java.util.Set;",
+                    "import java.time.Instant;", "/**", " * List, {@code Instant}, and {@literal Set}.",
+                    " * @see \"List\"", " * @see <a href=\"https://example.com/Instant\">Set</a>", " */",
+                    "class Example {}"),
+                List.of()),
+            Arguments.of("orphan Javadoc does not retain imports",
+                String.join("\n", "package test;", "import java.time.Instant;", "class Example {",
+                    "    /** {@link Instant} */", "}"),
+                List.of()),
+            Arguments.of("an empty Javadoc link does not prevent import removal",
+                String.join("\n", "package test;", "import java.util.Set;", "/** {@link} */", "class Example {}"),
+                List.of()));
+    }
+
+    @Test
+    public void removingAnInlineImportPreservesTheFollowingDeclaration() {
+        String formatted
+            = CodeFormatterUtil.formatCode(Map.of("Example.java", "import java.util.Set; public class Example {}"))
+                .get(0);
+
+        assertFalse(formatted.contains("import "));
+        assertTrue(formatted.contains("public class Example"));
+    }
+
+    @Test
+    public void removingAnImportPreservesItsTrailingComment() {
+        String source
+            = String.join("\r\n", "// File header.", "package test;", "import java.util.Set; // Keep this explanation.",
+                "/** Class documentation. */", "public class Example {}", "");
+
+        String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+        assertFalse(formatted.contains("import "));
+        assertTrue(formatted.contains("// File header."));
+        assertTrue(formatted.contains("// Keep this explanation."));
+        assertTrue(formatted.contains("/** Class documentation. */"));
+        assertTrue(formatted.contains("public class Example"));
+    }
+
+    @Test
+    public void preservesModuleServiceImports() {
+        String source
+            = String.join("\n", "import com.example.Service;", "import com.example.Provider;", "import java.util.Set;",
+                "module example {", "    uses Service;", "    provides Service with Provider;", "}", "");
+
+        String formatted = CodeFormatterUtil.formatCode(Map.of("module-info.java", source)).get(0);
+
+        assertTrue(formatted.contains("import com.example.Service;"));
+        assertTrue(formatted.contains("import com.example.Provider;"));
+        assertFalse(formatted.contains("import java.util.Set;"));
+        assertTrue(formatted.contains("uses Service;"));
+        assertTrue(formatted.contains("provides Service with Provider;"));
+    }
+
+    @Test
+    public void preservesPackageAndModuleJavadocSeparatedByBlankLines() {
+        String packageInfo
+            = String.join("\n", "/** {@link List} */", "", "package test;", "import java.util.List;", "");
+        String moduleInfo = String.join("\n", "import java.util.Set;", "/** {@link Set} */", "", "module test {}", "");
+
+        assertTrue(CodeFormatterUtil.formatCode(Map.of("package-info.java", packageInfo))
+            .get(0)
+            .contains("import java.util.List;"));
+        assertTrue(CodeFormatterUtil.formatCode(Map.of("module-info.java", moduleInfo))
+            .get(0)
+            .contains("import java.util.Set;"));
+    }
+
+    @Test
+    public void respectsTabWidthAndRetainsJavadocReferencesWithoutCommentAttribution() {
+        ParserConfiguration original = StaticJavaParser.getParserConfiguration();
+        ParserConfiguration configured = new ParserConfiguration().setTabSize(4).setAttributeComments(false);
+        StaticJavaParser.setConfiguration(configured);
+        try {
+            String source = String.join("\r\n", "package test;", "\timport java.util.Set;",
+                "\timport java.time.Instant;", "/** {@link Instant} */", "class Example {}", "");
+
+            String formatted = CodeFormatterUtil.formatCode(Map.of("Example.java", source)).get(0);
+
+            assertTrue(formatted.contains("import java.time.Instant;"));
+            assertFalse(formatted.contains("import java.util.Set;"));
+            assertTrue(formatted.contains("class Example"));
+            assertSame(configured, StaticJavaParser.getParserConfiguration());
+            assertFalse(configured.isAttributeComments());
+        } finally {
+            StaticJavaParser.setConfiguration(original);
+        }
+    }
+
+    @Test
     public void errorsAreAggregatedAcrossFiles() {
         Map<String, String> files = new LinkedHashMap<>();
         files.put("First.java", "public class First {\n    void broken(;) {}\n}\n");
@@ -112,6 +345,28 @@ public class CodeFormatterUtilTests {
         assertTrue(exception.getMessage().contains("First.java"));
         assertTrue(exception.getMessage().contains("Second.java"));
         assertFalse(exception.getMessage().contains("Valid.java"));
+    }
+
+    @Test
+    public void syntaxDiagnosticsIncludeContextWithoutAnUnverifiedCaret() {
+        String source = "class Example { void broken(;) {} }\n";
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> CodeFormatterUtil.formatCode(Map.of("Example.java", source)));
+
+        assertTrue(exception.getMessage().contains("1: " + source.trim()));
+        assertFalse(exception.getMessage().contains("^"));
+    }
+
+    @Test
+    public void lexicalDiagnosticsIncludeSourceContextWithoutAnUnverifiedCaret() {
+        String source = "class Example {\n    String value = \"unterminated;\n}\n";
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+            () -> CodeFormatterUtil.formatCode(Map.of("Example.java", source)));
+
+        assertTrue(exception.getMessage().contains("2:     String value = \"unterminated;"));
+        assertFalse(exception.getMessage().contains("^"));
     }
 
     @Test

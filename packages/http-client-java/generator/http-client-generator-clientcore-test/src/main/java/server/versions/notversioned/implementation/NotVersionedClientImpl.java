@@ -1,20 +1,21 @@
 package server.versions.notversioned.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.implementation.utils.UriEscapers;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 
 /**
  * Initializes a new instance of the NotVersionedClient type.
@@ -82,46 +83,86 @@ public final class NotVersionedClientImpl {
     }
 
     /**
-     * The interface defining all the services for NotVersionedClient to be used by the proxy service to perform REST
-     * calls.
+     * The HTTP operations for NotVersionedClient.
      */
-    @ServiceInterface(name = "NotVersionedClient", host = "{endpoint}")
     public interface NotVersionedClientService {
         static NotVersionedClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("server.versions.notversioned.implementation.NotVersionedClientServiceImpl");
-                return (NotVersionedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new NotVersionedClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/not-versioned/without-api-version",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withoutApiVersion(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> withoutApiVersion(String endpoint, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/not-versioned/with-query-api-version",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withQueryApiVersion(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, RequestContext requestContext);
+        Response<Void> withQueryApiVersion(String endpoint, String apiVersion, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/versions/not-versioned/with-path-api-version/{apiVersion}",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withPathApiVersion(@HostParam("endpoint") String endpoint,
-            @PathParam("apiVersion") String apiVersion, RequestContext requestContext);
+        Response<Void> withPathApiVersion(String endpoint, String apiVersion, RequestContext requestContext);
+    }
+
+    private static final class NotVersionedClientServiceImpl implements NotVersionedClientService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(NotVersionedClientService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private NotVersionedClientServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> withoutApiVersion(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD)
+                .setUri(endpoint + "/server/versions/not-versioned/without-api-version");
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 200;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> withQueryApiVersion(String endpoint, String apiVersion, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/server/versions/not-versioned/with-query-api-version");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "api-version", true, apiVersion, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD).setUri(uriBuilder.toString());
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 200;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> withPathApiVersion(String endpoint, String apiVersion, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD)
+                .setUri(endpoint + "/server/versions/not-versioned/with-path-api-version/"
+                    + UriEscapers.PATH_ESCAPER.escape(apiVersion));
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 200;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

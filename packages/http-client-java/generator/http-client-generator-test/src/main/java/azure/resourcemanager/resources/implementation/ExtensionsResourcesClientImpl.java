@@ -220,17 +220,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ExtensionsResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtensionsResourceInner> getWithResponse(String resourceUri, String extensionsResourceName,
         Context context) {
@@ -239,16 +229,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             extensionsResourceName, accept, context);
     }
 
-    /**
-     * Get a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ExtensionsResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner get(String resourceUri, String extensionsResourceName) {
         return getWithResponse(resourceUri, extensionsResourceName, Context.NONE).getValue();
@@ -292,10 +273,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource) {
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            extensionsResourceName, contentType, accept, resource, Context.NONE);
+        return createOrUpdateWithResponse(resourceUri, extensionsResourceName, resource, Context.NONE);
     }
 
     /**
@@ -342,39 +320,14 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             this.client.getContext());
     }
 
-    /**
-     * Create a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete extension resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ExtensionsResourceInner>, ExtensionsResourceInner>
         beginCreateOrUpdate(String resourceUri, String extensionsResourceName, ExtensionsResourceInner resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceUri, extensionsResourceName, resource);
-        return this.client.<ExtensionsResourceInner, ExtensionsResourceInner>getLroResult(response,
-            ExtensionsResourceInner.class, ExtensionsResourceInner.class, Context.NONE);
+        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete extension resource types can be created by aliasing this
-     * type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ExtensionsResourceInner>, ExtensionsResourceInner> beginCreateOrUpdate(
         String resourceUri, String extensionsResourceName, ExtensionsResourceInner resource, Context context) {
@@ -403,39 +356,19 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
-    /**
-     * Create a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner createOrUpdate(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource) {
-        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource).getFinalResult();
+        return createOrUpdate(resourceUri, extensionsResourceName, resource, Context.NONE);
     }
 
-    /**
-     * Create a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner createOrUpdate(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource, context).getFinalResult();
+        return this.client
+            .getLroFinalResultOrError(beginCreateOrUpdate(resourceUri, extensionsResourceName, resource, context));
     }
 
     /**
@@ -480,19 +413,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type
-     * along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtensionsResourceInner> updateWithResponse(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner properties, Context context) {
@@ -502,17 +423,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             extensionsResourceName, contentType, accept, properties, context);
     }
 
-    /**
-     * Update a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner update(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner properties) {
@@ -552,32 +463,14 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
         return deleteWithResponseAsync(resourceUri, extensionsResourceName).flatMap(ignored -> Mono.empty());
     }
 
-    /**
-     * Delete a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String resourceUri, String extensionsResourceName, Context context) {
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
             extensionsResourceName, context);
     }
 
-    /**
-     * Delete a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceUri, String extensionsResourceName) {
         deleteWithResponse(resourceUri, extensionsResourceName, Context.NONE);
@@ -630,11 +523,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ExtensionsResourceInner> listByScopeSinglePage(String resourceUri) {
-        final String accept = "application/json";
-        Response<ExtensionsResourceListResult> res = service.listByScopeSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), resourceUri, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByScopeSinglePage(resourceUri, Context.NONE);
     }
 
     /**
@@ -656,31 +545,13 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List ExtensionsResource resources by parent.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ExtensionsResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ExtensionsResourceInner> listByScope(String resourceUri) {
-        return new PagedIterable<>(() -> listByScopeSinglePage(resourceUri),
-            nextLink -> listByScopeNextSinglePage(nextLink));
+        return listByScope(resourceUri, Context.NONE);
     }
 
-    /**
-     * List ExtensionsResource resources by parent.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ExtensionsResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ExtensionsResourceInner> listByScope(String resourceUri, Context context) {
         return new PagedIterable<>(() -> listByScopeSinglePage(resourceUri, context),
@@ -718,11 +589,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<ExtensionsResourceInner> listByScopeNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<ExtensionsResourceListResult> res
-            = service.listByScopeNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByScopeNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

@@ -125,47 +125,14 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputSerializationOptions, SerializationOptions?> SerializationOptionsCache { get; } = [];
 
         private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
+        private readonly Dictionary<InputModelType, HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)>> _relaxedConstructorOverrides = [];
+        private readonly Dictionary<InputModelType, HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)>> _descendantRelaxedConstructorOverrides = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
         protected internal TypeFactory()
         {
-        }
-
-        internal void UpdateTypeIdentity(TypeProvider provider, InputType? inputType, string name, string @namespace)
-        {
-            var type = provider.Type;
-            if (type.Name == name && type.Namespace == @namespace)
-            {
-                return;
-            }
-            var mappedType = CSharpTypeMap.TryGetValue(type, out var mappedProvider) && ReferenceEquals(mappedProvider, provider);
-            var mappedName = TypeProvidersByName.TryGetValue(type.Name, out var namedProvider) && ReferenceEquals(namedProvider, provider);
-            // Remove mutable keys before changing their hash or lookup identity.
-            if (mappedType)
-            {
-                CSharpTypeMap.Remove(type);
-            }
-            if (mappedName)
-            {
-                TypeProvidersByName.Remove(type.Name);
-            }
-
-            type.Update(name: name, @namespace: @namespace);
-
-            if (mappedType)
-            {
-                CSharpTypeMap[type] = provider;
-            }
-            if (mappedName)
-            {
-                TypeProvidersByName[type.Name] = provider;
-            }
-            if (inputType is not null)
-            {
-                SerializationsCache.Remove(inputType);
-            }
         }
 
         internal CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
@@ -259,6 +226,15 @@ namespace Microsoft.TypeSpec.Generator
                     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
+                    // Unions without a discriminator property (SSE events unions) are only selected by the
+                    // out-of-band event type, so they map to their base on the SSE convenience path alone.
+                    if (unionType.BaseModel is { } baseModel &&
+                        unionType.DiscriminatorPropertyName is not null &&
+                        HasCompatibleUnionBase(unionType))
+                    {
+                        type = CreateCSharpType(baseModel);
+                        break;
+                    }
                     var unionInputs = new List<CSharpType>();
                     foreach (var variant in unionType.VariantTypes)
                     {
@@ -299,6 +275,68 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return type;
+        }
+
+        /// <summary>
+        /// Determines whether every union payload retains the declared base in its C# hierarchy.
+        /// </summary>
+        /// <param name="union">The union whose payload hierarchy is checked.</param>
+        protected internal bool HasCompatibleUnionBase(InputUnionType union)
+        {
+            if (union.BaseModel is not { External: null } unionBase || union.DiscriminatedSubtypes is null)
+            {
+                return false;
+            }
+
+            var providers = new Dictionary<InputModelType, ModelProvider?>();
+            ModelProvider? GetProvider(InputModelType model)
+            {
+                if (!providers.TryGetValue(model, out var provider))
+                {
+                    // Inspect custom identities without building Type, which can re-enter this check
+                    // while the union base is deciding whether it is abstract.
+                    provider = InputTypeToModelProvider.GetValueOrDefault(model) ?? CreateModelCore(model);
+                    providers.Add(model, provider);
+                }
+                return provider;
+            }
+
+            bool ReachesBase(InputModelType model, HashSet<InputModelType> visited)
+            {
+                if (model.External is not null || !visited.Add(model))
+                {
+                    return false;
+                }
+                if (model == unionBase)
+                {
+                    return true;
+                }
+                var provider = GetProvider(model);
+                if (provider?.CustomCodeView?.BaseType is not { } customBase)
+                {
+                    return model.BaseModel is not null && ReachesBase(model.BaseModel, visited);
+                }
+
+                var visitedTypes = new HashSet<CSharpType>();
+                for (var type = customBase; type is not null && visitedTypes.Add(type);
+                    type = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                        type.Namespace, type.Name, type.DeclaringType?.Name)?.BaseType ?? type.BaseType)
+                {
+                    if (GetProvider(unionBase)?.HasTypeIdentity(type) == true)
+                    {
+                        return true;
+                    }
+                    var inputBase = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models
+                        .FirstOrDefault(candidate => GetProvider(candidate)?.HasTypeIdentity(type) == true);
+                    if (inputBase is not null)
+                    {
+                        return ReachesBase(inputBase, visited);
+                    }
+                }
+                return false;
+            }
+
+            return union.DiscriminatedSubtypes.Values.All(model => ReachesBase(model, []));
         }
 
         /// <summary>
@@ -536,14 +574,14 @@ namespace Microsoft.TypeSpec.Generator
             // unsatisfied dependency, ...) so the message points at the actual problem.
             var details = ExternalTypeReferenceResolver.GetFailureReason(externalProperties)
                 ?? (string.IsNullOrEmpty(externalProperties.Package)
-                    ? "no package metadata was provided"
-                    : string.IsNullOrEmpty(externalProperties.MinVersion)
-                        ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
-                        : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed");
+                    ? "runtime type lookup failed and no NuGet package ID was provided. " +
+                      "To resolve the type from NuGet, specify its package ID in @alternateType. " +
+                      ExternalTypeReferenceResolver.PackageReferenceGuidance
+                    : $"no resolution details are available for NuGet package '{externalProperties.Package}'");
 
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalProperties.Identity}' could not be resolved: {details}.");
+                $"External type '{externalProperties.Identity}' could not be resolved: {details.TrimEnd('.')}.");
 
             return null;
         }
@@ -605,6 +643,65 @@ namespace Microsoft.TypeSpec.Generator
                 propertyProvider = visitor.PreVisitProperty(property, propertyProvider);
             }
             return propertyProvider;
+        }
+
+        internal bool HasRelaxedConstructorOverride(InputProperty property, bool includeBaseModels = true)
+        {
+            if (property.EnclosingType is not InputModelType model)
+            {
+                return false;
+            }
+
+            var cache = includeBaseModels ? _relaxedConstructorOverrides : _descendantRelaxedConstructorOverrides;
+            if (!cache.TryGetValue(model, out var signatures))
+            {
+                HashSet<InputModelType> models = [];
+                Stack<InputModelType> pending = new();
+                pending.Push(model);
+                while (pending.TryPop(out var current))
+                {
+                    if (!models.Add(current))
+                    {
+                        continue;
+                    }
+                    if (current.BaseModel is not null)
+                    {
+                        pending.Push(current.BaseModel);
+                    }
+                    foreach (var derived in current.DerivedModels)
+                    {
+                        pending.Push(derived);
+                    }
+                }
+
+                HashSet<(string Name, string Type, bool IsRequired, bool IsNullable)> allSignatures = [];
+                foreach (var current in models)
+                {
+                    _relaxedConstructorOverrides[current] = allSignatures;
+                    _descendantRelaxedConstructorOverrides[current] = [];
+                }
+                foreach (var current in models)
+                {
+                    foreach (var candidate in current.Properties)
+                    {
+                        if (candidate.IsReadOnly || candidate.IsRequiredInConstructor != false)
+                        {
+                            continue;
+                        }
+                        var signature = (candidate.OriginalName, candidate.Type.Name, candidate.IsRequired, candidate.Type is InputNullableType);
+                        allSignatures.Add(signature);
+                        HashSet<InputModelType> ancestors = [];
+                        for (var ancestor = current; ancestor is not null && ancestors.Add(ancestor); ancestor = ancestor.BaseModel)
+                        {
+                            _descendantRelaxedConstructorOverrides[ancestor].Add(signature);
+                        }
+                    }
+                }
+                signatures = cache[model];
+            }
+
+            return signatures.Contains(((property as InputModelProperty)?.OriginalName ?? property.Name,
+                property.Type.Name, property.IsRequired, property.Type is InputNullableType));
         }
 
         /// <summary>

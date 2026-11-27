@@ -131,7 +131,7 @@ export function getDefaultValue(
     }
   }
 
-  if ("value" in property.type && property.type.value !== undefined) {
+  if (!property.optional && "value" in property.type && property.type.value !== undefined) {
     return JSON.stringify(property.type.value);
   }
 

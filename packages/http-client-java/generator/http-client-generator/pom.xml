@@ -46,7 +46,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.60.0</version>
+      <version>1.61.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -91,6 +91,7 @@
             <configuration>
               <finalName>${shade.finalName}</finalName>
               <createDependencyReducedPom>false</createDependencyReducedPom>
+              <minimizeJar>true</minimizeJar>
               <entryPoints>
                 <entryPoint>${shade.mainClass}</entryPoint>
               </entryPoints>
@@ -112,6 +113,158 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                   </excludes>
+                </filter>
+                <filter>
+                  <!-- cspell:words condpermadmin dtree jdom jface osgi -->
+                  <!-- Eclipse JDT Core is only used for its code formatter and doesn't run inside an OSGi/Eclipse workspace.
+                       Exclude its unused subsystems, along with the unused parts of the Eclipse platform and OSGi.
+                       These package trees are never loaded while generating code. minimizeJar cannot remove most of them
+                       because JDT's static references reach them. -->
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>org/apache/**</exclude>
+                    <exclude>org/eclipse/core/commands/**</exclude>
+                    <exclude>org/eclipse/core/expressions/**</exclude>
+                    <exclude>org/eclipse/core/filesystem/**</exclude>
+                    <exclude>org/eclipse/core/internal/adapter/**</exclude>
+                    <exclude>org/eclipse/core/internal/boot/**</exclude>
+                    <exclude>org/eclipse/core/internal/commands/**</exclude>
+                    <exclude>org/eclipse/core/internal/content/**</exclude>
+                    <exclude>org/eclipse/core/internal/dtree/**</exclude>
+                    <exclude>org/eclipse/core/internal/events/**</exclude>
+                    <exclude>org/eclipse/core/internal/expressions/**</exclude>
+                    <exclude>org/eclipse/core/internal/filesystem/**</exclude>
+                    <exclude>org/eclipse/core/internal/localstore/**</exclude>
+                    <exclude>org/eclipse/core/internal/preferences/**</exclude>
+                    <exclude>org/eclipse/core/internal/properties/**</exclude>
+                    <exclude>org/eclipse/core/internal/propertytester/**</exclude>
+                    <exclude>org/eclipse/core/internal/refresh/**</exclude>
+                    <exclude>org/eclipse/core/internal/registry/**</exclude>
+                    <exclude>org/eclipse/core/internal/resources/mapping/**</exclude>
+                    <exclude>org/eclipse/core/internal/resources/projectvariables/**</exclude>
+                    <exclude>org/eclipse/core/internal/resources/refresh/**</exclude>
+                    <exclude>org/eclipse/core/internal/utils/**</exclude>
+                    <exclude>org/eclipse/core/internal/watson/**</exclude>
+                    <exclude>org/eclipse/core/resources/filtermatchers/**</exclude>
+                    <exclude>org/eclipse/core/resources/mapping/**</exclude>
+                    <exclude>org/eclipse/core/resources/refresh/**</exclude>
+                    <exclude>org/eclipse/core/resources/team/**</exclude>
+                    <exclude>org/eclipse/core/resources/variableresolvers/**</exclude>
+                    <exclude>org/eclipse/core/runtime/adaptor/**</exclude>
+                    <exclude>org/eclipse/core/runtime/dynamichelpers/**</exclude>
+                    <exclude>org/eclipse/core/runtime/internal/**</exclude>
+                    <exclude>org/eclipse/core/runtime/spi/**</exclude>
+                    <exclude>org/eclipse/core/text/**</exclude>
+                    <exclude>org/eclipse/equinox/app/**</exclude>
+                    <exclude>org/eclipse/equinox/events/**</exclude>
+                    <exclude>org/eclipse/equinox/internal/**</exclude>
+                    <exclude>org/eclipse/jdt/core/compiler/batch/**</exclude>
+                    <exclude>org/eclipse/jdt/core/dom/rewrite/**</exclude>
+                    <exclude>org/eclipse/jdt/core/index/**</exclude>
+                    <exclude>org/eclipse/jdt/core/jdom/**</exclude>
+                    <exclude>org/eclipse/jdt/core/provisional/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/codeassist/complete/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/codeassist/impl/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/codeassist/select/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/builder/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/dom/rewrite/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/eval/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/hierarchy/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/index/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/jdom/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/nd/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/search/indexing/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/core/search/matching/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/eval/**</exclude>
+                    <exclude>org/eclipse/jdt/internal/formatter/old/**</exclude>
+                    <exclude>org/eclipse/jface/text/link/**</exclude>
+                    <exclude>org/eclipse/jface/text/projection/**</exclude>
+                    <exclude>org/eclipse/jface/text/source/**</exclude>
+                    <exclude>org/eclipse/jface/text/templates/**</exclude>
+                    <exclude>org/eclipse/osgi/container/**</exclude>
+                    <exclude>org/eclipse/osgi/framework/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/cds/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/connect/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/container/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/debug/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/framework/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/hookregistry/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/hooks/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/loader/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/location/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/log/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/messages/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/permadmin/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/provisional/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/service/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/serviceregistry/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/signedcontent/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/url/**</exclude>
+                    <exclude>org/eclipse/osgi/internal/weaving/**</exclude>
+                    <exclude>org/eclipse/osgi/launch/**</exclude>
+                    <exclude>org/eclipse/osgi/report/**</exclude>
+                    <exclude>org/eclipse/osgi/service/datalocation/**</exclude>
+                    <exclude>org/eclipse/osgi/service/environment/**</exclude>
+                    <exclude>org/eclipse/osgi/service/localization/**</exclude>
+                    <exclude>org/eclipse/osgi/service/pluginconversion/**</exclude>
+                    <exclude>org/eclipse/osgi/service/resolver/**</exclude>
+                    <exclude>org/eclipse/osgi/service/runnable/**</exclude>
+                    <exclude>org/eclipse/osgi/service/security/**</exclude>
+                    <exclude>org/eclipse/osgi/service/urlconversion/**</exclude>
+                    <exclude>org/eclipse/osgi/signedcontent/**</exclude>
+                    <exclude>org/eclipse/osgi/storage/**</exclude>
+                    <exclude>org/eclipse/osgi/storagemanager/**</exclude>
+                    <exclude>org/eclipse/text/templates/**</exclude>
+                    <exclude>org/eclipse/text/undo/**</exclude>
+                    <exclude>org/osgi/dto/**</exclude>
+                    <exclude>org/osgi/framework/connect/**</exclude>
+                    <exclude>org/osgi/framework/dto/**</exclude>
+                    <exclude>org/osgi/framework/hooks/**</exclude>
+                    <exclude>org/osgi/framework/launch/**</exclude>
+                    <exclude>org/osgi/framework/namespace/**</exclude>
+                    <exclude>org/osgi/framework/startlevel/**</exclude>
+                    <exclude>org/osgi/framework/wiring/**</exclude>
+                    <exclude>org/osgi/resource/**</exclude>
+                    <exclude>org/osgi/service/application/**</exclude>
+                    <exclude>org/osgi/service/condition/**</exclude>
+                    <exclude>org/osgi/service/condpermadmin/**</exclude>
+                    <exclude>org/osgi/service/log/admin/**</exclude>
+                    <exclude>org/osgi/service/packageadmin/**</exclude>
+                    <exclude>org/osgi/service/permissionadmin/**</exclude>
+                    <exclude>org/osgi/service/resolver/**</exclude>
+                    <exclude>org/osgi/service/startlevel/**</exclude>
+                    <exclude>org/osgi/service/url/**</exclude>
+                    <exclude>org/osgi/util/**</exclude>
+                    <exclude>ant_tasks/**</exclude>
+                    <exclude>jdtCompilerAdapter.jar</exclude>
+                  </excludes>
+                </filter>
+                <!-- Retain all SnakeYAML classes when minimizing. -->
+                <filter>
+                  <artifact>org.yaml:snakeyaml</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <!-- Customizations are compiled against, and run with, this JAR's classpath. Keep the APIs they may
+                     use whole so minimizeJar doesn't remove classes the generator itself doesn't reference. -->
+                <filter>
+                  <artifact>com.microsoft.typespec:*</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>com.github.javaparser:javaparser-core</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>org.slf4j:slf4j-api</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
                 </filter>
               </filters>
             </configuration>

@@ -163,8 +163,12 @@ public final class PreviewVersionAsyncClient {
     public Mono<Widget> getWidget(String id) {
         // Generated convenience method for getWidgetWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWidgetWithResponse(id, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Widget.class));
+        return getWidgetWithResponse(id, requestOptions).flatMap(protocolMethodResponse -> {
+            if (protocolMethodResponse.getStatusCode() == 404) {
+                return Mono.empty();
+            }
+            return Mono.justOrEmpty(protocolMethodResponse.getValue().toObject(Widget.class));
+        });
     }
 
     /**
@@ -189,8 +193,13 @@ public final class PreviewVersionAsyncClient {
         // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
         colorUpdateInBinaryData.getLength();
         JsonMergePatchHelper.getUpdateWidgetColorRequestAccessor().prepareModelForJsonMergePatch(colorUpdate, false);
-        return updateWidgetColorWithResponse(id, colorUpdateInBinaryData, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Widget.class));
+        return updateWidgetColorWithResponse(id, colorUpdateInBinaryData, requestOptions)
+            .flatMap(protocolMethodResponse -> {
+                if (protocolMethodResponse.getStatusCode() == 404) {
+                    return Mono.empty();
+                }
+                return Mono.justOrEmpty(protocolMethodResponse.getValue().toObject(Widget.class));
+            });
     }
 
     /**

@@ -110,16 +110,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         return setPriorityWithResponseAsync(priority).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The setPriority operation.
-     * 
-     * @param priority The priority parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Priority> setPriorityWithResponse(Priority priority, Context context) {
         if (this.client.getEndpoint() == null) {
@@ -135,15 +126,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
         return service.setPrioritySync(this.client.getEndpoint(), priority, accept, context);
     }
 
-    /**
-     * The setPriority operation.
-     * 
-     * @param priority The priority parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Priority setPriority(Priority priority) {
         return setPriorityWithResponse(priority, Context.NONE).getValue();

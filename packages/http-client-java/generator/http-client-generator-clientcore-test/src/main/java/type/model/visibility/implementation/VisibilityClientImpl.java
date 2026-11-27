@@ -1,21 +1,24 @@
 package type.model.visibility.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
+import java.lang.reflect.ParameterizedType;
 import type.model.visibility.ReadOnlyModel;
 import type.model.visibility.VisibilityModel;
 
@@ -85,79 +88,246 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The interface defining all the services for VisibilityClient to be used by the proxy service to perform REST
-     * calls.
+     * The HTTP operations for VisibilityClient.
      */
-    @ServiceInterface(name = "VisibilityClient", host = "{endpoint}")
     public interface VisibilityClientService {
         static VisibilityClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.model.visibility.implementation.VisibilityClientServiceImpl");
-                return (VisibilityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new VisibilityClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/model/visibility", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<VisibilityModel> getModel(@HostParam("endpoint") String endpoint,
-            @QueryParam("queryProp") int queryProp, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") VisibilityModel input,
+        Response<VisibilityModel> getModel(String endpoint, int queryProp, String contentType, String accept,
+            VisibilityModel input, RequestContext requestContext);
+
+        Response<Void> headModel(String endpoint, int queryProp, String contentType, VisibilityModel input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> headModel(@HostParam("endpoint") String endpoint, @QueryParam("queryProp") int queryProp,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+        Response<Void> putModel(String endpoint, String contentType, VisibilityModel input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/model/visibility", expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putModel(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") VisibilityModel input, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PATCH,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> patchModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+        Response<Void> patchModel(String endpoint, String contentType, VisibilityModel input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> postModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+        Response<Void> postModel(String endpoint, String contentType, VisibilityModel input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.DELETE,
-            path = "/type/model/visibility",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> deleteModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") VisibilityModel input,
+        Response<Void> deleteModel(String endpoint, String contentType, VisibilityModel input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/visibility/readonlyroundtrip",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ReadOnlyModel> putReadOnlyModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") ReadOnlyModel input, RequestContext requestContext);
+        Response<ReadOnlyModel> putReadOnlyModel(String endpoint, String contentType, String accept,
+            ReadOnlyModel input, RequestContext requestContext);
+    }
+
+    private static final class VisibilityClientServiceImpl implements VisibilityClientService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(VisibilityClientService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private VisibilityClientServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<VisibilityModel> getModel(String endpoint, int queryProp, String contentType, String accept,
+            VisibilityModel input, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/type/model/visibility");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "queryProp", true, queryProp, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, VisibilityModel.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        @Override
+        public Response<Void> headModel(String endpoint, int queryProp, String contentType, VisibilityModel input,
+            RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/type/model/visibility");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "queryProp", true, queryProp, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.HEAD).setUri(uriBuilder.toString());
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 200;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> putModel(String endpoint, String contentType, VisibilityModel input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/type/model/visibility");
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> patchModel(String endpoint, String contentType, VisibilityModel input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.PATCH).setUri(endpoint + "/type/model/visibility");
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> postModel(String endpoint, String contentType, VisibilityModel input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/type/model/visibility");
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<Void> deleteModel(String endpoint, String contentType, VisibilityModel input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.DELETE).setUri(endpoint + "/type/model/visibility");
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
+
+        @Override
+        public Response<ReadOnlyModel> putReadOnlyModel(String endpoint, String contentType, String accept,
+            ReadOnlyModel input, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/type/model/visibility/readonlyroundtrip");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                this.decodeResponse(networkResponse.getValue(),
+                    CoreUtils.createParameterizedType(Response.class, ReadOnlyModel.class),
+                    CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())));
+        }
+
+        private <T> T decodeResponse(BinaryData value, ParameterizedType type, SerializationFormat format) {
+            if (this.jsonSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.jsonSerializer, type);
+            }
+            if (this.xmlSerializer.supportsFormat(format)) {
+                return CoreUtils.decodeNetworkResponse(value, this.xmlSerializer, type);
+            }
+            throw HTTP_LOG.throwableAtError()
+                .addKeyValue("serializationFormat", format.name())
+                .log("None of the provided serializers support the format.", UnsupportedOperationException::new);
+        }
     }
 
     /**

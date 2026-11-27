@@ -46,7 +46,7 @@ public final class TopLevelsImpl implements TopLevels {
     }
 
     public void deleteByResourceGroup(String resourceGroupName, String topLevelTrackedResourceName) {
-        this.serviceClient().delete(resourceGroupName, topLevelTrackedResourceName);
+        this.delete(resourceGroupName, topLevelTrackedResourceName, Context.NONE);
     }
 
     public void delete(String resourceGroupName, String topLevelTrackedResourceName, Context context) {
@@ -54,8 +54,7 @@ public final class TopLevelsImpl implements TopLevels {
     }
 
     public PagedIterable<TopLevelTrackedResource> listByResourceGroup(String resourceGroupName) {
-        PagedIterable<TopLevelTrackedResourceInner> inner = this.serviceClient().listByResourceGroup(resourceGroupName);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelTrackedResourceImpl(inner1, this.manager()));
+        return this.listByResourceGroup(resourceGroupName, Context.NONE);
     }
 
     public PagedIterable<TopLevelTrackedResource> listByResourceGroup(String resourceGroupName, Context context) {
@@ -65,8 +64,7 @@ public final class TopLevelsImpl implements TopLevels {
     }
 
     public PagedIterable<TopLevelTrackedResource> list() {
-        PagedIterable<TopLevelTrackedResourceInner> inner = this.serviceClient().list();
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelTrackedResourceImpl(inner1, this.manager()));
+        return this.list(Context.NONE);
     }
 
     public PagedIterable<TopLevelTrackedResource> list(Context context) {
@@ -81,79 +79,34 @@ public final class TopLevelsImpl implements TopLevels {
     }
 
     public void actionSync(String resourceGroupName, String topLevelTrackedResourceName, NotificationDetails body) {
-        this.serviceClient().actionSync(resourceGroupName, topLevelTrackedResourceName, body);
+        this.actionSyncWithResponse(resourceGroupName, topLevelTrackedResourceName, body, Context.NONE);
     }
 
     public TopLevelTrackedResource getById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
-        return this.getByResourceGroupWithResponse(resourceGroupName, topLevelTrackedResourceName, Context.NONE)
-            .getValue();
+        return this.getByIdWithResponse(id, Context.NONE).getValue();
     }
 
     public Response<TopLevelTrackedResource> getByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String topLevelTrackedResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
+            "topLevelTrackedResourceName", "topLevelTrackedResources", LOGGER);
         return this.getByResourceGroupWithResponse(resourceGroupName, topLevelTrackedResourceName, context);
     }
 
     public void deleteById(String id) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
-            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
-        this.delete(resourceGroupName, topLevelTrackedResourceName, Context.NONE);
+        this.deleteByIdWithResponse(id, Context.NONE);
     }
 
     public void deleteByIdWithResponse(String id, Context context) {
-        String resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+        String resourceGroupName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "resourceGroupName");
-        if (resourceGroupName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
-                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
-        }
-        String topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(id,
+            "resourceGroupName", "resourceGroups", LOGGER);
+        String topLevelTrackedResourceName = ResourceManagerUtils.getRequiredValueFromIdByParameterName(id,
             "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}",
-            "topLevelTrackedResourceName");
-        if (topLevelTrackedResourceName == null) {
-            throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
-                .format("The resource ID '%s' is not valid. Missing path segment 'topLevelTrackedResources'.", id)));
-        }
+            "topLevelTrackedResourceName", "topLevelTrackedResources", LOGGER);
         this.delete(resourceGroupName, topLevelTrackedResourceName, context);
     }
 

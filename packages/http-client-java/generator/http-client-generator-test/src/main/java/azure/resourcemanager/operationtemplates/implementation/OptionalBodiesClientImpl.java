@@ -175,17 +175,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Widget along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<WidgetInner> getByResourceGroupWithResponse(String resourceGroupName, String widgetName,
         Context context) {
@@ -194,16 +184,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             this.client.getSubscriptionId(), resourceGroupName, widgetName, accept, context);
     }
 
-    /**
-     * Get a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a Widget.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public WidgetInner getByResourceGroup(String resourceGroupName, String widgetName) {
         return getByResourceGroupWithResponse(resourceGroupName, widgetName, Context.NONE).getValue();
@@ -249,19 +230,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<WidgetInner> patchWithResponse(String resourceGroupName, String widgetName, WidgetInner properties,
         Context context) {
@@ -270,16 +239,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             this.client.getSubscriptionId(), resourceGroupName, widgetName, accept, properties, context);
     }
 
-    /**
-     * Update a Widget.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public WidgetInner patch(String resourceGroupName, String widgetName) {
         final WidgetInner properties = null;
@@ -324,18 +284,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @param body The content of the action request.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ActionResultInner> postWithResponse(String resourceGroupName, String widgetName, ActionRequest body,
         Context context) {
@@ -344,16 +293,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             resourceGroupName, widgetName, accept, body, context);
     }
 
-    /**
-     * A synchronous resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param widgetName The name of the Widget.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ActionResultInner post(String resourceGroupName, String widgetName) {
         final ActionRequest body = null;
@@ -391,16 +331,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
         return providerPostWithResponseAsync(body).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The providerPost operation.
-     * 
-     * @param body The request body.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChangeAllowanceResultInner> providerPostWithResponse(ChangeAllowanceRequest body, Context context) {
         final String accept = "application/json";
@@ -408,13 +339,7 @@ public final class OptionalBodiesClientImpl implements OptionalBodiesClient {
             this.client.getSubscriptionId(), accept, body, context);
     }
 
-    /**
-     * The providerPost operation.
-     * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChangeAllowanceResultInner providerPost() {
         final ChangeAllowanceRequest body = null;

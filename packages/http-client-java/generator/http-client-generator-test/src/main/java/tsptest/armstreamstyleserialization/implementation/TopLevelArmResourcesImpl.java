@@ -27,13 +27,7 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
 
     public TopLevelArmResource update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties) {
-        TopLevelArmResourceInner inner
-            = this.serviceClient().update(resourceGroupName, topLevelArmResourceName, properties);
-        if (inner != null) {
-            return new TopLevelArmResourceImpl(inner, this.manager());
-        } else {
-            return null;
-        }
+        return this.update(resourceGroupName, topLevelArmResourceName, properties, Context.NONE);
     }
 
     public TopLevelArmResource update(String resourceGroupName, String topLevelArmResourceName,

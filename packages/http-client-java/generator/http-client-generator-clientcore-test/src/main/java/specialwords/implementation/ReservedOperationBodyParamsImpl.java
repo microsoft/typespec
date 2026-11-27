@@ -1,20 +1,22 @@
 package specialwords.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.util.List;
 import specialwords.reservedoperationbodyparams.implementation.WithItemsRequest;
 
@@ -49,31 +51,54 @@ public final class ReservedOperationBodyParamsImpl {
     }
 
     /**
-     * The interface defining all the services for SpecialWordsClientReservedOperationBodyParams to be used by the proxy
-     * service to perform REST calls.
+     * The HTTP operations for SpecialWordsClientReservedOperationBodyParams.
      */
-    @ServiceInterface(name = "SpecialWordsClientReservedOperationBodyParams", host = "{endpoint}")
     public interface ReservedOperationBodyParamsService {
         static ReservedOperationBodyParamsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("specialwords.implementation.ReservedOperationBodyParamsServiceImpl");
-                return (ReservedOperationBodyParamsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new ReservedOperationBodyParamsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/special-words/operations/body-param-reserved",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> withItems(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") WithItemsRequest withItemsRequest, RequestContext requestContext);
+        Response<Void> withItems(String endpoint, String contentType, WithItemsRequest withItemsRequest,
+            RequestContext requestContext);
+    }
+
+    private static final class ReservedOperationBodyParamsServiceImpl implements ReservedOperationBodyParamsService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(ReservedOperationBodyParamsService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private ReservedOperationBodyParamsServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<Void> withItems(String endpoint, String contentType, WithItemsRequest withItemsRequest,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/special-words/operations/body-param-reserved");
+            if (withItemsRequest != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(withItemsRequest,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            try (Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest)) {
+                int responseCode = networkResponse.getStatusCode();
+                boolean expectedResponse = responseCode == 204;
+                if (!expectedResponse) {
+                    GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                        this.xmlSerializer, null, null, HTTP_LOG);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            }
+        }
     }
 
     /**

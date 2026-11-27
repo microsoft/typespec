@@ -21,7 +21,24 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFile> {
+public class ResourceManagerUtilsTemplate
+    implements IJavaTemplate<Set<ResourceManagerUtilsTemplate.UtilityMethod>, JavaFile> {
+
+    public enum UtilityMethod {
+        GET_VALUE_FROM_ID("getValueFromIdByParameterName"),
+        GET_REQUIRED_VALUE_FROM_ID("getRequiredValueFromIdByParameterName"),
+        MAP_PAGE("mapPage");
+
+        private final String methodName;
+
+        UtilityMethod(String methodName) {
+            this.methodName = methodName;
+        }
+
+        public String getMethodName() {
+            return methodName;
+        }
+    }
 
     private static final ResourceManagerUtilsTemplate INSTANCE = new ResourceManagerUtilsTemplate();
 
@@ -29,34 +46,51 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
         return INSTANCE;
     }
 
-    private static final List<MethodTemplate> METHOD_TEMPLATES = new ArrayList<>();
-    static {
-        MethodTemplate getValueFromIdByParameterNameMethod = MethodTemplate.builder()
-            .imports(List.of(Arrays.class.getName()))
-            .visibility(JavaVisibility.PackagePrivate)
-            .modifiers(List.of(JavaModifier.Static))
-            .methodSignature(
-                "String getValueFromIdByParameterName(String id, String pathTemplate, String parameterName)")
-            .method(block -> block
-                .line(FluentUtils.loadTextFromResource("ResourceManagerUtils_getValueFromIdByParameterName.txt")))
-            .build();
-        METHOD_TEMPLATES.add(getValueFromIdByParameterNameMethod);
-    }
+    private static final MethodTemplate GET_VALUE_FROM_ID = MethodTemplate.builder()
+        .imports(List.of(Arrays.class.getName()))
+        .visibility(JavaVisibility.PackagePrivate)
+        .modifiers(List.of(JavaModifier.Static))
+        .methodSignature("String getValueFromIdByParameterName(String id, String pathTemplate, String parameterName)")
+        .method(block -> block
+            .line(FluentUtils.loadTextFromResource("ResourceManagerUtils_getValueFromIdByParameterName.txt")))
+        .build();
+
+    private static final MethodTemplate GET_REQUIRED_VALUE_FROM_ID = MethodTemplate.builder()
+        .imports(List.of(ClassType.CLIENT_LOGGER.getFullName()))
+        .visibility(JavaVisibility.PackagePrivate)
+        .modifiers(List.of(JavaModifier.Static))
+        .methodSignature("String getRequiredValueFromIdByParameterName(String id, String pathTemplate, "
+            + "String parameterName, String segmentName, ClientLogger logger)")
+        .method(block -> {
+            block.line("String value = getValueFromIdByParameterName(id, pathTemplate, parameterName);");
+            block.ifBlock("value == null",
+                invalid -> invalid.line("throw logger.logExceptionAsError(new IllegalArgumentException(String.format("
+                    + "\"The resource ID '%s' is not valid. Missing path segment '%s'.\", id, segmentName)));"));
+            block.methodReturn("value");
+        })
+        .build();
 
     private static final List<String> IMPORTS_UTILS_PAGED_ITERABLE = List.of(ClassType.PAGED_FLUX.getFullName(),
         ClassType.FLUX.getFullName(), ClassType.PAGED_ITERABLE.getFullName(), ClassType.PAGED_RESPONSE.getFullName(),
         ClassType.PAGED_RESPONSE_BASE.getFullName(), Iterator.class.getName(), Function.class.getName(),
         Collectors.class.getName(), Stream.class.getName());
 
-    public void write(JavaFile javaFile) {
-        write(null, javaFile);
-    }
-
     @Override
-    public void write(Void ignored, JavaFile javaFile) {
+    public void write(Set<UtilityMethod> usedMethods, JavaFile javaFile) {
+        List<MethodTemplate> methods = new ArrayList<>();
+        // The validating helper calls the nullable parser even when no client calls it directly.
+        if (usedMethods.contains(UtilityMethod.GET_VALUE_FROM_ID)
+            || usedMethods.contains(UtilityMethod.GET_REQUIRED_VALUE_FROM_ID)) {
+            methods.add(GET_VALUE_FROM_ID);
+        }
+        if (usedMethods.contains(UtilityMethod.GET_REQUIRED_VALUE_FROM_ID)) {
+            methods.add(GET_REQUIRED_VALUE_FROM_ID);
+        }
         Set<String> imports = new LinkedHashSet<>();
-        METHOD_TEMPLATES.forEach(mt -> mt.addImportsTo(imports));
-        imports.addAll(IMPORTS_UTILS_PAGED_ITERABLE);
+        methods.forEach(mt -> mt.addImportsTo(imports));
+        if (usedMethods.contains(UtilityMethod.MAP_PAGE)) {
+            imports.addAll(IMPORTS_UTILS_PAGED_ITERABLE);
+        }
         javaFile.declareImport(imports);
 
         javaFile.classBlock(JavaVisibility.PackagePrivate, List.of(JavaModifier.Final),
@@ -64,13 +98,12 @@ public class ResourceManagerUtilsTemplate implements IJavaTemplate<Void, JavaFil
                 classBlock.constructor(JavaVisibility.Private, ModelNaming.CLASS_RESOURCE_MANAGER_UTILS + "()",
                     constructorBlock -> {
                     });
-                METHOD_TEMPLATES.forEach(mt -> mt.writeMethod(classBlock));
+                methods.forEach(mt -> mt.writeMethod(classBlock));
 
-                // mapPage and PagedIterableImpl class
-                javaFile.line();
-                String configurableClassText
-                    = FluentUtils.loadTextFromResource("ResourceManagerUtils_PagedIterableImpl.txt");
-                javaFile.text(configurableClassText);
+                if (usedMethods.contains(UtilityMethod.MAP_PAGE)) {
+                    javaFile.line();
+                    javaFile.text(FluentUtils.loadTextFromResource("ResourceManagerUtils_PagedIterableImpl.txt"));
+                }
             });
     }
 }

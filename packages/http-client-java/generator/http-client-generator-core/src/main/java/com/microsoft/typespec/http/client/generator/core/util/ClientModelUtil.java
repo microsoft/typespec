@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
@@ -67,6 +68,8 @@ public class ClientModelUtil {
 
     public static final String OPERATION_LOCATION_POLLING_STRATEGY = "OperationLocationPollingStrategy";
     public static final String SYNC_OPERATION_LOCATION_POLLING_STRATEGY = "SyncOperationLocationPollingStrategy";
+    public static final String OPERATION_ID_POLLING_STRATEGY = "OperationIdPollingStrategy";
+    public static final String SYNC_OPERATION_ID_POLLING_STRATEGY = "SyncOperationIdPollingStrategy";
     public static final String POLLING_UTILS = "PollingUtils";
     public static final String CLIENT_CORE_POLLING_UTILS = "ClientCorePollingUtils";
     public static final String CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY
@@ -832,6 +835,42 @@ public class ClientModelUtil {
         }
 
         return false;
+    }
+
+    /**
+     * Checks whether any long-running operation extracts the operation ID from the path of the polling URL.
+     *
+     * @param codeModel the code model.
+     * @return whether OperationIdPollingStrategy is required.
+     */
+    public static boolean requireOperationIdPollingStrategy(CodeModel codeModel) {
+        if (CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            return false;
+        }
+
+        return codeModel.getClients()
+            .stream()
+            .filter(client -> client.getOperationGroups() != null)
+            .flatMap(client -> client.getOperationGroups().stream())
+            .filter(og -> og.getOperations() != null)
+            .flatMap(og -> og.getOperations().stream())
+            .anyMatch(operation -> operation.getLroMetadata() != null
+                && operation.getLroMetadata().getOperationId() != null
+                && operation.getLroMetadata().getOperationId().hasPathSource());
+    }
+
+    /**
+     * Whether an operation uses its generated status model for long-running operation ID metadata.
+     *
+     * @param settings the generator settings.
+     * @param pollingSettings the operation's polling settings.
+     * @return whether the generated status model can expose operation ID metadata.
+     */
+    public static boolean supportsLroOperationId(JavaSettings settings, PollingSettings pollingSettings) {
+        return settings.isAzureV1()
+            && !settings.isFluent()
+            && pollingSettings != null
+            && pollingSettings.getPollResultType() == null;
     }
 
     /**

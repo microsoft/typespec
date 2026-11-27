@@ -51,8 +51,10 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
+  interpolatePath,
   isStringType,
   isType,
+  isTypeRefType,
   joinPaths,
   resolveEncodedEnumMemberValue,
   sanitizePathSegment,
@@ -534,7 +536,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
-    if (name === undefined) {
+    if (name === undefined || isTypeRefType(this.emitter.getProgram(), scalar)) {
       return {};
     } else {
       return this.#newFileScope(scalar);
@@ -542,10 +544,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
-    const isStd = this.#isStdType(scalar);
+    const shouldInline =
+      this.#isStdType(scalar) || isTypeRefType(this.emitter.getProgram(), scalar);
     const schema = this.#getSchemaForScalar(scalar);
-    // Don't create a declaration for std types
-    if (isStd) {
+    // Built-in and compile-time scalars do not need declarations.
+    if (shouldInline) {
       return schema;
     }
 
@@ -556,7 +559,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   #getSchemaForScalar(scalar: Scalar) {
     let result: any;
     const isStd = this.#isStdType(scalar);
-    if (isStd) {
+    const isTypeReference = isTypeRefType(this.emitter.getProgram(), scalar);
+    if (isTypeReference) {
+      result = { not: {} };
+    } else if (isStd) {
       result = this.#getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = this.#getSchemaForScalar(scalar.baseScalar);
@@ -571,8 +577,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const objectBuilder = new ObjectBuilder(result);
     this.#applyConstraints(scalar, objectBuilder);
-    if (isStd) {
-      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+    if (isStd || isTypeReference) {
+      // Inline scalars do not carry the declaration's description.
       delete objectBuilder.description;
     }
     return objectBuilder;
@@ -1014,6 +1020,31 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         content: this.#serializeSourceFileContent(content),
       });
     } else {
+      const paths = new DuplicateTracker<string, JsonSchemaDeclaration>();
+      for (const sf of sourceFiles) {
+        if (sf.meta.shouldEmit) {
+          paths.track(sf.path, this.#typeForSourceFile.get(sf)!);
+        }
+      }
+
+      let hasDuplicatePaths = false;
+      for (const [path, types] of paths.entries()) {
+        hasDuplicatePaths = true;
+        const file = getRelativePathFromDirectory(
+          this.emitter.getOptions().emitterOutputDir,
+          path,
+          false,
+        );
+        for (const type of types) {
+          reportDiagnostic(this.emitter.getProgram(), {
+            code: "duplicate-output-file",
+            format: { file },
+            target: type,
+          });
+        }
+      }
+      if (hasDuplicatePaths) return;
+
       for (const sf of sourceFiles) {
         const emittedSf = await this.emitter.emitSourceFile(sf);
 
@@ -1175,7 +1206,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #newFileScope(type: JsonSchemaDeclaration) {
     const sourceFile = this.emitter.createSourceFile(
-      `${sanitizePathSegment(this.declarationName(type)!)}.${this.#fileExtension()}`,
+      interpolatePath(this.emitter.getOptions()["file-name"] ?? "{name}.{ext}", {
+        name: sanitizePathSegment(this.declarationName(type)!),
+        ext: this.#fileExtension(),
+      }),
     );
 
     sourceFile.meta.shouldEmit = true;

@@ -27,6 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.util.LroOperationIdModelHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
@@ -833,13 +834,12 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
          * @param fromSuperType Whether the property is defined by a super type of the model.
          * @return The property getter statement.
          */
-        private static String getPropertyGetterStatement(ClientModelProperty property, boolean fromSuperType) {
+        private String getPropertyGetterStatement(ClientModelProperty property, boolean fromSuperType) {
             IType clientType = property.getClientType();
             IType wireType = property.getWireType();
             if (fromSuperType) {
-                return (clientType != wireType)
-                    ? wireType.convertFromClientType(property.getGetterName() + "()")
-                    : property.getGetterName() + "()";
+                String getter = LroOperationIdModelHelper.getSerializationGetterName(model, property);
+                return (clientType != wireType) ? wireType.convertFromClientType(getter + "()") : getter + "()";
             } else {
                 return "this." + property.getName();
             }
@@ -1365,9 +1365,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     // with
                     // their XML value.
                     propertiesManager
-                        .forEachSuperXmlElement(element -> initializeLocalVariable(methodBlock, element, true));
+                        .forEachSuperXmlElement(element -> initializeLocalVariable(methodBlock, element, true, true));
                     propertiesManager
-                        .forEachXmlElement(element -> initializeLocalVariable(methodBlock, element, false));
+                        .forEachXmlElement(element -> initializeLocalVariable(methodBlock, element, false, true));
                 } else {
                     propertiesManager.forEachSuperRequiredProperty(property -> {
                         if (property.isConstant()) {
@@ -1400,6 +1400,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         private void initializeLocalVariable(JavaBlock methodBlock, ClientModelProperty property, boolean fromSuper) {
+            initializeLocalVariable(methodBlock, property, fromSuper, false);
+        }
+
+        private void initializeLocalVariable(JavaBlock methodBlock, ClientModelProperty property, boolean fromSuper,
+            boolean isXml) {
             if (includePropertyInConstructor(property, settings) && !settings.isDisableRequiredJsonAnnotation()) {
                 // Required properties need an additional boolean variable to indicate they've been found.
                 methodBlock.line("boolean " + property.getName() + "Found = false;");
@@ -1413,6 +1418,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             IType type = getDeserializationType(property, fromSuper);
             String defaultValue
                 = property.isPolymorphicDiscriminator() ? property.getDefaultValue() : type.defaultValueExpression();
+            // Constructor-based XML deserialization appends unwrapped elements to locals, not initialized fields.
+            // Optional lists have no lazy null check, and should remain empty when no matching elements occur.
+            if (isXml && !property.isRequired() && !property.isXmlWrapper() && type instanceof IterableType) {
+                defaultValue = "new ArrayList<>()";
+            }
             methodBlock.line(type + " " + property.getName() + " = " + defaultValue + ";");
         }
 

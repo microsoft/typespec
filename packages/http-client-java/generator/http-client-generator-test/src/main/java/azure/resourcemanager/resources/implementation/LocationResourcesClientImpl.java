@@ -204,17 +204,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
         return getWithResponseAsync(location, locationResourceName).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Get a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a LocationResource along with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<LocationResourceInner> getWithResponse(String location, String locationResourceName,
         Context context) {
@@ -223,16 +213,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             location, locationResourceName, accept, context);
     }
 
-    /**
-     * Get a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a LocationResource.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public LocationResourceInner get(String location, String locationResourceName) {
         return getWithResponse(location, locationResourceName, Context.NONE).getValue();
@@ -281,19 +262,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Create a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<LocationResourceInner> createOrUpdateWithResponse(String location, String locationResourceName,
         LocationResourceInner resource, Context context) {
@@ -303,17 +272,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             this.client.getSubscriptionId(), location, locationResourceName, contentType, accept, resource, context);
     }
 
-    /**
-     * Create a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public LocationResourceInner createOrUpdate(String location, String locationResourceName,
         LocationResourceInner resource) {
@@ -361,19 +320,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * Update a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<LocationResourceInner> updateWithResponse(String location, String locationResourceName,
         LocationResourceInner properties, Context context) {
@@ -383,17 +330,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             this.client.getSubscriptionId(), location, locationResourceName, contentType, accept, properties, context);
     }
 
-    /**
-     * Update a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @param properties The resource properties to be updated.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete proxy resource types can be created by aliasing this type using a specific property type.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public LocationResourceInner update(String location, String locationResourceName,
         LocationResourceInner properties) {
@@ -433,32 +370,14 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
         return deleteWithResponseAsync(location, locationResourceName).flatMap(ignored -> Mono.empty());
     }
 
-    /**
-     * Delete a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String location, String locationResourceName, Context context) {
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), location, locationResourceName, context);
     }
 
-    /**
-     * Delete a LocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param locationResourceName The name of the LocationResource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String location, String locationResourceName) {
         deleteWithResponse(location, locationResourceName, Context.NONE);
@@ -511,11 +430,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<LocationResourceInner> listByLocationSinglePage(String location) {
-        final String accept = "application/json";
-        Response<LocationResourceListResult> res = service.listByLocationSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), location, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByLocationSinglePage(location, Context.NONE);
     }
 
     /**
@@ -537,31 +452,13 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
             res.getValue().nextLink(), null);
     }
 
-    /**
-     * List LocationResource resources by SubscriptionLocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a LocationResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<LocationResourceInner> listByLocation(String location) {
-        return new PagedIterable<>(() -> listByLocationSinglePage(location),
-            nextLink -> listByLocationNextSinglePage(nextLink));
+        return listByLocation(location, Context.NONE);
     }
 
-    /**
-     * List LocationResource resources by SubscriptionLocationResource.
-     * 
-     * @param location The name of the Azure region.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a LocationResource list operation as paginated response with {@link PagedIterable}.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<LocationResourceInner> listByLocation(String location, Context context) {
         return new PagedIterable<>(() -> listByLocationSinglePage(location, context),
@@ -599,11 +496,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<LocationResourceInner> listByLocationNextSinglePage(String nextLink) {
-        final String accept = "application/json";
-        Response<LocationResourceListResult> res
-            = service.listByLocationNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
+        return listByLocationNextSinglePage(nextLink, Context.NONE);
     }
 
     /**

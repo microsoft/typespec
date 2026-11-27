@@ -26,7 +26,7 @@ public final class LroNoBodiesImpl implements LroNoBodies {
 
     public ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName,
         ResourceLroNoBody resource) {
-        return this.serviceClient().createOrUpdate(resourceGroupName, resourceLroNoBodyName, resource);
+        return this.createOrUpdate(resourceGroupName, resourceLroNoBodyName, resource, Context.NONE);
     }
 
     public ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName,
@@ -35,7 +35,7 @@ public final class LroNoBodiesImpl implements LroNoBodies {
     }
 
     public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName) {
-        return this.serviceClient().action(resourceGroupName, resourceLroNoBodyName);
+        return this.action(resourceGroupName, resourceLroNoBodyName, Context.NONE);
     }
 
     public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName, Context context) {

@@ -7,6 +7,8 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningOperationIdMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
@@ -20,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
@@ -32,6 +35,7 @@ import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +53,51 @@ public class TypeSpecPlugin extends Javagen {
     public Client processClient(CodeModel codeModel) {
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
+        filterLroOperationIdMetadata(codeModel);
 
         // map to client model
         return Mappers.getClientMapper().map(codeModel);
+    }
+
+    private void filterLroOperationIdMetadata(CodeModel codeModel) {
+        JavaSettings settings = JavaSettings.getInstance();
+        Map<Schema, LongRunningOperationIdMetadata> supported = new IdentityHashMap<>();
+        if (codeModel.getClients() != null) {
+            codeModel.getClients()
+                .stream()
+                .filter(client -> client.getOperationGroups() != null)
+                .flatMap(client -> client.getOperationGroups().stream())
+                .filter(group -> group.getOperations() != null)
+                .flatMap(group -> group.getOperations().stream())
+                .filter(operation -> operation.getConvenienceApi() != null && operation.getLroMetadata() != null)
+                .filter(operation -> ClientModelUtil.supportsLroOperationId(settings,
+                    settings.getPollingSettings(Mappers.getProxyMethodMapper().getOperationId(operation, settings))))
+                .forEach(operation -> {
+                    Schema schema = operation.getLroMetadata().getPollResultType();
+                    LongRunningOperationIdMetadata current = operation.getLroMetadata().getOperationId();
+                    if (schema == null || current == null) {
+                        return;
+                    }
+                    LongRunningOperationIdMetadata merged
+                        = supported.computeIfAbsent(schema, ignored -> new LongRunningOperationIdMetadata());
+                    if (current.hasPathSource() && !merged.hasPathSource()) {
+                        merged.setPathTemplate(current.getPathTemplate());
+                        merged.setPathParameterSerializedName(current.getPathParameterSerializedName());
+                        merged.setPollingHeaderName(current.getPollingHeaderName());
+                    }
+                    if (current.getPropertySerializedName() != null) {
+                        merged.setPropertySerializedName(current.getPropertySerializedName());
+                    }
+                });
+        }
+        if (codeModel.getSchemas() != null && codeModel.getSchemas().getObjects() != null) {
+            codeModel.getSchemas()
+                .getObjects()
+                .stream()
+                .filter(
+                    schema -> schema.getExtensions() != null && schema.getExtensions().getXmsLroOperationId() != null)
+                .forEach(schema -> schema.getExtensions().setXmsLroOperationId(supported.get(schema)));
+        }
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
@@ -103,6 +149,22 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
+        if (settings.isAzureV1()) {
+            List<ClientModel> sseBaseModels = client.getModels()
+                .stream()
+                .filter(ModelUtil::isGeneratingModel)
+                .filter(model -> model.hasUsage(
+                    com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+                .filter(model -> model.getSseMetadata() != null && model.getSseMetadata().isBaseModel())
+                .collect(Collectors.toList());
+            if (!sseBaseModels.isEmpty()) {
+                String runtimePackage = SseUtil.getRuntimePackage();
+                javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAM_HELPER);
+                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
+                sseBaseModels.forEach(javaPackage::addSseEventSerializer);
+            }
+        }
+
         if (settings.getExperimentalAnnotation() != null) {
             javaPackage.addExperimentalAnnotation();
         }
@@ -145,7 +207,9 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         // OperationLocationPollingStrategy
-        if (ClientModelUtil.requireOperationLocationPollingStrategy(codeModel)) {
+        final boolean requireOperationLocationPollingStrategy
+            = ClientModelUtil.requireOperationLocationPollingStrategy(codeModel);
+        if (requireOperationLocationPollingStrategy) {
             if (JavaSettings.getInstance().isAzureV2()) {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY,
@@ -161,6 +225,20 @@ public class TypeSpecPlugin extends Javagen {
                     ClientModelUtil.POLLING_UTILS);
             }
 
+        }
+
+        // OperationIdPollingStrategy
+        if (JavaSettings.getInstance().isAzureV1()
+            && !JavaSettings.getInstance().isFluent()
+            && ClientModelUtil.requireOperationIdPollingStrategy(codeModel)) {
+            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.OPERATION_ID_POLLING_STRATEGY);
+            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.SYNC_OPERATION_ID_POLLING_STRATEGY);
+            if (!requireOperationLocationPollingStrategy) {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.POLLING_UTILS);
+            }
         }
     }
 
@@ -438,10 +516,15 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         // Client model
-        client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getApiMetadata().getCrossLanguageDefinitionId());
-        });
+        client.getModels()
+            .stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .filter(model -> !model.hasUsage(
+                com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails.Usage.SSE))
+            .forEach(model -> {
+                crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                    model.getApiMetadata().getCrossLanguageDefinitionId());
+            });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {

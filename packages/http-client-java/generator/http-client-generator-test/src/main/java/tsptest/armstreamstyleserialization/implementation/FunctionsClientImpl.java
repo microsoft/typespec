@@ -113,16 +113,7 @@ public final class FunctionsClientImpl implements FunctionsClient {
         return createFunctionWithResponseAsync(function).flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
-    /**
-     * The createFunction operation.
-     * 
-     * @param function The function parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FunctionsCreateFunctionResponse createFunctionWithResponse(FunctionInner function, Context context) {
         if (this.client.getEndpoint() == null) {
@@ -141,15 +132,7 @@ public final class FunctionsClientImpl implements FunctionsClient {
         return service.createFunctionSync(this.client.getEndpoint(), contentType, accept, function, context);
     }
 
-    /**
-     * The createFunction operation.
-     * 
-     * @param function The function parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
+    @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FunctionInner createFunction(FunctionInner function) {
         return createFunctionWithResponse(function, Context.NONE).getValue();

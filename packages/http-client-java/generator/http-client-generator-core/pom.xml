@@ -59,7 +59,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.60.0</version>
+      <version>1.61.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -82,12 +82,6 @@
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
       <version>3.27.0</version>
-    </dependency>
-    <!-- 1.24.0 is the last version that supports Java 11 -->
-    <dependency>
-      <groupId>com.google.googlejavaformat</groupId>
-      <artifactId>google-java-format</artifactId>
-      <version>1.24.0</version>
     </dependency>
     <!-- 3.27.0 aligns with the version used when Spotless uses Eclipse 4.21 / 4.21.0. -->
     <!-- In the future when this is upgraded it might slightly change code formatting. -->

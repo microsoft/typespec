@@ -247,7 +247,7 @@ export type OpenAPI3MediaType = Extensions & {
   example?: unknown;
 
   /** Examples with title  */
-  examples?: Record<string, OpenAPI3Example>;
+  examples?: Record<string, Refable<OpenAPI3Example>>;
 };
 
 /**

@@ -637,7 +637,7 @@ Specify the maximum value this numeric type should be.
 
 ```typespec
 @maxValue(200)
-scalar Age is int32;
+scalar Age extends int32;
 ```
 
 
@@ -662,7 +662,7 @@ value.
 
 ```typespec
 @maxValueExclusive(50)
-scalar distance is float64;
+scalar distance extends float64;
 ```
 
 
@@ -774,7 +774,7 @@ Specify the minimum value this numeric type should be.
 
 ```typespec
 @minValue(18)
-scalar Age is int32;
+scalar Age extends int32;
 ```
 
 
@@ -799,7 +799,7 @@ value.
 
 ```typespec
 @minValueExclusive(0)
-scalar distance is float64;
+scalar distance extends float64;
 ```
 
 
@@ -1169,7 +1169,7 @@ None
 
 ```typespec
 @secret
-scalar Password is string;
+scalar Password extends string;
 ```
 
 

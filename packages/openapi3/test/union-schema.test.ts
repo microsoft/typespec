@@ -815,16 +815,65 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         `,
       );
       ok(res.isRef);
-      ok(res.schemas.Pet.properties.name.nullable);
-      deepStrictEqual(res.schemas.Pet.properties.name.anyOf, [
-        {
-          type: "integer",
-          format: "int32",
-        },
-        {
-          type: "string",
-        },
-      ]);
+      deepStrictEqual(res.schemas.Pet.properties.name, {
+        anyOf: [
+          {
+            type: "integer",
+            format: "int32",
+            nullable: true,
+          },
+          {
+            type: "string",
+            nullable: true,
+          },
+        ],
+      });
+    });
+
+    it("sets nullable on each variant when literals and scalars are mixed", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+        model Pet {
+          name: "a" | int32 | null;
+        };
+        `,
+      );
+      deepStrictEqual(res.schemas.Pet.properties.name, {
+        anyOf: [
+          { type: "string", enum: ["a"], nullable: true },
+          { type: "integer", format: "int32", nullable: true },
+        ],
+      });
+    });
+
+    it("sets nullable on each variant of a named union and keeps its doc on the union", async () => {
+      const openApi = await openApiFor(`
+      /** A name or a number. */
+      union Test { string, int32, null }
+      `);
+      deepStrictEqual(openApi.components.schemas.Test, {
+        anyOf: [
+          { type: "string", nullable: true },
+          { type: "integer", format: "int32", nullable: true },
+        ],
+        description: "A name or a number.",
+      });
+    });
+
+    it("sets nullable on each variant of a @oneOf union", async () => {
+      const openApi = await openApiFor(`
+      model Foo {
+        @oneOf
+        bar: string | int32 | null;
+      }
+      `);
+      deepStrictEqual(openApi.components.schemas.Foo.properties.bar, {
+        oneOf: [
+          { type: "string", nullable: true },
+          { type: "integer", format: "int32", nullable: true },
+        ],
+      });
     });
 
     it("defines enums with a nullable variant", async () => {

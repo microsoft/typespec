@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
@@ -127,6 +128,45 @@ public class StreamSerializationModelTemplateTests {
             } else if (constructorArguments) {
                 Assertions.assertTrue(generated.contains(wireType + " createdAt = " + readExpression + ";"), generated);
             }
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "true", "false" })
+    public void optionalUnwrappedListsRetainEmptyInitialization(boolean constructorArguments) {
+        ListType listType = new ListType(ClassType.STRING);
+        ClientModelProperty items = new ClientModelProperty.Builder().name("items")
+            .serializedName("Item")
+            .xmlName("Item")
+            .xmlListElementName("Item")
+            .wireType(listType)
+            .clientType(listType)
+            .required(constructorArguments)
+            .build();
+        ClientModelProperty prefixes = new ClientModelProperty.Builder().name("prefixes")
+            .serializedName("Prefix")
+            .xmlName("Prefix")
+            .xmlListElementName("Prefix")
+            .wireType(listType)
+            .clientType(listType)
+            .build();
+        ClientModel model = new ClientModel.Builder().name("Hierarchy")
+            .packageName("com.azure.mock.models")
+            .xmlName("Hierarchy")
+            .properties(List.of(items, prefixes))
+            .build();
+        JavaFile file = new JavaFile("Hierarchy.java");
+        ClientModelPropertiesManager properties = new ClientModelPropertiesManager(model, JavaSettings.getInstance());
+        file.publicFinalClass("Hierarchy", classBlock -> StreamSerializationModelTemplate.getInstance()
+            .writeStreamStyleSerialization(classBlock, properties));
+        String generated = file.getContents().toString();
+        if (constructorArguments) {
+            Assertions.assertTrue(generated.contains("List<String> prefixes = new ArrayList<>();"), generated);
+            Assertions.assertTrue(generated.contains("prefixes.add(reader.getStringElement());"), generated);
+        } else {
+            Assertions.assertTrue(generated.contains("deserializedHierarchy.prefixes.add(reader.getStringElement());"),
+                generated);
+            Assertions.assertFalse(generated.contains("List<String> prefixes = null;"), generated);
         }
     }
 

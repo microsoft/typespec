@@ -22,6 +22,12 @@ public final class ConfigurationImpl implements Configuration, Configuration.Def
         azure.resourcemanager.operationtemplates.OperationTemplatesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/configurations/{configurationName}",
+            "resourceGroupName");
+        this.configurationName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.OperationTemplates/configurations/{configurationName}",
+            "configurationName");
     }
 
     public String id() {
@@ -83,12 +89,7 @@ public final class ConfigurationImpl implements Configuration, Configuration.Def
     }
 
     public Configuration create() {
-        this.innerObject = serviceManager.serviceClient()
-            .getLegacies()
-            .createOrReplaceOptionalBodyWithResponse(resourceGroupName, configurationName, this.innerModel(),
-                Context.NONE)
-            .getValue();
-        return this;
+        return this.create(Context.NONE);
     }
 
     public Configuration create(Context context) {

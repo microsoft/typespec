@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
@@ -46,8 +47,13 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
-        return !isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
-        // for LRO, we actually choose the protocol method of "WithModel"
+        boolean hasSseMethod = method.getConvenienceMethods()
+            .stream()
+            .anyMatch(clientMethod -> clientMethod.getType() == ClientMethodType.SseSync);
+        return !isMethodAsync(method.getProtocolMethod())
+            && isMethodVisible(method.getProtocolMethod())
+            && (!hasSseMethod || method.getProtocolMethod().getType() == ClientMethodType.SimpleSyncRestResponse)
+            // for LRO, we actually choose the protocol method of "WithModel"
             && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginSync
                 || (method.getProtocolMethod().getImplementationDetails() != null
                     && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()));
@@ -86,6 +92,14 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
+        if (convenienceMethod.getType() == ClientMethodType.SseSync) {
+            methodBlock.methodReturn(String.format("%5$s.toIterableStream(%1$s(%2$s), %3$s::deserialize, %4$s)",
+                getMethodName(protocolMethod), invocationExpression,
+                convenienceMethod.getSseMetadata().getSerializerType().getName(),
+                SseUtil.getClientTerminalPredicate(convenienceMethod), SseUtil.getRuntimeType().getName()));
+            return;
+        }
+
         if (convenienceMethod.getType() == ClientMethodType.SimpleSync
             && responseBodyType.asNullable() == ClassType.VOID
             && protocolResponseBodyType == ClassType.BINARY_DATA) {
@@ -103,6 +117,26 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
         String convertFromResponse
             = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
+        // Only simple BinaryData responses need status-aware deserialization. Paging/LRO methods use other
+        // conversion paths, and synthetic paging proxy methods may not have response-status metadata.
+        String bodylessResponseCondition = protocolResponseBodyType == ClassType.BINARY_DATA
+            && (convenienceMethod.getType() == ClientMethodType.SimpleSync
+                || convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse)
+                    ? getBodylessResponseCondition(protocolMethod)
+                    : "";
+
+        // Keep the response status until conversion: a declared bodyless success must return null, not parse XML/JSON.
+        if (convenienceMethod.getType() == ClientMethodType.SimpleSync
+            && protocolResponseBodyType == ClassType.BINARY_DATA
+            && responseBodyType != ClassType.BINARY_DATA
+            && !bodylessResponseCondition.isEmpty()) {
+            methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
+            methodBlock.ifBlock(bodylessResponseCondition, ifBlock -> ifBlock.methodReturn("null"));
+            methodBlock.methodReturn(expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType,
+                "protocolMethodResponse.getValue()", protocolMethod.getProxyMethod().getResponseContentTypes(),
+                typeReferenceStaticClasses));
+            return;
+        }
 
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
             String mapPageExpression = "";
@@ -141,6 +175,9 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 expressConversion
                     = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, expressConversion,
                         protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
+                if (!bodylessResponseCondition.isEmpty()) {
+                    expressConversion = bodylessResponseCondition + " ? null : " + expressConversion;
+                }
             }
 
             if (isResponseBase(convenienceMethod.getReturnValue().getType())) {

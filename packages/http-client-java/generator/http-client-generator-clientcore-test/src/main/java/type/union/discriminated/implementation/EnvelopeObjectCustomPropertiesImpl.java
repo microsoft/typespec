@@ -1,22 +1,23 @@
 package type.union.discriminated.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 
 /**
  * An instance of this class provides access to all the operations defined in EnvelopeObjectCustomProperties.
@@ -49,40 +50,80 @@ public final class EnvelopeObjectCustomPropertiesImpl {
     }
 
     /**
-     * The interface defining all the services for DiscriminatedClientEnvelopeObjectCustomProperties to be used by the
-     * proxy service to perform REST calls.
+     * The HTTP operations for DiscriminatedClientEnvelopeObjectCustomProperties.
      */
-    @ServiceInterface(name = "DiscriminatedClientEnvelopeObjectCustomProperties", host = "{endpoint}")
     public interface EnvelopeObjectCustomPropertiesService {
         static EnvelopeObjectCustomPropertiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.union.discriminated.implementation.EnvelopeObjectCustomPropertiesServiceImpl");
-                return (EnvelopeObjectCustomPropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new EnvelopeObjectCustomPropertiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/discriminated/envelope/object/custom-properties",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("petType") String petType,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<BinaryData> get(String endpoint, String petType, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/union/discriminated/envelope/object/custom-properties",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
+        Response<BinaryData> put(String endpoint, String contentType, String accept, BinaryData input,
+            RequestContext requestContext);
+    }
+
+    private static final class EnvelopeObjectCustomPropertiesServiceImpl
+        implements EnvelopeObjectCustomPropertiesService {
+        private static final ClientLogger HTTP_LOG = new ClientLogger(EnvelopeObjectCustomPropertiesService.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private EnvelopeObjectCustomPropertiesServiceImpl(HttpPipeline httpPipeline) {
+            this.httpPipeline = httpPipeline;
+        }
+
+        @Override
+        public Response<BinaryData> get(String endpoint, String petType, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/type/union/discriminated/envelope/object/custom-properties");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "petType", true, petType, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return networkResponse;
+        }
+
+        @Override
+        public Response<BinaryData> put(String endpoint, String contentType, String accept, BinaryData input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/type/union/discriminated/envelope/object/custom-properties");
+            if (accept != null) {
+                httpRequest.getHeaders().add(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (input != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+                SerializationFormat requestFormat
+                    = CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestFormat) ? this.xmlSerializer : this.jsonSerializer));
+            }
+            httpRequest.setContext(requestContext);
+            httpRequest.getContext().getRequestCallback().accept(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            boolean expectedResponse = responseCode == 200;
+            if (!expectedResponse) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, HTTP_LOG);
+            }
+            return networkResponse;
+        }
     }
 
     /**

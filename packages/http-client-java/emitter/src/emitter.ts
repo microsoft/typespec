@@ -1,8 +1,10 @@
 import type { EmitContext, Program } from "@typespec/compiler";
-import { getNormalizedAbsolutePath, NoTarget, resolvePath } from "@typespec/compiler";
-import { promises } from "fs";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import {
+  getDirectoryPath,
+  getNormalizedAbsolutePath,
+  NoTarget,
+  resolvePath,
+} from "@typespec/compiler";
 import { stringify } from "yaml";
 import type { EmitterOptionsDev } from "./code-model-builder.js";
 import { CodeModelBuilder } from "./code-model-builder.js";
@@ -48,8 +50,11 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
     }
 
     if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
-      const __dirname = dirname(fileURLToPath(import.meta.url));
-      const moduleRoot = resolvePath(__dirname, "..", "..");
+      const moduleRoot = resolvePath(
+        getDirectoryPath(program.host.fileURLToPath(import.meta.url)),
+        "..",
+        "..",
+      );
 
       const outputPath = context.emitterOutputDir;
       options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
@@ -61,7 +66,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 
-      await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
+      await program.host.mkdirp(outputPath).catch((err) => {
         if (err.code !== "EISDIR" && err.code !== "EEXIST") {
           reportDiagnostic(program, {
             code: "unknown-error",
@@ -114,13 +119,6 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
           `-XX:StartFlightRecording=settings="${perfProfile}",filename="${options["output-dir"]}/typespecPerf.jfr",maxsize=1gb`,
         );
       }
-      // These module modifications are needed by google-java-format
-      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");
-      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED");
-      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED");
-      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED");
-      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
-      javaArgs.push("--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
       javaArgs.push("-jar");
       javaArgs.push(jarFileName);
       javaArgs.push(codeModelFileName);
