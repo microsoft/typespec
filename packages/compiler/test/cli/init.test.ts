@@ -58,6 +58,7 @@ const TEST_SCAFFOLDING = {
         options: {
           "emitter-output-dir": "{output-dir}/clients/csharp",
         },
+        gitignorePatterns: ["from-csharp-client/"],
       },
     },
     files: [],
@@ -233,6 +234,31 @@ it("should support overriding emitters", async () => {
 
   const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
   expect(tspConfig.emit).toEqual(["@typespec/openapi3", "@typespec/http-client-csharp"]);
+});
+
+it("leaves out gitignore patterns of emitters that are not selected", async () => {
+  const { fs, init } = await createTestFSWithCliCompilerHost();
+
+  await init("/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
+  });
+
+  const gitignore = fs.get("/tmp/test-project/.gitignore");
+  expect(gitignore).toBeDefined();
+  expect(gitignore).not.toContain("from-csharp-client/");
+});
+
+it("adds gitignore patterns of emitters that are selected", async () => {
+  const { fs, init } = await createTestFSWithCliCompilerHost();
+
+  await init("/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
+    emitters: ["@typespec/openapi3", "@typespec/http-client-csharp"],
+  });
+
+  expect(fs.get("/tmp/test-project/.gitignore")?.split("\n")).toContain("from-csharp-client/");
 });
 
 it("defaults to initialValue for parameters", async () => {
