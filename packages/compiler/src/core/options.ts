@@ -70,6 +70,13 @@ export interface CompilerOptions {
   designTimeBuild?: boolean;
 
   /**
+   * Fully qualified enum members selecting the conditional scope view to check.
+   * Omitted for the default view, where every `when` condition is false.
+   * @internal
+   */
+  scopeSelection?: readonly string[];
+
+  /**
    * Trace area to enable.
    */
   trace?: string[];

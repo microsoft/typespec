@@ -1,5 +1,6 @@
 import pc from "picocolors";
 import type { EmitterOptions } from "../config/types.js";
+import { validateScopeViews } from "../experimental/scope-views.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
@@ -508,6 +509,16 @@ async function createProgram(
   // onValidate stage
   currentStage = "validating";
   await runValidators();
+  await validateScopeViews(program, async (scopeSelection) => {
+    // A fresh parse cache: view programs bind their own syntax trees.
+    const viewHost: CompilerHost = Object.create(host, { parseCache: { value: undefined } });
+    const view = await createProgram(viewHost, mainFile, {
+      ...options,
+      noEmit: true,
+      scopeSelection,
+    });
+    return view.program;
+  });
 
   validateRequiredImports();
 

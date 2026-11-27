@@ -1,4 +1,6 @@
 import type { TypeSpecDecorators, TypeSpecFunctions } from "../../generated-defs/TypeSpec.js";
+import { scopeParentKey } from "../core/scope.js";
+import type { DecoratorContext, EnumMember } from "../core/types.js";
 import {
   $discriminator,
   $doc,
@@ -75,6 +77,12 @@ export const $functions = {
 
 /** @internal */
 export const $decorators = {
+  "TypeSpec.Scopes": {
+    parent(context: DecoratorContext, target: EnumMember, parent: EnumMember) {
+      const parents = context.program.stateMap(scopeParentKey);
+      parents.set(target, [...(parents.get(target) ?? []), parent]);
+    },
+  },
   TypeSpec: {
     encode: $encode,
     mediaTypeHint: $mediaTypeHint,

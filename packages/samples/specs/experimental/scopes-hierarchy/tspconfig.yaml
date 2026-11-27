@@ -1,0 +1,6 @@
+kind: project
+features:
+  - auto-decorators
+  - scoped-decorators
+emit:
+  - "@typespec/openapi3"

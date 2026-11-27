@@ -473,6 +473,17 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeParen,
         ]);
       });
+      it("decorator with a when clause", async () => {
+        const tokens = await tokenize(`@foo when Targets.csharp`);
+        deepStrictEqual(tokens, [
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.keywords.other("when"),
+          Token.identifiers.type("Targets"),
+          Token.punctuation.accessor,
+          Token.identifiers.type("csharp"),
+        ]);
+      });
     });
 
     describe("augment decorators", () => {

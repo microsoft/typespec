@@ -1,0 +1,3 @@
+title: "Conditional scopes: versioning composition"
+description: A client scope hierarchy composed with real versioning projections. Compare scoped metadata, property types, operation signatures and legacy versioning facets in Scope views.
+llmstxt: false

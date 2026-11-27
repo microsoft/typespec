@@ -16,3 +16,5 @@ export type {
   MutatorWithNamespace as unsafe_MutatorWithNamespace,
 } from "./mutators.js";
 export { Realm as unsafe_Realm } from "./realm.js";
+export { getScopeViews, hasScopeConditions, registerScopeViewAxis } from "./scope-views.js";
+export type { ScopeView, ScopeViewAxis } from "./scope-views.js";

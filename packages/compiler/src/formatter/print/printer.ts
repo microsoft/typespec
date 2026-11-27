@@ -63,6 +63,7 @@ import type {
   UnionVariantNode,
   UsingStatementNode,
   ValueOfExpressionNode,
+  WhenClauseNode,
 } from "../../core/types.js";
 import { NodeFlags, SyntaxKind } from "../../core/types.js";
 import type { FlattenedNamespaceStatementNode } from "../types.js";
@@ -376,6 +377,8 @@ export function printNode(
       return printConstStatement(path as AstPath<ConstStatementNode>, options, print);
     case SyntaxKind.CallExpression:
       return printCallExpression(path as AstPath<CallExpressionNode>, options, print);
+    case SyntaxKind.WhenClause:
+      return printWhenClauseNode(path as AstPath<WhenClauseNode>, options, print);
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -678,7 +681,31 @@ export function printDecorator(
     node.target.kind === SyntaxKind.Identifier
       ? printIdentifier(node.target, "allow-reserved")
       : path.call(print, "target");
-  return ["@", name, args];
+  return ["@", name, args, printWhenClause(path, print)];
+}
+
+/** Print the trailing `when` clause of a decorator, if any. */
+function printWhenClause(
+  path: AstPath<Node & { readonly when?: WhenClauseNode }>,
+  print: PrettierChildPrint,
+): Doc {
+  return path.node.when === undefined ? "" : [" ", path.call(print, "when")];
+}
+
+export function printWhenClauseNode(
+  path: AstPath<WhenClauseNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+): Doc {
+  const conditions = path.map(print, "conditions");
+  return group([
+    "when ",
+    indent(
+      conditions.flatMap((condition, i) =>
+        i === 0 ? [condition] : [line, `${path.node.operators?.[i - 1] ?? "|"} `, condition],
+      ),
+    ),
+  ]);
 }
 
 export function printAugmentDecorator(
@@ -692,7 +719,7 @@ export function printAugmentDecorator(
       ? printIdentifier(node.target, "allow-reserved")
       : path.call(print, "target");
   const args = printAugmentDecoratorArgs(path, options, print);
-  return ["@@", target, args, ";"];
+  return ["@@", target, args, printWhenClause(path, print), ";"];
 }
 
 function printAugmentDecoratorArgs(
@@ -847,6 +874,7 @@ export function printEnumStatement(
     printModifiers(path, options, print),
     "enum",
     id,
+    printWhenClause(path, print),
     " ",
     printEnumBlock(path, options, print),
   ];
@@ -877,7 +905,7 @@ export function printEnumMember(
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
   });
-  return [decorators, id, value];
+  return [decorators, id, value, printWhenClause(path, print)];
 }
 
 function printEnumSpreadMember(
@@ -906,6 +934,7 @@ export function printUnionStatement(
     "union",
     id,
     generic,
+    printWhenClause(path, print),
     heritage,
     " ",
     printUnionVariantsBlock(path, options, print),
@@ -940,7 +969,7 @@ export function printUnionVariant(
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
-  return [decorators, id, path.call(print, "value")];
+  return [decorators, id, path.call(print, "value"), printWhenClause(path, print)];
 }
 
 export function printInterfaceStatement(
@@ -959,6 +988,7 @@ export function printInterfaceStatement(
     "interface ",
     id,
     generic,
+    printWhenClause(path, print),
     extendList,
     " ",
     printInterfaceMembers(path, options, print),
@@ -1281,6 +1311,7 @@ export function printModelStatement(
     "model",
     id,
     generic,
+    printWhenClause(path, print),
     heritage,
     isBase,
     body,
@@ -1431,6 +1462,7 @@ export function printModelProperty(
     node.optional ? "?: " : ": ",
     path.call(print, "value"),
     node.default ? [" = ", path.call(print, "default")] : "",
+    printWhenClause(path, print),
   ];
 }
 
@@ -1480,6 +1512,7 @@ function printScalarStatement(
     "scalar",
     id,
     template,
+    printWhenClause(path, print),
     heritage,
     members,
   ];
@@ -1584,6 +1617,7 @@ export function printOperationStatement(
     path.call(print, "id"),
     templateParams,
     path.call(print, "signature"),
+    printWhenClause(path, print),
     `;`,
   ];
 }

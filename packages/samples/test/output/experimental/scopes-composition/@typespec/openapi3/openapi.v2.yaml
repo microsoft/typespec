@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: v2
+tags: []
+paths:
+  /:
+    get:
+      operationId: getWidget
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: expand
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Clients:
+      type: string
+      enum:
+        - csharp
+        - provisioning
+        - python
+    Preferences:
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+    Versions:
+      type: string
+      enum:
+        - v1
+        - v2
+    Widget:
+      type: object
+      required:
+        - id
+        - preferences
+      properties:
+        id:
+          type: string
+          readOnly: true
+        value:
+          type: string
+        preferences:
+          $ref: '#/components/schemas/Preferences'

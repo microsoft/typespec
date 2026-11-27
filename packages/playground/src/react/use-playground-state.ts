@@ -218,7 +218,9 @@ export function usePlaygroundState({
         const updates: Partial<PlaygroundState> = { content: config.content };
         // Samples are authored with structured emitter/options — convert them into the
         // raw tspconfig.yaml which is the playground's source of truth.
-        if (config.preferredEmitter || config.compilerOptions) {
+        if (config.tspconfig !== undefined) {
+          updates.tspconfig = config.tspconfig;
+        } else if (config.preferredEmitter || config.compilerOptions) {
           updates.tspconfig = compilerOptionsToTspConfig(
             config.preferredEmitter ?? "",
             config.compilerOptions ?? {},

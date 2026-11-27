@@ -1,6 +1,7 @@
 import { NodeHost, resolveCompilerOptions, type CompilerOptions } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
+import { parseDocument } from "yaml";
 import { loadSampleCatalog } from "./sample-config.js";
 
 export interface BuildPlaygroundSamplesOptions {
@@ -24,6 +25,7 @@ export interface PlaygroundSampleData {
   description: string;
   category?: string;
   compilerOptions?: CompilerOptions;
+  tspconfig?: string;
 }
 
 /**
@@ -67,6 +69,17 @@ export async function buildPlaygroundSamples(
     const compilerOptions = resolvedOptions.linterRuleSet
       ? { linterRuleSet: resolvedOptions.linterRuleSet }
       : undefined;
+    let tspconfig: string | undefined;
+    try {
+      const doc = parseDocument(
+        await readFile(resolve(entry.directory, "tspconfig.yaml"), "utf-8"),
+      );
+      if (!doc.has("emit")) doc.set("emit", [preferredEmitter]);
+      tspconfig = doc.toString();
+    } catch (error) {
+      if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT"))
+        throw error;
+    }
 
     samples[entry.config.title] = {
       filename: toPosix(relative(resolve(options.relativeTo), mainFile)),
@@ -75,6 +88,7 @@ export async function buildPlaygroundSamples(
       description: entry.config.description,
       category: entry.category?.label,
       ...(compilerOptions ? { compilerOptions } : {}),
+      ...(tspconfig ? { tspconfig } : {}),
     };
   }
 
