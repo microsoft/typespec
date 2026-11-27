@@ -3,12 +3,18 @@ import * as ts from "@alloy-js/typescript";
 import { type Children, type Refkey, code, refkey } from "@alloy-js/core";
 import type { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import {
+  getRecordTransformRefkey,
+  getSerializerTransformFunctionPrefix,
+  type SerializerTransformKind,
+} from "../../../utils/serializer-transform.js";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonRecordTransformProps {
   itemRef: Refkey | Children;
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonRecordTransform(props: JsonRecordTransformProps) {
@@ -18,6 +24,8 @@ export function JsonRecordTransform(props: JsonRecordTransformProps) {
   }
 
   const elementType = $.record.getElementType(props.type);
+  const serializationMediaType =
+    props.serializerKind === "form_urlencoded" ? "application/x-www-form-urlencoded" : undefined;
 
   // TODO: Do we need to cast?
   return code`
@@ -28,7 +36,14 @@ export function JsonRecordTransform(props: JsonRecordTransformProps) {
     const _transformedRecord: any = {};
 
     for (const [key, value] of Object.entries(${props.itemRef} ?? {})) {
-      const transformedItem = ${(<JsonTransform type={elementType} target={props.target} itemRef="value as any" />)};
+      const transformedItem = ${(
+        <JsonTransform
+          type={elementType}
+          target={props.target}
+          itemRef="value as any"
+          serializationMediaType={serializationMediaType}
+        />
+      )};
       _transformedRecord[key] = transformedItem;
     }
 
@@ -39,13 +54,15 @@ export function JsonRecordTransform(props: JsonRecordTransformProps) {
 export function getJsonRecordTransformRefkey(
   type: Model,
   target: "transport" | "application",
+  kind: SerializerTransformKind = "json",
 ): Refkey {
-  return refkey(type, "json_record_transform", target);
+  return getRecordTransformRefkey(type, target, kind);
 }
 
 export interface JsonRecordTransformDeclarationProps {
   type: Model;
   target: "transport" | "application";
+  serializerKind?: SerializerTransformKind;
 }
 
 export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclarationProps) {
@@ -54,13 +71,14 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
     return null;
   }
 
+  const serializerKind = props.serializerKind ?? "json";
   const elementType = $.record.getElementType(props.type);
   const elementName =
     "name" in elementType && typeof elementType.name === "string" ? elementType.name : "element";
 
   const namePolicy = ts.useTSNamePolicy();
   const transformName = namePolicy.getName(
-    `json_Record_${elementName}_to_${props.target}_transform`,
+    `${getSerializerTransformFunctionPrefix(serializerKind)}_Record_${elementName}_to_${props.target}_transform`,
     "function",
   );
 
@@ -73,7 +91,7 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
     { name: "items_", type: inputType, refkey: inputRef, optional: true },
   ];
 
-  const declarationRefkey = getJsonRecordTransformRefkey(props.type, props.target);
+  const declarationRefkey = getJsonRecordTransformRefkey(props.type, props.target, serializerKind);
   return (
     <ts.FunctionDeclaration
       name={transformName}
@@ -82,7 +100,7 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
       parameters={parameters}
       refkey={declarationRefkey}
     >
-      <JsonRecordTransform {...props} itemRef={inputRef} />
+      <JsonRecordTransform {...props} itemRef={inputRef} serializerKind={serializerKind} />
     </ts.FunctionDeclaration>
   );
 }
