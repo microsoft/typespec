@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -71,6 +72,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
             EnclosingType = enclosingType;
             Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
+        }
+
+        internal static IEqualityComparer<ConstructorProvider> SignatureComparer { get; } = new ConstructorSignatureComparer();
+
+        internal static bool MatchesCustomization(ConstructorProvider custom, ConstructorProvider generated)
+            => HasSameSignature(custom, generated, allowUnqualifiedTypes: true);
+
+        private static bool HasSameSignature(ConstructorProvider first, ConstructorProvider second, bool allowUnqualifiedTypes = false)
+            => first.Signature.Name == second.Signature.Name &&
+                first.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) == second.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                first.Signature.Parameters.Count == second.Signature.Parameters.Count &&
+                first.Signature.Parameters.Zip(second.Signature.Parameters).All(parameters =>
+                    parameters.First.Type.HasSameSignatureType(parameters.Second.Type, allowUnqualifiedTypes) &&
+                    IsByReference(parameters.First) == IsByReference(parameters.Second));
+
+        private static bool IsByReference(ParameterProvider parameter)
+            => parameter.IsRef || parameter.IsIn || parameter.IsOut || parameter.HasUnsupportedParameterModifiers;
+
+        private sealed class ConstructorSignatureComparer : IEqualityComparer<ConstructorProvider>
+        {
+            public bool Equals(ConstructorProvider? x, ConstructorProvider? y)
+                => ReferenceEquals(x, y) || (x is not null && y is not null && HasSameSignature(x, y));
+
+            public int GetHashCode(ConstructorProvider constructor)
+                => System.HashCode.Combine(constructor.Signature.Name, constructor.Signature.Parameters.Count,
+                    constructor.Signature.Modifiers & MethodSignatureModifiers.Static);
         }
 
         public void Update(

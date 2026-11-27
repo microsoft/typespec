@@ -498,6 +498,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task CustomizedConstructorReplacesNestedServiceVersionConstructor()
+        {
+            string[] apiVersions = ["2023-10-01-preview-1", "2023-11-01", "2024-01-01"];
+            var inputEnum = InputFactory.StringEnum("ServiceVersion", apiVersions.Select(version => (version, version)),
+                access: string.Empty, usage: InputModelTypeUsage.ApiVersionEnum, clientNamespace: "SampleNamespace");
+            var inputClient = InputFactory.Client("RawClient", clientNamespace: "SampleNamespace");
+            Compilation? customCompilation = null;
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                clients: () => [inputClient],
+                compilation: async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync(method: "CustomizedPublicConstructorKeepsNestedServiceVersionPublic"));
+            var options = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>()
+                .Single(provider => provider.Name == "RawClient").ClientOptions!;
+
+            Assert.That(options.GeneratedConstructors.Any(c => c.Signature.Parameters.Any(p => p.Type.Name == "ServiceVersion")), Is.True);
+            Assert.That(options.Constructors.Any(c => c.Signature.Parameters.Any(p => p.Type.Name == "ServiceVersion")), Is.False);
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var generatedCode = new TypeProviderWriter(options).Write().Content;
+            Assert.That(generatedCode, Is.EqualTo(Helpers.GetExpectedFromFile()));
+            var trees = customCompilation!.SyntaxTrees.Where(tree =>
+                System.IO.Path.GetFileName(tree.FilePath) is "TestClientOptions.cs" or "CodeGenTypeAttribute.cs")
+                .Append(CSharpSyntaxTree.ParseText(generatedCode));
+            var compilation = CSharpCompilation.Create("CustomizedOptions", trees, references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        [Test]
         public void SingletonCreatedForMultipleClientsWithStandardParameters()
         {
             var client1 = InputFactory.Client("ClientA", clientNamespace: "TestNamespace");

@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [];
             }
 
-            if (_model.Constructors.Any(c => c.Signature.Parameters.Count == 0))
+            if (_model.GeneratedConstructors.Any(c => c.Signature.Parameters.Count == 0))
             {
                 return [];
             }

@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 var constructors = new List<ConstructorProvider>();
-                foreach (var constructorProvider in typeProvider.Constructors)
+                foreach (var constructorProvider in typeProvider.GeneratedConstructors)
                 {
                     var constructor = VisitConstructor(constructorProvider);
                     if (constructor != null)

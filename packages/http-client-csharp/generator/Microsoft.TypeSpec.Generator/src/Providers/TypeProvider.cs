@@ -339,8 +339,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
+        private protected virtual TypeProvider? ConstructorSource => null;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= ApplyCustomizationFilter(BuildConstructors());
+        /// <summary>
+        /// Gets the generated constructors before customization filtering, for visitor transformations.
+        /// </summary>
+        public IReadOnlyList<ConstructorProvider> GeneratedConstructors
+            => _constructors ?? (ConstructorSource is { } source ? source.GeneratedConstructors : (_constructors = BuildConstructors()));
+
+        /// <summary>
+        /// Gets generated constructors that are not replaced or suppressed by custom code.
+        /// </summary>
+        public IReadOnlyList<ConstructorProvider> Constructors => ConstructorSource is { } source
+            ? _constructors ?? source.GetEffectiveDeclaredConstructors()
+            : ApplyCustomizationFilter(GeneratedConstructors);
+
+        internal IReadOnlyList<ConstructorProvider> GetEffectiveDeclaredConstructors() => FilterCustomizedMembers
+            ? [.. Constructors, .. CustomCodeView?.Constructors ?? []]
+            : Constructors;
+
+        internal IEnumerable<TypeProvider> GetSerializationPartials()
+            => SerializationProviders.Where(serialization => Type.HasSameSignatureType(serialization.Type));
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= ApplyCustomizationFilter(BuildFields());
@@ -920,7 +939,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (constructors != null)
             {
-                _constructors = ApplyCustomizationFilter(constructors);
+                _constructors = [.. constructors];
             }
             if (implements != null)
             {
@@ -1015,7 +1034,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // to transform members (e.g., merging parameters). This ensures visitors see the
             // full set of members before customization filtering is applied.
             _methods ??= BuildMethods();
-            _constructors ??= BuildConstructors();
+            _ = GeneratedConstructors;
             _properties ??= BuildProperties();
             _fields ??= BuildFields();
             _ = Implements;
@@ -1337,7 +1356,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customConstructors = constructor.EnclosingType.CustomCodeView?.Constructors ?? [];
             foreach (var customConstructor in customConstructors)
             {
-                if (MethodSignatureBase.SignatureComparer.Equals(customConstructor.Signature, constructor.Signature))
+                if (ConstructorProvider.MatchesCustomization(customConstructor, constructor))
                 {
                     return false;
                 }

@@ -123,10 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        protected internal override ConstructorProvider[] BuildConstructors()
-        {
-            return [.. FilterCustomizedConstructors(_generatedTypeProvider.Constructors), .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
-        }
+        private protected override TypeProvider ConstructorSource => _generatedTypeProvider;
 
         protected internal override MethodProvider[] BuildMethods()
         {
