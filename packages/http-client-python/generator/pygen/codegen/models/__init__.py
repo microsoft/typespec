@@ -173,7 +173,7 @@ def build_type(yaml_data: dict[str, Any], code_model: CodeModel) -> BaseType:
             not code_model.options["models-mode"] and not code_model.generate_typeddict_only
         ):
             model_type = JSONModelType
-        elif yaml_data["base"] == "dpg":
+        elif yaml_data["base"] == "dpg" and code_model.options["models-mode"] != "msrest":
             model_type = DPGModelType  # type: ignore
         else:
             model_type = MsrestModelType  # type: ignore

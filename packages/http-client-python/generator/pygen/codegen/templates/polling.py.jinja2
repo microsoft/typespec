@@ -1,0 +1,194 @@
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+"""Pollers exposing selected status-monitor metadata and operation identity."""
+
+import logging
+import re
+from typing import Any, Callable, Mapping, Optional, TypeVar
+from urllib.parse import unquote, urlsplit
+
+from azure.core.polling import LROPoller
+{% if not code_model.options.get("no-async") %}
+from azure.core.polling import AsyncLROPoller
+{% endif %}
+{% if code_model.options["azure-arm"] %}
+from azure.mgmt.core.polling.arm_polling import ARMPolling
+{% if not code_model.options.get("no-async") %}
+from azure.mgmt.core.polling.async_arm_polling import AsyncARMPolling
+{% endif %}
+{% else %}
+from azure.core.polling.base_polling import LROBasePolling
+{% if not code_model.options.get("no-async") %}
+from azure.core.polling.async_base_polling import AsyncLROBasePolling
+{% endif %}
+{% endif %}
+
+__all__ = ["MetadataLROPoller"{% if not code_model.options.get("no-async") %}, "AsyncMetadataLROPoller"{% endif %}]
+
+T = TypeVar("T")
+_MISSING = object()
+_LOGGER = logging.getLogger(__name__)
+
+
+def _read_property(body: Any, path: list[str]) -> Any:
+    for segment in path:
+        if isinstance(body, dict):
+            body = body.get(segment, _MISSING)
+        else:
+            body = getattr(body, segment, _MISSING)
+        if body is _MISSING or body is None:
+            return _MISSING
+    return body
+
+
+class _LroMetadata:
+    def __init__(
+        self,
+        status_metadata: Mapping[str, list[str]],
+        *,
+        deserialize_monitor: Callable[[Any], Any],
+        operation_id_path: Optional[list[str]] = None,
+        operation_id_uri: Optional[dict[str, str]] = None,
+        initial_response_is_monitor: bool = False,
+    ) -> None:
+        self._status_metadata = status_metadata
+        self._deserialize_monitor = deserialize_monitor
+        self._operation_id_path = operation_id_path
+        self._operation_id_uri = operation_id_uri
+        self._initial_response_is_monitor = initial_response_is_monitor
+        self._snapshot: tuple[dict[str, Any], Optional[str]] = ({name: None for name in status_metadata}, None)
+        self._uri_id: Optional[str] = None
+        self.rehydrated = False
+
+    def initialize(self, response: Any) -> None:
+        if self._operation_id_uri:
+            source = self._operation_id_uri
+            try:
+                if source["location"] == "ResponseHeader":
+                    url = response.headers.get(source["property"])
+                elif source["location"] == "Self":
+                    url = response.json() if response.content else None
+                else:
+                    url = _read_property(response.json(), [source["property"]]) if response.content else None
+                if isinstance(url, str):
+                    match = re.search(source["pattern"], urlsplit(url).path)
+                    self._uri_id = unquote(match.group("operation_id")) if match else None
+            except Exception:  # pylint: disable=broad-exception-caught
+                _LOGGER.warning("Unable to extract the LRO operation ID from the polling URI.", exc_info=True)
+        if self._initial_response_is_monitor and not self.rehydrated:
+            self.update(response)
+
+    def update(self, response: Any) -> None:
+        if not self._status_metadata and not self._operation_id_path:
+            return
+        try:
+            body = response.json() if response.content else {}
+            monitor = self._deserialize_monitor(body)
+            details = {}
+            for name, path in self._status_metadata.items():
+                value = _read_property(monitor, path)
+                details[name] = None if value is _MISSING else value
+            body_id = _read_property(monitor, self._operation_id_path) if self._operation_id_path else None
+        except Exception:  # pylint: disable=broad-exception-caught
+            _LOGGER.warning("Unable to deserialize LRO status-monitor metadata.", exc_info=True)
+            return
+        self._snapshot = (details, body_id if isinstance(body_id, str) else None)
+
+    @property
+    def operation_id(self) -> Optional[str]:
+        body_id = self._snapshot[1]
+        return body_id if body_id is not None else self._uri_id
+
+    @property
+    def details(self) -> Mapping[str, Any]:
+        values, body_id = self._snapshot
+        details = values.copy()
+        operation_id = body_id if body_id is not None else self._uri_id
+        if operation_id is not None and "operation_id" not in self._status_metadata:
+            details["operation_id"] = operation_id
+        return details
+
+
+{% for async_mode in ([false] if code_model.options.get("no-async") else [false, true]) %}
+{% set prefix = "Async" if async_mode else "" %}
+class _{{ prefix }}MetadataPolling({{ prefix }}{{ "ARMPolling" if code_model.options["azure-arm"] else "LROBasePolling[T, Any, Any]" }}):
+    def __init__(self, *args: Any, lro_metadata: _LroMetadata, **kwargs: Any) -> None:
+        self._lro_metadata = lro_metadata
+        super().__init__(*args, **kwargs)
+
+    {{ "async " if async_mode else "" }}def update_status(self) -> None:
+        {{ "await " if async_mode else "" }}super().update_status()
+        self._lro_metadata.update(self._pipeline_response.http_response)
+
+
+class {{ prefix }}MetadataLROPoller({{ prefix }}LROPoller[T]):
+    """A poller with metadata from the latest received status-monitor response.
+
+    :param client: The pipeline client used for polling.
+    :type client: any
+    :param initial_response: The initial pipeline response.
+    :type initial_response: any
+    :param deserialization_callback: Callback for the final result.
+    :type deserialization_callback: callable
+    :param polling_method: The polling strategy.
+    :type polling_method: ~azure.core.polling.{{ prefix }}PollingMethod
+    :keyword lro_metadata: Generated metadata selection and deserializers.
+    :paramtype lro_metadata: any
+    """
+
+    def __init__(
+        self, client: Any, initial_response: Any, deserialization_callback: Any,
+        polling_method: Any, *, lro_metadata: _LroMetadata,
+    ) -> None:
+        self._lro_metadata = lro_metadata
+        lro_metadata.initialize(initial_response.http_response)
+        super().__init__(client, initial_response, deserialization_callback, polling_method)
+
+    @property
+    def details(self) -> Mapping[str, Any]:
+        """Selected metadata, decoded using the generated model types.
+
+        Absent selected values are None. Values are refreshed after each monitor response,
+        including failed or canceled responses. After resuming, the next poll
+        repopulates metadata; it is not stored separately in continuation tokens.
+
+        :rtype: Mapping[str, Any]
+        :return: The latest received selected metadata and operation ID, when available.
+        """
+        return self._lro_metadata.details
+
+    @property
+    def operation_id(self) -> Optional[str]:
+        """The selected server-issued ID, or None until it is available.
+
+        A received body ID takes precedence over the polling URI ID.
+        This value is never used as the polling URL.
+
+        :rtype: str or None
+        :return: The selected server-issued operation identifier.
+        """
+        return self._lro_metadata.operation_id
+
+    @classmethod
+    def from_continuation_token(
+        cls, polling_method: Any, continuation_token: str, **kwargs: Any,
+    ) -> "{{ prefix }}MetadataLROPoller[T]":
+        """Resume polling, repopulating metadata on the next monitor response.
+
+        :param polling_method: The polling strategy.
+        :type polling_method: ~azure.core.polling.{{ prefix }}PollingMethod
+        :param str continuation_token: The opaque continuation token.
+        :keyword dict[str, Any] ``**kwargs``: The ``client`` pipeline client,
+            ``deserialization_callback`` for the final result, and generated
+            ``lro_metadata`` selection and deserializers.
+        :rtype: ~{{ prefix }}MetadataLROPoller
+        :return: The resumed poller.
+        """
+        metadata = kwargs.pop("lro_metadata")
+        metadata.rehydrated = True
+        client, initial_response, callback = polling_method.from_continuation_token(continuation_token, **kwargs)
+        return cls(client, initial_response, callback, polling_method, lro_metadata=metadata)
+
+
+{% endfor %}

@@ -194,9 +194,9 @@ class GeneralSerializer(BaseSerializer):
         params |= kwargs
         return template.render(file_import=FileImport(self.code_model), **params)
 
-    def serialize_pkgutil_init_file(self) -> str:
+    def serialize_pkgutil_init_file(self, *, export_lro_metadata: bool = False, async_mode: bool = False) -> str:
         template = self.env.get_template("pkgutil_init.py.jinja2")
-        return template.render()
+        return template.render(export_lro_metadata=export_lro_metadata, async_mode=async_mode)
 
     def serialize_init_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("init.py.jinja2")

@@ -218,6 +218,12 @@ const libDef = {
         default: paramMessage`No valid LRO result for operation '${"operationId"}'.`,
       },
     },
+    "unsupported-lro-operation-id-template": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Cannot extract the LRO operation ID for operation '${"operationId"}' from URI template '${"template"}'.`,
+      },
+    },
     "invalid-continuation-token": {
       severity: "warning",
       messages: {

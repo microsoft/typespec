@@ -9,7 +9,11 @@ import { $onEmit } from "../src/emitter.js";
 import { $lib, type PythonEmitterOptions } from "../src/lib.js";
 
 const PythonTester = createTester(resolvePath(import.meta.dirname, "../.."), {
-  libraries: ["@azure-tools/typespec-client-generator-core", "@typespec/http"],
+  libraries: [
+    "@azure-tools/typespec-client-generator-core",
+    "@azure-tools/typespec-azure-core",
+    "@typespec/http",
+  ],
 });
 
 export const Tester = PythonTester;

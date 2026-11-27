@@ -196,10 +196,18 @@ class JinjaSerializer(ReaderAndWriter):
                     )
             else:
                 # add pkgutil init file if no clients in this namespace
+                export_lro_metadata = (
+                    self.code_model.is_top_namespace(client_namespace) and self.code_model.has_lro_metadata
+                )
                 self.write_file(
                     generation_path / Path("__init__.py"),
-                    general_serializer.serialize_pkgutil_init_file(),
+                    general_serializer.serialize_pkgutil_init_file(export_lro_metadata=export_lro_metadata),
                 )
+                if export_lro_metadata and self.has_aio_folder:
+                    self.write_file(
+                        generation_path / Path("aio/__init__.py"),
+                        general_serializer.serialize_pkgutil_init_file(export_lro_metadata=True, async_mode=True),
+                    )
 
             # _utils/py.typed/_unions.py/types.py/_validation.py
             # is always put in top level namespace
@@ -255,7 +263,11 @@ class JinjaSerializer(ReaderAndWriter):
             if not client_namespace_type.clients and client_namespace_type.operation_groups and self.has_aio_folder:
                 self.write_file(
                     generation_path / Path("aio/__init__.py"),
-                    general_serializer.serialize_pkgutil_init_file(),
+                    general_serializer.serialize_pkgutil_init_file(
+                        export_lro_metadata=self.code_model.is_top_namespace(client_namespace)
+                        and self.code_model.has_lro_metadata,
+                        async_mode=True,
+                    ),
                 )
 
     # path where README.md is
@@ -501,6 +513,11 @@ class JinjaSerializer(ReaderAndWriter):
         generation_dir = self.code_model.get_generation_dir(namespace)
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
         utils_folder_path = generation_dir / Path("_utils")
+        if namespace == self.code_model.namespace and self.code_model.has_lro_metadata:
+            self.write_file(
+                generation_dir / "_polling.py",
+                env.get_template("polling.py.jinja2").render(code_model=self.code_model),
+            )
         if self.code_model.need_utils_folder(async_mode=False, client_namespace=self.code_model.namespace):
             self.write_file(
                 utils_folder_path / Path("__init__.py"),
