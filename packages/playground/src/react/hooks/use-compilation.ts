@@ -4,6 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getMonacoRange, updateDiagnosticsForCodeFixes } from "../../services.js";
 import type { BrowserHost } from "../../types.js";
 import { compile } from "../compilation/compile.js";
+import {
+  emptyRetainedOutput,
+  readOutputSnapshot,
+  resolveDisplayedOutput,
+  type RetainedOutput,
+} from "../compilation/output-snapshot.js";
 import { debugGlobals } from "../debug.js";
 import type { CompilationState } from "../types.js";
 
@@ -31,11 +37,11 @@ export function useCompilation({
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
   const [isCompiling, setIsCompiling] = useState(false);
   const [isOutputStale, setIsOutputStale] = useState(false);
-  const lastSuccessfulOutputRef = useRef<string[]>([]);
+  const retainedOutputRef = useRef<RetainedOutput>(emptyRetainedOutput());
 
   // Clear preserved output when switching emitters
   useEffect(() => {
-    lastSuccessfulOutputRef.current = [];
+    retainedOutputRef.current = emptyRetainedOutput();
     setIsOutputStale(false);
   }, [selectedEmitter]);
 
@@ -69,6 +75,18 @@ export function useCompilation({
       }
       return;
     }
+    // Snapshot while this compile still holds the lock. The next compile clears
+    // tsp-output before emitting, so this is the last moment every emitted file
+    // is readable together.
+    let snapshot: ReadonlyMap<string, string> | undefined;
+    if ("program" in state && state.outputFiles.length > 0) {
+      try {
+        snapshot = await readOutputSnapshot(host, state.outputFiles);
+      } catch {
+        snapshot = undefined;
+      }
+    }
+
     isCompilingRef.current = false;
     setIsCompiling(false);
 
@@ -76,26 +94,12 @@ export function useCompilation({
     if (compileId !== compileIdRef.current) return;
 
     // When compilation has errors and produced no output files, preserve the
-    // previous successful output so the user doesn't lose their selected file
-    // while typing (transient syntax errors).
-    if (
-      "program" in state &&
-      state.program.hasError() &&
-      state.outputFiles.length === 0 &&
-      lastSuccessfulOutputRef.current.length > 0
-    ) {
-      setIsOutputStale(true);
-      setCompilationState({
-        ...state,
-        outputFiles: lastSuccessfulOutputRef.current,
-      });
-    } else {
-      setIsOutputStale(false);
-      if ("program" in state && state.outputFiles.length > 0) {
-        lastSuccessfulOutputRef.current = state.outputFiles;
-      }
-      setCompilationState(state);
-    }
+    // previous successful output and its snapshotted file text so transient
+    // syntax errors don't leave multi-file output stale or blank.
+    const resolved = resolveDisplayedOutput(state, retainedOutputRef.current, snapshot);
+    retainedOutputRef.current = resolved.retained;
+    setIsOutputStale(resolved.isOutputStale);
+    setCompilationState(resolved.displayed);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
         ...getMonacoRange(typespecCompiler, diag.target),
