@@ -42,10 +42,14 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly Lazy<WorkspaceMetadataReferenceResolver> _metadataReferenceResolver = new(() => new WorkspaceMetadataReferenceResolver());
         private static Task<Project>? _cachedProject;
 
+        internal static GeneratedCodeWorkspacePostProcessingProfile? PostProcessingProfile { get; set; }
+
         private static readonly string[] _generatedFolders = [GeneratedFolder];
         private static readonly string[] _sharedFolders = [SharedFolder];
 
         private Project _project;
+        private readonly bool _structuralMode = ProviderNameReducer.IsStructuralEnabled;
+        private readonly Dictionary<DocumentId, IReadOnlyList<TypeReferenceSite>>? _typeReferences = ProviderNameReducer.IsEnabled ? new() : null;
         private Dictionary<string, string> PlainFiles { get; }
 
         private GeneratedCodeWorkspace(Project generatedCodeProject)
@@ -79,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator
         public async Task AddGeneratedFile(CodeFile codefile)
         {
             var document = _project.AddDocument(codefile.Name, codefile.Content, _generatedFolders);
-            await UpdateProject(document);
+            await UpdateProject(document, codefile.TypeReferences);
         }
 
         public async Task AddInMemoryFile(TypeProvider type)
@@ -88,11 +92,21 @@ namespace Microsoft.TypeSpec.Generator
             await UpdateProject(document);
         }
 
-        private async Task UpdateProject(Document document)
+        private async Task UpdateProject(Document document, IReadOnlyList<TypeReferenceSite>? typeReferences = null)
         {
+            if (_typeReferences != null)
+            {
+                if (typeReferences != null)
+                {
+                    _typeReferences.Add(document.Id, typeReferences);
+                }
+                // Preserve writer offsets and original source text. The candidate
+                // validates metadata at planning time; it needs no AST annotations.
+                _project = document.Project;
+                return;
+            }
             var root = await document.GetSyntaxRootAsync();
             Debug.Assert(root != null);
-
             root = root.WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(root);
             _project = document.Project;
@@ -107,6 +121,26 @@ namespace Microsoft.TypeSpec.Generator
 
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
+            ProviderNameReducer? providerReducer = null;
+            StructuralTypeNameReducer? structuralReducer = null;
+            if ((_structuralMode || _typeReferences is { Count: > 0 } && _typeReferences.Values.Any(static references => references.Count > 0)) &&
+                CodeModelGenerator.Instance.Rewriters.Count == 0 &&
+                !CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
+            {
+                using var indexProfile = PostProcessingProfile?.StartStep(_structuralMode ? "StructuralTypeNames.BuildIndex" : "ProviderReducer.BuildIndex");
+                var compilation = await _project.GetCompilationAsync();
+                if (compilation != null)
+                {
+                    if (_structuralMode)
+                    {
+                        structuralReducer = new StructuralTypeNameReducer(compilation);
+                    }
+                    else
+                    {
+                        providerReducer = new ProviderNameReducer(compilation);
+                    }
+                }
+            }
             List<Task<Document>> documents = new List<Task<Document>>();
             var memberRemover = new MemberRemoverRewriter();
             foreach (Document document in _project.Documents)
@@ -116,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                documents.Add(ProcessDocument(document, memberRemover));
+                documents.Add(ProcessDocument(document, memberRemover, providerReducer, structuralReducer));
             }
             var docs = await Task.WhenAll(documents);
 
@@ -134,20 +168,82 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private async Task<Document> ProcessDocument(Document document, MemberRemoverRewriter memberRemover)
+        private async Task<Document> ProcessDocument(Document document, MemberRemoverRewriter memberRemover, ProviderNameReducer? providerReducer, StructuralTypeNameReducer? structuralReducer)
         {
-            var root = await document.GetSyntaxRootAsync();
-            var semanticModel = await document.GetSemanticModelAsync();
+            using var totalProfile = PostProcessingProfile?.StartStep("ProcessDocument.Total");
+            SyntaxNode? root;
+            using (PostProcessingProfile?.StartStep("GetSyntaxRootAsync"))
+            {
+                root = await document.GetSyntaxRootAsync();
+            }
+
+            // Candidate mode never delegates uncertainty to Roslyn's simplifier.
+            // Without a custom rewriter, even opaque documents need no semantic model.
+            var useProviderReducer = _typeReferences != null;
+            if (root != null && useProviderReducer && CodeModelGenerator.Instance.Rewriters.Count == 0)
+            {
+                var originalRoot = root;
+                var traversal = memberRemover;
+                if (_structuralMode && structuralReducer != null)
+                {
+                    var structuralReferences = _typeReferences!.TryGetValue(document.Id, out var recorded)
+                        ? recorded : Array.Empty<TypeReferenceSite>();
+                    traversal = structuralReducer.CreateRewriter(root, structuralReferences) ?? memberRemover;
+                }
+                using (PostProcessingProfile?.StartStep("MemberRemoverRewriter"))
+                {
+                    using var structuralProfile = !ReferenceEquals(traversal, memberRemover) ? PostProcessingProfile?.StartStep("StructuralTypeNames.Visit") : null;
+                    root = traversal.Visit(root);
+                }
+                if (_structuralMode)
+                {
+                    if (ReferenceEquals(root, originalRoot))
+                    {
+                        PostProcessingProfile?.Add("StructuralTypeNames.KeepQualified", TimeSpan.Zero, 0);
+                    }
+
+                    return ReferenceEquals(root, originalRoot) ? document : document.WithSyntaxRoot(root);
+                }
+                if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
+                {
+                    ProviderNameReducer.PrefixPlan? plan = null;
+                    // Never apply original writer spans to a changed root. The current
+                    // remover only prunes empty namespaces, so this is normally a no-op.
+                    if (ReferenceEquals(root, originalRoot) && providerReducer != null &&
+                        _typeReferences!.TryGetValue(document.Id, out var references))
+                    {
+                        using var scopeProfile = PostProcessingProfile?.StartStep("ProviderReducer.Scope");
+                        providerReducer.TryPlan(root, references, out plan);
+                    }
+                    if (plan != null)
+                    {
+                        using var reduceProfile = PostProcessingProfile?.StartStep("ProviderReducer.Reduce");
+                        return document.WithText(plan.Apply());
+                    }
+                    PostProcessingProfile?.Add("ProviderReducer.KeepQualified", TimeSpan.Zero, 0);
+                }
+                return ReferenceEquals(root, originalRoot) ? document : document.WithSyntaxRoot(root);
+            }
+
+            SemanticModel? semanticModel;
+            using (PostProcessingProfile?.StartStep("GetSemanticModelAsync"))
+            {
+                semanticModel = await document.GetSemanticModelAsync();
+            }
 
             if (semanticModel == null || root == null)
             {
                 return document;
             }
 
-            root = memberRemover.Visit(root);
+            using (PostProcessingProfile?.StartStep("MemberRemoverRewriter"))
+            {
+                root = memberRemover.Visit(root);
+            }
 
             foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
             {
+                using var rewriterProfile = PostProcessingProfile?.StartStep($"CustomRewriter.{rewriter.GetType().Name}");
                 rewriter.SemanticModel = semanticModel;
                 root = rewriter.Visit(root);
             }
@@ -155,12 +251,23 @@ namespace Microsoft.TypeSpec.Generator
 
             if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
             {
-                document = await Simplifier.ReduceAsync(document);
+                if (useProviderReducer)
+                {
+                    // Custom rewriters may invalidate recorded references. Preserve their
+                    // output and formatting contract without another semantic reduction pass.
+                    PostProcessingProfile?.Add(_structuralMode ? "StructuralTypeNames.KeepQualified" : "ProviderReducer.KeepQualified", TimeSpan.Zero, 0);
+                }
+                else
+                {
+                    using var reduceProfile = PostProcessingProfile?.StartStep("Roslyn.Simplifier.ReduceAsync");
+                    document = await Simplifier.ReduceAsync(document);
+                }
             }
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
             {
+                using var formatProfile = PostProcessingProfile?.StartStep("Formatter.FormatAsync");
                 document = await Formatter.FormatAsync(document);
             }
             return document;

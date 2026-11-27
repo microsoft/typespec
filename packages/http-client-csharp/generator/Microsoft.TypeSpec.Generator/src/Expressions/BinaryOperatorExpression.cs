@@ -8,12 +8,17 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         internal override void Write(CodeWriter writer)
         {
             writer.AppendRawIf("(", AddParentheses);
+            WriteUnparenthesized(writer);
+            writer.AppendRawIf(")", AddParentheses);
+        }
+
+        internal void WriteUnparenthesized(CodeWriter writer)
+        {
             Left.Write(writer);
             writer.AppendRawIf(" ", !Left.IsEmptyExpression());
             writer.AppendRaw(Operator);
             writer.AppendRawIf(" ", !Right.IsEmptyExpression());
             Right.Write(writer);
-            writer.AppendRawIf(")", AddParentheses);
         }
     }
 }
