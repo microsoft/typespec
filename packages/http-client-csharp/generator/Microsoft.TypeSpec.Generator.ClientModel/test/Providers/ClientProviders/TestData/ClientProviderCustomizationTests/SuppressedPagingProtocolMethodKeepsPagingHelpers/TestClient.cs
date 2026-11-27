@@ -13,6 +13,6 @@ namespace Sample
     {
         // Custom code that references the generated paging helper to ensure it continues to be generated.
         public virtual CollectionResult GetItemsCustom(RequestOptions options)
-            => new TestClientGetItemsCollectionResult(this, options);
+            => new GetItemsCollectionResult(this, options);
     }
 }

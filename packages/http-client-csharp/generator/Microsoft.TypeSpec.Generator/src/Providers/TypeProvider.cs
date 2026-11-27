@@ -371,6 +371,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
 
+        /// <summary>
+        /// Whether the declaring type retains this nested type even without references to it.
+        /// Override to allow unreferenced nested implementation helpers to be removed.
+        /// </summary>
+        protected internal virtual bool IsRootedByDeclaringType => true;
+
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProvidersInternal();
@@ -837,6 +843,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public virtual void Reset()
         {
+            _specView = new(BuildSpecView);
             _methods = null;
             _properties = null;
             _generatedPropertiesBySpecName.Clear();

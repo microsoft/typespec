@@ -20,10 +20,10 @@ namespace Microsoft.TypeSpec.Generator
         {
             var generatedProviders = GetGeneratedProviders(providers);
             var serializationProviderNamesByType = GetSerializationProviderNamesByType(generatedProviders);
-            foreach (var (provider, isSerializationProvider) in GetBodyReferenceProviders(providers))
+            foreach (var provider in generatedProviders)
             {
                 if (IsModelFactoryProvider(provider) ||
-                    !IsGeneratedBodyReferenceCandidate(provider, isSerializationProvider))
+                    !IsGeneratedBodyReferenceCandidate(provider, provider.SerializationProviderOwner != null))
                 {
                     continue;
                 }
@@ -363,21 +363,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AddProviderBodyDependencyType(references, argument, nodes, includeSimpleNameReferences, includeUnqualifiedSimpleNameReferences);
             }
-        }
-
-        private static IReadOnlyList<(TypeProvider Provider, bool IsSerializationProvider)> GetBodyReferenceProviders(IReadOnlyList<TypeProvider> providers)
-        {
-            var bodyReferenceProviders = new List<(TypeProvider Provider, bool IsSerializationProvider)>();
-            foreach (var provider in providers)
-            {
-                bodyReferenceProviders.Add((provider, false));
-                foreach (var serializationProvider in provider.SerializationProviders)
-                {
-                    bodyReferenceProviders.Add((serializationProvider, true));
-                }
-            }
-
-            return bodyReferenceProviders;
         }
 
         private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider, bool isSerializationProvider)

@@ -14,22 +14,22 @@ namespace Sample
     {
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, string token, bool? filter, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, token, filter, options);
+            return new global::Sample.TestClient.GetItemsCollectionResult(this, maxPageSize, token, filter, options);
         }
 
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, string token, bool? filter, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, token, filter, options);
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResult(this, maxPageSize, token, filter, options);
         }
 
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize = default, string token = default, bool? filter = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, token, filter, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClient.GetItemsCollectionResultOfT(this, maxPageSize, token, filter, cancellationToken.ToRequestOptions());
         }
 
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize = default, string token = default, bool? filter = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, token, filter, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResultOfT(this, maxPageSize, token, filter, cancellationToken.ToRequestOptions());
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]

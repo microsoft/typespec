@@ -103,6 +103,28 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void VisitsNestedTypeMembers()
+        {
+            var nestedType = new Mock<TypeProvider> { CallBase = true };
+            var method = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.ThrowExpression(Snippet.Null), nestedType.Object);
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(TestTypeProvider), $"", MethodSignatureModifiers.Public, []),
+                Snippet.ThrowExpression(Snippet.Null), nestedType.Object);
+            nestedType.Protected().Setup<MethodProvider[]>("BuildMethods").Returns([method]);
+            nestedType.Protected().Setup<ConstructorProvider[]>("BuildConstructors").Returns([constructor]);
+            _mockTypeProvider.Protected().Setup<TypeProvider[]>("BuildNestedTypes").Returns([nestedType.Object]);
+
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), nestedType.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Once(), method);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("VisitConstructor", Times.Once(), constructor);
+            _mockVisitor.Protected().Verify<TypeProvider>("PostVisitType", Times.Once(), nestedType.Object);
+        }
+
+        [Test]
         public void VisitsSerializationProviderMembers()
         {
             var mockSerializationProvider = new Mock<TypeProvider>() { CallBase = true };
@@ -122,6 +144,71 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), mockSerializationProvider.Object);
             _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Once(), mockMethodProvider.Object);
+        }
+
+        [TestCase("TopLevel")]
+        [TestCase("Nested")]
+        [TestCase("Serialization")]
+        public void VisitsReplacementProviderMembers(string location)
+        {
+            var original = new Mock<TypeProvider> { CallBase = true };
+            var replacement = new Mock<TypeProvider> { CallBase = true };
+            var nested = new Mock<TypeProvider> { CallBase = true };
+            var serialization = new Mock<TypeProvider> { CallBase = true };
+            var originalMethod = new MethodProvider(
+                new MethodSignature("Original", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.ThrowExpression(Snippet.Null), original.Object);
+            var method = new MethodProvider(
+                new MethodSignature("Replacement", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.ThrowExpression(Snippet.Null), replacement.Object);
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(TestTypeProvider), $"", MethodSignatureModifiers.Public, []),
+                Snippet.ThrowExpression(Snippet.Null), replacement.Object);
+            var property = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
+                "Name", new AutoPropertyBody(true), replacement.Object);
+            var field = new FieldProvider(FieldModifiers.Private, typeof(string), "_name", replacement.Object);
+            original.Protected().Setup<MethodProvider[]>("BuildMethods").Returns([originalMethod]);
+            replacement.Protected().Setup<MethodProvider[]>("BuildMethods").Returns([method]);
+            replacement.Protected().Setup<ConstructorProvider[]>("BuildConstructors").Returns([constructor]);
+            replacement.Protected().Setup<PropertyProvider[]>("BuildProperties").Returns([property]);
+            replacement.Protected().Setup<FieldProvider[]>("BuildFields").Returns([field]);
+            replacement.Protected().Setup<TypeProvider[]>("BuildNestedTypes").Returns([nested.Object]);
+            replacement.Protected().Setup<TypeProvider[]>("BuildSerializationProviders").Returns([serialization.Object]);
+            _mockVisitor.Protected().Setup<TypeProvider?>("VisitType", original.Object).Returns(replacement.Object);
+
+            if (location == "TopLevel")
+            {
+                _mockGenerator.Object.OutputLibrary.TypeProviders = [original.Object];
+            }
+            else
+            {
+                _mockTypeProvider.Protected().Setup<TypeProvider[]>(
+                    location == "Nested" ? "BuildNestedTypes" : "BuildSerializationProviders").Returns([original.Object]);
+            }
+
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
+
+            var result = location switch
+            {
+                "Nested" => _mockTypeProvider.Object.NestedTypes.Single(),
+                "Serialization" => _mockTypeProvider.Object.SerializationProviders.Single(),
+                _ => _mockGenerator.Object.OutputLibrary.TypeProviders.Single()
+            };
+            Assert.AreSame(replacement.Object, result);
+            CollectionAssert.AreEqual(new[] { method }, result.Methods);
+            CollectionAssert.AreEqual(new[] { constructor }, result.Constructors);
+            CollectionAssert.AreEqual(new[] { property }, result.Properties);
+            CollectionAssert.AreEqual(new[] { field }, result.Fields);
+            CollectionAssert.AreEqual(new[] { nested.Object }, result.NestedTypes);
+            CollectionAssert.AreEqual(new[] { serialization.Object }, result.SerializationProviders);
+            _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Once(), method);
+            _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Never(), originalMethod);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("VisitConstructor", Times.Once(), constructor);
+            _mockVisitor.Protected().Verify<PropertyProvider>("VisitProperty", Times.Once(), property);
+            _mockVisitor.Protected().Verify<FieldProvider>("VisitField", Times.Once(), field);
+            _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), nested.Object);
+            _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), serialization.Object);
+            _mockVisitor.Protected().Verify<TypeProvider>("PostVisitType", Times.Once(), replacement.Object);
         }
 
         [Test]

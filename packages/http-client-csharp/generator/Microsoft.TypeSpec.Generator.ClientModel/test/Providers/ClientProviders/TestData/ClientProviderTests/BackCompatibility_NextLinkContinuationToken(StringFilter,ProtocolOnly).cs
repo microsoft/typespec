@@ -11,12 +11,12 @@ namespace Sample
     {
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize = default, string token = default, string filter = default, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, token, filter, options);
+            return new global::Sample.TestClient.GetItemsCollectionResult(this, maxPageSize, token, filter, options);
         }
 
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize = default, string token = default, string filter = default, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, token, filter, options);
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResult(this, maxPageSize, token, filter, options);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]

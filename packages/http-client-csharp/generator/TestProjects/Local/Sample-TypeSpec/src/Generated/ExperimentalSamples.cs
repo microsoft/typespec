@@ -102,7 +102,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetAll(RequestOptions options)
         {
-            return new ExperimentalSamplesGetAllCollectionResult(this, options);
+            return new GetAllCollectionResult(this, options);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetAllAsync(RequestOptions options)
         {
-            return new ExperimentalSamplesGetAllAsyncCollectionResult(this, options);
+            return new GetAllAsyncCollectionResult(this, options);
         }
 
         /// <summary> GetAll. </summary>
@@ -127,7 +127,7 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public virtual CollectionResult<PreviewDetails> GetAll(CancellationToken cancellationToken = default)
         {
-            return new ExperimentalSamplesGetAllCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new GetAllCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
@@ -137,7 +137,7 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public virtual AsyncCollectionResult<PreviewDetails> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return new ExperimentalSamplesGetAllAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new GetAllAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }

@@ -9,13 +9,13 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class CatClientGetCatsCollectionResultOfT : global::System.ClientModel.CollectionResult<global::Sample.Models.Cat>
+    internal partial class GetCatsCollectionResultOfT : global::System.ClientModel.CollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
         private readonly string _animalKind;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResultOfT(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
+        public GetCatsCollectionResultOfT(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
             _animalKind = animalKind;

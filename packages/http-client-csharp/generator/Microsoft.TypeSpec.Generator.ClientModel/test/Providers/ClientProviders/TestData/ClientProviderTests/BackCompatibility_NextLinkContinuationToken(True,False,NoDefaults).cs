@@ -15,20 +15,20 @@ namespace Sample
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, string token, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, token, options);
+            return new global::Sample.TestClient.GetItemsCollectionResult(this, maxPageSize, token, options);
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, string token, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, token, options);
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResult(this, maxPageSize, token, options);
         }
 
 #pragma warning disable AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize, string token, global::System.Threading.CancellationToken cancellationToken)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, token, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClient.GetItemsCollectionResultOfT(this, maxPageSize, token, cancellationToken.ToRequestOptions());
         }
 #pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
 
@@ -36,28 +36,28 @@ namespace Sample
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize, string token, global::System.Threading.CancellationToken cancellationToken)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, token, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResultOfT(this, maxPageSize, token, cancellationToken.ToRequestOptions());
         }
 #pragma warning restore AZC0002 // Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.
 
         public virtual global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, default, options);
+            return new global::Sample.TestClient.GetItemsCollectionResult(this, maxPageSize, default, options);
         }
 
         public virtual global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, default, options);
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResult(this, maxPageSize, default, options);
         }
 
         public virtual global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, default, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClient.GetItemsCollectionResultOfT(this, maxPageSize, default, cancellationToken.ToRequestOptions());
         }
 
         public virtual global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, default, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClient.GetItemsAsyncCollectionResultOfT(this, maxPageSize, default, cancellationToken.ToRequestOptions());
         }
     }
 }
