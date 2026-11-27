@@ -23,6 +23,7 @@ import {
   isStatusCode,
 } from "../src/decorators.js";
 import { includeInapplicableMetadataInPayload } from "../src/private.decorators.js";
+import { getResponsesForOperation } from "../src/responses.js";
 import { Tester } from "./test-host.js";
 
 describe("emit diagnostic if passing arguments to verb decorators", () => {
@@ -576,8 +577,8 @@ describe("@statusCode", () => {
   });
 
   it("emits error if multiple properties are decorated with `@statusCode` in return type", async () => {
-    const diagnostics = await Tester.diagnose(
-      `
+    const [{ program, operation }, diagnostics] = await Tester.compileAndDiagnose(
+      t.code`
       model CreatedOrUpdatedResponse {
         @statusCode ok: "200";
         @statusCode created: "201";
@@ -588,10 +589,15 @@ describe("@statusCode", () => {
       model Key {
         key: string;
       }
-      @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
+      @put op ${t.op("operation")}(): CreatedOrUpdatedResponse & DateHeader & Key;
       `,
     );
-    expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    const expected = [{ code: "@typespec/http/multiple-status-codes" }];
+    expectDiagnostics(diagnostics, expected);
+
+    const [, responseDiagnostics] = getResponsesForOperation(program, operation);
+    expectDiagnostics(responseDiagnostics, expected);
+    expectDiagnostics(program.diagnostics, expected);
   });
 
   it("emits error if multiple `@statusCode` decorators are composed together", async () => {
