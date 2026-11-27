@@ -55,11 +55,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildXmlGetDateTimeOffsetMethodProvider(),
                 BuildXmlGetTimeSpanMethodProvider(),
                 BuildXmlGetBytesFromBase64MethodProvider(),
+                BuildXmlGetUtf8BytesMethodProvider(),
+                BuildToXmlOptionsMethodProvider(),
                 BuildXmlWriteStringValueDateTimeOffsetMethodProvider(),
                 BuildXmlWriteStringValueTimeSpanMethodProvider(),
                 BuildXmlWriteBase64StringValueMethodProvider(),
                 BuildXmlWriteObjectValueMethodProvider()
             ];
+        }
+
+        // Re-serializes a nested element, including inherited namespace declarations, so it can be read through ModelReaderWriter.
+        private MethodProvider BuildXmlGetUtf8BytesMethodProvider()
+        {
+            var signature = new MethodSignature(
+                Name: ModelSerializationExtensionsSnippets.GetUtf8BytesMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [_xElementParameter],
+                ReturnType: typeof(BinaryData),
+                Description: null,
+                ReturnDescription: null);
+
+            var element = _xElementParameter.As<XElement>();
+            var body = BinaryDataSnippets.FromString(
+                element.Invoke(nameof(XElement.ToString), FrameworkEnumValue(SaveOptions.DisableFormatting)));
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        // A model that also supports JSON reports "J" for the wire format. When an XML-only parent reads it with "W",
+        // its proxy-aware read must request XML explicitly while keeping the registered proxies.
+        private MethodProvider BuildToXmlOptionsMethodProvider()
+        {
+            var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions));
+            var signature = new MethodSignature(
+                Name: ModelSerializationExtensionsSnippets.ToXmlOptionsMethodName,
+                Modifiers: _methodModifiers,
+                Parameters: [optionsParameter],
+                ReturnType: typeof(ModelReaderWriterOptions),
+                Description: null,
+                ReturnDescription: null);
+
+            var options = optionsParameter.As<ModelReaderWriterOptions>();
+            var body = new MethodBodyStatement[]
+            {
+                new IfStatement(options.Format().Equal(ModelReaderWriterOptionsSnippets.XmlFormat))
+                {
+                    Return(options)
+                },
+                Declare("xmlOptions", typeof(ModelReaderWriterOptions), New.Instance(typeof(ModelReaderWriterOptions), ModelReaderWriterOptionsSnippets.XmlFormat), out var xmlOptions),
+                new ForEachStatement(typeof(ModelProxy), "proxy", options.Property(nameof(ModelReaderWriterOptions.Proxies)), false, out var proxy)
+                {
+                    xmlOptions.Property(nameof(ModelReaderWriterOptions.Proxies)).Invoke(nameof(IList<ModelProxy>.Add), proxy).Terminate()
+                },
+                Return(xmlOptions)
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildXmlGetDateTimeOffsetMethodProvider()

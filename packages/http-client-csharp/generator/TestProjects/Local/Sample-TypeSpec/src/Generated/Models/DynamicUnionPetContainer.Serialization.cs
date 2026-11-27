@@ -67,6 +67,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(dynamicUnionPetContainer, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DynamicUnionPetContainer"/> from. </param>
         public static explicit operator DynamicUnionPetContainer(ClientResult result)
         {
@@ -74,6 +81,20 @@ namespace SampleTypeSpec
             BinaryData data = response.Content;
             using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializeDynamicUnionPetContainer(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DynamicUnionPetContainer"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static DynamicUnionPetContainer FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<DynamicUnionPetContainer>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<DynamicUnionPetContainer>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            BinaryData data = response.Content;
+            using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeDynamicUnionPetContainer(document.RootElement, data, options);
         }
 
         /// <param name="writer"> The JSON writer. </param>

@@ -15,7 +15,7 @@ namespace _Type._Array
     {
         protected DurationValue() => throw null;
 
-        internal DurationValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal DurationValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

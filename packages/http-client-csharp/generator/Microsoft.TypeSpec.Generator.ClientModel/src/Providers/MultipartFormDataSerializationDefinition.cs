@@ -78,13 +78,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override MethodProvider[] BuildMethods()
         {
+            // Clients whose options carry model proxies pass their options so the proxies apply to the model parts.
+            var optionsParameter = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies
+                ? new ParameterProvider("options", $"The options used to write the model parts, including the registered model proxies.", typeof(ModelReaderWriterOptions))
+                : null;
+            var options = optionsParameter?.As<ModelReaderWriterOptions>() ?? ModelSerializationExtensionsSnippets.Wire;
             var signature = new MethodSignature(
                 ToMultipartFormContentMethodName,
                 FormattableStringHelpers.Empty,
                 MethodSignatureModifiers.Internal,
                 MultiPartFormContentSnippets.Type,
                 null,
-                []);
+                optionsParameter is null ? [] : [optionsParameter]);
 
             var statements = new List<MethodBodyStatement>
             {
@@ -108,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                statements.Add(ExperimentalApiHelpers.Suppress(BuildAddPartStatement(contentVar, prop),
+                statements.Add(ExperimentalApiHelpers.Suppress(BuildAddPartStatement(contentVar, prop, options),
                     ExperimentalApiHelpers.GetMemberSuppressions(prop)));
             }
 
@@ -119,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [new MethodProvider(signature, statements, this)];
         }
 
-        private static MethodBodyStatement BuildAddPartStatement(ScopedApi<MultiPartFormContent> contentVar, PropertyProvider prop)
+        private static MethodBodyStatement BuildAddPartStatement(ScopedApi<MultiPartFormContent> contentVar, PropertyProvider prop, ScopedApi<ModelReaderWriterOptions> options)
         {
             var wireInfo = prop.WireInfo!;
             var multipart = (wireInfo.SerializationOptions as ScmSerializationOptions)?.Multipart;
@@ -138,12 +143,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // RFC 7578 4.3: when the part opts into isMulti, the array is emitted as one part
                 // per element with the same field name.
                 (true, _) when multipart?.IsMulti == true
-                    => BuildMultiPartForEach(contentVar, prop, wireInfo.SerializedName, contentType, isFilePart),
+                    => BuildMultiPartForEach(contentVar, prop, wireInfo.SerializedName, contentType, isFilePart, options),
                 // Non-multi lists/arrays, and dictionaries (which have no RFC-defined multipart form),
                 // are emitted as a single part.
                 (true, _) or (false, true)
-                    => BuildSinglePartCollection(contentVar, prop, wireInfo.SerializedName, explicitContentType ?? defaultContentType),
-                _ => BuildScalarAdd(contentVar, wireInfo.SerializedName, prop, prop.Type, contentType, isFilePart),
+                    => BuildSinglePartCollection(contentVar, prop, wireInfo.SerializedName, explicitContentType ?? defaultContentType, options),
+                _ => BuildScalarAdd(contentVar, wireInfo.SerializedName, prop, prop.Type, contentType, isFilePart, options),
             };
 
             if (wireInfo.IsRequired && !wireInfo.IsNullable)
@@ -158,16 +163,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(isDefinedCondition) { addStatement };
         }
 
-        private static ForEachStatement BuildMultiPartForEach(ScopedApi<MultiPartFormContent> contentVar, PropertyProvider prop, string serializedName, string? contentType, bool isFilePart)
+        private static ForEachStatement BuildMultiPartForEach(ScopedApi<MultiPartFormContent> contentVar, PropertyProvider prop, string serializedName, string? contentType, bool isFilePart, ScopedApi<ModelReaderWriterOptions> options)
         {
             var elementType = prop.Type.ElementType;
             return new ForEachStatement(elementType, "item", prop, false, out var item)
             {
-                BuildScalarAdd(contentVar, serializedName, item, elementType, contentType, isFilePart)
+                BuildScalarAdd(contentVar, serializedName, item, elementType, contentType, isFilePart, options)
             };
         }
 
-        private static MethodBodyStatement BuildScalarAdd(ScopedApi<MultiPartFormContent> contentVar, string serializedName, ValueExpression value, CSharpType type, string? contentType, bool isFilePart)
+        private static MethodBodyStatement BuildScalarAdd(ScopedApi<MultiPartFormContent> contentVar, string serializedName, ValueExpression value, CSharpType type, string? contentType, bool isFilePart, ScopedApi<ModelReaderWriterOptions> options)
         {
             value = value.NullableStructValue(type);
 
@@ -177,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (!type.IsFrameworkType)
             {
-                return contentVar.Add(serializedName, value, ModelReaderWriterContextSnippets.Default, ModelSerializationExtensionsSnippets.Wire, contentType, type.WithNullable(false));
+                return contentVar.Add(serializedName, value, ModelReaderWriterContextSnippets.Default, options, contentType, type.WithNullable(false));
             }
 
             // A file part customized to a Stream or BinaryData is added through the FileBinaryContent
@@ -214,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    && partType.FrameworkType != typeof(Stream));
         }
 
-        private static MethodBodyStatement BuildSinglePartCollection(ScopedApi<MultiPartFormContent> contentVar, PropertyProvider prop, string serializedName, string? contentType)
+        private static MethodBodyStatement BuildSinglePartCollection(ScopedApi<MultiPartFormContent> contentVar, PropertyProvider prop, string serializedName, string? contentType, ScopedApi<ModelReaderWriterOptions> options)
         {
             var elementType = prop.Type.ElementType;
             var dataVarName = $"{serializedName.ToVariableName()}Data".ToVariableName();
@@ -231,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Model element collection: round-trip through ModelReaderWriter and tag the resulting BinaryData.
                 writeCall = ModelReaderWriterSnippets.Write(
                     ((MemberExpression)prop).CastTo(prop.Type),
-                    ModelSerializationExtensionsSnippets.Wire)
+                    options)
                     .As<BinaryData>()
                     .WithMediaType(Literal(contentType ?? "application/json"));
             }

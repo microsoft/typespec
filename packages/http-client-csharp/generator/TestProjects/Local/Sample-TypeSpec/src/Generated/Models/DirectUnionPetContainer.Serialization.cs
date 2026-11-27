@@ -71,12 +71,32 @@ namespace SampleTypeSpec
             return BinaryContent.Create(directUnionPetContainer, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options used to write the model, including the registered model proxies. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DirectUnionPetContainer"/> from. </param>
         public static explicit operator DirectUnionPetContainer(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializeDirectUnionPetContainer(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DirectUnionPetContainer"/> from. </param>
+        /// <param name="options"> The options used to read the model, including the registered model proxies. </param>
+        internal static DirectUnionPetContainer FromClientResult(ClientResult result, ModelReaderWriterOptions options)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            if (options.ShouldReadThroughProxy<DirectUnionPetContainer>(SampleTypeSpecContext.Default))
+            {
+                return ModelReaderWriter.Read<DirectUnionPetContainer>(response.Content, options, SampleTypeSpecContext.Default);
+            }
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeDirectUnionPetContainer(document.RootElement, options);
         }
 
         /// <param name="writer"> The JSON writer. </param>
@@ -147,7 +167,7 @@ namespace SampleTypeSpec
             {
                 if (prop.NameEquals("pet"u8))
                 {
-                    pet = DirectUnionPet.DeserializeDirectUnionPet(prop.Value, options);
+                    pet = options.ShouldReadThroughProxy<DirectUnionPet>(SampleTypeSpecContext.Default) ? ModelReaderWriter.Read<DirectUnionPet>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default) : DirectUnionPet.DeserializeDirectUnionPet(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")

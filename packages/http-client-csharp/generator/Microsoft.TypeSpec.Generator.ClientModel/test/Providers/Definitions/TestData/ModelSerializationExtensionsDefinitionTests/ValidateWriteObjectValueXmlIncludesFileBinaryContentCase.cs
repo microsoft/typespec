@@ -23,7 +23,12 @@ namespace Sample
                     writer.WriteNullValue();
                     break;
                 case global::System.ClientModel.Primitives.IJsonModel<T> jsonModel:
-                    jsonModel.Write(writer, (options ?? global::Sample.ModelSerializationExtensions.WireOptions));
+                    options ??= global::Sample.ModelSerializationExtensions.WireOptions;
+                    if ((options.Proxies.Count > 0))
+                    {
+                        jsonModel = options.ResolveProxy(jsonModel);
+                    }
+                    jsonModel.Write(writer, options);
                     break;
                 case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);

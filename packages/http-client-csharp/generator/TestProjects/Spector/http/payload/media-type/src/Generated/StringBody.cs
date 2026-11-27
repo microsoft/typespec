@@ -14,7 +14,7 @@ namespace Payload.MediaType._StringBody
     {
         protected StringBody() => throw null;
 
-        internal StringBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal StringBody(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

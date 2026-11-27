@@ -6,6 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.IO;
 using System.Xml.Linq;
+using Sample;
 
 namespace Sample.Models
 {
@@ -40,7 +41,7 @@ namespace Sample.Models
                 string localName = child.Name.LocalName;
                 if ((localName == "inner"))
                 {
-                    inner = global::Sample.Models.InnerModel.DeserializeInnerModel(child, options);
+                    inner = options.ShouldReadThroughProxy<global::Sample.Models.InnerModel>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.InnerModel>(child.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.InnerModel.DeserializeInnerModel(child, options);
                     continue;
                 }
             }

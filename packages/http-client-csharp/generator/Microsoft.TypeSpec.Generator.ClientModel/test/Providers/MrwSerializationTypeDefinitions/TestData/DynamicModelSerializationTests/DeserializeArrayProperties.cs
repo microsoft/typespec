@@ -36,7 +36,7 @@ namespace Sample
                     global::System.Collections.Generic.List<global::Sample.Models.Cat> array = new global::System.Collections.Generic.List<global::Sample.Models.Cat>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(global::Sample.Models.Cat.DeserializeCat(item, options));
+                        array.Add(options.ShouldReadThroughProxy<global::Sample.Models.Cat>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(item.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Cat.DeserializeCat(item, options));
                     }
                     cats = array;
                     continue;

@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -77,6 +78,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _isStruct;
         private readonly bool _supportsJson;
         private readonly bool _supportsXml;
+
+        // Models that support JSON report "J" as their wire format; XML-only models report "X".
+        internal bool SupportsJson => _supportsJson;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private bool? _shouldOverrideMethods;
@@ -452,12 +456,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (!_inputModel.IsUnknownDiscriminatorModel)
                 {
+                    bool supportsModelProxies = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ToExpression().SupportsModelProxies;
+
                     // cast operators
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
                     {
                         methods.Add(BuildImplicitToBinaryContent());
+                        if (supportsModelProxies)
+                        {
+                            // Clients pass the options built from their configured model proxies.
+                            methods.Add(BuildToRequestContentWithOptionsMethod());
+                        }
                         // Add internal ToBinaryContent helper for format-specific serialization
-                        if (_supportsJson && _supportsXml)
+                        else if (_supportsJson && _supportsXml)
                         {
                             methods.Add(BuildToBinaryContentMethod());
                         }
@@ -466,6 +477,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
                     {
                         methods.Add(GetExplicitFromClientResultMethod(_supportsJson, _supportsXml));
+                        if (supportsModelProxies)
+                        {
+                            methods.Add(GetFromClientResultWithOptionsMethod(_supportsJson, _supportsXml));
+                        }
                     }
                 }
 
@@ -1997,8 +2012,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
                         valueType.UnderlyingEnumType!, jsonElement, data,
                         _mrwOptionsParameterSnippet, serializationFormat)),
-                _ => GetDeserializationMethodInvocationForType(valueType, jsonElement, data,
-                    _mrwOptionsParameterSnippet)
+                _ => GetProxyAwareDeserializationMethodInvocation(valueType, jsonElement, data, _mrwOptionsParameterSnippet)
             };
 
             if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(Uri))
@@ -2010,6 +2024,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Nested models keep calling their static deserializer when no proxies are registered. Otherwise they are
+        /// read through <see cref="ModelReaderWriter"/> so that a proxy registered for the nested type is honored.
+        /// The generated helper also checks that the library's <see cref="ModelReaderWriterContext"/> can build the
+        /// type, because accessibility, and therefore context membership, is only final when files are written.
+        /// </summary>
+        internal static ValueExpression GetProxyAwareDeserializationMethodInvocation(
+            CSharpType valueType,
+            ScopedApi<JsonElement> jsonElement,
+            ScopedApi<BinaryData> data,
+            ScopedApi<ModelReaderWriterOptions> options)
+        {
+            var deserialize = GetDeserializationMethodInvocationForType(valueType, jsonElement, data, options);
+            if (!TryGetProxyableModelSerialization(valueType, out _))
+            {
+                return deserialize;
+            }
+
+            var modelType = valueType.WithNullable(false);
+            return new TernaryConditionalExpression(
+                options.ShouldReadThroughProxy(modelType),
+                ModelReaderWriterSnippets.Read(modelType, data, options),
+                deserialize);
+        }
+
+        /// <summary>
+        /// Nested reads are only routed through <see cref="ModelReaderWriter"/> for generated models with MRW serialization.
+        /// </summary>
+        private static bool TryGetProxyableModelSerialization(CSharpType valueType, [NotNullWhen(true)] out MrwSerializationTypeDefinition? serialization)
+        {
+            serialization = ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(valueType, out var provider)
+                && provider is ModelProvider and not SystemObjectModelProvider
+                    ? provider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().FirstOrDefault()
+                    : null;
+            return serialization is not null;
         }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(

@@ -11,7 +11,7 @@ namespace _Type.Union.Discriminated.Extends._ExplicitDiscriminator
     {
         protected ExplicitDiscriminator() => throw null;
 
-        internal ExplicitDiscriminator(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExplicitDiscriminator(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

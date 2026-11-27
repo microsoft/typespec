@@ -31,7 +31,7 @@ namespace Sample
                     {
                         continue;
                     }
-                    cat = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
+                    cat = options.ShouldReadThroughProxy<global::Sample.Models.Cat>(global::Sample.SampleContext.Default) ? global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(prop.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default) : global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("anything"u8))

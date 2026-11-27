@@ -13,11 +13,13 @@ namespace Sample
     internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -30,7 +32,7 @@ namespace Sample
                 global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
-                nextPageUri = ((global::Sample.Models.Page)result).NestedNext?.NextCat;
+                nextPageUri = global::Sample.Models.Page.FromClientResult(result, _modelReaderWriterOptions).NestedNext?.NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
@@ -41,7 +43,7 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextCat;
+            global::System.Uri nextPage = global::Sample.Models.Page.FromClientResult(page, _modelReaderWriterOptions).NestedNext?.NextCat;
             if ((nextPage != null))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));

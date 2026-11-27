@@ -14,7 +14,7 @@ namespace Parameters.Query
     {
         protected Constant() => throw null;
 
-        internal Constant(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Constant(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

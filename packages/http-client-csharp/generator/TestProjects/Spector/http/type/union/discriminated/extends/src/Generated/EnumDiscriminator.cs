@@ -11,7 +11,7 @@ namespace _Type.Union.Discriminated.Extends._EnumDiscriminator
     {
         protected EnumDiscriminator() => throw null;
 
-        internal EnumDiscriminator(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal EnumDiscriminator(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

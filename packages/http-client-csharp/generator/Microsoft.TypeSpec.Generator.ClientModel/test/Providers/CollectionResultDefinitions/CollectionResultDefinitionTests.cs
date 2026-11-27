@@ -80,8 +80,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var ctor = constructors[0];
             var ctorParameters = ctor.Signature.Parameters;
 
-            // should now only have the client name parameter
-            Assert.AreEqual(1, ctorParameters.Count);
+            // should now only have the client and the client's model reader writer options parameters
+            CollectionAssert.AreEqual(new[] { "client", "modelReaderWriterOptions" }, ctorParameters.Select(p => p.Name));
         }
 
         [Test]

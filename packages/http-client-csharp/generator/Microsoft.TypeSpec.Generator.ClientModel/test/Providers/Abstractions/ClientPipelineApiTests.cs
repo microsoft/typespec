@@ -56,7 +56,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             Assert.IsTrue(method.BodyStatements!.ToDisplayString().Contains("GetFakeProcessMessageAsync"));
         }
 
-        private static ClientProvider CreateTestClient()
+        // Pipelines opt out of model proxies by default, so their clients keep the shared wire options.
+        [Test]
+        public void ModelProxiesAreNotSupportedByDefault()
+        {
+            var clientProvider = CreateTestClient();
+
+            Assert.IsNull(clientProvider.ModelReaderWriterOptionsField);
+        }
+
+        // A pipeline whose client options carry model proxies decides how the client builds its options from them.
+        [Test]
+        public void ModelReaderWriterOptionsComeFromPipelineApi()
+        {
+            var clientProvider = CreateTestClient(TestClientPipelineApiWithModelProxies.Instance);
+
+            Assert.IsNotNull(clientProvider.ModelReaderWriterOptionsField);
+            var primaryConstructor = clientProvider.Constructors.Single(
+                c => c.Signature.Initializer == null && c.Signature.Modifiers == MethodSignatureModifiers.Internal);
+            StringAssert.Contains(
+                "_modelReaderWriterOptions = options.GetFakeModelReaderWriterOptions();",
+                primaryConstructor.BodyStatements!.ToDisplayString());
+        }
+
+        private static ClientProvider CreateTestClient(ClientPipelineApi? clientPipelineApi = null)
         {
             var inputServiceMethod = InputFactory.BasicServiceMethod(
                 "test",
@@ -68,10 +91,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
                         InputFactory.QueryParameter("foo-query", InputPrimitiveType.String)
                     ]));
             var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
-            MockHelpers.LoadMockGenerator(clientPipelineApi: TestClientPipelineApi.Instance);
+            MockHelpers.LoadMockGenerator(clientPipelineApi: clientPipelineApi ?? TestClientPipelineApi.Instance);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
             return clientProvider!;
+        }
+
+        private record TestClientPipelineApiWithModelProxies : TestClientPipelineApi
+        {
+            private static ClientPipelineApi? _instance;
+            internal static new ClientPipelineApi Instance => _instance ??= new TestClientPipelineApiWithModelProxies(Empty);
+
+            public TestClientPipelineApiWithModelProxies(ValueExpression original) : base(original)
+            {
+            }
+
+            public override bool SupportsModelProxies => true;
+
+            public override ValueExpression GetModelReaderWriterOptions(ValueExpression clientOptions)
+                => clientOptions.Invoke("GetFakeModelReaderWriterOptions");
+
+            public override ClientPipelineApi FromExpression(ValueExpression expression)
+                => new TestClientPipelineApiWithModelProxies(expression);
         }
 
         private record TestClientPipelineApi : ClientPipelineApi

@@ -17,6 +17,7 @@ namespace SampleTypeSpec
     public partial class DogOperations
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions = ModelSerializationExtensions.WireOptions;
 
         /// <summary> Initializes a new instance of DogOperations for mocking. </summary>
         protected DogOperations()
@@ -25,11 +26,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of DogOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal DogOperations(ClientPipeline pipeline, Uri endpoint)
+        internal DogOperations(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -86,8 +89,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(dog, nameof(dog));
 
-            ClientResult result = UpdateDogAsDog(dog, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+            ClientResult result = UpdateDogAsDog(dog.ToBinaryContent(_modelReaderWriterOptions), cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(Dog.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
 
         /// <summary> Update a dog as a dog. </summary>
@@ -99,8 +102,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(dog, nameof(dog));
 
-            ClientResult result = await UpdateDogAsDogAsync(dog, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+            ClientResult result = await UpdateDogAsDogAsync(dog.ToBinaryContent(_modelReaderWriterOptions), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(Dog.FromClientResult(result, _modelReaderWriterOptions), result.GetRawResponse());
         }
     }
 }

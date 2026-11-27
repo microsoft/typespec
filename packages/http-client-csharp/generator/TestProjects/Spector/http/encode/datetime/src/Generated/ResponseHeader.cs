@@ -14,7 +14,7 @@ namespace Encode.Datetime._ResponseHeader
     {
         protected ResponseHeader() => throw null;
 
-        internal ResponseHeader(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ResponseHeader(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

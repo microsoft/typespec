@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected Decimal() => throw null;
 
-        internal Decimal(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Decimal(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

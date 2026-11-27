@@ -13,22 +13,22 @@ namespace Sample
     {
         public partial global::System.ClientModel.Primitives.CollectionResult GetItems(int? maxPageSize, string resumeToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsCollectionResult(this, maxPageSize, resumeToken, options);
+            return new global::Sample.TestClientGetItemsCollectionResult(this, _modelReaderWriterOptions, maxPageSize, resumeToken, options);
         }
 
         public partial global::System.ClientModel.Primitives.AsyncCollectionResult GetItemsAsync(int? maxPageSize, string resumeToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, maxPageSize, resumeToken, options);
+            return new global::Sample.TestClientGetItemsAsyncCollectionResult(this, _modelReaderWriterOptions, maxPageSize, resumeToken, options);
         }
 
         public global::System.ClientModel.CollectionResult<global::Sample.Models.Item> GetItems(int? maxPageSize = default, string token = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, maxPageSize, token, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsCollectionResultOfT(this, _modelReaderWriterOptions, maxPageSize, token, cancellationToken.ToRequestOptions());
         }
 
         public global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Item> GetItemsAsync(int? maxPageSize = default, string token = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, maxPageSize, token, cancellationToken.ToRequestOptions());
+            return new global::Sample.TestClientGetItemsAsyncCollectionResultOfT(this, _modelReaderWriterOptions, maxPageSize, token, cancellationToken.ToRequestOptions());
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Streaming.Sse._Unnamed
     {
         protected Unnamed() => throw null;
 
-        internal Unnamed(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Unnamed(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

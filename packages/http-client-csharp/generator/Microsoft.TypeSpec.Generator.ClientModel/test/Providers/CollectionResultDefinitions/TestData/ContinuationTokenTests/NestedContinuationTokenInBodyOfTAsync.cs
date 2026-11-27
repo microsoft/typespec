@@ -14,12 +14,14 @@ namespace Sample
     internal partial class CatClientGetCatsAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _myToken;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _myToken = myToken;
             _options = options;
         }
@@ -33,7 +35,7 @@ namespace Sample
                 global::System.ClientModel.ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                nextToken = ((global::Sample.Models.Page)result).NestedNext?.NextPage;
+                nextToken = global::Sample.Models.Page.FromClientResult(result, _modelReaderWriterOptions).NestedNext?.NextPage;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -44,7 +46,7 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            string nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextPage;
+            string nextPage = global::Sample.Models.Page.FromClientResult(page, _modelReaderWriterOptions).NestedNext?.NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
@@ -57,7 +59,7 @@ namespace Sample
 
         protected override async global::System.Collections.Generic.IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)
         {
-            foreach (global::Sample.Models.Cat item in ((global::Sample.Models.Page)page).NestedItems?.Cats)
+            foreach (global::Sample.Models.Cat item in global::Sample.Models.Page.FromClientResult(page, _modelReaderWriterOptions).NestedItems?.Cats)
             {
                 yield return item;
                 await global::System.Threading.Tasks.Task.Yield();

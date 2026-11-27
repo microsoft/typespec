@@ -67,9 +67,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .Or(payload.ValueKind().NotEqual(FrameworkEnumValue(JsonValueKind.Object)));
             var cases = subtypes.Select(entry => new SwitchCaseStatement(
                 Literal(entry.Key),
-                Return(MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                Return(MrwSerializationTypeDefinition.GetProxyAwareDeserializationMethodInvocation(
                     GetModelType(entry.Value),
-                    payload, payload.GetUtf8Bytes(), options)))).ToList();
+                    payload, payload.GetUtf8Bytes(), options.As<ModelReaderWriterOptions>())))).ToList();
             cases.Add(SwitchCaseStatement.Default(Throw(New.Instance<JsonException>(
                 Literal($"Unknown discriminator value for union '{union.Name}'.")))));
 

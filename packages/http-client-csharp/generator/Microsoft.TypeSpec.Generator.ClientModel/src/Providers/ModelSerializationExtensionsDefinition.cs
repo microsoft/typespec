@@ -191,6 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
                 BuildGetUtf8BytesMethodProvider(),
+                .. BuildModelProxyMethods(),
                 .. BuildDynamicModelHelpers(),
                 .. BuildXmlExtensionMethods(),
             ];
@@ -673,11 +674,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
             cases.Add(
                 BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel",
-                    jsonModel => new MethodBodyStatement[]
+                    jsonModel =>
                     {
-                        jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer,
-                            options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate(),
-                        Break
+                        var mrwOptions = options.As<ModelReaderWriterOptions>();
+                        return new MethodBodyStatement[]
+                        {
+                            options.Assign(ModelSerializationExtensionsSnippets.Wire, nullCoalesce: true).Terminate(),
+                            new IfStatement(mrwOptions.ProxiesCount().GreaterThan(Int(0)))
+                            {
+                                jsonModel.Assign(mrwOptions.ResolveProxy(jsonModel)).Terminate()
+                            },
+                            jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer, options).Terminate(),
+                            Break
+                        };
                     }));
             cases.AddRange(new[]
             {

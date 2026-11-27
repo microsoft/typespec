@@ -53,6 +53,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ScopedApi<byte[]> GetBytesFromBase64(this ScopedApi<XElement> element, string? format)
             => ModelSerializationExtensionsSnippets.GetBytesFromBase64(element, format).As<byte[]>();
 
+        public static ScopedApi<BinaryData> GetUtf8Bytes(this ScopedApi<XElement> element)
+            => ModelSerializationExtensionsSnippets.GetUtf8Bytes(element).As<BinaryData>();
+
         public static ScopedApi<XNamespace> Namespace(this ScopedApi<XName> name)
             => name.Property(nameof(XName.Namespace)).As<XNamespace>();
     }
