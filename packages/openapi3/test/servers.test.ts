@@ -1,9 +1,22 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
+import { emitOpenApiWithDiagnostics, TesterWithVersioning } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version: specVersion }) => {
+  // OpenAPI 3.0 only says that a server variable default should be one of its enum values.
+  const missingDefaultWarnings = (name: string) =>
+    specVersion === "3.0.0"
+      ? []
+      : [
+          {
+            code: "@typespec/openapi3/missing-server-variable-default",
+            severity: "warning" as const,
+            message: `Server variable '${name}' has no default, but OpenAPI ${specVersion} requires its default to be one of its enum values. Set a default on the parameter.`,
+          },
+        ];
+
   it("set a basic server(url)", async () => {
     const res = await openApiFor(
       `
@@ -73,7 +86,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   });
 
   it("accepts an enum whose numeric members are all encoded as strings", async () => {
-    const res = await openApiFor(
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
       `
       @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {region: Region})
@@ -86,8 +99,10 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
         eastUs: 2,
       }
       `,
+      { "openapi-versions": [specVersion] },
     );
-    deepStrictEqual(res.servers[0].variables.region.enum, ["westus", "eastus"]);
+    expectDiagnostics(diagnostics, missingDefaultWarnings("region"));
+    deepStrictEqual(res.servers?.[0].variables?.region?.enum, ["westus", "eastus"]);
   });
 
   it("emit diagnostic when a numeric enum member is left unencoded", async () => {
@@ -212,7 +227,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   });
 
   it("set a server with enum properties", async () => {
-    const res = await openApiFor(
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
       `
       enum Region { westus, eastus }
       @service(#{title: "My service"})
@@ -221,7 +236,9 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       })
       namespace MyService {}
       `,
+      { "openapi-versions": [specVersion] },
     );
+    expectDiagnostics(diagnostics, missingDefaultWarnings("region"));
     deepStrictEqual(res.servers, [
       {
         description: "Regional account endpoint",
@@ -233,8 +250,24 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     ]);
   });
 
-  it("set a server with string literal", async () => {
+  it("set a server with enum properties with a default", async () => {
     const res = await openApiFor(
+      `
+      enum Region { westus, eastus }
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {
+        region?: Region = Region.eastus,
+      })
+      namespace MyService {}
+      `,
+    );
+    deepStrictEqual(res.servers[0].variables, {
+      region: { default: "eastus", enum: ["westus", "eastus"] },
+    });
+  });
+
+  it("set a server with string literal", async () => {
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
       `
       enum Region {  }
       @service(#{title: "My service"})
@@ -243,7 +276,9 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       })
       namespace MyService {}
       `,
+      { "openapi-versions": [specVersion] },
     );
+    expectDiagnostics(diagnostics, missingDefaultWarnings("region"));
     deepStrictEqual(res.servers, [
       {
         description: "Regional account endpoint",
@@ -256,7 +291,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   });
 
   it("set a server with unions type", async () => {
-    const res = await openApiFor(
+    const [res, diagnostics] = await emitOpenApiWithDiagnostics(
       `
       enum Region {  }
       @service(#{title: "My service"})
@@ -265,7 +300,9 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       })
       namespace MyService {}
       `,
+      { "openapi-versions": [specVersion] },
     );
+    expectDiagnostics(diagnostics, missingDefaultWarnings("region"));
     deepStrictEqual(res.servers, [
       {
         description: "Regional account endpoint",
@@ -276,6 +313,56 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     ]);
   });
+
+  it("set a server with unions type with a default", async () => {
+    const res = await openApiFor(
+      `
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {
+        region?: "westus" | "eastus" = "eastus",
+      })
+      namespace MyService {}
+      `,
+    );
+    deepStrictEqual(res.servers[0].variables, {
+      region: { default: "eastus", enum: ["westus", "eastus"] },
+    });
+  });
+
+  it("warns once for a server variable without a default in a versioned service", async () => {
+    const [{ outputs }, diagnostics] = await TesterWithVersioning.compileAndDiagnose(
+      `
+      @versioned(Versions)
+      @service(#{title: "My service"})
+      @server("{endpoint}/{apiVersion}", "Versioned endpoint", {
+        endpoint: url,
+        apiVersion: Versions,
+      })
+      namespace MyService {
+        enum Versions { v1: "2024-01-01", v2: "2025-01-01" }
+      }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/openapi3": {
+              "openapi-versions": [specVersion],
+              "output-file": "{version}.openapi.json",
+            },
+          },
+        },
+      },
+    );
+    expectDiagnostics(diagnostics, missingDefaultWarnings("apiVersion"));
+    for (const version of ["2024-01-01", "2025-01-01"]) {
+      const document = JSON.parse(outputs[`${version}.openapi.json`]);
+      deepStrictEqual(document.servers[0].variables, {
+        endpoint: { default: "" },
+        apiVersion: { default: "", enum: ["2024-01-01", "2025-01-01"] },
+      });
+    }
+  });
+
   it("set multiple servers", async () => {
     const res = await openApiFor(
       `
