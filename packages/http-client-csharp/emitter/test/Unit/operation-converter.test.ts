@@ -1,9 +1,15 @@
 import type { TestHost } from "@typespec/compiler/testing";
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { readFileSync } from "node:fs";
 import { beforeEach, describe, it } from "vitest";
 import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import type { InputEnumType } from "../../src/type/input-type.js";
+import type {
+  InputLongRunningServiceMethod,
+  InputLroStatusMetadata,
+} from "../../src/type/input-service-method.js";
+import type { InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -908,5 +914,201 @@ describe("Multipart convenience method generation", () => {
       (d) => d.code === "@typespec/http-client-csharp/unsupported-multipart-convenience-method",
     );
     strictEqual(diagnostic, undefined);
+  });
+});
+
+// Source for generator/Microsoft.TypeSpec.Generator.Input/test/TestData/InputServiceMethodTests/LoadsEmittedLroStatusMetadata/tspCodeModel.json.
+const lroStatusMetadataFixtureSource = `
+import "@typespec/http";
+import "@typespec/rest";
+import "@azure-tools/typespec-azure-core";
+import "@azure-tools/typespec-client-generator-core";
+
+using TypeSpec.Http;
+using TypeSpec.Rest;
+using Azure.Core;
+using Azure.ClientGenerator.Core;
+
+@service
+namespace LroFixture;
+
+model Statistics {
+  completed: int32;
+}
+
+model BaseMonitor {
+  @lroStatusMetadata
+  @clientName("updatedAt")
+  @encodedName("application/json", "last_updated")
+  updated?: utcDateTime;
+}
+
+model Monitor extends BaseMonitor {
+  @lroStatus
+  status: "Running" | "Succeeded" | "Failed" | "Canceled";
+
+  @lroResult
+  result?: string;
+
+  @lroStatusMetadata
+  @clientName("progress")
+  @encodedName("application/json", "percent_complete")
+  percent?: int32;
+
+  @lroStatusMetadata
+  statistics?: Statistics;
+}
+
+@get
+@route("/jobs/{jobId}/status")
+op getStatus(@path jobId: string): Monitor;
+
+@post
+@route("/jobs")
+@pollingOperation(getStatus)
+op begin(): {
+  @statusCode code: 202;
+  @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+};
+`;
+
+describe("LRO status metadata", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  function getLroMethod(root: ReturnType<typeof createModel>[0]): InputLongRunningServiceMethod {
+    const method = root.clients[0].methods.find((m) => m.kind === "lro");
+    ok(method);
+    return method as InputLongRunningServiceMethod;
+  }
+
+  it("emits the fixture consumed by the C# deserializer", async () => {
+    runner.addTypeSpecFile("main.tsp", lroStatusMetadataFixtureSource);
+    await runner.compile("./", { noEmit: true });
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(runner.program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    const actual = JSON.parse(serializeCodeModel(sdkContext, root));
+    const expected = JSON.parse(
+      readFileSync(
+        new URL(
+          "../../../generator/Microsoft.TypeSpec.Generator.Input/test/TestData/InputServiceMethodTests/LoadsEmittedLroStatusMetadata/tspCodeModel.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    deepStrictEqual(actual, expected);
+  });
+
+  it("references the polling model and its own properties in TCGC order", async () => {
+    runner.addTypeSpecFile("main.tsp", lroStatusMetadataFixtureSource);
+    await runner.compile("./", { noEmit: true });
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(runner.program));
+    const [root] = createModel(sdkContext);
+    const metadata = getLroMethod(root).lroMetadata;
+    const monitor = root.models.find((m) => m.name === "Monitor");
+    const baseMonitor = root.models.find((m) => m.name === "BaseMonitor");
+    ok(monitor && baseMonitor);
+    strictEqual(metadata.pollingResponseModel, monitor);
+    const selections = metadata.statusMetadata as InputLroStatusMetadata[];
+    deepStrictEqual(
+      selections.map((s) => s.property.name),
+      ["progress", "statistics", "updatedAt"],
+    );
+    strictEqual(
+      selections[0].property,
+      monitor.properties.find((p) => p.name === "progress"),
+    );
+    strictEqual(selections[2].property, baseMonitor.properties[0]);
+    for (const selection of selections) {
+      deepStrictEqual(selection.propertySegments, [selection.property]);
+    }
+  });
+
+  it("emits a polling model that is not exposed by a client method with JSON output usage", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Details { message: string; }
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          @lroStatusMetadata mode?: "fast" | "slow";
+          @lroStatusMetadata details?: Details;
+        }
+        @get @route("/jobs/{jobId}/status")
+        @scope("!csharp")
+        op getStatus(@path jobId: string): Monitor;
+        @post @route("/jobs")
+        @pollingOperation(getStatus)
+        op begin(): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsAzureCoreNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root, diagnostics] = createModel(sdkContext);
+    deepStrictEqual(diagnostics, []);
+    strictEqual(root.clients[0].methods.length, 1);
+    const metadata = getLroMethod(root).lroMetadata;
+    const monitor = root.models.find((m) => m.name === "Monitor") as InputModelType;
+    const details = root.models.find((m) => m.name === "Details") as InputModelType;
+    ok(monitor && details);
+    strictEqual(metadata.pollingResponseModel, monitor);
+    for (const type of [monitor, details]) {
+      strictEqual(
+        type.usage & (UsageFlags.Output | UsageFlags.Json),
+        UsageFlags.Output | UsageFlags.Json,
+      );
+    }
+    const mode = metadata.statusMetadata?.[0].property.type as InputEnumType;
+    strictEqual(mode.kind, "enum");
+    ok(root.enums.includes(mode));
+    strictEqual(
+      mode.usage & (UsageFlags.Output | UsageFlags.Json),
+      UsageFlags.Output | UsageFlags.Json,
+    );
+
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const serializedMetadata = serialized.clients[0].methods[0].lroMetadata;
+    strictEqual(serializedMetadata.statusMetadata.length, 2);
+    ok(serializedMetadata.pollingResponseModel.$ref);
+  });
+
+  it("does not emit status metadata when no property is selected", async () => {
+    const program = await typeSpecCompile(
+      `
+        model Monitor {
+          @lroStatus status: "Running" | "Succeeded" | "Failed" | "Canceled";
+          details?: string;
+        }
+        @get @route("/jobs/{jobId}/status")
+        op getStatus(@path jobId: string): Monitor;
+        @post @route("/jobs")
+        @pollingOperation(getStatus)
+        op begin(): {
+          @statusCode code: 202;
+          @pollingLocation @header("Operation-Location") location: ResourceLocation<Monitor>;
+        };
+      `,
+      runner,
+      { IsTCGCNeeded: true, IsAzureCoreNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const metadata = getLroMethod(root).lroMetadata;
+    strictEqual(metadata.pollingResponseModel, undefined);
+    strictEqual(metadata.statusMetadata, undefined);
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const serializedMetadata = serialized.clients[0].methods.find(
+      (m: { kind: string }) => m.kind === "lro",
+    ).lroMetadata;
+    ok(!("pollingResponseModel" in serializedMetadata));
+    ok(!("statusMetadata" in serializedMetadata));
   });
 });
