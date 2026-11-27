@@ -324,6 +324,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task TestPropertyNameUsesPublicOwnerLastContractForAcronyms()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () =>
+                await Helpers.GetCompilationFromSourceFilesAsync(
+                [
+                    ("RouteData.cs", "namespace Test { public class RouteData { public System.Collections.Generic.IList<string> NextHopIpAddresses { get; } } }")
+                ]));
+
+            var input = InputFactory.Property(
+                "nextHopIpAddresses", InputFactory.Array(InputPrimitiveType.String),
+                wireName: "nextHopIpAddresses", isRequired: true);
+            InputFactory.Model("RouteNextHopEcmp", @namespace: "Test", properties: [input]);
+            var wireType = new TestTypeProvider(name: "RouteNextHopEcmp", ns: "Test");
+            var publicType = new TestTypeProvider(name: "RouteData", ns: "Test");
+
+            Assert.That(publicType.LastContractView, Is.Not.Null);
+            Assert.That(new PropertyProvider(input, wireType).Name, Is.EqualTo("NextHopIPAddresses"));
+            var publicProperty = new PropertyProvider(input, publicType);
+            Assert.That(publicProperty.Name, Is.EqualTo("NextHopIpAddresses"));
+            Assert.That(publicProperty.WireInfo!.SerializedName, Is.EqualTo("nextHopIpAddresses"));
+        }
+
+        [Test]
         public async Task TestPropertyNamePreservesDateTimeNameFromProjectedProviderLastContract()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
