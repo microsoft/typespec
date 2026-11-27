@@ -4,6 +4,8 @@
 
 package tsptest.response.implementation;
 
+import static tsptest.response.implementation.ClientUtils.createPagedResponse;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
@@ -31,7 +33,6 @@ import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
-import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
@@ -547,6 +548,17 @@ public final class ResponseClientImpl {
             Context context);
     }
 
+    private static final String IMAGE_PNG = "image/png";
+
+    private static final String APPLICATION_JSON = "application/json";
+
+    private static final String APPLICATION_JSON_CHARSET_UTF_8 = "application/json;charset=utf-8";
+
+    private static final String APPLICATION_VND_MICROSOFT_APPCONFIG_KV_JSON
+        = "application/vnd.microsoft.appconfig.kv+json";
+
+    private static final String TEXT_PLAIN = "text/plain";
+
     /**
      * The getBinary operation.
      * <p><strong>Response Body Schema</strong></p>
@@ -566,8 +578,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getBinaryWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "image/png";
-        return FluxUtil.withContext(context -> service.getBinary(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil
+            .withContext(context -> service.getBinary(this.getEndpoint(), IMAGE_PNG, requestOptions, context));
     }
 
     /**
@@ -589,8 +601,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getBinaryWithResponse(RequestOptions requestOptions) {
-        final String accept = "image/png";
-        return service.getBinarySync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getBinarySync(this.getEndpoint(), IMAGE_PNG, requestOptions, Context.NONE);
     }
 
     /**
@@ -619,8 +630,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getArrayWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.getArray(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil
+            .withContext(context -> service.getArray(this.getEndpoint(), APPLICATION_JSON, requestOptions, context));
     }
 
     /**
@@ -649,8 +660,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getArrayWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getArraySync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getArraySync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
     }
 
     /**
@@ -679,9 +689,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getAnotherArrayWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.getAnotherArray(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.getAnotherArray(this.getEndpoint(), APPLICATION_JSON, requestOptions, context));
     }
 
     /**
@@ -710,8 +719,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAnotherArrayWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getAnotherArraySync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getAnotherArraySync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
     }
 
     /**
@@ -745,9 +753,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> createWithHeadersWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.createWithHeaders(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.createWithHeaders(this.getEndpoint(), APPLICATION_JSON, requestOptions, context));
     }
 
     /**
@@ -781,8 +788,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> createWithHeadersWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.createWithHeadersSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.createWithHeadersSync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
     }
 
     /**
@@ -897,9 +903,8 @@ public final class ResponseClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> lroInvalidPollResponseWithResponseAsync(BinaryData request,
         RequestOptions requestOptions) {
-        final String contentType = "application/json";
         return FluxUtil.withContext(context -> service.lroInvalidPollResponse(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, request, requestOptions, context));
+            this.getServiceVersion().getVersion(), APPLICATION_JSON, request, requestOptions, context));
     }
 
     /**
@@ -927,9 +932,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<Void> lroInvalidPollResponseWithResponse(BinaryData request, RequestOptions requestOptions) {
-        final String contentType = "application/json";
         return service.lroInvalidPollResponseSync(this.getEndpoint(), this.getServiceVersion().getVersion(),
-            contentType, request, requestOptions, Context.NONE);
+            APPLICATION_JSON, request, requestOptions, Context.NONE);
     }
 
     /**
@@ -1113,9 +1117,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> lroInvalidResultWithResponseAsync(BinaryData request, RequestOptions requestOptions) {
-        final String contentType = "application/json";
         return FluxUtil.withContext(context -> service.lroInvalidResult(this.getEndpoint(),
-            this.getServiceVersion().getVersion(), contentType, request, requestOptions, context));
+            this.getServiceVersion().getVersion(), APPLICATION_JSON, request, requestOptions, context));
     }
 
     /**
@@ -1143,8 +1146,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<Void> lroInvalidResultWithResponse(BinaryData request, RequestOptions requestOptions) {
-        final String contentType = "application/json";
-        return service.lroInvalidResultSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType,
+        return service.lroInvalidResultSync(this.getEndpoint(), this.getServiceVersion().getVersion(), APPLICATION_JSON,
             request, requestOptions, Context.NONE);
     }
 
@@ -1322,10 +1324,10 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<BinaryData>> listStringsSinglePageAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.listStrings(this.getEndpoint(), accept, requestOptions, context))
-            .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null));
+        return FluxUtil
+            .withContext(context -> service.listStrings(this.getEndpoint(), APPLICATION_JSON, requestOptions, context))
+            .map(res -> createPagedResponse(res, getValues(res.getValue(), "items_value"),
+                getNextLink(res.getValue(), "next_link"), null));
     }
 
     /**
@@ -1373,10 +1375,10 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<BinaryData> listStringsSinglePage(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        Response<BinaryData> res = service.listStringsSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
+        Response<BinaryData> res
+            = service.listStringsSync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
+        return createPagedResponse(res, getValues(res.getValue(), "items_value"),
+            getNextLink(res.getValue(), "next_link"), null);
     }
 
     /**
@@ -1424,11 +1426,9 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<BinaryData>> listIntegersSinglePageAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.listIntegers(this.getEndpoint(), accept, requestOptions, context))
-            .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), null, null));
+            .withContext(context -> service.listIntegers(this.getEndpoint(), APPLICATION_JSON, requestOptions, context))
+            .map(res -> createPagedResponse(res, getValues(res.getValue(), "value"), null, null));
     }
 
     /**
@@ -1472,10 +1472,9 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<BinaryData> listIntegersSinglePage(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        Response<BinaryData> res = service.listIntegersSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), null, null);
+        Response<BinaryData> res
+            = service.listIntegersSync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
+        return createPagedResponse(res, getValues(res.getValue(), "value"), null, null);
     }
 
     /**
@@ -1524,9 +1523,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getJsonUtf8ResponseWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json;charset=utf-8";
-        return FluxUtil
-            .withContext(context -> service.getJsonUtf8Response(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(context -> service.getJsonUtf8Response(this.getEndpoint(),
+            APPLICATION_JSON_CHARSET_UTF_8, requestOptions, context));
     }
 
     /**
@@ -1553,8 +1551,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getJsonUtf8ResponseWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json;charset=utf-8";
-        return service.getJsonUtf8ResponseSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getJsonUtf8ResponseSync(this.getEndpoint(), APPLICATION_JSON_CHARSET_UTF_8, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -1581,9 +1579,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getPlusJsonResponseWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/vnd.microsoft.appconfig.kv+json";
-        return FluxUtil
-            .withContext(context -> service.getPlusJsonResponse(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(context -> service.getPlusJsonResponse(this.getEndpoint(),
+            APPLICATION_VND_MICROSOFT_APPCONFIG_KV_JSON, requestOptions, context));
     }
 
     /**
@@ -1610,8 +1607,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getPlusJsonResponseWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/vnd.microsoft.appconfig.kv+json";
-        return service.getPlusJsonResponseSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getPlusJsonResponseSync(this.getEndpoint(), APPLICATION_VND_MICROSOFT_APPCONFIG_KV_JSON,
+            requestOptions, Context.NONE);
     }
 
     /**
@@ -1633,9 +1630,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getUnionResponseWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.getUnionResponse(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.getUnionResponse(this.getEndpoint(), APPLICATION_JSON, requestOptions, context));
     }
 
     /**
@@ -1657,8 +1653,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getUnionResponseWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.getUnionResponseSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getUnionResponseSync(this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
     }
 
     /**
@@ -1681,9 +1676,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextBooleanWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextBoolean(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextBoolean(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1705,8 +1699,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextBooleanWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextBooleanSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextBooleanSync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -1728,9 +1721,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextByteWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextByte(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextByte(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1752,8 +1744,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextByteWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextByteSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextByteSync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -1775,9 +1766,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextInt32WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextInt32(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextInt32(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1799,8 +1789,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextInt32WithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextInt32Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextInt32Sync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -1822,9 +1811,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextInt64WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextInt64(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextInt64(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1846,8 +1834,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextInt64WithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextInt64Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextInt64Sync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -1869,9 +1856,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextFloat32WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextFloat32(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextFloat32(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1893,8 +1879,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextFloat32WithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextFloat32Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextFloat32Sync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -1916,9 +1901,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextFloat64WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextFloat64(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextFloat64(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1940,8 +1924,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextFloat64WithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextFloat64Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextFloat64Sync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -1963,9 +1946,8 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getTextCharWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
         return FluxUtil
-            .withContext(context -> service.getTextChar(this.getEndpoint(), accept, requestOptions, context));
+            .withContext(context -> service.getTextChar(this.getEndpoint(), TEXT_PLAIN, requestOptions, context));
     }
 
     /**
@@ -1987,8 +1969,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getTextCharWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
-        return service.getTextCharSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.getTextCharSync(this.getEndpoint(), TEXT_PLAIN, requestOptions, Context.NONE);
     }
 
     /**
@@ -2012,12 +1993,10 @@ public final class ResponseClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<BinaryData>> listStringsNextSinglePageAsync(String nextLink,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(
-                context -> service.listStringsNext(nextLink, this.getEndpoint(), accept, requestOptions, context))
-            .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null));
+        return FluxUtil.withContext(
+            context -> service.listStringsNext(nextLink, this.getEndpoint(), APPLICATION_JSON, requestOptions, context))
+            .map(res -> createPagedResponse(res, getValues(res.getValue(), "items_value"),
+                getNextLink(res.getValue(), "next_link"), null));
     }
 
     /**
@@ -2040,11 +2019,10 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<BinaryData> listStringsNextSinglePage(String nextLink, RequestOptions requestOptions) {
-        final String accept = "application/json";
         Response<BinaryData> res
-            = service.listStringsNextSync(nextLink, this.getEndpoint(), accept, requestOptions, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
+            = service.listStringsNextSync(nextLink, this.getEndpoint(), APPLICATION_JSON, requestOptions, Context.NONE);
+        return createPagedResponse(res, getValues(res.getValue(), "items_value"),
+            getNextLink(res.getValue(), "next_link"), null);
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {

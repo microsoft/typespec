@@ -21,6 +21,23 @@ Java code is packaged into a JAR file, and included in the Node.js package. The 
 Generated Java is analyzed with JavaParser to remove unused imports and order the remaining imports, then formatted with Eclipse JDT using `generator\eclipse-format-azure-sdk-for-java.xml`.
 Import cleanup does not require resolving the generated SDK's dependencies.
 
+Azure clients share implementation helpers in `ClientUtils`, or in the existing
+`ResourceManagerUtils` for ARM libraries. Only referenced helpers are emitted.
+Client implementations statically import helper methods, with fully qualified calls
+when method names conflict. Model readers use fully qualified helper calls; do not
+import helper types, which can shadow models with the same name.
+JSON object-reading boilerplate is shared for final, non-polymorphic models that
+can be populated without constructor-local state; constructor-required, inherited,
+flattened, and merge-patch models retain their existing readers. Field callbacks
+continue to own property decoding and unknown-field handling.
+
+Async ARM helpers evaluate the default client `Context` at subscription time,
+with client entries taking precedence over subscriber entries. Configured client
+validation preserves parameter order, nested validation, logging, and the distinction
+between synchronous throws and asynchronous errors.
+Client-property validators use direct checks for each ordered group required by an
+operation, with separate helpers when the required properties or their order differ.
+
 ## Build and Pack
 
 ["Setup.ps1" script](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/Setup.ps1) builds TypeScript code and Java code, and packs them into "typespec-http-client-java-[version].tgz".

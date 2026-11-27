@@ -174,6 +174,9 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         List<ProxyMethodParameter> proxyMethodAndConstantParameters, JavaSettings settings, boolean addOptional,
         boolean addConstant, boolean ignoreParameterNeedConvert) {
         for (ProxyMethodParameter parameter : proxyMethodAndConstantParameters) {
+            if (clientMethod.getConstantStringName(parameter) != null) {
+                continue;
+            }
             IType parameterWireType = parameter.getWireType();
             if (parameter.isNullable()) {
                 parameterWireType = parameterWireType.asNullable();

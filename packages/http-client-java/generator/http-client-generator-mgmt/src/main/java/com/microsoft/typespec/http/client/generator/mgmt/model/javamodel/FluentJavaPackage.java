@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.TextFile;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
@@ -102,13 +103,15 @@ public class FluentJavaPackage extends JavaPackage {
                 }
             }
         }
-        if (usedMethods.isEmpty()) {
+        Set<ClientUtilitiesTemplate.UtilityMethod> commonMethods
+            = ClientUtilitiesTemplate.getUsedMethods(getJavaFiles());
+        if (usedMethods.isEmpty() && commonMethods.isEmpty()) {
             return;
         }
         JavaSettings settings = JavaSettings.getInstance();
         JavaFile javaFile = getJavaFileFactory().createSourceFile(
             settings.getPackage(settings.getImplementationSubpackage()), ModelNaming.CLASS_RESOURCE_MANAGER_UTILS);
-        ResourceManagerUtilsTemplate.getInstance().write(usedMethods, javaFile);
+        ResourceManagerUtilsTemplate.getInstance().write(usedMethods, commonMethods, javaFile);
         addJavaFile(javaFile);
     }
 

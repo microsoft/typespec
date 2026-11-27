@@ -118,6 +118,34 @@ public class ClientMethod {
 
     private final ClientMethod overloadedClientMethod;
     private final ClientMethodSseMetadata sseMetadata;
+    private Map<String, String> constantStringNames = Map.of();
+    private Map<Integer, String> clientPropertiesValidationMethodNames = Map.of();
+
+    public String getClientPropertiesValidationMethodName(int requiredParameterIndex) {
+        return clientPropertiesValidationMethodNames.get(requiredParameterIndex);
+    }
+
+    public void setClientPropertiesValidationMethodNames(Map<Integer, String> names) {
+        clientPropertiesValidationMethodNames = Map.copyOf(names);
+    }
+
+    public void setConstantStringNames(Map<String, String> names) {
+        constantStringNames = Map.copyOf(names);
+    }
+
+    public String getConstantStringName(ProxyMethodParameter parameter) {
+        return isHoistableStringConstant(parameter) ? constantStringNames.get(parameter.getDefaultValue()) : null;
+    }
+
+    public static boolean isHoistableStringConstant(ProxyMethodParameter parameter) {
+        JavaSettings settings = JavaSettings.getInstance();
+        return !parameter.isFromClient()
+            && parameter.isConstant()
+            && parameter.getClientType() == ClassType.STRING
+            && parameter.getWireType() == ClassType.STRING
+            && parameter.getDefaultValue() != null
+            && (!settings.isOptionalConstantAsEnum() || parameter.isRequired());
+    }
 
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
@@ -378,6 +406,10 @@ public class ClientMethod {
 
     public final List<String> getProxyMethodArguments(JavaSettings settings) {
         return getProxyMethod().getParameters().stream().map(parameter -> {
+            String constantName = getConstantStringName(parameter);
+            if (constantName != null) {
+                return constantName;
+            }
             String parameterName = parameter.getParameterReference();
             IType parameterWireType = parameter.getWireType();
             if (parameter.isNullable()) {

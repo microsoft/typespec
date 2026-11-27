@@ -31,6 +31,7 @@ import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Text
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.ChangelogTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTestTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolSampleBlankTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBaseTemplate;
@@ -84,6 +85,16 @@ public class JavaPackage {
 
     public List<JavaFile> getJavaFiles() {
         return javaFiles;
+    }
+
+    public void addClientUtils() {
+        Set<ClientUtilitiesTemplate.UtilityMethod> used = ClientUtilitiesTemplate.getUsedMethods(javaFiles);
+        if (!used.isEmpty()) {
+            JavaFile file = javaFileFactory.createSourceFile(
+                settings.getPackage(settings.getImplementationSubpackage()), ClientUtilitiesTemplate.getClassName());
+            ClientUtilitiesTemplate.write(used, file);
+            addJavaFile(file);
+        }
     }
 
     public List<XmlFile> getXmlFiles() {

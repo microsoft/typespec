@@ -4,6 +4,10 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.createPagedResponse;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.BodyParam;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
@@ -20,13 +24,11 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
-import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
-import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
 import java.nio.ByteBuffer;
 import reactor.core.publisher.Flux;
@@ -212,6 +214,12 @@ public final class ItemsClientImpl implements ItemsClient {
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept, Context context);
     }
 
+    private static final String APPLICATION_JSON = "application/json";
+
+    private IllegalArgumentException validateClientProperties() {
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+    }
+
     /**
      * The list operation.
      * 
@@ -221,24 +229,22 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> listSinglePageAsync() {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> {
-            Mono<Response<Flux<ByteBuffer>>> mono = service.list(this.client.getEndpoint(), accept, context).cache();
-            return Mono.zip(mono,
-                this.client
-                    .<ListResult, ListResult>getLroResult(mono, this.client.getHttpPipeline(), ListResult.class,
-                        ListResult.class, this.client.getContext())
-                    .last()
-                    .flatMap(this.client::getLroFinalResultOrError));
-        })
-            .<PagedResponse<Result>>map(
-                res -> new PagedResponseBase<>(res.getT1().getRequest(), res.getT1().getStatusCode(),
-                    res.getT1().getHeaders(), res.getT2().items(), res.getT2().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(context -> {
+            Mono<Response<Flux<ByteBuffer>>> mono
+                = service.list(this.client.getEndpoint(), APPLICATION_JSON, context).cache();
+            return Mono
+                .zip(mono,
+                    this.client
+                        .<ListResult, ListResult>getLroResult(mono, this.client.getHttpPipeline(), ListResult.class,
+                            ListResult.class, this.client.getContext())
+                        .last()
+                        .flatMap(this.client::getLroFinalResultOrError))
+                .map(res -> createPagedResponse(res.getT1(), res.getT2().items(), res.getT2().nextLink(), null));
+        }, () -> this.client.getContext());
     }
 
     /**
@@ -256,18 +262,6 @@ public final class ItemsClientImpl implements ItemsClient {
     /**
      * The list operation.
      * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<Result> listSinglePage() {
-        return listSinglePage(Context.NONE);
-    }
-
-    /**
-     * The list operation.
-     * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -276,17 +270,14 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> listSinglePage(Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<BinaryData> res = service.listSync(this.client.getEndpoint(), accept, context);
+        Response<BinaryData> res = service.listSync(this.client.getEndpoint(), APPLICATION_JSON, context);
         ListResult lroPageableResult = this.client.getLroFinalResultOrError(
             this.client.<ListResult, ListResult>getLroResult(res, ListResult.class, ListResult.class, context));
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            lroPageableResult.items(), lroPageableResult.nextLink(), null);
+        return createPagedResponse(res, lroPageableResult.items(), lroPageableResult.nextLink(), null);
     }
 
     @Override
@@ -310,15 +301,14 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> summarySinglePageAsync() {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.summary(this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.summary(this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -336,18 +326,6 @@ public final class ItemsClientImpl implements ItemsClient {
     /**
      * The summary operation.
      * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<Result> summarySinglePage() {
-        return summarySinglePage(Context.NONE);
-    }
-
-    /**
-     * The summary operation.
-     * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -356,15 +334,12 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> summarySinglePage(Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResultSummary> res = service.summarySync(this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResultSummary> res = service.summarySync(this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     @Override
@@ -389,15 +364,14 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list2SinglePageAsync() {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.list2(this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.list2(this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -415,18 +389,6 @@ public final class ItemsClientImpl implements ItemsClient {
     /**
      * The list2 operation.
      * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<Result> list2SinglePage() {
-        return list2SinglePage(Context.NONE);
-    }
-
-    /**
-     * The list2 operation.
-     * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -435,15 +397,12 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list2SinglePage(Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResult2> res = service.list2Sync(this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResult2> res = service.list2Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     @Override
@@ -467,13 +426,12 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<ListResultSummary2Inner>> summary2WithResponseAsync() {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.summary2(this.client.getEndpoint(), accept, context))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(context -> service.summary2(this.client.getEndpoint(), APPLICATION_JSON, context),
+            () -> this.client.getContext());
     }
 
     /**
@@ -491,13 +449,11 @@ public final class ItemsClientImpl implements ItemsClient {
     @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ListResultSummary2Inner> summary2WithResponse(Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        return service.summary2Sync(this.client.getEndpoint(), accept, context);
+        return service.summary2Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
     }
 
     @Override
@@ -515,15 +471,14 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list3SinglePageAsync() {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.list3(this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.list3(this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -541,18 +496,6 @@ public final class ItemsClientImpl implements ItemsClient {
     /**
      * The list3 operation.
      * 
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<Result> list3SinglePage() {
-        return list3SinglePage(Context.NONE);
-    }
-
-    /**
-     * The list3 operation.
-     * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -561,15 +504,12 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list3SinglePage(Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResult3> res = service.list3Sync(this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResult3> res = service.list3Sync(this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     @Override
@@ -595,18 +535,17 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> postWithResponseAsync(ListResult3 body) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        if (body == null) {
-            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
+        if ((validationError = validateNotNull(body, "body")) != null) {
+            return Mono.error(validationError);
         } else {
             body.validate();
         }
-        final String contentType = "application/json";
-        return FluxUtil.withContext(context -> service.post(this.client.getEndpoint(), contentType, body, context))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(context -> service.post(this.client.getEndpoint(), APPLICATION_JSON, body, context),
+            () -> this.client.getContext());
     }
 
     /**
@@ -626,18 +565,16 @@ public final class ItemsClientImpl implements ItemsClient {
     @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postWithResponse(ListResult3 body, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+        if ((validationError = validateNotNull(body, "body")) != null) {
+            throw LOGGER.atError().log(validationError);
         } else {
             body.validate();
         }
-        final String contentType = "application/json";
-        return service.postSync(this.client.getEndpoint(), contentType, body, context);
+        return service.postSync(this.client.getEndpoint(), APPLICATION_JSON, body, context);
     }
 
     @Override
@@ -657,18 +594,17 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> listNextSinglePageAsync(String nextLink) {
-        if (nextLink == null) {
-            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            return Mono.error(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.listNext(nextLink, this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.listNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -697,19 +633,15 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> listNextSinglePage(String nextLink, Context context) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResult> res = service.listNextSync(nextLink, this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResult> res = service.listNextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     /**
@@ -723,19 +655,17 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> summaryNextSinglePageAsync(String nextLink) {
-        if (nextLink == null) {
-            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            return Mono.error(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.summaryNext(nextLink, this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.summaryNext(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -764,19 +694,16 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> summaryNextSinglePage(String nextLink, Context context) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResultSummary> res = service.summaryNextSync(nextLink, this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResultSummary> res
+            = service.summaryNextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     /**
@@ -790,18 +717,17 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list2NextSinglePageAsync(String nextLink) {
-        if (nextLink == null) {
-            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            return Mono.error(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.list2Next(nextLink, this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.list2Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -830,19 +756,16 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list2NextSinglePage(String nextLink, Context context) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResult2> res = service.list2NextSync(nextLink, this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResult2> res
+            = service.list2NextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     /**
@@ -856,18 +779,17 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<Result>> list3NextSinglePageAsync(String nextLink) {
-        if (nextLink == null) {
-            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            return Mono.error(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.list3Next(nextLink, this.client.getEndpoint(), accept, context))
-            .<PagedResponse<Result>>map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(),
-                res.getHeaders(), res.getValue().items(), res.getValue().nextLink(), null))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.list3Next(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context)
+                .map(res -> createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null)),
+            () -> this.client.getContext());
     }
 
     /**
@@ -896,19 +818,16 @@ public final class ItemsClientImpl implements ItemsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private PagedResponse<Result> list3NextSinglePage(String nextLink, Context context) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateNotNull(nextLink, "nextLink")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        Response<ListResult3> res = service.list3NextSync(nextLink, this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().items(),
-            res.getValue().nextLink(), null);
+        Response<ListResult3> res
+            = service.list3NextSync(nextLink, this.client.getEndpoint(), APPLICATION_JSON, context);
+        return createPagedResponse(res, res.getValue().items(), res.getValue().nextLink(), null);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(ItemsClientImpl.class);

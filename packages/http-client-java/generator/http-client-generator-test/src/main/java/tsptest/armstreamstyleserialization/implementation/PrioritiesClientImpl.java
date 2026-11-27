@@ -4,6 +4,9 @@
 
 package tsptest.armstreamstyleserialization.implementation;
 
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.validateNotNull;
+import static tsptest.armstreamstyleserialization.implementation.ResourceManagerUtils.withContext;
+
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Headers;
@@ -19,7 +22,6 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
-import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.PrioritiesClient;
@@ -72,6 +74,12 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
             @QueryParam("priority") Priority priority, @HeaderParam("Accept") String accept, Context context);
     }
 
+    private static final String APPLICATION_JSON = "application/json";
+
+    private IllegalArgumentException validateClientProperties() {
+        return validateNotNull(this.client.getEndpoint(), "this.client.getEndpoint()");
+    }
+
     /**
      * The setPriority operation.
      * 
@@ -83,17 +91,16 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Priority>> setPriorityWithResponseAsync(Priority priority) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            return Mono.error(validationError);
         }
-        if (priority == null) {
-            return Mono.error(new IllegalArgumentException("Parameter priority is required and cannot be null."));
+        if ((validationError = validateNotNull(priority, "priority")) != null) {
+            return Mono.error(validationError);
         }
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.setPriority(this.client.getEndpoint(), priority, accept, context))
-            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+        return withContext(
+            context -> service.setPriority(this.client.getEndpoint(), priority, APPLICATION_JSON, context),
+            () -> this.client.getContext());
     }
 
     /**
@@ -113,17 +120,14 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     @Override
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Priority> setPriorityWithResponse(Priority priority, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        IllegalArgumentException validationError;
+        if ((validationError = validateClientProperties()) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        if (priority == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter priority is required and cannot be null."));
+        if ((validationError = validateNotNull(priority, "priority")) != null) {
+            throw LOGGER.atError().log(validationError);
         }
-        final String accept = "application/json";
-        return service.setPrioritySync(this.client.getEndpoint(), priority, accept, context);
+        return service.setPrioritySync(this.client.getEndpoint(), priority, APPLICATION_JSON, context);
     }
 
     @Override

@@ -7,7 +7,6 @@ package tsptest.armversioned.models;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
-import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 
@@ -62,22 +61,14 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * @throws IOException If an error occurs while reading the TopLevelArmResourceProperties.
      */
     public static TopLevelArmResourceProperties fromJson(JsonReader jsonReader) throws IOException {
-        return jsonReader.readObject(reader -> {
-            TopLevelArmResourceProperties deserializedTopLevelArmResourceProperties
-                = new TopLevelArmResourceProperties();
-            while (reader.nextToken() != JsonToken.END_OBJECT) {
-                String fieldName = reader.getFieldName();
-                reader.nextToken();
-
+        return tsptest.armversioned.implementation.ResourceManagerUtils.readObject(jsonReader,
+            TopLevelArmResourceProperties::new, (deserializedTopLevelArmResourceProperties, fieldName, reader) -> {
                 if ("provisioningState".equals(fieldName)) {
                     deserializedTopLevelArmResourceProperties.provisioningState
                         = ResourceProvisioningState.fromString(reader.getString());
                 } else {
                     reader.skipChildren();
                 }
-            }
-
-            return deserializedTopLevelArmResourceProperties;
-        });
+            });
     }
 }

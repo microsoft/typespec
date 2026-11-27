@@ -24,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -145,11 +147,18 @@ public class XmlContinuationTokenTests {
         Files.writeString(provider,
             "package test;\n" + TemplateUtil.loadTextFromResource("XmlSerializerProviders.java"));
         Files.writeString(serializer, "package test;\n" + TemplateUtil.loadTextFromResource("XmlSerializer.java"));
+        JavaFile utilities = new JavaFile("ClientUtils.java");
+        utilities.declarePackage(
+            JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()));
+        ClientUtilitiesTemplate.write(Set.of(ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE), utilities);
+        Path utilityFile = compilationDirectory.resolve("ClientUtils.java");
+        Files.writeString(utilityFile, utilities.getContents().toString());
         ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
         int result = ToolProvider.getSystemJavaCompiler()
             .run(null, diagnostics, diagnostics, "--release", "11", "-classpath",
                 System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
-                compilationDirectory.toString(), file.toString(), provider.toString(), serializer.toString());
+                compilationDirectory.toString(), file.toString(), provider.toString(), serializer.toString(),
+                utilityFile.toString());
         Assertions.assertEquals(0, result, () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + source);
         String marker = namespaced ? "p:NextMarker" : "NextMarker";
         String token = attribute ? " " + marker + "=\"page2\"" : "<" + marker + ">page2</" + marker + ">";

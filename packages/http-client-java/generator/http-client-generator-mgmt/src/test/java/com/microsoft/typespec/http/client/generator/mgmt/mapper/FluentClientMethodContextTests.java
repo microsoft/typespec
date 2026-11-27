@@ -33,6 +33,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentCollectionMethod;
@@ -51,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -115,8 +117,15 @@ public class FluentClientMethodContextTests {
                 : List.of(ClientMethodType.SimpleSyncRestResponse, ClientMethodType.LongRunningBeginSync,
                     ClientMethodType.LongRunningSync);
             for (ClientMethodType type : types) {
-                ClientMethod noContext = find(methods, type, false, false);
                 ClientMethod withContext = find(methods, type, true, false);
+                if (type == ClientMethodType.PagingSyncSinglePage) {
+                    Assertions.assertTrue(methods.stream()
+                        .noneMatch(
+                            method -> method.getType() == type && !method.hasMethodParameterOfType(ClassType.CONTEXT)));
+                    Assertions.assertTrue(write(withContext).contains("service."));
+                    continue;
+                }
+                ClientMethod noContext = find(methods, type, false, false);
                 Assertions.assertTrue(noContext.hasWithContextOverload(), noContext.getDeclaration());
                 Assertions.assertFalse(withContext.hasWithContextOverload(), withContext.getDeclaration());
                 Assertions.assertEquals(noContext.getReturnValue().getType(), withContext.getReturnValue().getType());
@@ -128,7 +137,8 @@ public class FluentClientMethodContextTests {
                 String contextSource = write(withContext);
                 Assertions.assertFalse(contextSource.contains("Context.NONE"), contextSource);
                 if (type == ClientMethodType.SimpleSyncRestResponse || type == ClientMethodType.PagingSyncSinglePage) {
-                    Assertions.assertTrue(contextSource.contains("if (id == null)"), contextSource);
+                    Assertions.assertTrue(contextSource.contains("ResourceManagerUtils.validateNotNull(id, \"id\")"),
+                        contextSource);
                     Assertions.assertTrue(contextSource.contains("service."), contextSource);
                 } else if (type == ClientMethodType.PagingSync) {
                     Assertions.assertTrue(contextSource.contains("new PagedIterable"), contextSource);
@@ -137,6 +147,18 @@ public class FluentClientMethodContextTests {
                 }
             }
         }
+    }
+
+    @Test
+    public void removesPrivateLroBeginOverloadsSupersededByContextForwarding() {
+        useSettings(true);
+        List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation(false, true));
+        Assertions.assertTrue(methods.stream()
+            .noneMatch(method -> method.getType() == ClientMethodType.LongRunningBeginSync
+                && method.getMethodVisibility() == JavaVisibility.Private
+                && !method.hasMethodParameterOfType(ClassType.CONTEXT)));
+        Assertions.assertNotNull(find(methods, ClientMethodType.LongRunningBeginSync, true, false));
+        Assertions.assertNotNull(find(methods, ClientMethodType.LongRunningBeginSync, false, true));
     }
 
     @Test
@@ -253,6 +275,16 @@ public class FluentClientMethodContextTests {
         next.getExtensions().getXmsPageable().setNextLinkName("nextLink");
         next.getExtensions().getXmsPageable().setNextLinkProperty(List.of(nextLink));
         List<ClientMethod> methods = map(new FluentClientMethodMapper(), operation);
+        methods.stream()
+            .filter(method -> method.getType() == ClientMethodType.PagingAsyncSinglePage)
+            .forEach(method -> {
+                String pagingSource = write(method);
+                Assertions.assertTrue(
+                    pagingSource.contains(
+                        ".map(res -> " + ClientUtilitiesTemplate.getFullClassName() + ".createPagedResponse("),
+                    pagingSource);
+                Assertions.assertFalse(pagingSource.contains(".<PagedResponse<"), pagingSource);
+            });
         ClientMethod withContext = find(methods, ClientMethodType.PagingSync, true, false);
         String source = write(withContext);
         Assertions.assertTrue(source.contains("listSinglePage(id, filter, added, context)"), source);
@@ -286,9 +318,16 @@ public class FluentClientMethodContextTests {
                 ClientMethodType asyncType
                     = pageable ? ClientMethodType.PagingAsyncSinglePage : ClientMethodType.SimpleAsyncRestResponse;
                 String asyncSource = write(find(methods, asyncType, false, false));
-                Assertions.assertTrue(asyncSource.contains("FluxUtil.withContext"), asyncSource);
-                Assertions.assertTrue(asyncSource.contains(".contextWrite("), asyncSource);
+                Assertions.assertTrue(asyncSource.contains("ResourceManagerUtils.withContext"), asyncSource);
+                Assertions.assertTrue(asyncSource.contains("() -> this.client.getContext()"), asyncSource);
                 Assertions.assertFalse(asyncSource.contains("Context.NONE"), asyncSource);
+                if (pageable) {
+                    Assertions.assertTrue(
+                        asyncSource.contains(
+                            ".map(res -> " + ClientUtilitiesTemplate.getFullClassName() + ".createPagedResponse("),
+                        asyncSource);
+                    Assertions.assertFalse(asyncSource.contains(".<PagedResponse<"), asyncSource);
+                }
                 if (!syncStack) {
                     ClientMethodType syncType
                         = pageable ? ClientMethodType.PagingSync : ClientMethodType.LongRunningBeginSync;
@@ -297,6 +336,46 @@ public class FluentClientMethodContextTests {
                     Assertions.assertTrue(syncSource.contains("Async("), syncSource);
                 }
             }
+        }
+    }
+
+    @Test
+    public void implementationStaticallyImportsUsedContextPagingAndValidationHelpers() {
+        useSettings(true);
+        Templates.setFactory(new FluentTemplateFactory());
+        for (String conflictingMethod : List.of("", "withContext", "createPagedResponse", "validateNotNull")) {
+            List<ClientMethod> methods = new ArrayList<>(map(new FluentClientMethodMapper(), operation(true, false)));
+            if (!conflictingMethod.isEmpty()) {
+                methods.add(methods.get(0).newBuilder().name(conflictingMethod).build());
+            }
+            JavaSettings settings = JavaSettings.getInstance();
+            String packageName = settings.getPackage(settings.getImplementationSubpackage());
+            MethodGroupClient client = new MethodGroupClient.Builder().packageName(packageName)
+                .className("WidgetsClientImpl")
+                .interfaceName("WidgetsClient")
+                .implementedInterfaces(List.of())
+                .supportedInterfaces(List.of())
+                .serviceClientName("MockClient")
+                .clientMethods(methods)
+                .build();
+            JavaFile file = new JavaFile("WidgetsClientImpl.java");
+            file.declarePackage(packageName);
+            file.line();
+            Templates.getMethodGroupTemplate().write(client, file);
+
+            String source = file.getContents().toString();
+            String utility = ClientUtilitiesTemplate.getFullClassName();
+            for (String method : List.of("withContext", "createPagedResponse", "validateNotNull")) {
+                boolean collision = method.equals(conflictingMethod);
+                Assertions.assertEquals(!collision, source.contains("import static " + utility + "." + method + ";"),
+                    source);
+                Assertions.assertEquals(collision, source.contains("ResourceManagerUtils." + method + "("), source);
+            }
+            Assertions.assertEquals(
+                Set.of(ClientUtilitiesTemplate.UtilityMethod.WITH_CONTEXT,
+                    ClientUtilitiesTemplate.UtilityMethod.CREATE_PAGED_RESPONSE,
+                    ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL),
+                ClientUtilitiesTemplate.getUsedMethods(List.of(file)));
         }
     }
 

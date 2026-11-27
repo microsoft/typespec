@@ -287,6 +287,9 @@ public class FluentGen extends Javagen {
             }
         }
 
+        if (!javaSettings.isFluentLite()) {
+            javaPackage.addResourceManagerUtils();
+        }
         return javaPackage;
     }
 

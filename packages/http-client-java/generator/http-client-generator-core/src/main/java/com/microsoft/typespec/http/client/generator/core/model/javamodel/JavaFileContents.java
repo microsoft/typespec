@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -15,6 +16,9 @@ public class JavaFileContents {
     private static final String SINGLE_INDENT = "    ";
 
     private final List<String> contents;
+    private final Set<String> staticImports = new TreeSet<>();
+    private final Set<String> reservedStaticMethodNames = new HashSet<>();
+    private int staticImportPosition = -1;
 
     private String currentLine;
     private String linePrefix;
@@ -33,7 +37,17 @@ public class JavaFileContents {
 
     @Override
     public String toString() {
-        return String.join("\n", contents) + currentLine;
+        if (staticImportPosition < 0 || staticImports.isEmpty()) {
+            return String.join("\n", contents) + currentLine;
+        }
+        // Method bodies determine which static imports are needed after the import section is written.
+        List<String> lines = new ArrayList<>(contents);
+        List<String> imports = staticImports.stream()
+            .map(name -> "import static " + name + ";")
+            .collect(Collectors.toCollection(ArrayList::new));
+        imports.add("");
+        lines.addAll(staticImportPosition, imports);
+        return String.join("\n", lines) + currentLine;
     }
 
     public boolean contains(String str) {
@@ -157,6 +171,9 @@ public class JavaFileContents {
     }
 
     public void declareImport(List<String> imports) {
+        if (staticImportPosition < 0) {
+            staticImportPosition = contents.size();
+        }
         if (imports != null && !imports.isEmpty()) {
             Set<String> importSet = new TreeSet<>(new JavaImportComparer());
             importSet.addAll(imports);
@@ -167,6 +184,18 @@ public class JavaFileContents {
             }
             line();
         }
+    }
+
+    public void reserveStaticMethodNames(Set<String> names) {
+        reservedStaticMethodNames.addAll(names);
+    }
+
+    public String staticMethodReference(String owner, String methodName) {
+        if (staticImportPosition >= 0 && !reservedStaticMethodNames.contains(methodName)) {
+            staticImports.add(owner + "." + methodName);
+            return methodName;
+        }
+        return owner + "." + methodName;
     }
 
     public void lineComment(String text) {

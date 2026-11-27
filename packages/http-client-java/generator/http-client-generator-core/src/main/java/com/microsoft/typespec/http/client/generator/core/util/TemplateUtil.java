@@ -15,9 +15,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
+import com.microsoft.typespec.http.client.generator.core.template.ClientUtilitiesTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.utils.CoreUtils;
@@ -27,9 +29,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -137,6 +143,11 @@ public class TemplateUtil {
     public static void writeClientMethodsAndHelpers(JavaClass classBlock, List<ClientMethod> clientMethods,
         boolean implementsGeneratedInterface) {
         JavaSettings settings = JavaSettings.getInstance();
+        // A client method shadows a static import of the same name, even with a different signature.
+        classBlock
+            .reserveStaticMethodNames(clientMethods.stream().map(ClientMethod::getName).collect(Collectors.toSet()));
+        writeStringConstants(classBlock, clientMethods);
+        writeClientPropertyValidator(classBlock, clientMethods);
 
         // collect types of TypeReference<T>
         Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
@@ -178,6 +189,144 @@ public class TemplateUtil {
                 writeXmlPagingHelperMethods(classBlock);
             }
         }
+    }
+
+    private static void writeStringConstants(JavaClass classBlock, List<ClientMethod> methods) {
+        Map<String, String> constants = new LinkedHashMap<>();
+        Set<String> names = new LinkedHashSet<>(List.of("LOGGER", "XML_SERIALIZER"));
+        methods.forEach(method -> method.getParameters().forEach(parameter -> names.add(parameter.getName())));
+        methods.stream()
+            .map(ClientMethod::getMethodPollingDetails)
+            .filter(java.util.Objects::nonNull)
+            .forEach(details -> {
+                for (IType type : Arrays.asList(details.getPollResultType(), details.getFinalResultType())) {
+                    if (type instanceof GenericType) {
+                        names.add(
+                            CodeNamer.getEnumMemberName("TypeReference" + ((GenericType) type).toJavaPropertyString()));
+                    }
+                }
+            });
+        for (ClientMethod method : methods) {
+            if (method.getProxyMethod() == null) {
+                continue;
+            }
+            for (ProxyMethodParameter parameter : method.getProxyMethod().getParameters()) {
+                if (!ClientMethod.isHoistableStringConstant(parameter)
+                    || constants.containsKey(parameter.getDefaultValue())) {
+                    continue;
+                }
+                String baseName = parameter.getDefaultValue().isEmpty()
+                    ? "EMPTY_STRING"
+                    : CodeNamer.getEnumMemberName(parameter.getDefaultValue());
+                if (baseName == null || baseName.isBlank()) {
+                    baseName = "STRING_CONSTANT";
+                }
+                String name = baseName;
+                for (int suffix = 2; !names.add(name); suffix++) {
+                    name = baseName + "_" + suffix;
+                }
+                constants.put(parameter.getDefaultValue(), name);
+                classBlock.privateStaticFinalVariable(
+                    "String " + name + " = " + ClassType.STRING.defaultValueExpression(parameter.getDefaultValue()));
+            }
+        }
+        methods.forEach(method -> method.setConstantStringNames(constants));
+    }
+
+    private static void writeClientPropertyValidator(JavaClass classBlock, List<ClientMethod> methods) {
+        JavaSettings settings = JavaSettings.getInstance();
+        methods.forEach(method -> method.setClientPropertiesValidationMethodNames(Map.of()));
+        if (!settings.isAzureV1() || !settings.isClientSideValidations()) {
+            return;
+        }
+        // Keep client checks contiguous to preserve their order relative to method and nested validations.
+        Map<List<Map.Entry<String, String>>, String> validators = new LinkedHashMap<>();
+        Set<String> methodNames = methods.stream().map(ClientMethod::getName).collect(Collectors.toSet());
+        for (ClientMethod method : methods) {
+            if (method.getProxyMethod() == null) {
+                continue;
+            }
+            Set<String> properties = method.getProxyMethod()
+                .getParameters()
+                .stream()
+                .filter(ProxyMethodParameter::isFromClient)
+                .map(ProxyMethodParameter::getParameterReference)
+                .collect(Collectors.toSet());
+            if (properties.isEmpty()) {
+                continue;
+            }
+            List<String> required = method.getRequiredNullableParameterExpressions();
+            if (required.stream().noneMatch(properties::contains)) {
+                continue;
+            }
+            Map<String, String> validations = getValidationExpressions(method);
+            Map<Integer, String> methodValidators = new LinkedHashMap<>();
+            for (int index = 0; index < required.size(); index++) {
+                if (!properties.contains(required.get(index))) {
+                    validations.remove(required.get(index));
+                    continue;
+                }
+                int startIndex = index;
+                List<Map.Entry<String, String>> group = new ArrayList<>();
+                do {
+                    String expression = required.get(index++);
+                    group.add(new AbstractMap.SimpleImmutableEntry<>(expression, validations.remove(expression)));
+                } while (index < required.size() && properties.contains(required.get(index)));
+                index--;
+                String name = validators.get(group);
+                if (name == null) {
+                    String baseName = "validateClientProperties";
+                    name = baseName;
+                    for (int suffix = 2; !methodNames.add(name); suffix++) {
+                        name = baseName + suffix;
+                    }
+                    validators.put(group, name);
+                }
+                methodValidators.put(startIndex, name);
+            }
+            method.setClientPropertiesValidationMethodNames(methodValidators);
+        }
+        validators
+            .forEach((group, name) -> classBlock.privateMethod("IllegalArgumentException " + name + "()", block -> {
+                for (int index = 0; index < group.size(); index++) {
+                    Map.Entry<String, String> property = group.get(index);
+                    String expression = property.getKey();
+                    String check = ClientUtilitiesTemplate.reference(block,
+                        ClientUtilitiesTemplate.UtilityMethod.VALIDATE_NOT_NULL) + "(" + expression + ", "
+                        + ClassType.STRING.defaultValueExpression(expression) + ")";
+                    boolean last = index == group.size() - 1;
+                    if (last && property.getValue() == null) {
+                        block.methodReturn(check);
+                    } else {
+                        block.line("%serror = %s;", index == 0 ? "IllegalArgumentException " : "", check);
+                        block.ifBlock("error != null", invalid -> invalid.methodReturn("error"));
+                        if (property.getValue() != null) {
+                            block.line(property.getValue() + ";");
+                        }
+                        if (last) {
+                            block.methodReturn("null");
+                        }
+                    }
+                }
+            }));
+    }
+
+    /**
+     * Gets validations applicable to a method after omitting optional overload parameters.
+     *
+     * @param clientMethod The method to validate.
+     * @return An ordered, mutable map of validation expressions.
+     */
+    public static Map<String, String> getValidationExpressions(ClientMethod clientMethod) {
+        Map<String, String> validations = new LinkedHashMap<>(clientMethod.getValidateExpressions());
+        if (clientMethod.getOverloadedClientMethod() != null) {
+            clientMethod.getOverloadedClientMethod()
+                .getMethodParameters()
+                .stream()
+                .filter(parameter -> !parameter.isRequired() && !clientMethod.getMethodParameters().contains(parameter))
+                .forEach(parameter -> validations.remove(parameter.getName()));
+        }
+        return validations;
     }
 
     /**

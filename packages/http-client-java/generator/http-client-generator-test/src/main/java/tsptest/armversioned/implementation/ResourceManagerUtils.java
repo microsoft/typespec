@@ -8,15 +8,24 @@ import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
 import com.azure.core.http.rest.PagedResponseBase;
+import com.azure.core.http.rest.Response;
+import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonToken;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-final class ResourceManagerUtils {
+public final class ResourceManagerUtils {
     private ResourceManagerUtils() {
     }
 
@@ -67,6 +76,40 @@ final class ResourceManagerUtils {
                 String.format("The resource ID '%s' is not valid. Missing path segment '%s'.", id, segmentName)));
         }
         return value;
+    }
+
+    public static <T> T readObject(JsonReader jsonReader, Supplier<T> factory, ReadObjectCallback<T> callback)
+        throws IOException {
+        return jsonReader.readObject(reader -> {
+            T model = factory.get();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+                callback.read(model, fieldName, reader);
+            }
+            return model;
+        });
+    }
+
+    public interface ReadObjectCallback<T> {
+        void read(T model, String fieldName, JsonReader reader) throws IOException;
+    }
+
+    public static <T> Mono<T> withContext(Function<Context, Mono<T>> serviceCall, Supplier<Context> clientContext) {
+        return FluxUtil.withContext(serviceCall)
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(clientContext.get()).readOnly()));
+    }
+
+    public static IllegalArgumentException validateNotNull(Object value, String name) {
+        return value == null
+            ? new IllegalArgumentException("Parameter " + name + " is required and cannot be null.")
+            : null;
+    }
+
+    public static <T, H> PagedResponse<T> createPagedResponse(Response<?> response, List<T> values, String nextLink,
+        H deserializedHeaders) {
+        return new PagedResponseBase<>(response.getRequest(), response.getStatusCode(), response.getHeaders(), values,
+            nextLink, deserializedHeaders);
     }
 
     static <T, S> PagedIterable<S> mapPage(PagedIterable<T> pageIterable, Function<T, S> mapper) {
