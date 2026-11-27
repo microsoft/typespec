@@ -537,6 +537,14 @@ const TypeInstantiationMap = class
   extends MultiKeyMap<readonly Type[], Type>
   implements TypeInstantiationMap {};
 
+const cachedProjectReferences = new WeakMap<TypeMapper, TypeReferenceNode>();
+
+export function getCachedTemplateProjectReference(
+  mapper: TypeMapper,
+): TypeReferenceNode | undefined {
+  return cachedProjectReferences.get(mapper);
+}
+
 export function createChecker(program: Program, resolver: NameResolver): Checker {
   const waitingForResolution = new Map<Type, [Type, () => void][]>();
   const stats: CheckerStats = {
@@ -1999,6 +2007,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const mapper = createTypeMapper(params, args, source, parentMapper);
     const cached = symbolLinks.instantiations?.get(mapper.args);
     if (cached) {
+      // Keep the mapper's instantiation trace intact, but remember a project reference when
+      // a library instantiated the template first.
+      if (
+        source.node.kind === SyntaxKind.TypeReference &&
+        "templateMapper" in cached &&
+        cached.templateMapper &&
+        !cachedProjectReferences.has(cached.templateMapper) &&
+        getLocationContext(program, source.node).type === "project" &&
+        getLocationContext(program, cached.templateMapper.source.node).type !== "project"
+      ) {
+        cachedProjectReferences.set(cached.templateMapper, source.node);
+      }
       return cached;
     }
     if (instantiateTemplates) {

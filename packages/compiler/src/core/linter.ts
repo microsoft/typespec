@@ -4,8 +4,9 @@ import type { YamlScript } from "../yaml/types.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { formatShortNameCandidates } from "./diagnostic-code.js";
 import type { DiagnosticCollector } from "./diagnostics.js";
-import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector, getSourceLocation } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
+import { findUsageSite } from "./helpers/usage-site.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
@@ -16,6 +17,7 @@ import { perf } from "./perf.js";
 import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
+import { findDirectiveSuppressingOnNode } from "./suppression-tracking.js";
 import type {
   Diagnostic,
   DiagnosticMessages,
@@ -27,6 +29,7 @@ import type {
   LinterRuleDiagnosticReport,
   LinterRuleEnableValue,
   LinterRuleSet,
+  Node,
   RuleRef,
   SemanticNodeListener,
 } from "./types.js";
@@ -353,11 +356,14 @@ export function createLinter(
 
     const timer = perf.startTimer();
     const exitCallbacks = [];
+    const flushCallbacks = [];
     const EXIT_EVENT_NAME = "exit";
     const allPromises: Promise<any>[] = [];
     for (const { rule, options } of filteredRules.values()) {
       const createTiming = perf.startTimer();
-      const listener = rule.create(createLinterRuleContext(program, rule, options, diagnostics));
+      const context = createLinterRuleContext(program, rule, options, diagnostics);
+      flushCallbacks.push(context.flushDiagnostics);
+      const listener = rule.create(context);
       stats.runtime.rules[rule.id] = createTiming.end();
       for (const [name, cb] of Object.entries(listener)) {
         const timedCb = (...args: any[]) => {
@@ -392,6 +398,9 @@ export function createLinter(
     }
     if (allPromises.length > 0) {
       await Promise.all(allPromises);
+    }
+    for (const flush of flushCallbacks) {
+      flush();
     }
 
     stats.runtime.total = timer.end();
@@ -530,11 +539,20 @@ export function createLinterRuleContext<
   rule: LinterRule<N, DM, Options>,
   options: Options,
   diagnosticCollector: DiagnosticCollector,
-): LinterRuleContext<DM, Options> {
+): LinterRuleContext<DM, Options> & { flushDiagnostics(): void } {
+  const reportedAtUsage = new Map<DiagnosticTarget | typeof NoTarget, Set<string>>();
+  const libraryTargets = new Set<DiagnosticTarget>();
+  const pending: {
+    diagnostic: Diagnostic;
+    useSite: DiagnosticTarget;
+    composition: boolean;
+  }[] = [];
+
   return {
     program,
     options,
     reportDiagnostic,
+    flushDiagnostics,
   };
 
   function createDiagnostic<M extends keyof DM>(
@@ -565,14 +583,77 @@ export function createLinterRuleContext<
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
     const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget) {
-      const context = getLocationContext(program, diagnostic.target);
-      // Only report diagnostic in the user project.
-      // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
-      if (context.type === "project") {
-        diagnosticCollector.add(diagnostic);
+    if (diagnostic.target === NoTarget) {
+      return;
+    }
+    if (getLocationContext(program, diagnostic.target).type === "project") {
+      diagnosticCollector.add(diagnostic);
+      return;
+    }
+    libraryTargets.add(diagnostic.target);
+    if (isSuppressedInLibrary(diagnostic.target)) {
+      return;
+    }
+    const usage = diag.useSite ? undefined : findUsageSite(program, diagnostic.target);
+    const useSite = diag.useSite ?? usage?.node;
+    if (useSite && getLocationContext(program, useSite).type === "project") {
+      pending.push({ diagnostic, useSite, composition: usage?.kind === "composition" });
+    }
+  }
+
+  function flushDiagnostics(): void {
+    for (const { diagnostic, useSite, composition } of pending) {
+      // Reusing a declaration doesn't make its existing library violation the consumer's fault.
+      // Compare semantic ancestors, not source nodes: distinct template instances share syntax.
+      if (composition && hasViolatingOrigin(diagnostic.target)) {
+        continue;
+      }
+      const location = getSourceLocation(useSite);
+      const key = JSON.stringify([
+        location.file.path,
+        location.pos,
+        location.end,
+        diagnostic.message,
+      ]);
+      let reported = reportedAtUsage.get(diagnostic.target);
+      if (!reported) {
+        reportedAtUsage.set(diagnostic.target, (reported = new Set()));
+      }
+      if (!reported.has(key)) {
+        reported.add(key);
+        diagnosticCollector.add({ ...diagnostic, target: useSite });
       }
     }
+    pending.length = 0;
+  }
+
+  function hasViolatingOrigin(target: DiagnosticTarget | typeof NoTarget): boolean {
+    if (target === NoTarget || !("kind" in target) || target.kind !== "ModelProperty") {
+      return false;
+    }
+    const seen = new Set<DiagnosticTarget>();
+    for (
+      let source = target.sourceProperty;
+      source && !seen.has(source);
+      source = source.sourceProperty
+    ) {
+      if (libraryTargets.has(source)) return true;
+      seen.add(source);
+    }
+    return false;
+  }
+
+  function isSuppressedInLibrary(target: DiagnosticTarget): boolean {
+    const node =
+      "kind" in target && typeof target.kind === "number"
+        ? (target as Node)
+        : "node" in target
+          ? (target.node as Node | undefined)
+          : undefined;
+    return (
+      node !== undefined &&
+      findDirectiveSuppressingOnNode(rule.id, node, program.diagnosticCodeResolver) !== undefined
+    );
   }
 }
 

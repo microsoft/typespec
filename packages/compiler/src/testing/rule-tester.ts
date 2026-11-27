@@ -239,6 +239,7 @@ export function createLinterRuleTester(
     if (listener.exit) {
       await listener.exit(runner.program);
     }
+    context.flushDiagnostics();
     // No diagnostics should have been reported to the program. If it happened the rule is calling reportDiagnostic directly and should NOT be doing that.
     expectDiagnosticEmpty(runner.program.diagnostics);
     return [res, diagnostics.diagnostics];
