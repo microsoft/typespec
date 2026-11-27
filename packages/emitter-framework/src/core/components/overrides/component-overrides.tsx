@@ -1,15 +1,5 @@
 import { type Children, type ComponentDefinition } from "@alloy-js/core";
-import type { ObjectPropertyProps, VarDeclarationProps } from "@alloy-js/typescript";
-import type {
-  Enum,
-  EnumMember,
-  Model,
-  ModelProperty,
-  Scalar,
-  Type,
-  Union,
-  UnionVariant,
-} from "@typespec/compiler";
+import type { ModelProperty, Type } from "@typespec/compiler";
 import { useTsp } from "../../context/index.js";
 import { type Experimental_ComponentOverridesConfig, getOverrideComponent } from "./config.js";
 import { type ComponentOverridesContext, OverridesContext, useOverrides } from "./context.js";
@@ -26,21 +16,6 @@ export interface Experimental_OverrideEmitPropsBase<TCustomType extends Type> {
    */
   default: Children;
 }
-
-/**
- * Maps TypeSpec shapes to the corresponding TypeScript declaration props.
- * This mapping is TypeScript-specific; use an explicit declaration props type for other languages.
- */
-export type Experimental_CustomTypeToProps<TCustomType extends Type> =
-  TCustomType extends ModelProperty
-    ? ObjectPropertyProps
-    : TCustomType extends EnumMember
-      ? {}
-      : TCustomType extends UnionVariant
-        ? {}
-        : TCustomType extends Model | Scalar | Union | Enum
-          ? VarDeclarationProps
-          : VarDeclarationProps | ObjectPropertyProps;
 
 /** Inputs to a reference override, including the property that uses the referenced type when available. */
 export interface Experimental_OverrideReferenceProps<
