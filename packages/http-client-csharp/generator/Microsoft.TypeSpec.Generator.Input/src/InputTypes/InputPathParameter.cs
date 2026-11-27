@@ -30,6 +30,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public bool Explode { get; internal set; }
+        /// <summary>
+        /// The URI template expansion style, or <see cref="InputPathParameterStyle.Unknown"/> when unavailable.
+        /// </summary>
+        public InputPathParameterStyle Style { get; internal set; }
         public bool AllowReserved { get; internal set; }
         public bool SkipUrlEncoding { get; internal set; }
         public string? ServerUrlTemplate { get; internal set; }
