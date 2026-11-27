@@ -1453,6 +1453,28 @@ def _failsafe_deserialize_xml(
       return None
 
 
+def _has_same_elements(original: typing.Any, deserialized: typing.Any) -> bool:
+    """Check whether deserializing a container left every element untouched.
+
+    Elements are compared by identity so no custom ``__eq__`` (e.g. on models) is invoked.
+
+    :param any original: The container stored in the model's data.
+    :param any deserialized: The container produced by deserializing ``original``.
+    :return: True if ``deserialized`` holds exactly the same element objects as ``original``.
+    :rtype: bool
+    """
+    if type(original) is not type(deserialized) or len(original) != len(deserialized):
+        return False
+    if isinstance(original, list):
+        return all(a is b for a, b in zip(original, deserialized))
+    if isinstance(original, dict):
+        return all(k in original and original[k] is v for k, v in deserialized.items())
+    if isinstance(original, set):
+        original_ids = {id(x) for x in original}
+        return all(id(x) in original_ids for x in deserialized)
+    return False
+
+
 # pylint: disable=too-many-instance-attributes
 class _RestField:
     def __init__(
@@ -1530,6 +1552,11 @@ class _RestField:
         # For mutable types, store the deserialized value back in _data
         # so mutations directly affect _data
         if isinstance(deserialized, (dict, list, set)):
+            # If deserialization did not transform anything (e.g. list[str], dict[str, str]),
+            # keep the original container so references previously returned by __getitem__
+            # stay attached to the model.
+            if deserialized is not item and _has_same_elements(item, deserialized):
+                deserialized = item
             obj._data[self._rest_name] = deserialized
             object.__setattr__(obj, cache_attr, True)  # Mark as deserialized
             return deserialized
