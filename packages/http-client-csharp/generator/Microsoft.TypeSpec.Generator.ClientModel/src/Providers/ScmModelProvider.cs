@@ -208,7 +208,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return properties;
         }
 
-        internal static FieldProvider? GetNullablePropertyPresence(PropertyProvider property)
+        /// <summary>
+        /// Gets the generated field that records whether an optional nullable property was supplied.
+        /// </summary>
+        /// <param name="property">The model property to inspect.</param>
+        /// <returns>The presence field, or <see langword="null"/> when no presence field is generated.</returns>
+        /// <remarks>The returned field's declaring type and accessibility determine where it can be referenced.</remarks>
+        public static FieldProvider? GetNullablePropertyPresence(PropertyProvider property)
         {
             return property.EnclosingType is ScmModelProvider model &&
                 model._nullablePropertyPresence.TryGetValue(property, out var presence) ? presence : null;

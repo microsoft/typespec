@@ -115,6 +115,75 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool HasCallableParameterlessConstructor => HasCallableFrameworkConstructor([]);
 
+        /// <summary>
+        /// Orders arguments for a directly mapped CLR base only when exactly one accessible
+        /// constructor can accept the argument count and every slot matches one generated
+        /// property parameter by name and CLR type. Ambiguous or transformed shapes retain the
+        /// existing order rather than guessing at an overload or a conversion.
+        /// </summary>
+        /// <remarks>
+        /// Direct mappings use the convention that constructor parameter names identify their
+        /// corresponding CLR properties. This does not inspect or guarantee the behavior of a
+        /// handwritten constructor body.
+        /// </remarks>
+        internal IReadOnlyList<ParameterProvider> OrderDirectConstructorParameters(IReadOnlyList<ParameterProvider> parameters)
+        {
+            if (_lastContractType is not null || _skipDerivedConstructorParameters || !SystemType.IsFrameworkType ||
+                parameters.Count < 2 || !HasSupportedConstructorParameters(parameters) ||
+                parameters.Any(parameter => parameter.Property is null || parameter.Property.IsDiscriminator))
+            {
+                return parameters;
+            }
+
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var candidates = SystemType.FrameworkType.GetConstructors(flags)
+                .Where(IsPublicOrProtected)
+                .Where(constructor => CanAcceptArgumentCount(constructor.GetParameters(), parameters.Count))
+                .ToArray();
+            if (candidates.Length != 1 || candidates[0].GetCustomAttributesData().Any(attribute =>
+                attribute.AttributeType.FullName == typeof(System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute).FullName))
+            {
+                return parameters;
+            }
+
+            var slots = candidates[0].GetParameters();
+            if (slots.Length < parameters.Count || slots.Skip(parameters.Count).Any(slot => !slot.HasDefaultValue) ||
+                slots.Any(slot => slot.ParameterType.IsByRef || slot.IsOut || slot.IsIn ||
+                    slot.GetCustomAttribute<ParamArrayAttribute>() is not null))
+            {
+                return parameters;
+            }
+
+            var typeArguments = GetFrameworkTypeArguments();
+            var ordered = new List<ParameterProvider>(parameters.Count);
+            foreach (var slot in slots.Take(parameters.Count))
+            {
+                var slotType = CreateReflectedType(slot.ParameterType, typeArguments);
+                var matches = parameters.Where(parameter =>
+                    string.Equals(parameter.Name, slot.Name, StringComparison.OrdinalIgnoreCase) &&
+                    ModelBaseMemberCompatibility.AreClrTypesEqual(parameter.Type, slotType)).ToArray();
+                if (matches.Length != 1 || ordered.Contains(matches[0]) ||
+                    matches[0].Property is not { } property ||
+                    FindEffectiveFrameworkProperty(property.Name) is not { GetMethod: { } getter } frameworkProperty ||
+                    getter.IsStatic || !IsPublicOrProtected(getter) || frameworkProperty.GetIndexParameters().Length != 0 ||
+                    !ModelBaseMemberCompatibility.AreClrTypesEqual(property.Type,
+                        CreateReflectedType(frameworkProperty.PropertyType, typeArguments)))
+                {
+                    return parameters;
+                }
+                ordered.Add(matches[0]);
+            }
+            return ordered;
+        }
+
+        private static bool CanAcceptArgumentCount(ParameterInfo[] parameters, int count)
+        {
+            var hasParamsArray = parameters.Length > 0 && parameters[^1].GetCustomAttribute<ParamArrayAttribute>() is not null;
+            var required = parameters.Count(parameter => !parameter.IsOptional && !parameter.HasDefaultValue &&
+                parameter.GetCustomAttribute<ParamArrayAttribute>() is null);
+            return count >= required && (count <= parameters.Length || hasParamsArray);
+        }
+
         private bool HasCallableFrameworkConstructor(
             IReadOnlyList<ParameterProvider> generatedParameters,
             IReadOnlyList<ParameterProvider>? historicalParameters = null)
@@ -213,6 +282,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <inheritdoc/>
         protected override CSharpType? BuildBaseType() => _systemType?.BaseType;
+
+        /// <inheritdoc/>
+        protected override CSharpType[] GetTypeArguments() => [.. _systemType.Arguments];
 
         /// <inheritdoc/>
         private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;

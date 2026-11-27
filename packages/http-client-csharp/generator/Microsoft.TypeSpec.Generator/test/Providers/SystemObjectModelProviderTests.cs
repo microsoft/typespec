@@ -8,6 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -121,6 +124,144 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void Setup()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void DirectMappedBaseConstructorBindsClrSlotOrderAcrossAssemblies()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalOrderedPairBase),
+            [
+                InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["name"] = "alpha", ["count"] = 42 });
+            Assert.That(((ExternalOrderedPairBase)instance).Name, Is.EqualTo("alpha"));
+            Assert.That(((ExternalOrderedPairBase)instance).Count, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void DirectMappedBaseConstructorDoesNotSwapSameTypedSlots()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalStringPairBase),
+            [
+                InputFactory.Property("second", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("first", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["first"] = "alpha", ["second"] = "beta" });
+            Assert.That(((ExternalStringPairBase)instance).First, Is.EqualTo("alpha"));
+            Assert.That(((ExternalStringPairBase)instance).Second, Is.EqualTo("beta"));
+        }
+
+        [Test]
+        public void DirectMappedBaseSerializationConstructorBindsClrSlotOrderAcrossAssemblies()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalOrderedPairBase),
+            [
+                InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["name"] = "alpha", ["count"] = 42 }, fullConstructor: true);
+            Assert.That(((ExternalOrderedPairBase)instance).Name, Is.EqualTo("alpha"));
+            Assert.That(((ExternalOrderedPairBase)instance).Count, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void DirectMappedOutputOnlyBaseSerializationConstructorBindsClrSlotOrder()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalOrderedPairBase),
+            [
+                InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["name"] = "alpha", ["count"] = 42 }, fullConstructor: true, outputOnly: true);
+            Assert.That(((ExternalOrderedPairBase)instance).Name, Is.EqualTo("alpha"));
+            Assert.That(((ExternalOrderedPairBase)instance).Count, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void DirectMappedBaseSerializationConstructorDoesNotSwapSameTypedSlots()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalStringPairBase),
+            [
+                InputFactory.Property("second", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("first", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["first"] = "alpha", ["second"] = "beta" }, fullConstructor: true);
+            Assert.That(((ExternalStringPairBase)instance).First, Is.EqualTo("alpha"));
+            Assert.That(((ExternalStringPairBase)instance).Second, Is.EqualTo("beta"));
+        }
+
+        [Test]
+        public void DirectMappedBaseConstructorPreservesExistingOverloadBinding()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalOverloadedPairBase),
+            [
+                InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["name"] = "alpha", ["count"] = 42 });
+            Assert.That(((ExternalOverloadedPairBase)instance).SelectedOverload, Is.EqualTo("count-first"));
+        }
+
+        [Test]
+        public void DirectMappedBaseConstructorDoesNotInferMissingClrProperties()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalUnrelatedMembersBase),
+            [
+                InputFactory.Property("second", InputPrimitiveType.String, isRequired: true),
+                InputFactory.Property("first", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["first"] = "alpha", ["second"] = "beta" });
+            Assert.That(((ExternalUnrelatedMembersBase)instance).ActualFirst, Is.EqualTo("beta"));
+            Assert.That(((ExternalUnrelatedMembersBase)instance).ActualSecond, Is.EqualTo("alpha"));
+        }
+
+        [Test]
+        public void DirectMappedBaseConstructorBindsTrailingOptionalSlots()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalTrailingOptionalBase),
+            [
+                InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["name"] = "alpha", ["count"] = 42 });
+            var value = (ExternalTrailingOptionalBase)instance;
+            Assert.That(value.Name, Is.EqualTo("alpha"));
+            Assert.That(value.Count, Is.EqualTo(42));
+            Assert.That(value.Enabled, Is.False);
+        }
+
+        [Test]
+        public void DirectMappedBaseConstructorPreservesOptionalOverloadBinding()
+        {
+            var instance = ConstructExternalDerived(typeof(ExternalOptionalOverloadBase),
+            [
+                InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ], new Dictionary<string, object> { ["name"] = "alpha", ["count"] = 42 });
+            Assert.That(((ExternalOptionalOverloadBase)instance).SelectedOverload, Is.EqualTo("count-first"));
+        }
+
+        private static object ConstructExternalDerived(Type frameworkType, InputModelProperty[] properties, IDictionary<string, object> arguments, bool fullConstructor = false, bool outputOnly = false)
+        {
+            var usage = outputOnly ? InputModelTypeUsage.Output | InputModelTypeUsage.Json : InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json;
+            var baseInput = InputFactory.Model("Resource", properties: properties, usage: usage);
+            var derivedInput = InputFactory.Model("DerivedResource",
+                properties: fullConstructor ? [InputFactory.Property("note", InputPrimitiveType.String)] : [], baseModel: baseInput, usage: usage);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(frameworkType), baseInput);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInput, derivedInput],
+                createModelCore: model => model == baseInput ? systemBase : new ModelProvider(model));
+            var derived = generator.Object.TypeFactory.CreateModel(derivedInput)!;
+            var generated = CSharpSyntaxTree.ParseText(new TypeProviderWriter(derived).Write().Content);
+            var constructor = generated.GetRoot().DescendantNodes().OfType<ConstructorDeclarationSyntax>()
+                .Where(c => c.Modifiers.Any(fullConstructor ? SyntaxKind.InternalKeyword : SyntaxKind.PublicKeyword))
+                .OrderByDescending(c => c.ParameterList.Parameters.Count).First()
+                .WithBody(SyntaxFactory.Block());
+            var source = $"namespace Sample.Models {{ public class DerivedResource : global::{frameworkType.FullName} {{ {constructor.ToFullString()} }} }}";
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(System.IO.Path.PathSeparator)
+                .Append(frameworkType.Assembly.Location).Append(typeof(BinaryData).Assembly.Location)
+                .Distinct().Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create("ExternalBaseConsumer" + Guid.NewGuid().ToString("N"),
+                [CSharpSyntaxTree.ParseText(source)], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var stream = new System.IO.MemoryStream();
+            var result = compilation.Emit(stream);
+            Assert.That(result.Success, Is.True, string.Join(Environment.NewLine, result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
+            var type = Assembly.Load(stream.ToArray()).GetType("Sample.Models.DerivedResource")!;
+            var ctor = type.GetConstructors(BindingFlags.Instance | (fullConstructor ? BindingFlags.NonPublic : BindingFlags.Public)).Single();
+            return ctor.Invoke(ctor.GetParameters().Select(parameter => arguments.TryGetValue(parameter.Name!, out var value) ? value : null).ToArray());
         }
 
         // -------------------------------------------------------------------
@@ -1337,5 +1478,73 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Exception", thingProperty!.Type.Name);
             Assert.AreEqual("System", thingProperty.Type.Namespace);
         }
+    }
+
+    /// <summary> External base with different-typed constructor slots. </summary>
+    public class ExternalOrderedPairBase
+    {
+        /// <summary> Creates the base. </summary>
+        public ExternalOrderedPairBase(string name, int count) { Name = name; Count = count; }
+        /// <summary> The name. </summary>
+        public string Name { get; }
+        /// <summary> The count. </summary>
+        public int Count { get; }
+    }
+
+    /// <summary> External base with multiple viable constructor orders. </summary>
+    public class ExternalOverloadedPairBase
+    {
+        /// <summary> Creates the name-first overload. </summary>
+        public ExternalOverloadedPairBase(string name, int count) { SelectedOverload = "name-first"; }
+        /// <summary> Creates the count-first overload. </summary>
+        public ExternalOverloadedPairBase(int count, string name) { SelectedOverload = "count-first"; }
+        /// <summary> The selected overload. </summary>
+        public string SelectedOverload { get; }
+    }
+
+    /// <summary> External base with an overlapping optional overload. </summary>
+    public class ExternalOptionalOverloadBase
+    {
+        /// <summary> Creates the name-first overload. </summary>
+        public ExternalOptionalOverloadBase(string name, int count) { SelectedOverload = "name-first"; }
+        /// <summary> Creates the count-first optional overload. </summary>
+        public ExternalOptionalOverloadBase(int count, string name, bool enabled = false) { SelectedOverload = "count-first"; }
+        /// <summary> The selected overload. </summary>
+        public string SelectedOverload { get; }
+    }
+
+    /// <summary> External base with a trailing optional constructor slot. </summary>
+    public class ExternalTrailingOptionalBase
+    {
+        /// <summary> Creates the base. </summary>
+        public ExternalTrailingOptionalBase(string name, int count, bool enabled = false) { Name = name; Count = count; Enabled = enabled; }
+        /// <summary> The name. </summary>
+        public string Name { get; }
+        /// <summary> The count. </summary>
+        public int Count { get; }
+        /// <summary> The optional flag. </summary>
+        public bool Enabled { get; }
+    }
+
+    /// <summary> External base whose constructor names do not identify exposed properties. </summary>
+    public class ExternalUnrelatedMembersBase
+    {
+        /// <summary> Creates the base. </summary>
+        public ExternalUnrelatedMembersBase(string first, string second) { ActualFirst = first; ActualSecond = second; }
+        /// <summary> The first stored value. </summary>
+        public string ActualFirst { get; }
+        /// <summary> The second stored value. </summary>
+        public string ActualSecond { get; }
+    }
+
+    /// <summary> External base with same-typed constructor slots. </summary>
+    public class ExternalStringPairBase
+    {
+        /// <summary> Creates the base. </summary>
+        public ExternalStringPairBase(string first, string second) { First = first; Second = second; }
+        /// <summary> The first value. </summary>
+        public string First { get; }
+        /// <summary> The second value. </summary>
+        public string Second { get; }
     }
 }
