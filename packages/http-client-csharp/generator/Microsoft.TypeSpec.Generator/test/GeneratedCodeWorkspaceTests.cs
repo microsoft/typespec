@@ -13,6 +13,7 @@ using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
@@ -78,6 +79,35 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 Environment.SetEnvironmentVariable("NUGET_PACKAGES", _originalNugetPackageDir, EnvironmentVariableTarget.Process);
             }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task SimplifyConditionalConstructor(bool disableRoslynReduce)
+        {
+            MockHelpers.LoadMockGenerator(
+                outputPath: _projectDir,
+                configuration: $"{{\"disable-roslyn-reduce\": {disableRoslynReduce.ToString().ToLowerInvariant()}}}");
+            var source = File.ReadAllText(Path.Combine(
+                Helpers.GetAssetFileOrDirectoryPath(false), "Client.cs"));
+            var workspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
+            await workspace.AddGeneratedFile(new CodeFile(source, "Client.cs"));
+
+            var originalCompilation = await workspace.GetCompilationAsync();
+            Assert.That(originalCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
+
+            var files = new List<(string Name, string Text)>();
+            await foreach (var file in workspace.GetGeneratedFilesAsync())
+            {
+                files.Add(file);
+            }
+
+            Assert.That(files, Has.Count.EqualTo(1));
+            Assert.That(files[0].Text, Is.EqualTo(disableRoslynReduce ? source : Helpers.GetExpectedFromFile()));
+
+            var generatedCompilation = originalCompilation.RemoveAllSyntaxTrees().AddSyntaxTrees(
+                CSharpSyntaxTree.ParseText(files[0].Text, (CSharpParseOptions)originalCompilation.SyntaxTrees.First().Options));
+            Assert.That(generatedCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty);
         }
 
         // This test validates that the baseline contract loads successfully from a assembly.
