@@ -14,7 +14,7 @@ namespace Parameters.Basic._ImplicitBody
     {
         protected ImplicitBody() => throw null;
 
-        internal ImplicitBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ImplicitBody(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

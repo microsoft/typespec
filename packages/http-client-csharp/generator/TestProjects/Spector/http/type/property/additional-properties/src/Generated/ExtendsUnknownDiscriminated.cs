@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected ExtendsUnknownDiscriminated() => throw null;
 
-        internal ExtendsUnknownDiscriminated(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtendsUnknownDiscriminated(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

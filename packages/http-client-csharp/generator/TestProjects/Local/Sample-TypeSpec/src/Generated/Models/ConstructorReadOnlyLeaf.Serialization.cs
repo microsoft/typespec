@@ -66,6 +66,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(constructorReadOnlyLeaf, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options to use for serialization. </param>
+        internal new BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ConstructorReadOnlyLeaf>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)

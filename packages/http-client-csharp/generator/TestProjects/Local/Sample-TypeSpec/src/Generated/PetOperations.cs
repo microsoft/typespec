@@ -17,6 +17,7 @@ namespace SampleTypeSpec
     public partial class PetOperations
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
 
         /// <summary> Initializes a new instance of PetOperations for mocking. </summary>
         protected PetOperations()
@@ -25,11 +26,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of PetOperations. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal PetOperations(ClientPipeline pipeline, Uri endpoint)
+        internal PetOperations(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -86,8 +89,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = UpdatePetAsPet(pet, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = UpdatePetAsPet(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Pet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Update a pet as a pet. </summary>
@@ -99,8 +104,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = await UpdatePetAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await UpdatePetAsPetAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Pet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -154,8 +161,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = UpdateDogAsPet(pet, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = UpdateDogAsPet(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Pet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Update a dog as a pet. </summary>
@@ -167,8 +176,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(pet, nameof(pet));
 
-            ClientResult result = await UpdateDogAsPetAsync(pet, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Pet)result, result.GetRawResponse());
+            using BinaryContent content = pet.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await UpdateDogAsPetAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<Pet>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
     }
 }

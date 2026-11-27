@@ -14,7 +14,7 @@ namespace _Type.Union.Discriminated.Extends._CustomDiscriminator
     {
         protected CustomDiscriminatorOperations() => throw null;
 
-        internal CustomDiscriminatorOperations(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal CustomDiscriminatorOperations(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

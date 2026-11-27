@@ -66,6 +66,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(customUnionPet, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options to use for serialization. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="CustomUnionPet"/> from. </param>
         public static explicit operator CustomUnionPet(ClientResult result)
         {

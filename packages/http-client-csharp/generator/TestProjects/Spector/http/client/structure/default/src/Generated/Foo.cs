@@ -14,7 +14,7 @@ namespace Client.Structure.Service
     {
         protected Foo() => throw null;
 
-        internal Foo(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Foo(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

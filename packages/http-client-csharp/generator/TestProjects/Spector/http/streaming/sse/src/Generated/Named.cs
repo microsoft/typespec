@@ -15,7 +15,7 @@ namespace Streaming.Sse._Named
     {
         protected Named() => throw null;
 
-        internal Named(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Named(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

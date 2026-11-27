@@ -17,6 +17,7 @@ namespace SampleTypeSpec
     public partial class ConstructorRequirements
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
 
         /// <summary> Initializes a new instance of ConstructorRequirements for mocking. </summary>
         protected ConstructorRequirements()
@@ -25,11 +26,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of ConstructorRequirements. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal ConstructorRequirements(ClientPipeline pipeline, Uri endpoint)
+        internal ConstructorRequirements(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -86,7 +89,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return Send(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return Send(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> Send. </summary>
@@ -98,7 +102,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -152,7 +157,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendReadOnly(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendReadOnly(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendReadOnly. </summary>
@@ -164,7 +170,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendReadOnlyAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendReadOnlyAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -218,7 +225,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendReadOnlyLeaf(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendReadOnlyLeaf(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendReadOnlyLeaf. </summary>
@@ -230,7 +238,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendReadOnlyLeafAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendReadOnlyLeafAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -284,7 +293,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendXml(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendXml(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendXml. </summary>
@@ -296,7 +306,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendXmlAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendXmlAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -350,7 +361,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendInheritedLeaf(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendInheritedLeaf(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendInheritedLeaf. </summary>
@@ -362,7 +374,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendInheritedLeafAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendInheritedLeafAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -416,7 +429,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendRenamed(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendRenamed(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendRenamed. </summary>
@@ -428,7 +442,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendRenamedAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendRenamedAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -482,7 +497,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendRenamedLeaf(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendRenamedLeaf(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendRenamedLeaf. </summary>
@@ -494,7 +510,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendRenamedLeafAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendRenamedLeafAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -548,7 +565,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendWritableLeaf(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendWritableLeaf(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendWritableLeaf. </summary>
@@ -560,7 +578,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendWritableLeafAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendWritableLeafAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -614,7 +633,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendReturnedName(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendReturnedName(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendReturnedName. </summary>
@@ -626,7 +646,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendReturnedNameAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendReturnedNameAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -680,7 +701,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendRequiredRenamed(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendRequiredRenamed(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendRequiredRenamed. </summary>
@@ -692,7 +714,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendRequiredRenamedAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendRequiredRenamedAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -746,7 +769,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendReadOnlyCollections(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendReadOnlyCollections(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendReadOnlyCollections. </summary>
@@ -758,7 +782,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendReadOnlyCollectionsAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendReadOnlyCollectionsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -812,7 +837,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return SendRequiredCollections(body, cancellationToken.ToRequestOptions());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return SendRequiredCollections(content, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> SendRequiredCollections. </summary>
@@ -824,7 +850,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            return await SendRequiredCollectionsAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await SendRequiredCollectionsAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -878,8 +905,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = SendRenamedLiteral(body, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RenamedLiteralConstructorOverride)result, result.GetRawResponse());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = SendRenamedLiteral(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<RenamedLiteralConstructorOverride>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> SendRenamedLiteral. </summary>
@@ -891,8 +920,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await SendRenamedLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RenamedLiteralConstructorOverride)result, result.GetRawResponse());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await SendRenamedLiteralAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<RenamedLiteralConstructorOverride>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -946,8 +977,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = SendClientNameCollision(body, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((ConstructorClientNameCollisionLeaf)result, result.GetRawResponse());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = SendClientNameCollision(content, cancellationToken.ToRequestOptions());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<ConstructorClientNameCollisionLeaf>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> SendClientNameCollision. </summary>
@@ -959,8 +992,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await SendClientNameCollisionAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((ConstructorClientNameCollisionLeaf)result, result.GetRawResponse());
+            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            ClientResult result = await SendClientNameCollisionAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<ConstructorClientNameCollisionLeaf>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
     }
 }

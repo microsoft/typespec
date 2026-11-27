@@ -34,7 +34,8 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = this.GetData(param1, body, param3, cancellationToken.ToRequestOptions());
+            using global::System.ClientModel.BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            global::System.ClientModel.ClientResult result = this.GetData(param1, content, param3, cancellationToken.ToRequestOptions());
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(result.GetRawResponse().Content);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
@@ -44,7 +45,8 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, body, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using global::System.ClientModel.BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(result.GetRawResponse().Content);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());

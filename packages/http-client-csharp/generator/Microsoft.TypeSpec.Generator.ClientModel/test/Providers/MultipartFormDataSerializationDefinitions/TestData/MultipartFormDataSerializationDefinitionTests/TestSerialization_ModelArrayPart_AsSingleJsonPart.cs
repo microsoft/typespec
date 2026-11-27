@@ -17,11 +17,11 @@ namespace Sample.Models
         {
         }
 
-        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent()
+        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             global::System.ClientModel.MultiPartFormContent content = new global::System.ClientModel.MultiPartFormContent();
 
-            global::System.BinaryData addressesData = global::System.ClientModel.Primitives.ModelReaderWriter.Write(((global::System.Collections.Generic.IList<global::Sample.Models.Address>)Addresses), global::Sample.ModelSerializationExtensions.WireOptions, global::Sample.SampleContext.Default).WithMediaType("application/json");
+            global::System.BinaryData addressesData = global::System.ClientModel.Primitives.ModelReaderWriter.Write(((global::System.Collections.Generic.IList<global::Sample.Models.Address>)Addresses), options, global::Sample.SampleContext.Default).WithMediaType("application/json");
             content.Add("addresses", addressesData);
 
             return content;

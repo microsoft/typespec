@@ -71,6 +71,13 @@ namespace SampleTypeSpec
             return BinaryContent.Create(directUnionPetContainer, ModelSerializationExtensions.WireOptions);
         }
 
+        /// <summary> Converts the model to BinaryContent using the specified options. </summary>
+        /// <param name="options"> The options to use for serialization. </param>
+        internal BinaryContent ToBinaryContent(ModelReaderWriterOptions options)
+        {
+            return BinaryContent.Create(this, options);
+        }
+
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DirectUnionPetContainer"/> from. </param>
         public static explicit operator DirectUnionPetContainer(ClientResult result)
         {
@@ -147,7 +154,7 @@ namespace SampleTypeSpec
             {
                 if (prop.NameEquals("pet"u8))
                 {
-                    pet = DirectUnionPet.DeserializeDirectUnionPet(prop.Value, options);
+                    pet = options == ModelSerializationExtensions.WireOptions ? DirectUnionPet.DeserializeDirectUnionPet(prop.Value, options) : ModelReaderWriter.Read<DirectUnionPet>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default);
                     continue;
                 }
                 if (options.Format != "W")

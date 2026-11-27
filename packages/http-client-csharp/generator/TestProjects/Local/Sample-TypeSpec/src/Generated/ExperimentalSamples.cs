@@ -19,6 +19,7 @@ namespace SampleTypeSpec
     public partial class ExperimentalSamples
     {
         private readonly Uri _endpoint;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
 
         /// <summary> Initializes a new instance of ExperimentalSamples for mocking. </summary>
         protected ExperimentalSamples()
@@ -27,11 +28,13 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of ExperimentalSamples. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
-        internal ExperimentalSamples(ClientPipeline pipeline, Uri endpoint)
+        internal ExperimentalSamples(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -77,7 +80,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<LifecycleModel> Read(CancellationToken cancellationToken = default)
         {
             ClientResult result = Read(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((LifecycleModel)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<LifecycleModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary> Read. </summary>
@@ -86,7 +90,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<LifecycleModel>> ReadAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await ReadAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((LifecycleModel)result, result.GetRawResponse());
+            BinaryData data = result.GetRawResponse().Content;
+            return ClientResult.FromValue(ModelReaderWriter.Read<LifecycleModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
         }
 
         /// <summary>
@@ -102,7 +107,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetAll(RequestOptions options)
         {
-            return new ExperimentalSamplesGetAllCollectionResult(this, options);
+            return new ExperimentalSamplesGetAllCollectionResult(this, _modelReaderWriterOptions, options);
         }
 
         /// <summary>
@@ -118,7 +123,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetAllAsync(RequestOptions options)
         {
-            return new ExperimentalSamplesGetAllAsyncCollectionResult(this, options);
+            return new ExperimentalSamplesGetAllAsyncCollectionResult(this, _modelReaderWriterOptions, options);
         }
 
         /// <summary> GetAll. </summary>
@@ -127,7 +132,7 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public virtual CollectionResult<PreviewDetails> GetAll(CancellationToken cancellationToken = default)
         {
-            return new ExperimentalSamplesGetAllCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new ExperimentalSamplesGetAllCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
         }
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
@@ -137,7 +142,7 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public virtual AsyncCollectionResult<PreviewDetails> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return new ExperimentalSamplesGetAllAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+            return new ExperimentalSamplesGetAllAsyncCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
         }
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }

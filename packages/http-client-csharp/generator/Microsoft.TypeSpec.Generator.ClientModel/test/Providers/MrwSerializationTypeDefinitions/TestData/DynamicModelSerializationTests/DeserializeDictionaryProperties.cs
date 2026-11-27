@@ -36,7 +36,7 @@ namespace Sample
                     global::System.Collections.Generic.Dictionary<string, global::Sample.Models.Cat> dictionary = new global::System.Collections.Generic.Dictionary<string, global::Sample.Models.Cat>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, global::Sample.Models.Cat.DeserializeCat(prop0.Value, options));
+                        dictionary.Add(prop0.Name, (options == global::Sample.ModelSerializationExtensions.WireOptions) ? global::Sample.Models.Cat.DeserializeCat(prop0.Value, options) : ((global::Sample.Models.Cat)global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Cat>(prop0.Value.GetUtf8Bytes(), options, global::Sample.SampleContext.Default)));
                     }
                     cats = dictionary;
                     continue;

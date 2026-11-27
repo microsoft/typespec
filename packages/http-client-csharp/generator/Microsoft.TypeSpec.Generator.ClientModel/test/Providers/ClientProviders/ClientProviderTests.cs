@@ -753,6 +753,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(MethodSignatureModifiers.Public, pipelineProperty.Modifiers);
         }
 
+        [Test]
+        public void TestClientCachesWireModelReaderWriterOptions()
+        {
+            var clientProvider = new ClientProvider(InputFactory.Client(TestClientName));
+
+            var field = clientProvider.Fields.SingleOrDefault(f => f.Name == "_modelReaderWriterOptions");
+            Assert.IsNotNull(field);
+            Assert.AreEqual(typeof(ModelReaderWriterOptions), field!.Type.FrameworkType);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.ReadOnly, field.Modifiers);
+
+            var implementationConstructor = clientProvider.Constructors.Single(c =>
+                c.Signature.Modifiers == MethodSignatureModifiers.Internal &&
+                c.Signature.Parameters.Any(p => p.Name == "options"));
+            var body = implementationConstructor.BodyStatements!.ToDisplayString();
+            Assert.That(body, Does.Contain("if ((options.ModelProxies.Count == 0))"));
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions = global::Sample.ModelSerializationExtensions.WireOptions;"));
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions = new global::System.ClientModel.Primitives.ModelReaderWriterOptions(\"W\");"));
+            Assert.That(body, Does.Contain("foreach (var proxy in options.ModelProxies)"));
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions.Proxies.Add(proxy);"));
+            Assert.That(body, Does.Not.Contain("options.ModelReaderWriterOptions"));
+            Assert.That(body, Does.Not.Contain("ModelSerializationExtensions.WireOptions.Proxies"));
+        }
+
         [TestCaseSource(nameof(BuildFieldsTestCases))]
         public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
         {
@@ -1082,9 +1105,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // in the no auth case, the ctor no longer has the credentail parameter therefore here we expect 2 parameters.
+            // Auth is not passed to sub-clients; the constructor takes pipeline, MRW options, and endpoint.
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(2, ctorParams?.Count);
+            Assert.AreEqual(3, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1105,9 +1128,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when there is only one approach of auth, we still have 2 parameters in the ctor because we should not have auth parameter in sub-client
+            // Auth is not passed to sub-clients; the constructor takes pipeline, MRW options, and endpoint.
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(2, ctorParams?.Count);
+            Assert.AreEqual(3, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1127,9 +1150,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when we have both auths, we still have 2 parameters in the ctor, because we should not have auth parameters in sub-client
+            // Auth is not passed to sub-clients; the constructor takes pipeline, MRW options, and endpoint.
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(2, ctorParams?.Count);
+            Assert.AreEqual(3, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1457,6 +1480,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor, "SubClient with InitializedBy.Parent should have internal constructor");
+            Assert.IsTrue(internalConstructor!.Signature.Parameters.Any(
+                p => p.Name == "modelReaderWriterOptions" && p.Type.Equals(typeof(ModelReaderWriterOptions))));
+            Assert.That(
+                internalConstructor.BodyStatements!.ToDisplayString(),
+                Does.Contain("_modelReaderWriterOptions = modelReaderWriterOptions;"));
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1943,6 +1971,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
                 // method body should not be empty
                 Assert.AreNotEqual(MethodBodyStatement.Empty, factoryMethod.BodyStatements);
+                Assert.That(factoryMethod.BodyStatements!.ToDisplayString(), Does.Contain("_modelReaderWriterOptions"));
             }
             else
             {
