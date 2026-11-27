@@ -419,7 +419,10 @@ describe("mutator validation", () => {
     const resource = getNonNullableType(related.type);
     ok(resource);
     deepStrictEqual(resource.kind, "Model");
-    const valueResource = $(runner.program).record.getElementType(resource);
+    const recordValue = $(runner.program).record.getElementType(resource);
+    ok(recordValue);
+    expect(checkNullableUnion(runner.program, recordValue)).toBe(true);
+    const valueResource = getNonNullableType(recordValue);
     ok(valueResource);
     deepStrictEqual(valueResource.kind, "Model");
     validateResource(valueResource);
@@ -710,7 +713,10 @@ describe("visibility transforms", () => {
     deepStrictEqual(envelope.kind, "Model");
     const record = checkProperty(envelope, "subject", true, "Model").type;
     deepStrictEqual(record.kind, "Model");
-    const innerEnvelope = record.indexer?.value;
+    const value = record.indexer?.value;
+    ok(value);
+    expect(checkNullableUnion(runner.program, value)).toBe(true);
+    const innerEnvelope = getNonNullableType(value);
     ok(innerEnvelope);
     deepStrictEqual(innerEnvelope.kind, "Model");
     checkProperty(innerEnvelope, "id", true, "Scalar", "string");
@@ -964,7 +970,10 @@ describe("visibility transforms", () => {
     deepStrictEqual(envelope.kind, "Model");
     const record = checkProperty(envelope, "subject", true, "Model").type;
     deepStrictEqual(record.kind, "Model");
-    const innerEnvelope = record.indexer?.value;
+    const value = record.indexer?.value;
+    ok(value);
+    expect(checkNullableUnion(runner.program, value)).toBe(true);
+    const innerEnvelope = getNonNullableType(value);
     ok(innerEnvelope);
     deepStrictEqual(innerEnvelope.kind, "Model");
     checkProperty(innerEnvelope, "id", true, "Scalar", "string");
@@ -1093,5 +1102,153 @@ describe("visibility transforms", () => {
       isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
       expect(innerEnvelope.properties.size).toBe(4);
     }
+  });
+
+  it("allows null record values to delete individual keys in MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Widget {
+        name: string;
+      }
+      model Foo {
+        tags?: Record<string>;
+        values?: Record<string | int32>;
+        nullableValues?: Record<string | null>;
+        widgets?: Record<Widget>;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+
+    // tags: Record<string> -> value is string | null
+    const tagsRecord = getNonNullableType(checkProperty(envelope, "tags", true, "Union").type);
+    ok(tagsRecord);
+    deepStrictEqual(tagsRecord.kind, "Model");
+    const tagsValue = tagsRecord.indexer?.value;
+    ok(tagsValue);
+    expect(checkNullableUnion(runner.program, tagsValue)).toBe(true);
+    const tagsScalar = getNonNullableType(tagsValue);
+    ok(tagsScalar);
+    deepStrictEqual(tagsScalar.kind, "Scalar");
+    expect(tagsScalar.name).toBe("string");
+
+    // values: Record<string | int32> -> value is (string | int32) | null
+    const valuesRecord = getNonNullableType(checkProperty(envelope, "values", true, "Union").type);
+    ok(valuesRecord);
+    deepStrictEqual(valuesRecord.kind, "Model");
+    const valuesVal = valuesRecord.indexer?.value;
+    ok(valuesVal);
+    expect(checkNullableUnion(runner.program, valuesVal)).toBe(true);
+    const nonNullValues = getNonNullableType(valuesVal);
+    ok(nonNullValues);
+    deepStrictEqual(nonNullValues.kind, "Union");
+    expect(nonNullValues.variants.size).toBe(2);
+
+    // nullableValues: Record<string | null> -> value is already nullable (string | null), no extra null
+    const nullableRecord = getNonNullableType(
+      checkProperty(envelope, "nullableValues", true, "Union").type,
+    );
+    ok(nullableRecord);
+    deepStrictEqual(nullableRecord.kind, "Model");
+    const nullableVal = nullableRecord.indexer?.value;
+    ok(nullableVal);
+    expect(checkNullableUnion(runner.program, nullableVal)).toBe(true);
+    const nonNullPart = getNonNullableType(nullableVal);
+    ok(nonNullPart);
+    deepStrictEqual(nonNullPart.kind, "Scalar");
+    expect(nonNullPart.name).toBe("string");
+
+    // widgets: Record<Widget> -> value is WidgetMergePatchUpdateOrCreate | null
+    const widgetsRecord = getNonNullableType(
+      checkProperty(envelope, "widgets", true, "Union").type,
+    );
+    ok(widgetsRecord);
+    deepStrictEqual(widgetsRecord.kind, "Model");
+    const widgetsVal = widgetsRecord.indexer?.value;
+    ok(widgetsVal);
+    expect(checkNullableUnion(runner.program, widgetsVal)).toBe(true);
+    const widgetModel = getNonNullableType(widgetsVal);
+    ok(widgetModel);
+    deepStrictEqual(widgetModel.kind, "Model");
+    expect(widgetModel.name).toBe("WidgetMergePatchUpdateOrCreate");
+  });
+
+  it("allows null record values to delete individual keys in MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Widget {
+        name: string;
+      }
+      model Foo {
+        tags?: Record<string>;
+        values?: Record<string | int32>;
+        nullableValues?: Record<string | null>;
+        widgets?: Record<Widget>;
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+
+    // tags: Record<string> -> value is string | null
+    const tagsRecord = getNonNullableType(checkProperty(envelope, "tags", true, "Union").type);
+    ok(tagsRecord);
+    deepStrictEqual(tagsRecord.kind, "Model");
+    const tagsValue = tagsRecord.indexer?.value;
+    ok(tagsValue);
+    expect(checkNullableUnion(runner.program, tagsValue)).toBe(true);
+    const tagsScalar = getNonNullableType(tagsValue);
+    ok(tagsScalar);
+    deepStrictEqual(tagsScalar.kind, "Scalar");
+    expect(tagsScalar.name).toBe("string");
+
+    // values: Record<string | int32> -> value is (string | int32) | null
+    const valuesRecord = getNonNullableType(checkProperty(envelope, "values", true, "Union").type);
+    ok(valuesRecord);
+    deepStrictEqual(valuesRecord.kind, "Model");
+    const valuesVal = valuesRecord.indexer?.value;
+    ok(valuesVal);
+    expect(checkNullableUnion(runner.program, valuesVal)).toBe(true);
+    const nonNullValues = getNonNullableType(valuesVal);
+    ok(nonNullValues);
+    deepStrictEqual(nonNullValues.kind, "Union");
+    expect(nonNullValues.variants.size).toBe(2);
+
+    // nullableValues: Record<string | null> -> value is already nullable (string | null), no extra null
+    const nullableRecord = getNonNullableType(
+      checkProperty(envelope, "nullableValues", true, "Union").type,
+    );
+    ok(nullableRecord);
+    deepStrictEqual(nullableRecord.kind, "Model");
+    const nullableVal = nullableRecord.indexer?.value;
+    ok(nullableVal);
+    expect(checkNullableUnion(runner.program, nullableVal)).toBe(true);
+    const nonNullPart = getNonNullableType(nullableVal);
+    ok(nonNullPart);
+    deepStrictEqual(nonNullPart.kind, "Scalar");
+    expect(nonNullPart.name).toBe("string");
+
+    // widgets: Record<Widget> -> value is WidgetMergePatchCreateOrUpdate | null
+    const widgetsRecord = getNonNullableType(
+      checkProperty(envelope, "widgets", true, "Union").type,
+    );
+    ok(widgetsRecord);
+    deepStrictEqual(widgetsRecord.kind, "Model");
+    const widgetsVal = widgetsRecord.indexer?.value;
+    ok(widgetsVal);
+    expect(checkNullableUnion(runner.program, widgetsVal)).toBe(true);
+    const widgetModel = getNonNullableType(widgetsVal);
+    ok(widgetModel);
+    deepStrictEqual(widgetModel.kind, "Model");
+    expect(widgetModel.name).toBe("WidgetMergePatchCreateOrUpdate");
   });
 });
