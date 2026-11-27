@@ -133,6 +133,26 @@ export const namingRule = createRule({
 });
 ```
 
+#### Report on library declarations used by the project
+
+Linter diagnostics are only reported when their target is in the user's project. A violation located on a library declaration is dropped, even when the project is what put it in context, such as a library query parameter model spread into a collection operation.
+
+Start a [`typeTarget`](./diagnostics.md#target-the-right-syntax) from the project declaration you are validating to report at the project syntax that brought the library declaration in:
+
+```ts
+operation(op) {
+  for (const name of ["top", "skip"]) {
+    // Reported on `SharedQuery` in `op list(...SharedQuery): void`, even if `SharedQuery` is declared in a library.
+    const target = typeTarget(context.program, op, "parameters").property(name);
+    if (target) {
+      context.reportDiagnostic({ target });
+    }
+  }
+},
+```
+
+Users can suppress the diagnostic where it is reported.
+
 #### Provide a codefix
 
 [See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.

@@ -8,6 +8,7 @@ import type { TextDocument } from "vscode-languageserver-textdocument";
 import {
   getDiagnosticTemplateInstantitationTrace,
   getSourceLocation,
+  getTypeTargetDeclaration,
 } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
@@ -68,6 +69,17 @@ export function convertDiagnosticToLsp(
         last.document,
       ]);
     }
+  }
+  const declaration = getVSLocation(
+    fileService,
+    getTypeTargetDeclaration(diagnostic.target),
+    document,
+  );
+  if (declaration) {
+    relatedInformation.push({
+      location: { uri: declaration.document.uri, range: declaration.range },
+      message: "declared here",
+    });
   }
   const rootDiagnostic: [VSDiagnostic, TextDocument] = [
     createLspDiagnostic({
