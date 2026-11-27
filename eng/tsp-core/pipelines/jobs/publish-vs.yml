@@ -50,8 +50,15 @@ jobs:
           inlineScript: |
             # 499b84ac-1321-427f-aa17-267ca6975798 is ADO resource id.
             $aadToken = az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 -o tsv
-            Install-Module VSSetup -Force
-            $vsixPublisher = Join-Path -Path (Get-VSSetupInstance -All | Select-VSSetupInstance -Latest).installationPath -ChildPath "VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe" -Resolve
+            $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+            if (!(Test-Path $vswhere)) {
+              throw "vswhere.exe was not found at $vswhere."
+            }
+            $vsixPublisher = & $vswhere -all -prerelease -products * -sort -find "VSSDK\**\VsixPublisher.exe" | Select-Object -First 1
+            if (!$vsixPublisher) {
+              throw "VsixPublisher.exe was not found in any Visual Studio installation. Install the Visual Studio SDK on the publishing agent."
+            }
+            echo "Using VsixPublisher: $vsixPublisher"
             $vsixPath = Resolve-Path "$(Pipeline.Workspace)/vs-extension-signed/Microsoft.Typespec.VS.vsix"  
             echo "Path to vsix: $vsixPath"
             $stdout = (& $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $aadToken -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08"  2>&1)
